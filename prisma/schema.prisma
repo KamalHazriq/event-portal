@@ -1,0 +1,84 @@
+// Local development store. See src/data/adapter.ts for why this is swappable.
+//
+// Hard rule 2: no real personal data in the repo. The dev.db file this
+// creates is git-ignored. Real attendees are loaded from a git-ignored CSV.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Attendee {
+  id         String   @id
+  no         Int?
+  staffNo    String   @unique
+  name       String
+  title      String   @default("")
+  department String   @default("")
+  remark     String   @default("")
+
+  /// The secret printed in this person's name tag QR code.
+  checkInToken   String  @unique
+  isSecretariat  Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  checkIns CheckIn[]
+  feedback Feedback[]
+
+  @@index([department])
+  @@index([name])
+}
+
+model CheckIn {
+  id         String   @id
+  attendeeId String
+  /// Matches a day id in config/event.json.
+  dayId      String
+  at         DateTime @default(now())
+  /// qr | manual | admin
+  method     String   @default("qr")
+  /// A desk label such as "desk-1". Never a person's name.
+  byOperator String   @default("")
+
+  attendee Attendee @relation(fields: [attendeeId], references: [id], onDelete: Cascade)
+
+  /// Day level check in: one arrival per person per day.
+  @@unique([attendeeId, dayId])
+  @@index([dayId, at])
+}
+
+model Feedback {
+  id     String @id
+  /// A session id, or "event-final" for the whole event form.
+  formId String
+  /// session | event
+  kind   String @default("session")
+  rating Int?
+  /// The free text answers as a JSON object. SQLite has no JSON column, so
+  /// the adapter encodes and decodes this. Pages never see the raw string.
+  answers String @default("{}")
+
+  /// Null when the form is anonymous or the person chose not to be named.
+  attendeeId  String?
+  displayName String  @default("")
+
+  /// Random id from the browser's localStorage. Enforces one per device.
+  deviceId String
+  at       DateTime @default(now())
+
+  attendee Attendee? @relation(fields: [attendeeId], references: [id], onDelete: SetNull)
+
+  @@unique([formId, deviceId])
+  @@index([formId])
+}
+
+model Setting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}

@@ -1,0 +1,89 @@
+@import 'tailwindcss';
+
+/*
+ * Every colour and font here points at a CSS variable that src/lib/theme.ts
+ * writes from config/event.json. Nothing is a fixed value, so a new event
+ * theme is a config edit and never a code change.
+ *
+ * "inline" keeps the variable reference in the generated CSS instead of
+ * resolving it at build time, which is what lets the theme change at runtime.
+ */
+@theme inline {
+  --color-canvas: var(--c-background);
+  --color-surface: var(--c-surface);
+  --color-muted: var(--c-surface-muted);
+  --color-line: var(--c-border);
+  --color-ink: var(--c-text);
+  --color-ink-soft: var(--c-text-muted);
+  --color-primary: var(--c-primary);
+  --color-on-primary: var(--c-primary-text);
+  --color-accent: var(--c-accent);
+  --color-on-accent: var(--c-accent-text);
+  --color-live: var(--c-live);
+  --color-success: var(--c-success);
+  --color-warning: var(--c-warning);
+
+  --font-sans: var(--font-body);
+  --font-display: var(--font-display);
+}
+
+@layer base {
+  html {
+    /* Stops the layout jumping sideways when a page is long enough to scroll. */
+    scrollbar-gutter: stable;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--c-background);
+    color: var(--c-text);
+    font-family: var(--font-body);
+    /* Mobile first: comfortable reading size on a 375 px phone. */
+    font-size: 1rem;
+    line-height: 1.55;
+    text-wrap: pretty;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+    line-height: 1.2;
+  }
+
+  /* A visible focus ring for keyboard and switch users. */
+  :focus-visible {
+    outline: 3px solid var(--c-accent);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  /* Respect a phone set to reduce motion. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  /* The soft pulse on a "happening now" badge. */
+  @keyframes live-pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.45;
+    }
+  }
+
+  .live-dot {
+    animation: live-pulse 2s ease-in-out infinite;
+  }
+}

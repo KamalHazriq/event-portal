@@ -1,0 +1,11 @@
+# Keep line endings consistent whoever checks the repo out.
+* text=auto eol=lf
+
+# Generated, and noisy in diffs.
+package-lock.json -diff linguist-generated
+
+# Never try to merge these as text.
+*.png binary
+*.jpg binary
+*.svg text eol=lf
+*.db binary

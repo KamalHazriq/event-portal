@@ -1,0 +1,58 @@
+# dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# next.js
+/.next/
+/out/
+next-env.d.ts
+*.tsbuildinfo
+
+# production
+/build
+
+# environment (never commit secrets)
+.env
+.env*.local
+!.env.example
+
+# ---------------------------------------------------------------------------
+# REAL PERSONAL DATA - never commit. See project brief hard rule 2.
+# Only config/attendees.sample.csv (dummy people) belongs in git.
+# ---------------------------------------------------------------------------
+/config/attendees.csv
+/config/attendees.*.csv
+!/config/attendees.sample.csv
+/config/event.local.json
+/private/
+/uploads/
+
+# local database
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+/prisma/*.db*
+
+# exports and uploads produced at runtime
+/exports/
+/public/uploads/
+
+# testing
+/coverage/
+/playwright-report/
+/test-results/
+/blob-report/
+/.playwright/
+
+# editor / OS
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# logs
+*.log
+npm-debug.log*

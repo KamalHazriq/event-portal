@@ -1,0 +1,91 @@
+no,staff_no,name,title,department,remark
+1,D10001,Maria Rahman,Chief Engineer,Regulatory and Economics,Vegetarian meal
+2,D10002,Omar Musa,Deputy General Manager,Legal and Compliance,Vegetarian meal
+3,D10003,Azman Mahmud,Deputy General Manager,Procurement,
+4,D10004,Daniel Mahmud,Senior Specialist,Corporate Affairs,
+5,D10005,Devi Wong,Senior Manager,Corporate Affairs,Wheelchair access
+6,D10006,Noraini Abdullah,Head of Department,Group Strategy,
+7,D10007,Hafiz Ghani,Manager,Group Finance,
+8,D10008,Rina Veerasamy,Head of Unit,Regulatory and Economics,
+9,D10009,Hani Abdullah,Senior Executive,Retail,
+10,D10010,Sabrina Daud,General Manager,Procurement,
+11,D10011,Faizal Yap,Senior Manager,Human Resources,Wheelchair access
+12,D10012,Wan Lai,Deputy General Manager,Legal and Compliance,Vegetarian meal
+13,D10013,Nizam Mahmud,Head of Unit,Group Strategy,
+14,D10014,Ismail Abdullah,Principal Engineer,Generation,
+15,D10015,Imran Nathan,Chief Engineer,Group Finance,
+16,D10016,Ismail Fernandez,Senior Executive,Grid Division,
+17,D10017,Lim Yahya,Principal Engineer,Group Strategy,
+18,D10018,Maria Osman,General Manager,Group Finance,Wheelchair access
+19,D10019,Hani Ghani,Senior Executive,Safety Health and Environment,
+20,D10020,Aisyah Sulaiman,Senior Manager,Procurement,Vegetarian meal
+21,D10021,Thomas Sulaiman,Manager,Group Finance,Wheelchair access
+22,D10022,Ida Wong,Head of Unit,Human Resources,Halal meal
+23,D10023,Khairul Veerasamy,General Manager,Generation,Joining Day 2 only
+24,D10024,Maria Chandran,Head of Department,Generation,Halal meal
+25,D10025,Tan Zainal,Deputy General Manager,Procurement,Halal meal
+26,D10026,Daniel Shariff,Deputy General Manager,Procurement,
+27,D10027,Rosman Yap,General Manager,Regulatory and Economics,
+28,D10028,Suhaimi Ariffin,Head of Unit,Regulatory and Economics,
+29,D10029,Devi Chin,Senior Executive,Procurement,
+30,D10030,Ida Zainal,General Manager,Regulatory and Economics,
+31,D10031,Tan Shariff,Head of Department,Human Resources,
+32,D10032,Lailatul Zainal,Head of Department,Retail,
+33,D10033,Ramesh Ariffin,Chief Engineer,Safety Health and Environment,Wheelchair access
+34,D10034,Suhaimi Jalil,Chief Engineer,Retail,Wheelchair access
+35,D10035,Chong Kamaruddin,Head of Unit,Retail,
+36,D10036,Jaya Zainal,Deputy General Manager,Regulatory and Economics,Halal meal
+37,D10037,Zarina Osman,Deputy General Manager,Legal and Compliance,
+38,D10038,Wan Krishnan,Senior Specialist,Regulatory and Economics,Joining Day 2 only
+39,D10039,Hani Mansor,General Manager,Corporate Affairs,Halal meal
+40,D10040,Imran Lai,Senior Specialist,Digital,Vegetarian meal
+41,D10041,Ida Ahmad,Principal Engineer,Retail,Vegetarian meal
+42,D10042,Rosman Osman,Head of Department,Digital,
+43,D10043,Kamala Wong,Principal Engineer,Group Finance,
+44,D10044,Tan Tai,Senior Executive,Procurement,
+45,D10045,Ramesh Zainal,Senior Manager,Group Strategy,
+46,D10046,Siti Lai,Head of Department,Corporate Affairs,Vegetarian meal
+47,D10047,Lim Abdullah,Principal Engineer,Corporate Affairs,
+48,D10048,Kamala Musa,Deputy General Manager,Retail,Vegetarian meal
+49,D10049,Hafiz Musa,Head of Department,Group Strategy,Halal meal
+50,D10050,Ramesh Mansor,Senior Specialist,Legal and Compliance,Joining Day 2 only
+51,D10051,Ramesh Chandran,Principal Engineer,Safety Health and Environment,
+52,D10052,Rina Fernandez,Head of Unit,Corporate Affairs,Wheelchair access
+53,D10053,Siti Abdullah,Head of Unit,Group Finance,Vegetarian meal
+54,D10054,Gopal Rahman,Principal Engineer,Generation,
+55,D10055,Omar Daud,Deputy General Manager,Legal and Compliance,Vegetarian meal
+56,D10056,Nizam Yap,Head of Unit,Group Strategy,
+57,D10057,Suhaimi Mahmud,Manager,Generation,Joining Day 2 only
+58,D10058,Lim Jalil,Chief Engineer,Group Strategy,
+59,D10059,Daniel Osman,Head of Unit,Regulatory and Economics,Vegetarian meal
+60,D10060,Chong Mansor,Head of Unit,Generation,
+61,D10061,Hani Zainal,General Manager,Retail,Vegetarian meal
+62,D10062,Salleh Chin,Chief Engineer,Retail,Joining Day 2 only
+63,D10063,Devi Ghani,Head of Unit,Group Finance,Halal meal
+64,D10064,Imran Baskaran,Senior Manager,Regulatory and Economics,Joining Day 2 only
+65,D10065,Devi Yahya,Senior Manager,Generation,
+66,D10066,Zarina Hashim,Manager,Group Strategy,
+67,D10067,Nizam Samad,Senior Executive,Safety Health and Environment,
+68,D10068,Vijay Tai,Chief Engineer,Regulatory and Economics,
+69,D10069,Salleh Veerasamy,General Manager,Human Resources,
+70,D10070,Khairul Raju,Head of Unit,Legal and Compliance,Wheelchair access
+71,D10071,Lim Rahman,Manager,Procurement,
+72,D10072,Mei Ling Zainal,Principal Engineer,Digital,
+73,D10073,Rina Ibrahim,Deputy General Manager,Procurement,Wheelchair access
+74,D10074,Daniel Jalil,Head of Department,Human Resources,
+75,D10075,Devi Daud,Head of Department,Safety Health and Environment,Joining Day 2 only
+76,D10076,Gopal Fernandez,Head of Department,Generation,Halal meal
+77,D10077,Lim Wong,Chief Engineer,Safety Health and Environment,
+78,D10078,Mei Ling Nathan,Deputy General Manager,Corporate Affairs,
+79,S90001,Rina Samad,Event Secretariat,Event Secretariat,Secretariat
+80,S90002,Devi Raju,Event Secretariat,Event Secretariat,Secretariat
+81,S90003,Chong Fernandez,Protocol Officer,Event Secretariat,Secretariat
+82,S90004,Gopal Mahmud,Logistics Coordinator,Event Secretariat,Secretariat
+83,S90005,Zarina Musa,Event Secretariat,Event Secretariat,Secretariat
+84,S90006,Shanti Krishnan,Technical Crew,Event Secretariat,Secretariat
+85,S90007,Yusof Musa,Registration Desk,Event Secretariat,Secretariat
+86,S90008,Hafiz Lai,Logistics Coordinator,Event Secretariat,Secretariat
+87,S90009,Hani Ahmad,Logistics Coordinator,Event Secretariat,Secretariat
+88,S90010,Ramesh Hashim,Technical Crew,Event Secretariat,Secretariat
+89,S90011,Suhaimi Chin,Technical Crew,Event Secretariat,Secretariat
+90,S90012,Arif Chandran,Technical Crew,Event Secretariat,Secretariat
