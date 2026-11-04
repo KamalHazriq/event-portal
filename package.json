@@ -19,15 +19,18 @@
     "db:studio": "prisma studio",
     "db:seed": "tsx scripts/seed.ts",
     "db:reset": "prisma db push --force-reset && npm run db:seed",
-    "attendees:generate": "tsx scripts/generate-attendees.ts"
+    "attendees:generate": "tsx scripts/generate-attendees.ts",
+    "simulate:check-in": "tsx scripts/simulate-check-in.ts"
   },
   "dependencies": {
     "@prisma/adapter-better-sqlite3": "^7.10.1",
     "@prisma/client": "^7.10.1",
     "better-sqlite3": "^13.0.3",
+    "jsqr": "^1.4.0",
     "next": "^16.4.5",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
+    "uqr": "^0.1.3",
     "zod": "^4.6.7"
   },
   "devDependencies": {

@@ -194,3 +194,110 @@ start again.
 ```powershell
 Remove-Item -Recurse -Force .next
 ```
+
+---
+
+# Module 4: check in and name tags
+
+## The admin PIN
+
+The secretariat pages sit behind a PIN set in `.env.local`:
+
+```
+ADMIN_PIN=123456
+```
+
+Change it before the event. With no PIN set, the admin pages refuse to open
+rather than falling open.
+
+Signing in asks for a **desk label** as well, such as `desk-1`. That label is
+stored against each check in so you can see which desk recorded it. It is a
+label, never a person's name, so the records hold no extra personal data.
+
+A sign in lasts about fourteen hours, which covers one event day.
+
+## The registration desk
+
+Open <http://localhost:3000/admin/desk> on a phone.
+
+There are three ways to check someone in, so something always works:
+
+1. **The camera.** Tap "Use the camera" and hold the front of the name tag in
+   view. It checks people in as it reads them, with a beep and a buzz, and
+   ignores the same tag for a few seconds so one tag held up does not count
+   twice.
+2. **A handheld scanner.** Most USB and Bluetooth barcode scanners type what
+   they read and press Enter. Click into the "handheld scanner" box and scan.
+3. **By name.** Type part of a name or a staff number and press the Check in
+   button. This is the fallback for a lost tag.
+
+The counter at the top updates as you go and catches up with other desks every
+five seconds.
+
+## Headcount and undo
+
+<http://localhost:3000/admin/headcount> shows who has arrived, the split by
+department with whoever is furthest behind at the top, and who is still
+missing. Every arrival has an Undo button for when the wrong tag is scanned.
+The page refreshes itself every ten seconds.
+
+## Printing name tags
+
+<http://localhost:3000/admin/name-tags>
+
+- **Fronts** carry the name, title, department and that person's own QR code.
+- **Backs** carry the portal QR, the same for everyone.
+
+Print the fronts, put the same sheets back in, then print the backs. Tags are
+90 by 54 mm, ten to an A4 page.
+
+In the print dialog, set **margins to None** and turn off headers and footers,
+or nothing will line up. Use "Save as PDF" in the same dialog if you want a
+file. Check one page before printing all ninety.
+
+Each front carries a different code, so do not photocopy a sheet.
+
+## Table tents and the slide QR
+
+<http://localhost:3000/admin/qr-assets>
+
+- Table tents, A5 landscape, one per page. Press Ctrl and P to print.
+- A PNG of the portal QR for the welcome slide, and an SVG that stays sharp
+  at any size.
+
+All of it points at `event.portalUrl` in `config/event.json`. **Set that to the
+real address before printing anything**, or every code will point at nothing.
+The page warns you while it is still the placeholder.
+
+## The simulated registration run
+
+The brief asks that the desk can check in 80 people in under 15 minutes. This
+measures the portal's share of that:
+
+```powershell
+npm run build
+```
+
+```powershell
+npm run start
+```
+
+Then, in a second terminal:
+
+```powershell
+npm run simulate:check-in
+```
+
+It signs in two desks, checks in all 78 dummy attendees through the real HTTP
+endpoints, and reports the timing. It refuses to run if the database holds
+anyone who is not from the sample list, so it can never touch a real attendee
+list.
+
+On the machine this was built on: 78 people in 0.9 seconds, about 11 ms of
+server time each, against the 11.5 seconds per person the 15 minute target
+allows. The queue, not the portal, is the slow part.
+
+## A note on the headcount total
+
+The total counts everyone on the list, which is 90 people: 78 attendees and 12
+secretariat. Everyone with a name tag is expected, so everyone is counted.

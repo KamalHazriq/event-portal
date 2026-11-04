@@ -74,7 +74,7 @@ describe('the event config that ships with the repo', () => {
   it('only switches on the modules that are built', () => {
     expect(config.features.schedule).toBe(true);
     expect(config.features.resources).toBe(true);
-    expect(config.features.checkIn).toBe(false);
+    expect(config.features.checkIn).toBe(true);
     expect(config.features.qa).toBe(false);
     expect(config.features.polls).toBe(false);
   });

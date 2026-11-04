@@ -87,3 +87,185 @@
     animation: live-pulse 2s ease-in-out infinite;
   }
 }
+
+/* ---------------------------------------------------------------------------
+ * Printing: name tags and table tents.
+ *
+ * Sizes are in millimetres so they land correctly on pre cut badge stock.
+ * Print with margins set to None and headers and footers turned off.
+ *
+ * Browser print, rather than building a PDF file: "Save as PDF" in the print
+ * dialog produces the same PDF, and a layout tweak is a CSS edit instead of
+ * redoing a PDF by hand. QR codes stay black on white in every theme.
+ * ------------------------------------------------------------------------- */
+
+.tag-sheet {
+  display: grid;
+  grid-template-columns: repeat(2, 90mm);
+  gap: 0;
+  justify-content: center;
+}
+
+.tag {
+  width: 90mm;
+  height: 54mm;
+  box-sizing: border-box;
+  padding: 5mm;
+  display: flex;
+  align-items: center;
+  gap: 4mm;
+  overflow: hidden;
+  /* Faint cutting guide. Printers rarely render this heavily. */
+  border: 0.2mm dashed #9aa7b8;
+  background: #ffffff;
+  color: #0b1b33;
+  break-inside: avoid;
+}
+
+.tag-text {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.tag-name {
+  font-size: 5.2mm;
+  font-weight: 700;
+  line-height: 1.15;
+  margin: 0;
+  /* Long names shrink rather than spilling off the tag. */
+  overflow-wrap: anywhere;
+}
+
+.tag-title {
+  font-size: 3.2mm;
+  line-height: 1.25;
+  margin: 1mm 0 0;
+  overflow-wrap: anywhere;
+}
+
+.tag-dept {
+  font-size: 3.2mm;
+  font-weight: 600;
+  line-height: 1.25;
+  margin: 0.8mm 0 0;
+  overflow-wrap: anywhere;
+}
+
+.tag-qr {
+  flex: 0 0 auto;
+  width: 26mm;
+  height: 26mm;
+}
+
+.tag-back {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  text-align: center;
+}
+
+.tag-qr-back {
+  width: 30mm;
+  height: 30mm;
+}
+
+.tag-back-label {
+  font-size: 3.4mm;
+  font-weight: 700;
+  margin: 1.5mm 0 0;
+}
+
+.tag-back-event {
+  font-size: 3mm;
+  margin: 0.5mm 0 0;
+}
+
+/* Table tents: A5 landscape, folded down the middle, readable from a seat. */
+.tent-sheet {
+  display: grid;
+  gap: 0;
+}
+
+.tent {
+  width: 210mm;
+  height: 148mm;
+  box-sizing: border-box;
+  padding: 12mm;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10mm;
+  background: #ffffff;
+  color: #0b1b33;
+  border: 0.2mm dashed #9aa7b8;
+  break-inside: avoid;
+  break-after: page;
+}
+
+.tent-qr {
+  flex: 0 0 auto;
+  width: 70mm;
+  height: 70mm;
+}
+
+.tent-title {
+  font-size: 12mm;
+  font-weight: 700;
+  line-height: 1.1;
+  margin: 0;
+}
+
+.tent-line {
+  font-size: 6mm;
+  margin: 4mm 0 0;
+}
+
+.tent-url {
+  font-size: 4.5mm;
+  margin: 3mm 0 0;
+  overflow-wrap: anywhere;
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 8mm;
+  }
+
+  /* Paper is white whatever theme the screen is in. */
+  :root,
+  :root[data-theme='dark'] {
+    background: #ffffff;
+  }
+
+  body {
+    background: #ffffff !important;
+    color: #0b1b33 !important;
+  }
+
+  /* Everything that is not the sheet stays off the paper. */
+  header,
+  footer,
+  nav,
+  .print\:hidden {
+    display: none !important;
+  }
+
+  main {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: none !important;
+  }
+
+  .tag-sheet,
+  .tent-sheet {
+    gap: 0;
+  }
+
+  .tag {
+    /* Ten to a page, so a page break never lands mid tag. */
+    break-inside: avoid;
+  }
+}

@@ -32,7 +32,7 @@ Full instructions, including how to pretend it is a different date, are in
 | Module                             | State                   |
 | ---------------------------------- | ----------------------- |
 | 1. Schedule and session pages      | Done                    |
-| 4. QR check in and name tags       | Not started             |
+| 4. QR check in and name tags       | Done                    |
 | 5. Feedback                        | Not started             |
 | 6. Admin console                   | Not started             |
 | 8. Big screen mode                 | Not started             |
@@ -47,5 +47,6 @@ Live polls and Q&A run on Slido for this event. The portal links out to it.
 - No real personal data in this repository. The committed attendee list is
   invented, and `config/attendees.csv` is git-ignored.
 - Everything event-specific is in `config/event.json`.
+- The secretariat pages sit behind a PIN from `ADMIN_PIN`. Change it before the event.
 - All storage goes through the adapter in `src/data/`, so the database can be
   swapped once hosting is decided.

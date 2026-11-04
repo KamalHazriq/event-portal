@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation';
 
 import { getEventConfig } from '@/lib/config';
 import { formatLongDate, formatTimeRange, resolveEventNow } from '@/lib/time';
-import { AutoRefresh } from '@/modules/schedule/components/AutoRefresh';
+import { AutoRefresh } from '@/components/AutoRefresh';
 import { DevTimeNotice } from '@/modules/schedule/components/DevTimeNotice';
 import { SlidoButton } from '@/modules/schedule/components/SlidoButton';
 import { SpeakerList } from '@/modules/schedule/components/SpeakerList';

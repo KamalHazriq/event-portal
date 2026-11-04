@@ -72,7 +72,7 @@
     "_readme": "Switches for whole modules. Only what is built is on.",
     "schedule": true,
     "resources": true,
-    "checkIn": false,
+    "checkIn": true,
     "feedback": false,
     "bigScreen": false,
     "arrivalWall": false,

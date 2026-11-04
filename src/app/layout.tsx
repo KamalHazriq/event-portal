@@ -1,16 +1,23 @@
 import type { Metadata, Viewport } from 'next';
 
 import { ConfigErrorScreen } from '@/components/ConfigErrorScreen';
-import { SiteHeader } from '@/components/SiteHeader';
 import { tryLoadEventConfig } from '@/lib/config';
 import { buildThemeCss, resolveTheme } from '@/lib/theme';
 
 import './globals.css';
 
+/**
+ * The root layout holds only what every page needs: the document, the theme
+ * tokens and the skip link.
+ *
+ * The chrome lives one level down, because the attendee pages and the
+ * secretariat pages need different chrome. See (portal)/layout.tsx and
+ * (admin)/layout.tsx. Route groups do not change any URL.
+ */
+
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  // The event theme sets the browser chrome colour on a phone.
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: '#0053A1' },
     { media: '(prefers-color-scheme: dark)', color: '#04121F' },
@@ -64,23 +71,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         >
           Skip to main content
         </a>
-
-        <div className="mx-auto flex min-h-dvh w-full max-w-3xl flex-col">
-          <SiteHeader event={config.event} features={config.features} />
-
-          <main id="main" className="flex-1 px-4 pb-16 pt-5">
-            {children}
-          </main>
-
-          <footer className="border-t border-line px-4 py-6 text-sm text-ink-soft">
-            <p className="font-semibold text-ink">{config.event.name}</p>
-            <p>
-              {config.event.venue}
-              {config.event.city ? `, ${config.event.city}` : ''}
-            </p>
-            {config.event.helpText ? <p className="mt-2">{config.event.helpText}</p> : null}
-          </footer>
-        </div>
+        {children}
       </body>
     </html>
   );

@@ -45,6 +45,11 @@ export default defineConfig({
         timeout: 120_000,
         // The ?now= override is refused on a production build unless this is
         // set, and the tests pin the clock so they pass on any date.
-        env: { ALLOW_TIME_OVERRIDE: 'true' },
+        env: {
+          ALLOW_TIME_OVERRIDE: 'true',
+          // Next fills in .env.local only for names it does not already have,
+          // so this wins and the tests do not depend on anyone's local PIN.
+          ADMIN_PIN: process.env.E2E_ADMIN_PIN ?? '246810',
+        },
       },
 });

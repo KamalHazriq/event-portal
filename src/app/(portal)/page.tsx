@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 import { getEventConfig } from '@/lib/config';
 import { formatLongDate, resolveEventNow } from '@/lib/time';
-import { AutoRefresh } from '@/modules/schedule/components/AutoRefresh';
+import { AutoRefresh } from '@/components/AutoRefresh';
 import { DevTimeNotice } from '@/modules/schedule/components/DevTimeNotice';
 import { NowNextPanel } from '@/modules/schedule/components/NowNextPanel';
 import { SessionList } from '@/modules/schedule/components/SessionCard';

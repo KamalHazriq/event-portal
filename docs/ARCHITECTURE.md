@@ -118,3 +118,62 @@ to design later. Adding a type is a config change.
 **Counting happens in JavaScript, not SQL.** For 90 people the whole table is a
 few kilobytes, so a readable loop beats a clever query, and the same code moves
 to any other store without rewriting.
+
+## Module 4 decisions
+
+**Route handlers, not Server Actions, for the desk.** The Next.js docs say the
+client dispatches Server Actions one at a time and each one re-renders the
+page. That is the wrong shape for a desk working through a queue. The check
+in, undo, search and headcount endpoints are plain route handlers returning
+small JSON payloads, so a scan does not wait on a page render, and the
+simulated run can drive the same endpoints the desk uses.
+
+**The PIN check sits in every page and every endpoint.** The docs are explicit
+that a proxy, which is what middleware became in Next 16, is not a security
+boundary on its own: a matcher change or a moved route can silently remove its
+cover. So there is no `proxy.ts`. Each admin page calls `requireAdmin` and each
+endpoint calls `requireAdminApi`.
+
+**The session cookie is signed with the PIN.** It carries a desk label and an
+expiry, and nothing else. It cannot be forged without the PIN, it holds no
+personal data, and it expires after about one event day.
+
+**Only wrong PINs count towards the limit.** Two or three people at one event
+share the hotel's single public address. Counting their successful sign ins as
+well would let them lock each other out, which at a registration desk would be
+worse than the thing being prevented.
+
+**Redirects after sign in are relative.** Building an absolute URL from
+`request.url` can answer with a different host from the one the browser asked
+for, for example `localhost` when the desk typed an IP address. The cookie is
+then set on one origin and the redirect lands on another, so the desk appears
+to sign in and is immediately sent back. A relative `Location` keeps whatever
+origin the browser is already using. This was a real bug, caught by the
+browser tests.
+
+**What a name tag QR contains.** The full address
+`https://<portal>/c/<token>`, not a bare token. That means any phone camera
+can open it, so the desk is never stuck if our scanner misbehaves. The page it
+opens only checks someone in when a secretariat session is signed in on that
+device, so an attendee scanning their own tag is told to show it at the desk
+instead, and an arrival always means someone really turned up.
+
+**Check in tokens survive a re-import.** They are generated once per person and
+kept when the attendee list is loaded again, so correcting a typo in someone's
+title does not invalidate a tag that has already been printed.
+
+**QR codes are drawn as SVG on the server** from the module grid, never as raw
+markup, so there is nothing the value could escape into. They stay black on
+white in both themes, because a themed QR code does not scan reliably in a
+hotel's lighting.
+
+**Printing rather than generating PDFs.** Name tags and table tents are HTML
+with a print stylesheet in millimetres. "Save as PDF" in the print dialog
+produces the same file, a layout change is a CSS edit, and it keeps a PDF
+library out of the project. The trade is that margins must be set to None in
+the print dialog, which the page says on screen.
+
+**Rate limiting is in memory.** That is the right size for one server behind
+one URL, which is what this event is. Nothing outside `src/lib/rate-limit.ts`
+knows how it is stored, so it can move to the data adapter if the portal ever
+runs on more than one instance.
