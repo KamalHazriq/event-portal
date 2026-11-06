@@ -301,3 +301,79 @@ allows. The queue, not the portal, is the slow part.
 
 The total counts everyone on the list, which is 90 people: 78 attendees and 12
 secretariat. Everyone with a name tag is expected, so everyone is counted.
+
+---
+
+# Module 5: feedback
+
+## The two kinds of form
+
+**Per session.** A session gets a form when `feedbackEnabled` is true for it in
+`config/event.json`. The form asks for 1 to 5 stars and an optional comment,
+and it is linked from that session's page.
+
+**The whole event.** One form at `/feedback/event`, asking for an overall
+rating, which session was most useful, one thing to improve, and anything
+else. It is linked from the home page while it is open.
+
+## One answer per phone
+
+Each form takes one answer per device. Coming back to a form you have already
+answered says so instead of offering it again.
+
+This uses a cookie, not a login, so it is a politeness mechanism rather than a
+guarantee. Someone determined to answer twice can clear their browser data.
+That is the right trade for a leadership event.
+
+## Names
+
+Who gets named is an admin setting, per form, at
+<http://localhost:3000/admin/feedback>:
+
+| Setting                       | What the attendee sees                                            |
+| ----------------------------- | ----------------------------------------------------------------- |
+| Anonymous, no names collected | No name field at all. A name is not stored even if one is posted. |
+| Names required                | A name field that must be filled in.                              |
+| Name optional                 | A name field that says "leave it blank to stay anonymous".        |
+
+There is an event wide default, and any form can have its own setting that
+overrides it. Changing the default moves every form that is following it.
+
+A name here is what the person typed. There is no login, so the portal does
+not claim the answer came from a particular person on the attendee list.
+
+## Opening and closing a form
+
+Every form has a Close button on the admin page. A closed form tells attendees
+it is closed rather than silently failing. Useful for the event form, which
+you may not want answered on Day 1.
+
+## Seeing the results
+
+<http://localhost:3000/admin/feedback> lists every form with its number of
+answers and its average. Click a form for the star spread, the comments, and
+for the event form, which session people picked as most useful.
+
+## It works without JavaScript
+
+The feedback form is a plain HTML form. If a phone is on bad Wi-Fi and the
+scripts never arrive, the form still submits and still records the answer.
+This was checked by posting the form with no JavaScript running at all.
+
+That is why the rating is radio buttons rather than a tap-a-star widget, and
+why the result comes back in the web address rather than on the page.
+
+## Trying it
+
+```powershell
+npm run dev
+```
+
+Then open <http://localhost:3000/feedback/d1-keynote> on a phone, leave an
+answer, and look at <http://localhost:3000/admin/feedback> to see it.
+
+To start again with no answers:
+
+```powershell
+npm run db:reset
+```

@@ -75,6 +75,7 @@ describe('the event config that ships with the repo', () => {
     expect(config.features.schedule).toBe(true);
     expect(config.features.resources).toBe(true);
     expect(config.features.checkIn).toBe(true);
+    expect(config.features.feedback).toBe(true);
     expect(config.features.qa).toBe(false);
     expect(config.features.polls).toBe(false);
   });

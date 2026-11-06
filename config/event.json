@@ -73,7 +73,7 @@
     "schedule": true,
     "resources": true,
     "checkIn": true,
-    "feedback": false,
+    "feedback": true,
     "bigScreen": false,
     "arrivalWall": false,
     "luckyDraw": false,

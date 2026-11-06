@@ -6,6 +6,8 @@ import { AutoRefresh } from '@/components/AutoRefresh';
 import { DevTimeNotice } from '@/modules/schedule/components/DevTimeNotice';
 import { NowNextPanel } from '@/modules/schedule/components/NowNextPanel';
 import { SessionList } from '@/modules/schedule/components/SessionCard';
+import { EVENT_FORM_ID, EVENT_FORM_SLUG } from '@/modules/feedback/logic';
+import { readFormSettings } from '@/modules/feedback/settings';
 import {
   buildAgenda,
   findNowAndNext,
@@ -31,6 +33,11 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
   const agenda = buildAgenda(config);
   const nowAndNext = findNowAndNext(agenda, now);
   const linkSuffix = nowLinkSuffix(now);
+
+  // Only offer the event form while it is actually taking answers.
+  const eventFeedbackOpen = config.features.feedback
+    ? (await readFormSettings(EVENT_FORM_ID)).open
+    : false;
   const focusDay = nowAndNext.focusDay;
   const isToday = nowAndNext.today !== null;
 
@@ -84,6 +91,21 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
             statusOf={(session) => sessionStatus(session, now)}
             linkSuffix={linkSuffix}
           />
+        </section>
+      ) : null}
+
+      {config.features.feedback && eventFeedbackOpen ? (
+        <section className="rounded-xl border border-line bg-surface p-4">
+          <h2 className="text-base font-bold text-ink">Tell us how it went</h2>
+          <p className="mt-1 text-sm text-ink-soft">
+            A rating and a sentence is plenty. It takes about a minute.
+          </p>
+          <Link
+            href={`/feedback/${EVENT_FORM_SLUG}${linkSuffix}`}
+            className="mt-3 inline-flex min-h-11 items-center rounded-lg bg-primary px-4 py-2.5 font-bold text-on-primary no-underline"
+          >
+            Give feedback on the summit
+          </Link>
         </section>
       ) : null}
 

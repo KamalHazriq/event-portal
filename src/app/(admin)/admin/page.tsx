@@ -23,6 +23,11 @@ const PAGES = [
     description: 'Who has arrived, by department, and who is still missing.',
   },
   {
+    href: '/admin/feedback',
+    title: 'Feedback',
+    description: 'What people thought of each session, and the settings for names.',
+  },
+  {
     href: '/admin/name-tags',
     title: 'Name tags',
     description: 'Print the tags, with a personal QR on the front and the portal QR on the back.',

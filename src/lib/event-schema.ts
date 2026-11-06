@@ -274,6 +274,18 @@ export const EventConfigSchema = z
     },
     { message: 'session ids must be unique across the whole event', path: ['days'] },
   )
+  .refine(
+    (config) => {
+      // The feedback module reserves these for the whole event form, so a
+      // session using one would make /feedback/event ambiguous.
+      const reserved = new Set(['event', 'event-final']);
+      return config.days.every((day) => day.sessions.every((s) => !reserved.has(s.id)));
+    },
+    {
+      message: 'a session id may not be "event" or "event-final", which the feedback form uses',
+      path: ['days'],
+    },
+  )
   .refine((config) => new Set(config.speakers.map((s) => s.id)).size === config.speakers.length, {
     message: 'two speakers share the same id',
     path: ['speakers'],

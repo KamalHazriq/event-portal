@@ -99,6 +99,10 @@ export const LIMITS = {
   adminPin: { limit: 10, windowMs: 10 * 60 * 1000 },
   /** Recording arrivals from one desk. */
   checkIn: { limit: 240, windowMs: 60 * 1000 },
+  /** Feedback submissions from one device. Generous: a person fills in
+   * several session forms over three days, and being blocked from saying
+   * what they thought would be worse than the thing being prevented. */
+  feedback: { limit: 30, windowMs: 10 * 60 * 1000 },
   /** Searching the attendee list by name. */
   search: { limit: 120, windowMs: 60 * 1000 },
 } as const;

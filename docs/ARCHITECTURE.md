@@ -177,3 +177,44 @@ the print dialog, which the page says on screen.
 one URL, which is what this event is. Nothing outside `src/lib/rate-limit.ts`
 knows how it is stored, so it can move to the data adapter if the portal ever
 runs on more than one instance.
+
+## Module 5 decisions
+
+**A Server Action, not a route handler, and the opposite of the desk.** The
+desk needed small JSON answers for rapid scanning. A feedback form is
+submitted once, so the idiomatic `<form action={serverAction}>` is the better
+fit, and it brings progressive enhancement with it: the form is real HTML and
+submits without JavaScript. That was verified by posting it with no scripts
+running, not just assumed.
+
+**The result comes back in the web address.** `useActionState` would turn the
+page into a Client Component and lose the no-JavaScript path, so the action
+redirects to `?state=thanks` or `?state=invalid&problems=...` instead. The
+page reads those and says what happened.
+
+**The rating is five radio buttons** with `required`, so the browser itself
+blocks a submission with no rating. Without that, a validation round trip
+would throw away a comment somebody had just typed. The input covers the whole
+label rather than being hidden off screen, so what a thumb lands on is the
+control.
+
+**A cookie, not localStorage, for the device id.** The brief mentions
+localStorage for Q&A voting, which is fine there because that module needs
+JavaScript anyway. Feedback does not, and a device id that only exists in
+JavaScript would force the form to need it. The cookie is random, holds no
+personal data, and identifies a browser rather than a person.
+
+**Anonymity is a setting, not config.** It lives in the data adapter's
+settings store because an admin changes it during the event, while
+`config/event.json` is version controlled and should not change mid event. An
+anonymous form drops a posted name on the server, so switching a form to
+anonymous cannot be worked around by an old page still open on a phone.
+
+**A name is what someone typed.** With no login the portal cannot know that a
+submission came from a particular person on the attendee list, so
+`attendeeId` stays null and only the typed name is stored. Claiming more would
+make the report look more certain than it is.
+
+**Reserved form ids.** The config schema refuses a session with the id `event`
+or `event-final`, because the whole event form uses them. Catching that in the
+schema is better than discovering it when two forms collide during the event.
