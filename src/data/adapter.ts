@@ -61,6 +61,12 @@ export interface CheckInRepository {
     dayId: string;
     method: CheckInMethod;
     byOperator: string;
+    /**
+     * Only the demo seed passes this, so arrival times look like a real
+     * morning rather than all landing in the same second. The desk never
+     * sets it: a real arrival is recorded when it happens.
+     */
+    at?: string;
   }): Promise<{ checkIn: CheckIn; alreadyCheckedIn: boolean }>;
   /** Undo, for a scan of the wrong tag. */
   remove(attendeeId: string, dayId: string): Promise<boolean>;
@@ -86,6 +92,8 @@ export interface FeedbackRepository {
     attendeeId: string | null;
     displayName: string;
     deviceId: string;
+    /** Only the demo seed passes this. See checkIns.create. */
+    at?: string;
   }): Promise<{ entry: FeedbackEntry | null; duplicate: boolean }>;
   hasSubmitted(formId: string, deviceId: string): Promise<boolean>;
   listByForm(formId: string): Promise<FeedbackEntry[]>;

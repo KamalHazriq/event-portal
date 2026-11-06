@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 const ITEMS = [
+  { href: '/admin/live', label: 'Live' },
   { href: '/admin/desk', label: 'Desk' },
   { href: '/admin/headcount', label: 'Headcount' },
   { href: '/admin/feedback', label: 'Feedback' },

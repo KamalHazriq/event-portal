@@ -13,6 +13,11 @@ export const metadata: Metadata = { title: 'Secretariat' };
 
 const PAGES = [
   {
+    href: '/admin/live',
+    title: 'Live control',
+    description: 'What is on now, what is next, the room count and the countdown.',
+  },
+  {
     href: '/admin/desk',
     title: 'Registration desk',
     description: 'Scan name tags or search by name to check people in.',

@@ -41,7 +41,7 @@ Full instructions, including how to pretend it is a different date, are in
 | 1. Schedule and session pages      | Done                    |
 | 4. QR check in and name tags       | Done                    |
 | 5. Feedback                        | Done                    |
-| 6. Admin console                   | Not started             |
+| 6. Admin console                   | Done                    |
 | 8. Big screen mode                 | Not started             |
 | 7. Report export with Slido import | Not started             |
 | 2 and 3. Own Q&A and polls         | Backup only, build last |

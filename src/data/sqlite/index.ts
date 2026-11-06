@@ -283,7 +283,7 @@ export function createSqliteAdapter(): DataAdapter {
   };
 
   const checkIns: CheckInRepository = {
-    async create({ attendeeId, dayId, method, byOperator }) {
+    async create({ attendeeId, dayId, method, byOperator, at }) {
       const existing = await prisma.checkIn.findUnique({
         where: { attendeeId_dayId: { attendeeId, dayId } },
       });
@@ -299,6 +299,7 @@ export function createSqliteAdapter(): DataAdapter {
             dayId,
             method,
             byOperator: plainText(byOperator, 40),
+            ...(at ? { at: new Date(at) } : {}),
           },
         });
         return { checkIn: toCheckIn(created), alreadyCheckedIn: false };
@@ -397,6 +398,7 @@ export function createSqliteAdapter(): DataAdapter {
             attendeeId: input.attendeeId,
             displayName: plainText(input.displayName, 120),
             deviceId: input.deviceId,
+            ...(input.at ? { at: new Date(input.at) } : {}),
           },
         });
         return { entry: toFeedback(created), duplicate: false };

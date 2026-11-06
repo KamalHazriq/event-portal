@@ -21,7 +21,8 @@
     "db:reset": "prisma db push --force-reset && npm run db:seed",
     "attendees:generate": "tsx scripts/generate-attendees.ts",
     "simulate:check-in": "tsx scripts/simulate-check-in.ts",
-    "preview:static": "next build && tsx scripts/build-static-preview.ts"
+    "preview:static": "next build && tsx scripts/build-static-preview.ts",
+    "demo:seed": "tsx scripts/seed-demo.ts"
   },
   "dependencies": {
     "@prisma/adapter-better-sqlite3": "^7.10.1",

@@ -486,3 +486,42 @@ The base path has to match the repository name, in two places:
 
 Otherwise every stylesheet and link on the published site points at the wrong
 address.
+
+---
+
+# Module 6: the admin console
+
+## Live control
+
+<http://localhost:3000/admin/live> is the page to keep open during a session.
+It shows what is on now and how many minutes are left, what is next, how full
+the room is, the Slido link for the running session, and the countdown
+control. It refreshes itself every twenty seconds.
+
+## The surprise countdown
+
+Set in `config/event.json`, but an admin moves it from the live page during
+the event and the stored setting wins. Buttons for 5, 10, 15, 30 and 60
+minutes from now, a field for an exact time, an off switch, and a "back to
+the config file" button that clears every override.
+
+The big screen will read this once Module 8 is built. For now the live page
+is the only place it appears.
+
+## Demo data
+
+```powershell
+npm run demo:seed
+```
+
+Fills the portal with a convincing three days: arrivals spread across each
+morning, several hundred feedback answers with a realistic spread of stars
+and written comments, and the settings an admin would have changed. Useful
+for showing the console to someone without waiting for an event.
+
+It refuses to run if the database holds anyone who is not from
+`config/attendees.sample.csv`, so it can never write invented feedback
+against a real attendee list. Forms that already have answers are left alone,
+so run `npm run db:reset` first for a clean demo.
+
+Everything it writes is invented.
