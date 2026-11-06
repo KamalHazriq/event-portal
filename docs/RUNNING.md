@@ -429,3 +429,60 @@ Reading code, changing config and asking for small edits all work fine. What
 does not travel well is anything you need to _look_ at: the name tag print
 layout, the big screen, and the theme. Leave those for when you are back at a
 laptop, or at least check them before printing anything.
+
+---
+
+# The schedule preview on GitHub Pages
+
+<https://kamalhazriq.github.io/event-portal/>
+
+Published automatically on every push to `main`, and by hand from the Actions
+tab on GitHub, which works from a phone.
+
+## What is on it, and what is not
+
+| On the preview                  | Not on the preview                   |
+| ------------------------------- | ------------------------------------ |
+| Home, with now and next         | Check in and the registration desk   |
+| The full agenda, all three days | Feedback forms                       |
+| Every session page              | The admin console                    |
+| Resources                       | Anything that writes to the database |
+
+GitHub Pages serves flat files only. It cannot run the parts of the portal
+that need a server, which is why half the modules are missing from it. A
+banner at the top of every page says so.
+
+## It is a snapshot, not the live portal
+
+The pages are saved at the moment of publishing, so "now and next" shows
+where the clock was when it was built, and it does not move. For the real
+thing, run the portal.
+
+## How it is made
+
+`scripts/build-static-preview.ts` starts the real portal and saves what it
+renders. There is no second copy of the pages, so the preview cannot drift
+away from the real portal: fix a layout once and the preview gets it too.
+
+Before saving, it generates a copy of the config with the server-only modules
+switched off, so no saved page carries a link to something Pages cannot
+serve. The agenda's day tabs become real folders, because a static host
+cannot read a query string.
+
+Build it yourself with:
+
+```powershell
+npm run preview:static
+```
+
+That writes the `out` folder, which is git-ignored.
+
+## If you rename the repository
+
+The base path has to match the repository name, in two places:
+
+- `PREVIEW_BASE_PATH` in `.github/workflows/pages.yml`
+- the default in `scripts/build-static-preview.ts`
+
+Otherwise every stylesheet and link on the published site points at the wrong
+address.

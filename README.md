@@ -5,6 +5,13 @@ Summit, 14 to 16 December 2026.
 
 Built to be reused: the event lives in a config file, not in the code.
 
+## Have a look
+
+Schedule preview: <https://kamalhazriq.github.io/event-portal/>
+
+That is the read-only half, published to GitHub Pages. Check in, feedback and
+the admin console need a server, so they are not on it.
+
 ## Start here
 
 ```powershell
