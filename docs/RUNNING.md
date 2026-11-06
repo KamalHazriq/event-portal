@@ -377,3 +377,55 @@ To start again with no answers:
 ```powershell
 npm run db:reset
 ```
+
+---
+
+# Working on this from another machine, or from your phone
+
+The repository is at <https://github.com/KamalHazriq/event-portal> and it is
+**private**. It holds the project brief and internal planning, so keep it that
+way unless you have a reason not to.
+
+## What is not in the repository
+
+Three things are deliberately git-ignored, so a fresh checkout does not have
+them and nothing will run until you create them:
+
+| Missing          | Why                       | How to get it back           |
+| ---------------- | ------------------------- | ---------------------------- |
+| `.env.local`     | Holds the admin PIN       | `cp .env.example .env.local` |
+| `prisma/dev.db`  | The local database        | `npm run db:push`            |
+| The dummy people | Loaded into that database | `npm run db:seed`            |
+
+## Setting up a fresh checkout
+
+```bash
+npm install
+```
+
+```bash
+cp .env.example .env.local
+```
+
+```bash
+npm run db:push && npm run db:seed
+```
+
+Then `npm run dev` as usual. On Windows use `Copy-Item .env.example .env.local`
+for the second one.
+
+## Running the browser tests somewhere new
+
+```bash
+npx playwright install chromium
+```
+
+Only needed once per machine. The logic tests, `npm run test`, need nothing
+extra and are the quicker check when you are working on a small screen.
+
+## A note on editing from a phone
+
+Reading code, changing config and asking for small edits all work fine. What
+does not travel well is anything you need to _look_ at: the name tag print
+layout, the big screen, and the theme. Leave those for when you are back at a
+laptop, or at least check them before printing anything.
