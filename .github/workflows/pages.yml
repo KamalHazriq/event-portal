@@ -1,0 +1,72 @@
+name: Publish the schedule preview
+
+# GitHub Pages can only serve flat files, so this publishes the read-only
+# half of the portal: the home page, the agenda, the session pages and the
+# resources page. Check in, feedback and the admin console need a server and
+# are not part of this.
+#
+# See scripts/build-static-preview.ts for how the pages are produced.
+
+on:
+  push:
+    branches: [main]
+  # So you can publish by hand from the Actions tab, including from a phone.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Let a running publish finish rather than cancelling it halfway.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      # The build never reads or writes this, but the Prisma client expects
+      # to find a value when it is loaded.
+      DATABASE_URL: file:./prisma/dev.db
+      # Must match the repository name, since Pages serves from a sub-path.
+      PREVIEW_BASE_PATH: /event-portal
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # The data adapter imports the Prisma client, so it has to exist even
+      # though the preview pages never read from the database.
+      - run: npx prisma generate
+
+      - name: Check it before publishing it
+        run: |
+          npm run typecheck
+          npm run lint
+          npm run test
+
+      - name: Build the static preview
+        run: npm run preview:static
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./out
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

@@ -56,3 +56,7 @@ Thumbs.db
 # logs
 *.log
 npm-debug.log*
+
+# the static preview build output
+/out/
+/config/.event.preview.json
