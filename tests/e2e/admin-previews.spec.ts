@@ -19,7 +19,6 @@ async function signIn(page: Page): Promise<void> {
 
 const PAGES = [
   ['/admin/previews', 'Previews'],
-  ['/admin/big-screen', 'Big screen'],
   ['/admin/reports', 'Reports'],
   ['/admin/lucky-draw', 'Lucky draw'],
   ['/admin/photos', 'Photo wall'],
@@ -43,14 +42,6 @@ test('every preview page opens and is labelled as dummy data', async ({ page }) 
       await expect(page.getByText('Preview with dummy data.')).toBeVisible();
     }
   }
-});
-
-test('the big screen preview switches what is live', async ({ page }) => {
-  await signIn(page);
-  await page.goto('/admin/big-screen');
-  const countdown = page.getByRole('button', { name: /Surprise countdown/ });
-  await countdown.click();
-  await expect(countdown).toHaveAttribute('aria-pressed', 'true');
 });
 
 test('the polls preview opens one poll at a time', async ({ page }) => {

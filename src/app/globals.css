@@ -269,3 +269,51 @@
     break-inside: avoid;
   }
 }
+
+/* ---------------------------------------------------------------------------
+ * Big screen (Module 8). Smooth, subtle motion only, and none at all for a
+ * machine set to reduce motion (see the base layer above).
+ * ------------------------------------------------------------------------- */
+
+@keyframes screen-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(1.5vh) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes screen-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.screen-arrive {
+  animation: screen-arrive 700ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.screen-fade {
+  animation: screen-fade 600ms ease-out both;
+}
+
+.screen-bar {
+  transition: width 900ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+/* A soft glow behind the big numbers, from the theme accent colour. */
+.screen-glow {
+  background:
+    radial-gradient(
+      60vw 45vh at 50% 40%,
+      color-mix(in srgb, var(--c-primary) 22%, transparent),
+      transparent 70%
+    ),
+    var(--c-background);
+}

@@ -57,8 +57,10 @@ the framework.
 
 **Real time without websockets.** Pages that show live information re-request
 themselves on a timer. Phones use 60 seconds, because the only thing that
-changes for them is which session is highlighted. The big screen pages in
-Module 8 will use 3 to 5 seconds, which is what a live counter needs.
+changes for them is which session is highlighted. The big screen pages poll
+every 4 seconds, which is what a live counter needs, and is also how the
+projector follows the MC: the chosen view is a setting that `/screen` re-reads
+on every poll.
 
 ## Time
 
@@ -106,8 +108,10 @@ at render time, and `globals.css` maps those to Tailwind utilities with
 `@theme inline`.
 
 The upshot: changing the theme is editing JSON. No rebuild, no component edits.
-A page picks its theme with the `data-theme` attribute, which is how the
-projector will run dark while phones run light.
+A page picks its theme with the `data-theme` attribute. It works on any
+element, not only `<html>`, because CSS variables inherit: the `/screen` pages
+wrap themselves in `data-theme="dark"` and run dark while phones run light,
+under the same root layout.
 
 ## Choices worth knowing about
 

@@ -10,8 +10,8 @@ import { useEffect } from 'react';
  * Short polling, not websockets, per brief hard rule 7: it works behind any
  * corporate proxy. Sixty seconds is right for a phone, where the only thing
  * that changes is which session is highlighted, and it keeps data use and
- * battery drain low on hotel Wi-Fi. The big screen pages in Module 8 will
- * poll every 3 to 5 seconds, which is what live counters need.
+ * battery drain low on hotel Wi-Fi. The big screen pages (Module 8)
+ * poll every 4 seconds, which is what live counters need.
  */
 export function AutoRefresh({
   intervalMs = 60_000,

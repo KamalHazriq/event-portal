@@ -48,6 +48,10 @@ function safeFontStack(value: string): string {
 /**
  * The stylesheet injected once in the root layout.
  * Light tokens sit on :root, dark tokens apply when data-theme is "dark".
+ *
+ * The attribute also works on any element, not only <html>, because CSS
+ * variables inherit. That is how the big screen pages run dark inside the
+ * same root layout as the light phone pages.
  */
 export function buildThemeCss(branding: Branding): string {
   const body = safeFontStack(branding.fontFamily);
@@ -62,7 +66,10 @@ export function buildThemeCss(branding: Branding): string {
     `  --font-body: ${body};`,
     `  --font-display: ${display};`,
     '}',
-    ':root[data-theme="dark"] {',
+    '[data-theme="light"] {',
+    tokenBlock(branding.themes.light),
+    '}',
+    ':root[data-theme="dark"], [data-theme="dark"] {',
     tokenBlock(branding.themes.dark),
     '}',
   ].join('\n');

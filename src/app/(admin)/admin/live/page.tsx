@@ -317,10 +317,9 @@ export default async function LiveControlPage() {
         </div>
 
         <p className="mt-3 text-sm text-ink-soft">
-          The big screen reads this, so it will show the countdown once Module 8 is built. You can
-          already see where it will sit on the{' '}
+          To put it on the projector, choose Countdown on the{' '}
           <Link href="/admin/big-screen" className="font-semibold text-primary">
-            big screen preview
+            big screen page
           </Link>
           .
         </p>

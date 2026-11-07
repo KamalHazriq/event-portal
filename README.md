@@ -42,7 +42,7 @@ Full instructions, including how to pretend it is a different date, are in
 | 4. QR check in and name tags                      | Done                |
 | 5. Feedback                                       | Done                |
 | 6. Admin console                                  | Done                |
-| 8. Big screen mode                                | Preview, dummy data |
+| 8. Big screen mode                                | Done                |
 | 7. Report export with Slido import                | Preview, dummy data |
 | Extras: lucky draw, photo wall, committee summary | Preview, dummy data |
 | 2 and 3. Own Q&A and polls                        | Preview, build last |

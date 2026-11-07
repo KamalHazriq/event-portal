@@ -505,8 +505,8 @@ the event and the stored setting wins. Buttons for 5, 10, 15, 30 and 60
 minutes from now, a field for an exact time, an off switch, and a "back to
 the config file" button that clears every override.
 
-The big screen will read this once Module 8 is built. For now the live page
-is the only place it appears.
+To put it on the projector, choose Countdown on the big screen page. See
+Module 8 below.
 
 ## Demo data
 
@@ -539,7 +539,6 @@ buttons work in the open tab only, and a refresh puts everything back.
 
 | Page                                                        | Stands in for                   | What you can try                                           |
 | ----------------------------------------------------------- | ------------------------------- | ---------------------------------------------------------- |
-| [/admin/big-screen](http://localhost:3000/admin/big-screen) | Module 8, big screen mode       | Pick what the projector shows, hide names on arrivals      |
 | [/admin/reports](http://localhost:3000/admin/reports)       | Module 7, report export         | Real attendance and feedback counts, a sample Slido import |
 | [/admin/lucky-draw](http://localhost:3000/admin/lucky-draw) | Lucky draw                      | Draw 1 to 10 winners, exclude people, nobody wins twice    |
 | [/admin/photos](http://localhost:3000/admin/photos)         | Photo wall                      | Approve or reject photos (coloured tiles, no pictures)     |
@@ -553,8 +552,7 @@ admin navigation.
 
 Where something real already exists, the previews use it. The reports page
 shows real attendance and feedback numbers, the lucky draw picks from people
-actually checked in today (secretariat unticked by default), and the big
-screen preview shows the real agenda in the real big screen colours. Every
+actually checked in today (secretariat unticked by default). Every
 invented name, question, photo and committee paper comes from
 `src/modules/previews/mock-data.ts`, never from the attendee list, so a
 preview can never put an invented question against a real person.
@@ -566,3 +564,81 @@ address), its line comes out of `src/modules/previews/pages.ts`, and its
 section of `mock-data.ts` is deleted. The lucky draw rules in
 `src/modules/previews/lucky-draw.ts` are already the real rules, tested, and
 move across as they are.
+
+---
+
+# Module 8: the big screen
+
+Full screen pages for the ballroom projector, in the big screen theme from
+config (dark by default) and sized to read from the back of the room at
+1920 x 1080.
+
+## The four views
+
+| View         | What the room sees                                                        |
+| ------------ | ------------------------------------------------------------------------- |
+| Welcome      | Event name, tagline, dates, venue and a large portal QR to scan           |
+| Now and next | What is running, when it ends and minutes left, then what comes next      |
+| Arrivals     | "74 / 78 arrived" with a bar, and a welcome card as each person checks in |
+| Countdown    | Big ticking digits towards the surprise, with its label above             |
+
+During parallel breakouts, now and next shows all three side by side.
+
+The arrivals counter is **guests only**, so it reads "/ 78", not "/ 90". The
+desk headcount still counts all 90, because everyone with a name tag is
+expected at the desk. The secretariat never get a welcome card either.
+
+## Running it in the room
+
+1. On the laptop plugged into the projector, open
+   <http://localhost:3000/screen> (or the real address once hosted).
+2. Sign in with the PIN, using the label `screen`.
+3. Press **F11** for full screen. Leave it open all day.
+4. On your phone, open **Big screen** in the admin navigation and tap the view
+   you want. The projector follows within about four seconds.
+
+The phone page shows a small live copy of what is on the projector, so you can
+check it without turning round. "Hide the live preview" switches it off if
+your phone is on poor Wi-Fi.
+
+**Hide names, counter only** on the same page takes every name off the
+arrivals view. Setting `features.arrivalWall` to `false` in the config does the
+same thing permanently.
+
+A second screen that should always show one thing, such as a monitor by the
+registration desk, can open a view directly: `/screen/welcome`,
+`/screen/now-next`, `/screen/arrivals` or `/screen/countdown`. Those ignore what
+the MC picks.
+
+## Why it needs the PIN
+
+The arrivals view shows names and departments, so the projector pages are
+behind the same PIN as the admin pages rather than open to anyone with the
+link. The projector laptop signs in like any desk, and stays signed in for 14
+hours.
+
+## Trying it before the event
+
+```powershell
+npm run demo:seed
+npm run dev
+```
+
+Then open these, each with a pretend time so there is something to show:
+
+- <http://localhost:3000/screen/now-next?now=2026-12-15T10:40> (three breakouts)
+- <http://localhost:3000/screen/now-next?now=2026-12-14T15:10> (the keynote)
+- <http://localhost:3000/screen/arrivals?now=2026-12-15T09:00>
+- <http://localhost:3000/screen/countdown> (set a time on the live control page first)
+
+The corner says "Test time" whenever the clock is pretend.
+
+## Changing the look
+
+All colours come from `branding.themes.dark` in `config/event.json` (or
+`light`, if `branding.bigScreenTheme` is set to `light`). When the slide
+designer settles the theme, change those values and the projector follows.
+The QR code always stays black on white so it scans.
+
+The motion is deliberately small: new views and new arrival cards fade in, and
+the arrivals bar slides. A laptop set to reduce motion gets none of it.

@@ -5,12 +5,6 @@
  */
 export const PREVIEW_PAGES = [
   {
-    href: '/admin/big-screen',
-    title: 'Big screen',
-    module: 'Module 8, big screen mode',
-    description: 'Choose what the projector shows: welcome, now and next, arrivals, countdown.',
-  },
-  {
     href: '/admin/reports',
     title: 'Reports',
     module: 'Module 7, report export',

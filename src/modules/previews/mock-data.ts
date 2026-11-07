@@ -1,11 +1,12 @@
 /**
  * Dummy data for the admin console previews.
  *
- * Several admin pages belong to modules that are not built yet: the big
- * screen (Module 8), the report export (Module 7), the extras (lucky draw,
+ * Several admin pages belong to modules that are not built yet: the report
+ * export (Module 7), the extras (lucky draw,
  * photo wall, committee summary) and the backup Q&A and polls (Modules 2
  * and 3). Their pages exist now so the secretariat can see the whole console
- * and comment on it before the real thing is built.
+ * and comment on it before the real thing is built. Module 8 (the big
+ * screen) has since been built for real and left this file.
  *
  * Rules for this file:
  * - Nothing here is stored. Each page builds its data from this file on every
@@ -64,63 +65,6 @@ export const MOCK_NAMES = [
   'Siti Aminah',
   'Teoh Wei Jie',
 ] as const;
-
-/* -------------------------------------------------------------- big screen */
-
-export type BigScreenView = {
-  id: string;
-  title: string;
-  description: string;
-  /** How often the real page will re-poll, per brief hard rule 7. */
-  refreshSeconds: number | null;
-  /** When the MC would normally put it up. */
-  whenToUse: string;
-};
-
-export const BIG_SCREEN_VIEWS: readonly BigScreenView[] = [
-  {
-    id: 'welcome',
-    title: 'Welcome',
-    description: 'Event name, tagline and the portal QR, large enough to scan from a table.',
-    refreshSeconds: null,
-    whenToUse: 'Doors open, registration, between sessions',
-  },
-  {
-    id: 'now-next',
-    title: 'Now and next',
-    description: 'The running session with time left, and what comes after it.',
-    refreshSeconds: 5,
-    whenToUse: 'Breaks, so people know when to come back',
-  },
-  {
-    id: 'arrivals',
-    title: 'Arrival wall',
-    description: 'A welcome card for each check in, with a live "42 / 78 arrived" counter.',
-    refreshSeconds: 3,
-    whenToUse: 'Registration each morning',
-  },
-  {
-    id: 'countdown',
-    title: 'Surprise countdown',
-    description: 'Big numbers counting down to the surprise. Set on the live control page.',
-    refreshSeconds: 5,
-    whenToUse: 'The build up to the surprise',
-  },
-  {
-    id: 'lucky-draw',
-    title: 'Lucky draw',
-    description: 'The name spinner, driven from the lucky draw page.',
-    refreshSeconds: 3,
-    whenToUse: 'Dinner and the closing',
-  },
-  {
-    id: 'photos',
-    title: 'Photo slideshow',
-    description: 'Approved photos from the photo wall, one every eight seconds.',
-    refreshSeconds: 5,
-    whenToUse: 'Breaks and dinner',
-  },
-];
 
 /* ------------------------------------------------------------- Q&A backup */
 
