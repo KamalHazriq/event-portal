@@ -6,6 +6,7 @@ import { requireAdmin } from '@/lib/admin-guard';
 import { getEventConfig } from '@/lib/config';
 import { formatShortDate, resolveEventNow } from '@/lib/time';
 import { arrivalRate, resolveCheckInDay } from '@/modules/check-in/logic';
+import { PREVIEW_PAGES } from '@/modules/previews/pages';
 
 export const dynamic = 'force-dynamic';
 
@@ -93,6 +94,32 @@ export default async function AdminHomePage() {
           ))}
         </ul>
       </nav>
+
+      <section aria-labelledby="previews-heading">
+        <h2 id="previews-heading" className="text-lg font-bold text-ink">
+          Previews with dummy data
+        </h2>
+        <p className="mt-0.5 text-sm text-ink-soft">
+          Pages for modules not built yet, so you can try the whole console. Nothing on them is
+          saved.
+        </p>
+        <ul className="mt-3 grid gap-3 sm:grid-cols-2">
+          {PREVIEW_PAGES.map((page) => (
+            <li key={page.href}>
+              <Link
+                href={page.href}
+                className="block h-full rounded-xl border border-dashed border-line bg-surface p-4 no-underline hover:border-primary focus-visible:border-primary"
+              >
+                <span className="block font-bold text-ink">{page.title}</span>
+                <span className="mt-0.5 block text-xs font-semibold uppercase tracking-wide text-warning">
+                  {page.module}
+                </span>
+                <span className="mt-1 block text-sm text-ink-soft">{page.description}</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </section>
 
       <section className="rounded-lg border border-line bg-muted p-3 text-sm">
         <p className="font-semibold text-ink">Storage</p>

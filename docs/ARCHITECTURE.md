@@ -83,6 +83,12 @@ and photo storage still needs a GRC answer. Each gets its own repository on the
 interface when its module is built, rather than guessing the shape now and
 reworking it later.
 
+Their admin pages exist already as **previews**, under `src/modules/previews/`.
+They read dummy data from `mock-data.ts` and keep any clicks in the browser tab,
+so they never touch the adapter for something it does not have. When a module
+is built, its page is rewritten against a real repository at the same address
+and its slice of the mock file is deleted.
+
 To add a storage back end, for example Supabase:
 
 1. Create `src/data/supabase/index.ts` exporting a `createSupabaseAdapter()`

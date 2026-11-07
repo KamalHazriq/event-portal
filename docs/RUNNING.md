@@ -525,3 +525,44 @@ against a real attendee list. Forms that already have answers are left alone,
 so run `npm run db:reset` first for a clean demo.
 
 Everything it writes is invented.
+
+Note: after `npm run demo:seed`, two of the feedback browser tests ("an
+optional name is kept when given") fail, because the demo changes the name
+setting on some forms. Run `npm run db:reset` before `npm run test:e2e`.
+
+## Previews of the modules still to come
+
+So you can see and try the whole console before everything is built, the
+pages for the remaining modules are already there, running on dummy data.
+Each one has a dashed yellow banner saying so. **Nothing on them is saved**:
+buttons work in the open tab only, and a refresh puts everything back.
+
+| Page                                                        | Stands in for                   | What you can try                                           |
+| ----------------------------------------------------------- | ------------------------------- | ---------------------------------------------------------- |
+| [/admin/big-screen](http://localhost:3000/admin/big-screen) | Module 8, big screen mode       | Pick what the projector shows, hide names on arrivals      |
+| [/admin/reports](http://localhost:3000/admin/reports)       | Module 7, report export         | Real attendance and feedback counts, a sample Slido import |
+| [/admin/lucky-draw](http://localhost:3000/admin/lucky-draw) | Lucky draw                      | Draw 1 to 10 winners, exclude people, nobody wins twice    |
+| [/admin/photos](http://localhost:3000/admin/photos)         | Photo wall                      | Approve or reject photos (coloured tiles, no pictures)     |
+| [/admin/committees](http://localhost:3000/admin/committees) | SVC, ATC and OTC summary        | Read only tables of invented papers                        |
+| [/admin/qa](http://localhost:3000/admin/qa)                 | Module 2, backup Q&A            | Approve, pin, mark answered, hide                          |
+| [/admin/polls](http://localhost:3000/admin/polls)           | Module 3, backup polls          | Open, close, reveal results, word cloud                    |
+| [/admin/admins](http://localhost:3000/admin/admins)         | Module 6, who else is signed in | See the 2 to 3 desks and a log of what they did            |
+
+They are all listed on the secretariat home page and under **More** in the
+admin navigation.
+
+Where something real already exists, the previews use it. The reports page
+shows real attendance and feedback numbers, the lucky draw picks from people
+actually checked in today (secretariat unticked by default), and the big
+screen preview shows the real agenda in the real big screen colours. Every
+invented name, question, photo and committee paper comes from
+`src/modules/previews/mock-data.ts`, never from the attendee list, so a
+preview can never put an invented question against a real person.
+
+Run `npm run demo:seed` first and the lucky draw and reports pages fill up.
+
+When a module is built for real, its preview page is replaced in place (same
+address), its line comes out of `src/modules/previews/pages.ts`, and its
+section of `mock-data.ts` is deleted. The lucky draw rules in
+`src/modules/previews/lucky-draw.ts` are already the real rules, tested, and
+move across as they are.

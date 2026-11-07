@@ -36,17 +36,22 @@ Full instructions, including how to pretend it is a different date, are in
 
 ## What is built
 
-| Module                             | State                   |
-| ---------------------------------- | ----------------------- |
-| 1. Schedule and session pages      | Done                    |
-| 4. QR check in and name tags       | Done                    |
-| 5. Feedback                        | Done                    |
-| 6. Admin console                   | Done                    |
-| 8. Big screen mode                 | Not started             |
-| 7. Report export with Slido import | Not started             |
-| 2 and 3. Own Q&A and polls         | Backup only, build last |
+| Module                                            | State               |
+| ------------------------------------------------- | ------------------- |
+| 1. Schedule and session pages                     | Done                |
+| 4. QR check in and name tags                      | Done                |
+| 5. Feedback                                       | Done                |
+| 6. Admin console                                  | Done                |
+| 8. Big screen mode                                | Preview, dummy data |
+| 7. Report export with Slido import                | Preview, dummy data |
+| Extras: lucky draw, photo wall, committee summary | Preview, dummy data |
+| 2 and 3. Own Q&A and polls                        | Preview, build last |
 
 Live polls and Q&A run on Slido for this event. The portal links out to it.
+
+"Preview" means the admin page exists and can be clicked through, running on
+invented data that is never saved. See "Previews of the modules still to come"
+in [docs/RUNNING.md](docs/RUNNING.md).
 
 ## Ground rules
 

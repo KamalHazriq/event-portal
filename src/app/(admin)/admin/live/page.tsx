@@ -191,6 +191,17 @@ export default async function LiveControlPage() {
               <span className="font-mono font-bold text-ink">{slido.eventCode}</span>
             ) : null}
           </div>
+          <p className="mt-3 text-sm text-ink-soft">
+            If Slido is down:{' '}
+            <Link href="/admin/qa" className="font-semibold text-primary">
+              backup Q&A queue
+            </Link>{' '}
+            and{' '}
+            <Link href="/admin/polls" className="font-semibold text-primary">
+              backup polls
+            </Link>
+            , both previews for now.
+          </p>
         </section>
       ) : null}
 
@@ -306,8 +317,12 @@ export default async function LiveControlPage() {
         </div>
 
         <p className="mt-3 text-sm text-ink-soft">
-          The big screen reads this, so it will show the countdown once Module 8 is built. For now
-          this page is the only place it appears.
+          The big screen reads this, so it will show the countdown once Module 8 is built. You can
+          already see where it will sit on the{' '}
+          <Link href="/admin/big-screen" className="font-semibold text-primary">
+            big screen preview
+          </Link>
+          .
         </p>
       </section>
 
@@ -316,6 +331,8 @@ export default async function LiveControlPage() {
           { href: '/admin/desk', label: 'Desk' },
           { href: '/admin/headcount', label: 'Headcount' },
           { href: '/admin/feedback', label: 'Feedback' },
+          { href: '/admin/big-screen', label: 'Big screen' },
+          { href: '/admin/lucky-draw', label: 'Lucky draw' },
         ].map((item) => (
           <Link
             key={item.href}
