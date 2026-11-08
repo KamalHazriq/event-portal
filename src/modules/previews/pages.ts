@@ -5,12 +5,6 @@
  */
 export const PREVIEW_PAGES = [
   {
-    href: '/admin/reports',
-    title: 'Reports',
-    module: 'Module 7, report export',
-    description: 'One click Excel and PDF of attendance and feedback, plus the Slido import.',
-  },
-  {
     href: '/admin/lucky-draw',
     title: 'Lucky draw',
     module: 'Extra, lucky draw',

@@ -127,6 +127,21 @@ export function feedbackForms(config: EventConfig): FeedbackForm[] {
   return forms;
 }
 
+/**
+ * The sessions offered for "which session was the most useful?" on the final
+ * form: the ones that ask for feedback, which is the real programme. Meals,
+ * registration and breaks are left out, since nobody means those.
+ */
+export function bestSessionChoices(
+  config: EventConfig,
+): { id: string; title: string; day: string }[] {
+  return config.days.flatMap((day) =>
+    day.sessions
+      .filter((session) => session.feedbackEnabled && !session.hidden)
+      .map((session) => ({ id: session.id, title: session.title, day: day.label })),
+  );
+}
+
 export function findFeedbackForm(config: EventConfig, formId: string): FeedbackForm | null {
   return feedbackForms(config).find((form) => form.id === formId) ?? null;
 }

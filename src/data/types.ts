@@ -126,3 +126,29 @@ export type Setting = {
   value: string;
   updatedAt: string;
 };
+
+/**
+ * Where an uploaded spreadsheet came from. Slido first (Module 7). The SVC,
+ * ATC and OTC committee upload can reuse the same store later as its own
+ * source, with no new table.
+ */
+export type ImportSource = 'slido';
+
+/**
+ * One sheet kept from an uploaded spreadsheet, as plain text. Stored so the
+ * report can include it, never interpreted beyond that.
+ */
+export type ImportedSheet = {
+  id: string;
+  source: ImportSource;
+  /** What the sheet holds, for example "polls" or "questions". */
+  kind: string;
+  /** The sheet's name in the uploaded file. */
+  name: string;
+  headers: string[];
+  rows: string[][];
+  fileName: string;
+  /** The desk label that uploaded it, never a person's name. */
+  byOperator: string;
+  importedAt: string;
+};

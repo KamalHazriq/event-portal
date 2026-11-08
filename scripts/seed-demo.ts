@@ -18,7 +18,12 @@ import { join } from 'node:path';
 import { getData } from '../src/data/index';
 import { parseAttendeeCsv } from '../src/lib/attendee-import';
 import { getEventConfig } from '../src/lib/config';
-import { EVENT_FORM_ID, feedbackForms, SETTING_KEYS } from '../src/modules/feedback/logic';
+import {
+  bestSessionChoices,
+  EVENT_FORM_ID,
+  feedbackForms,
+  SETTING_KEYS,
+} from '../src/modules/feedback/logic';
 import { SURPRISE_KEYS } from '../src/modules/admin/logic';
 
 for (const file of ['.env', '.env.local']) {
@@ -181,7 +186,7 @@ async function main(): Promise<void> {
   /* ------------------------------------------------- feedback ---------- */
 
   const forms = feedbackForms(config);
-  const sessionIds = config.days.flatMap((d) => d.sessions.map((s) => s.id));
+  const sessionIds = bestSessionChoices(config).map((s) => s.id);
 
   let answers = 0;
 

@@ -82,3 +82,22 @@ model Setting {
   value     String
   updatedAt DateTime @updatedAt
 }
+
+/// A sheet kept from an uploaded spreadsheet, such as the Slido export.
+model ImportedSheet {
+  id         String   @id
+  /// slido, and later the committee upload
+  source     String
+  kind       String
+  name       String
+  /// JSON arrays. SQLite has no JSON column, so the adapter encodes them.
+  headers    String   @default("[]")
+  rows       String   @default("[]")
+  fileName   String   @default("")
+  byOperator String   @default("")
+  /// Keeps the sheets in the order they were in the file.
+  position   Int      @default(0)
+  importedAt DateTime @default(now())
+
+  @@index([source, position])
+}

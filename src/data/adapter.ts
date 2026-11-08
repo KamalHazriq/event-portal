@@ -10,8 +10,8 @@
  * to src/data/sqlite that implements this same interface. No page changes.
  *
  * Scope note: this covers the modules that are confirmed and imminent, which
- * are check in (Module 4), feedback (Module 5) and the admin console
- * (Module 6). Q&A, polls, the photo wall and the lucky draw each add their
+ * are check in (Module 4), feedback (Module 5), the admin console
+ * (Module 6) and uploaded spreadsheets for the report (Module 7). Q&A, polls, the photo wall and the lucky draw each add their
  * own repository here when their module is built. They are left out on
  * purpose: Q&A and polls are backup only because the event runs on Slido, and
  * photo storage still needs a GRC answer, so their shape is not settled and
@@ -27,6 +27,8 @@ import type {
   FeedbackEntry,
   FeedbackSummary,
   Headcount,
+  ImportedSheet,
+  ImportSource,
   Setting,
 } from './types';
 
@@ -110,6 +112,22 @@ export interface SettingsRepository {
   remove(key: string): Promise<boolean>;
 }
 
+/**
+ * Spreadsheets uploaded by an admin, such as the Slido export after the
+ * event. Uploading again replaces what is there, so a corrected file never
+ * doubles up.
+ */
+export interface ImportRepository {
+  replace(
+    source: ImportSource,
+    sheets: { kind: string; name: string; headers: string[]; rows: string[][] }[],
+    meta: { fileName: string; byOperator: string },
+  ): Promise<ImportedSheet[]>;
+  /** In the order they appeared in the file. */
+  list(source: ImportSource): Promise<ImportedSheet[]>;
+  clear(source: ImportSource): Promise<number>;
+}
+
 export interface DataAdapter {
   /** Shown on the admin health page, so it is obvious which store is live. */
   readonly name: string;
@@ -124,6 +142,7 @@ export interface DataAdapter {
   readonly checkIns: CheckInRepository;
   readonly feedback: FeedbackRepository;
   readonly settings: SettingsRepository;
+  readonly imports: ImportRepository;
 }
 
 /** The value of DATA_ADAPTER in .env.local. */

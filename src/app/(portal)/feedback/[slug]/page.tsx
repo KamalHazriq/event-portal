@@ -15,6 +15,7 @@ import {
   MAX_COMMENT,
   problemMessage,
   type SubmissionProblem,
+  bestSessionChoices,
 } from '@/modules/feedback/logic';
 import { readFormSettings } from '@/modules/feedback/settings';
 
@@ -80,11 +81,7 @@ export default async function FeedbackPage({ params, searchParams }: PageProps) 
     .split(',')
     .filter((value): value is SubmissionProblem => value.length > 0);
 
-  const otherSessions = config.days.flatMap((day) =>
-    day.sessions
-      .filter((session) => !session.hidden && session.type !== 'break')
-      .map((session) => ({ id: session.id, title: session.title, day: day.label })),
-  );
+  const otherSessions = bestSessionChoices(config);
 
   return (
     <div className="space-y-5 py-2">

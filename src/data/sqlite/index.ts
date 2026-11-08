@@ -10,6 +10,7 @@ import type {
   CheckInRepository,
   DataAdapter,
   FeedbackRepository,
+  ImportRepository,
   SettingsRepository,
 } from '../adapter';
 import type {
@@ -20,6 +21,8 @@ import type {
   FeedbackEntry,
   FeedbackSummary,
   Headcount,
+  ImportedSheet,
+  ImportSource,
   Setting,
 } from '../types';
 import { newCheckInToken, newId } from '@/lib/ids';
@@ -28,6 +31,30 @@ import { plainText } from '@/lib/text';
 import { getPrismaClient } from './client';
 
 /* ------------------------------------------------------------ row mapping */
+
+/** Stored JSON back to text arrays, dropping anything that is not text. */
+function parseStringArray(raw: string): string[] {
+  try {
+    const value: unknown = JSON.parse(raw);
+    return Array.isArray(value)
+      ? value.map((v) => (typeof v === 'string' ? v : String(v ?? '')))
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+function parseRows(raw: string): string[][] {
+  try {
+    const value: unknown = JSON.parse(raw);
+    if (!Array.isArray(value)) return [];
+    return value.map((row) =>
+      Array.isArray(row) ? row.map((v) => (typeof v === 'string' ? v : String(v ?? ''))) : [],
+    );
+  } catch {
+    return [];
+  }
+}
 
 type AttendeeRow = {
   id: string;
@@ -475,6 +502,56 @@ export function createSqliteAdapter(): DataAdapter {
     },
   };
 
+  const imports: ImportRepository = {
+    async replace(source, sheets, meta) {
+      const fileName = plainText(meta.fileName, 200);
+      const byOperator = plainText(meta.byOperator, 40);
+      // One transaction, so a failed upload never leaves half a file behind.
+      await prisma.$transaction([
+        prisma.importedSheet.deleteMany({ where: { source } }),
+        ...sheets.map((sheet, position) =>
+          prisma.importedSheet.create({
+            data: {
+              id: newId(),
+              source,
+              kind: sheet.kind,
+              name: sheet.name,
+              headers: JSON.stringify(sheet.headers),
+              rows: JSON.stringify(sheet.rows),
+              fileName,
+              byOperator,
+              position,
+            },
+          }),
+        ),
+      ]);
+      return imports.list(source);
+    },
+
+    async list(source) {
+      const rows = await prisma.importedSheet.findMany({
+        where: { source },
+        orderBy: { position: 'asc' },
+      });
+      return rows.map((row): ImportedSheet => ({
+        id: row.id,
+        source: row.source as ImportSource,
+        kind: row.kind,
+        name: row.name,
+        headers: parseStringArray(row.headers),
+        rows: parseRows(row.rows),
+        fileName: row.fileName,
+        byOperator: row.byOperator,
+        importedAt: row.importedAt.toISOString(),
+      }));
+    },
+
+    async clear(source) {
+      const deleted = await prisma.importedSheet.deleteMany({ where: { source } });
+      return deleted.count;
+    },
+  };
+
   return {
     name: 'sqlite',
 
@@ -502,6 +579,7 @@ export function createSqliteAdapter(): DataAdapter {
       await prisma.checkIn.deleteMany();
       await prisma.attendee.deleteMany();
       await prisma.setting.deleteMany();
+      await prisma.importedSheet.deleteMany();
     },
 
     async close() {
@@ -512,5 +590,6 @@ export function createSqliteAdapter(): DataAdapter {
     checkIns,
     feedback,
     settings,
+    imports,
   };
 }

@@ -76,8 +76,11 @@ once rather than being bolted onto each page.
 
 ## The data adapter
 
-`DataAdapter` currently covers attendees, check ins, feedback and a small
-settings store. Those are the confirmed must-have modules.
+`DataAdapter` currently covers attendees, check ins, feedback, a small
+settings store, and uploaded spreadsheets (`imports`, used for the Slido
+export in the report). The upload store keeps each sheet as plain text with a
+`source` label, so the SVC, ATC and OTC committee upload can reuse it later
+with no new table.
 
 Q&A, polls, the photo wall and the lucky draw are deliberately **not** in the
 interface yet. Q&A and polls are backup only because the event runs on Slido,
@@ -228,3 +231,11 @@ make the report look more certain than it is.
 **Reserved form ids.** The config schema refuses a session with the id `event`
 or `event-final`, because the whole event form uses them. Catching that in the
 schema is better than discovering it when two forms collide during the event.
+
+## Excel without a library
+
+`src/lib/xlsx/` writes and reads `.xlsx` files with nothing but `node:zlib`. An
+`.xlsx` file is a zip of XML files; `zip.ts` handles the container, `write.ts`
+the workbook, `read.ts` the values. The reader evaluates nothing (no formulas,
+no macros), caps rows, columns and unpacked size so a hostile file cannot
+exhaust memory, and refuses encrypted or zip64 files with a plain message.

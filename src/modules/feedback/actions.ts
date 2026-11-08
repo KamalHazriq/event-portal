@@ -13,6 +13,7 @@ import {
   slugForFormId,
   validateSubmission,
   type SubmissionProblem,
+  bestSessionChoices,
 } from './logic';
 import { readFormSettings } from './settings';
 
@@ -61,9 +62,8 @@ export async function submitFeedback(formData: FormData): Promise<void> {
   const data = getData();
   if (await data.feedback.hasSubmitted(form.id, deviceId)) return back('duplicate');
 
-  const knownSessionIds = new Set(
-    config.days.flatMap((day) => day.sessions.map((session) => session.id)),
-  );
+  // Only what the form offers, so a hand-made post cannot vote for lunch.
+  const knownSessionIds = new Set(bestSessionChoices(config).map((session) => session.id));
 
   const validated = validateSubmission(
     form,

@@ -1,12 +1,12 @@
 /**
  * Dummy data for the admin console previews.
  *
- * Several admin pages belong to modules that are not built yet: the report
- * export (Module 7), the extras (lucky draw,
- * photo wall, committee summary) and the backup Q&A and polls (Modules 2
- * and 3). Their pages exist now so the secretariat can see the whole console
+ * Several admin pages belong to modules that are not built yet: the extras
+ * (lucky draw, photo wall, committee summary) and the backup Q&A and polls
+ * (Modules 2 and 3). Their pages exist now so the secretariat can see the whole console
  * and comment on it before the real thing is built. Module 8 (the big
- * screen) has since been built for real and left this file.
+ * screen) and Module 7 (reports) have since been built for real and left
+ * this file.
  *
  * Rules for this file:
  * - Nothing here is stored. Each page builds its data from this file on every
@@ -400,44 +400,3 @@ export function mockActivity(currentOperator: string): MockActivity[] {
     },
   ];
 }
-
-/* ------------------------------------------------------- reports and Slido */
-
-export type MockSlidoRow = {
-  sheet: 'Polls' | 'Questions';
-  session: string;
-  item: string;
-  result: string;
-};
-
-/** What an imported Slido Excel export will add to the report. */
-export function mockSlidoImport(sessionTitles: string[], seed = 77): MockSlidoRow[] {
-  const random = seededRandom(seed);
-  const titles = sessionTitles.length > 0 ? sessionTitles : ['Keynote'];
-  const rows: MockSlidoRow[] = [];
-
-  for (const title of titles.slice(0, 4)) {
-    rows.push({
-      sheet: 'Polls',
-      session: title,
-      item: 'How confident are you about the 2027 targets?',
-      result: `${intBetween(random, 50, 75)} votes, top answer "Fairly confident"`,
-    });
-    rows.push({
-      sheet: 'Questions',
-      session: title,
-      item: pickFrom(random, QUESTION_TEXTS),
-      result: `${intBetween(random, 2, 30)} likes, answered`,
-    });
-  }
-  return rows;
-}
-
-export const REPORT_SHEETS = [
-  { name: 'Attendance', source: 'Check ins, one row per person per day' },
-  { name: 'Feedback', source: 'Every answer, with the form anonymity respected' },
-  { name: 'Feedback summary', source: 'Average stars and response count per session' },
-  { name: 'Slido polls', source: 'Imported from the Slido Excel export' },
-  { name: 'Slido questions', source: 'Imported from the Slido Excel export' },
-  { name: 'Lucky draw', source: 'Winners, in draw order' },
-] as const;

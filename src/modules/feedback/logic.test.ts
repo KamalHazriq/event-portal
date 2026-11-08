@@ -4,6 +4,7 @@ import { getEventConfig } from '@/lib/config';
 import { EventConfigSchema } from '@/lib/event-schema';
 
 import {
+  bestSessionChoices,
   anonymityLabel,
   EVENT_FORM_ID,
   EVENT_FORM_SLUG,
@@ -367,3 +368,13 @@ function theme(): Record<string, string> {
     warning: '#A16207',
   };
 }
+
+describe('best session choices', () => {
+  it('offers only the sessions that ask for feedback, never meals or registration', () => {
+    const config = getEventConfig();
+    const ids = new Set(bestSessionChoices(config).map((s) => s.id));
+    expect(ids.has('d1-keynote')).toBe(true);
+    expect(ids.has('d1-registration')).toBe(false);
+    expect(ids.has('d2-breakfast')).toBe(false);
+  });
+});

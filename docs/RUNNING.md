@@ -313,8 +313,9 @@ secretariat. Everyone with a name tag is expected, so everyone is counted.
 and it is linked from that session's page.
 
 **The whole event.** One form at `/feedback/event`, asking for an overall
-rating, which session was most useful, one thing to improve, and anything
-else. It is linked from the home page while it is open.
+rating, which session was most useful (from the sessions that ask for
+feedback, so meals and registration are not offered), one thing to improve,
+and anything else. It is linked from the home page while it is open.
 
 ## One answer per phone
 
@@ -537,27 +538,26 @@ pages for the remaining modules are already there, running on dummy data.
 Each one has a dashed yellow banner saying so. **Nothing on them is saved**:
 buttons work in the open tab only, and a refresh puts everything back.
 
-| Page                                                        | Stands in for                   | What you can try                                           |
-| ----------------------------------------------------------- | ------------------------------- | ---------------------------------------------------------- |
-| [/admin/reports](http://localhost:3000/admin/reports)       | Module 7, report export         | Real attendance and feedback counts, a sample Slido import |
-| [/admin/lucky-draw](http://localhost:3000/admin/lucky-draw) | Lucky draw                      | Draw 1 to 10 winners, exclude people, nobody wins twice    |
-| [/admin/photos](http://localhost:3000/admin/photos)         | Photo wall                      | Approve or reject photos (coloured tiles, no pictures)     |
-| [/admin/committees](http://localhost:3000/admin/committees) | SVC, ATC and OTC summary        | Read only tables of invented papers                        |
-| [/admin/qa](http://localhost:3000/admin/qa)                 | Module 2, backup Q&A            | Approve, pin, mark answered, hide                          |
-| [/admin/polls](http://localhost:3000/admin/polls)           | Module 3, backup polls          | Open, close, reveal results, word cloud                    |
-| [/admin/admins](http://localhost:3000/admin/admins)         | Module 6, who else is signed in | See the 2 to 3 desks and a log of what they did            |
+| Page                                                        | Stands in for                   | What you can try                                        |
+| ----------------------------------------------------------- | ------------------------------- | ------------------------------------------------------- |
+| [/admin/lucky-draw](http://localhost:3000/admin/lucky-draw) | Lucky draw                      | Draw 1 to 10 winners, exclude people, nobody wins twice |
+| [/admin/photos](http://localhost:3000/admin/photos)         | Photo wall                      | Approve or reject photos (coloured tiles, no pictures)  |
+| [/admin/committees](http://localhost:3000/admin/committees) | SVC, ATC and OTC summary        | Read only tables of invented papers                     |
+| [/admin/qa](http://localhost:3000/admin/qa)                 | Module 2, backup Q&A            | Approve, pin, mark answered, hide                       |
+| [/admin/polls](http://localhost:3000/admin/polls)           | Module 3, backup polls          | Open, close, reveal results, word cloud                 |
+| [/admin/admins](http://localhost:3000/admin/admins)         | Module 6, who else is signed in | See the 2 to 3 desks and a log of what they did         |
 
 They are all listed on the secretariat home page and under **More** in the
 admin navigation.
 
-Where something real already exists, the previews use it. The reports page
-shows real attendance and feedback numbers, the lucky draw picks from people
-actually checked in today (secretariat unticked by default). Every
+Where something real already exists, the previews use it: the lucky draw
+picks from people actually checked in today (secretariat unticked by
+default). Every
 invented name, question, photo and committee paper comes from
 `src/modules/previews/mock-data.ts`, never from the attendee list, so a
 preview can never put an invented question against a real person.
 
-Run `npm run demo:seed` first and the lucky draw and reports pages fill up.
+Run `npm run demo:seed` first and the lucky draw fills up.
 
 When a module is built for real, its preview page is replaced in place (same
 address), its line comes out of `src/modules/previews/pages.ts`, and its
@@ -642,3 +642,82 @@ The QR code always stays black on white so it scans.
 
 The motion is deliberately small: new views and new arrival cards fade in, and
 the arrivals bar slides. A laptop set to reduce motion gets none of it.
+
+---
+
+# Module 7: the report
+
+Open **Reports** in the admin navigation, or <http://localhost:3000/admin/reports>.
+
+## The Excel file
+
+**Download Excel** builds the whole event into one `.xlsx` file, fresh each
+time, named like `power-summit-report-2026-12-16.xlsx`. One sheet per topic:
+
+| Sheet                    | What is in it                                                                     |
+| ------------------------ | --------------------------------------------------------------------------------- |
+| Summary                  | The headline numbers                                                              |
+| Attendance               | Everyone on the list, the time they arrived each day, and how (QR or name search) |
+| Attendance by department | Guests per department, per day                                                    |
+| Feedback                 | Every answer, with the name only where the form allowed it and the person gave it |
+| Feedback by session      | Answers, average stars and the spread of stars per session                        |
+| Best session votes       | From the final event form                                                         |
+| Slido ...                | The Slido polls and questions, once uploaded                                      |
+
+It holds names, so keep it on approved storage. The QR secrets and the
+"remark" column (meal needs and so on) are never in it.
+
+Text people typed, such as a comment starting with `=`, is always written as
+text, never as a formula, so nothing in the file can run when it is opened.
+
+## The PDF summary
+
+**Summary for PDF** opens a two page A4 summary: attendance per day and per
+department, feedback averages per session, the best rated and best voted
+sessions, and the Slido highlights. Press **Print or save as PDF** and choose
+**Save as PDF** in the print dialog.
+
+It has counts and averages only, no names, so it can go further than the Excel
+file, for example into a management update.
+
+## Adding the Slido results
+
+After the event:
+
+1. In Slido, open the event, go to **Analytics** (or **Export**), and export the
+   results as **Excel**, not CSV.
+2. On the reports page, choose that file under **Slido results** and press
+   **Upload**.
+
+The page says how many sheets of polls and questions it kept. Those land in
+the Excel report as extra sheets, and their highlights (the top answer per
+poll, the most liked questions) go into the PDF summary.
+
+Only poll and question sheets are kept. Anything else in the export, such as
+a participant list with email addresses, is left out and never stored.
+Uploading again replaces the earlier file, so a corrected export never doubles
+up. **Remove the Slido results** takes them out of the report.
+
+Slido has changed its export layout over the years, so the import finds the
+sheets by their names and column headings rather than fixed positions. If an
+upload says it found no polls or questions, send me the file's sheet names and
+column headings (not the file itself) and I will adjust it.
+
+## No new libraries
+
+The brief asks for a small Excel and PDF library. Neither was needed: an
+`.xlsx` file is a zip of XML files, and `src/lib/xlsx/` writes and reads it
+using only what Node already has. The PDF is the browser's own "Save as PDF",
+the same approach as the name tags. Both were checked against Python's
+openpyxl, which opens the files Excel makes and reads the files this makes.
+
+## Trying it
+
+```powershell
+npm run db:push
+npm run demo:seed
+npm run dev
+```
+
+`db:push` is needed once, because Module 7 adds one table for uploaded
+spreadsheets. Then open the reports page and download the file.

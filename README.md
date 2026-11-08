@@ -43,7 +43,7 @@ Full instructions, including how to pretend it is a different date, are in
 | 5. Feedback                                       | Done                |
 | 6. Admin console                                  | Done                |
 | 8. Big screen mode                                | Done                |
-| 7. Report export with Slido import                | Preview, dummy data |
+| 7. Report export with Slido import                | Done                |
 | Extras: lucky draw, photo wall, committee summary | Preview, dummy data |
 | 2 and 3. Own Q&A and polls                        | Preview, build last |
 
