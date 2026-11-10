@@ -438,8 +438,9 @@ laptop, or at least check them before printing anything.
 <https://kamalhazriq.github.io/event-portal/>
 
 Published automatically on every push to `main`. Each finished step is
-fast-forwarded onto `main`, so it can be seen as soon as it is done. It can also be published by hand from the Actions tab on GitHub,
-which works from a phone.
+fast-forwarded onto `main`, so it can be seen as soon as it is done. It can
+also be published by hand from the Actions tab on GitHub, which works from a
+phone.
 
 ## What is on it
 
