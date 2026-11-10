@@ -18,7 +18,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const session = await getAdminSession();
 
   return (
-    <div className="mx-auto flex min-h-dvh w-full max-w-5xl flex-col">
+    <div className="mx-auto flex min-h-dvh w-full max-w-5xl flex-col xl:max-w-6xl">
       <AdminHeader
         shortName={config.event.shortName}
         operator={session?.operator ?? null}

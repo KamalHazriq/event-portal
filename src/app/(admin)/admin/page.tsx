@@ -49,6 +49,11 @@ const PAGES = [
     description: 'Draw winners from whoever has checked in. Nobody wins twice.',
   },
   {
+    href: '/admin/photos',
+    title: 'Photo wall',
+    description: 'Approve photos before they reach the big screen slideshow.',
+  },
+  {
     href: '/admin/committees',
     title: 'Committee summary',
     description: 'Upload a committee Excel and choose who can see its summary.',

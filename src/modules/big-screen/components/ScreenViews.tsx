@@ -9,6 +9,7 @@
 import { QrCode } from '@/components/QrCode';
 
 import { LuckyDrawSpinner } from '@/modules/lucky-draw/components/LuckyDrawSpinner';
+import { PhotoSlideshow } from '@/modules/photos/components/PhotoSlideshow';
 
 import type { ArrivalCard } from '../logic';
 import { CountdownDigits } from './CountdownDigits';
@@ -319,4 +320,37 @@ export function LuckyDrawView({
       spinNames={[...new Set([...spinNames, ...latest.winners.map((w) => w.name)])]}
     />
   );
+}
+
+/* ----------------------------------------------------------------- photos */
+
+export function PhotosView({
+  slides,
+  shareUrl,
+}: {
+  slides: { id: string; caption: string }[];
+  shareUrl: string;
+}) {
+  if (slides.length === 0) {
+    return (
+      <div className="screen-fade grid h-full items-center gap-[4vw] md:grid-cols-[1fr_auto]">
+        <div>
+          <p className="text-[clamp(2.5rem,6vw,9rem)] font-bold leading-[1.05] text-ink">
+            Share your photos
+          </p>
+          <p className="mt-[2vh] text-[clamp(1.2rem,2.4vw,3.2rem)] text-ink-soft">
+            Scan, pick a photo, and it appears here once an organiser has checked it.
+          </p>
+        </div>
+        <div className="rounded-[1.5vw] bg-white p-[1.2vw]">
+          <QrCode
+            value={shareUrl}
+            label="QR code that opens the photo sharing page"
+            className="block size-[clamp(9rem,22vw,28rem)]"
+          />
+        </div>
+      </div>
+    );
+  }
+  return <PhotoSlideshow slides={slides} />;
 }

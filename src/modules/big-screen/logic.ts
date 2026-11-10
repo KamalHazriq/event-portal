@@ -10,7 +10,14 @@
  * polling, brief hard rule 7), so the projector follows within seconds.
  */
 
-export const SCREEN_VIEWS = ['welcome', 'now-next', 'arrivals', 'countdown', 'lucky-draw'] as const;
+export const SCREEN_VIEWS = [
+  'welcome',
+  'now-next',
+  'arrivals',
+  'countdown',
+  'lucky-draw',
+  'photos',
+] as const;
 export type ScreenView = (typeof SCREEN_VIEWS)[number];
 
 export const SCREEN_KEYS = {
@@ -61,6 +68,11 @@ export const SCREEN_VIEW_INFO: Record<
     description: 'Big numbers counting down to the surprise. Set it on the live control page.',
     whenToUse: 'The build up to the surprise',
   },
+  photos: {
+    title: 'Photo slideshow',
+    description: 'Approved photos from the photo wall, one every eight seconds.',
+    whenToUse: 'Breaks and dinner',
+  },
   'lucky-draw': {
     title: 'Lucky draw',
     description: 'Spins through the names and stops on the winners. Draw on the lucky draw page.',
@@ -69,8 +81,14 @@ export const SCREEN_VIEW_INFO: Record<
 };
 
 /** Views that belong to a module the config can switch off. */
-export function availableScreenViews(features: { luckyDraw: boolean }): ScreenView[] {
-  return SCREEN_VIEWS.filter((view) => view !== 'lucky-draw' || features.luckyDraw);
+export function availableScreenViews(features: {
+  luckyDraw: boolean;
+  photoWall: boolean;
+}): ScreenView[] {
+  return SCREEN_VIEWS.filter(
+    (view) =>
+      (view !== 'lucky-draw' || features.luckyDraw) && (view !== 'photos' || features.photoWall),
+  );
 }
 
 /**

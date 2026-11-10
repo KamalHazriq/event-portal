@@ -118,3 +118,24 @@ model LuckyDrawWinner {
 
   @@index([drawnAt])
 }
+
+/// A photo wall photo, shrunk in the browser before upload. The image lives
+/// here for local work; the adapter can move it to approved storage later.
+model Photo {
+  id         String    @id
+  deviceId   String
+  caption    String    @default("")
+  /// pending | approved | rejected
+  status     String    @default("pending")
+  width      Int
+  height     Int
+  sizeBytes  Int
+  image      Bytes
+  thumbnail  Bytes
+  createdAt  DateTime  @default(now())
+  reviewedAt DateTime?
+  reviewedBy String    @default("")
+
+  @@index([status, createdAt])
+  @@index([deviceId])
+}

@@ -11,8 +11,8 @@
  *
  * Scope note: this covers the modules that are confirmed and imminent, which
  * are check in (Module 4), feedback (Module 5), the admin console
- * (Module 6) and uploaded spreadsheets for the report (Module 7). Q&A, polls and the photo wall each add their own repository
- * here when their module is built. They are left out on
+ * (Module 6) and uploaded spreadsheets for the report (Module 7). Q&A and polls each add their own repository here when their
+ * module is built. They are left out on
  * purpose: Q&A and polls are backup only because the event runs on Slido, and
  * photo storage still needs a GRC answer, so their shape is not settled and
  * guessing it now would only create rework.
@@ -30,6 +30,8 @@ import type {
   ImportedSheet,
   ImportSource,
   LuckyDrawWinnerWithAttendee,
+  Photo,
+  PhotoStatus,
   Setting,
 } from './types';
 
@@ -152,6 +154,31 @@ export interface LuckyDrawRepository {
   clear(): Promise<number>;
 }
 
+/**
+ * The photo wall. Images are stored through here (today in SQLite), so they
+ * can move to approved storage later without any page changing.
+ */
+export interface PhotoRepository {
+  /** Saves a new photo, waiting for approval. */
+  add(input: {
+    deviceId: string;
+    caption: string;
+    width: number;
+    height: number;
+    image: Uint8Array;
+    thumbnail: Uint8Array;
+    /** Only the demo seed passes this. See checkIns.create. */
+    at?: string;
+  }): Promise<Photo>;
+  /** Newest first. Never includes the image bytes. */
+  list(status?: PhotoStatus): Promise<Photo[]>;
+  countByDevice(deviceId: string): Promise<number>;
+  /** The JPEG bytes, full size or the small thumbnail. */
+  image(id: string, size: 'full' | 'thumb'): Promise<{ photo: Photo; bytes: Uint8Array } | null>;
+  setStatus(ids: string[], status: PhotoStatus, byOperator: string): Promise<number>;
+  remove(id: string): Promise<boolean>;
+}
+
 export interface DataAdapter {
   /** Shown on the admin health page, so it is obvious which store is live. */
   readonly name: string;
@@ -168,6 +195,7 @@ export interface DataAdapter {
   readonly settings: SettingsRepository;
   readonly imports: ImportRepository;
   readonly luckyDraw: LuckyDrawRepository;
+  readonly photos: PhotoRepository;
 }
 
 /** The value of DATA_ADAPTER in .env.local. */

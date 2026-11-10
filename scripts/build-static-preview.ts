@@ -59,6 +59,9 @@ const DEMO_NOW = '2026-12-15T10:40';
 
 type Page = { url: string; file: string };
 
+/** Photo wall images the saved demo pages point at, fetched after them. */
+const photoIds = new Set<string>();
+
 const SCHEDULE_BANNER = `<div style="background:#0F2329;color:#EAF4F3;border-bottom:2px solid #22D38A;padding:10px 16px;font:14px/1.4 Arial,Helvetica,sans-serif;text-align:center">A preview of the schedule. <a href="/guide/" style="color:#22D38A;font-weight:bold">How the portal works</a> / <a href="/admin/" style="color:#22D38A;font-weight:bold">Admin console demo</a></div>`;
 
 const DEMO_BANNER = `<div style="background:#0F2329;color:#EAF4F3;border-bottom:2px solid #FBBF24;padding:10px 16px;font:14px/1.4 Arial,Helvetica,sans-serif;text-align:center">Demo snapshot with invented people and answers, as if it were Day 2 at 10:40. Buttons and forms do nothing here. <a href="/guide/" style="color:#22D38A;font-weight:bold">How the portal works</a> / <a href="/" style="color:#22D38A;font-weight:bold">Schedule</a></div>`;
@@ -142,6 +145,18 @@ function toStaticHtml(html: string, days: string[], banner: string): string {
     out = out.replaceAll(`/agenda?day=${day}`, `/agenda/${day}/`);
   }
 
+  // Photo wall images become saved copies (see savePhotos), and the zip
+  // download has nothing to serve on a static host.
+  out = out.replace(
+    /src="\/api\/photos\/([A-Za-z0-9]+)\?size=thumb"/g,
+    'src="/demo/photos/$1-thumb.jpg"',
+  );
+  out = out.replace(/(src|href)="\/api\/photos\/([A-Za-z0-9]+)"/g, '$1="/demo/photos/$2.jpg"');
+  out = out.replaceAll('href="/api/photos/zip"', 'href="#"');
+
+  // The photo wall's "On the wall" tab is saved as its own folder.
+  out = out.replaceAll('/admin/photos?status=approved', '/admin/photos/approved/');
+
   // The report download becomes a demo file saved next to the pages.
   out = out.replaceAll('href="/api/reports/excel"', 'href="/demo/event-report-demo.xlsx"');
 
@@ -176,7 +191,11 @@ async function save(
     throw new Error(`${page.url} answered ${response.status}`);
   }
 
-  const html = toStaticHtml(await response.text(), days, options.banner ?? SCHEDULE_BANNER);
+  const raw = await response.text();
+  for (const m of raw.matchAll(/\/api\/photos\/([A-Za-z0-9]+)(?!\/)/g)) {
+    if (m[1] !== 'zip') photoIds.add(m[1] as string);
+  }
+  const html = toStaticHtml(raw, days, options.banner ?? SCHEDULE_BANNER);
   const target = join(OUT_DIR, page.file);
   await mkdir(dirname(target), { recursive: true });
   await writeFile(target, html, 'utf8');
@@ -256,12 +275,14 @@ async function buildDemo(days: string[]): Promise<number> {
       file: `admin/${p ? `${p}/` : ''}index.html`,
     })),
     { url: '/screen', file: 'screen/index.html' },
-    ...['welcome', 'now-next', 'arrivals', 'countdown', 'lucky-draw'].map((view) => ({
+    ...['welcome', 'now-next', 'arrivals', 'countdown', 'lucky-draw', 'photos'].map((view) => ({
       url: `/screen/${view}`,
       file: `screen/${view}/index.html`,
     })),
     ...forms.map((slug) => ({ url: `/feedback/${slug}`, file: `feedback/${slug}/index.html` })),
     { url: '/guide', file: 'guide/index.html' },
+    { url: '/photos', file: 'photos/index.html' },
+    { url: '/admin/photos?status=approved', file: 'admin/photos/approved/index.html' },
   ];
 
   const server = startServer(DEMO_PORT, {
@@ -278,6 +299,24 @@ async function buildDemo(days: string[]): Promise<number> {
     const cookie = await signInDemo();
     for (const page of pages) {
       await save(page, days, { origin: DEMO_ORIGIN, cookie, banner: DEMO_BANNER });
+    }
+
+    // The photo wall images the pages show, full size and thumbnail.
+    await mkdir(join(OUT_DIR, 'demo', 'photos'), { recursive: true });
+    for (const id of photoIds) {
+      for (const [query, suffix] of [
+        ['', ''],
+        ['?size=thumb', '-thumb'],
+      ] as const) {
+        const image = await fetch(`${DEMO_ORIGIN}/api/photos/${id}${query}`, {
+          headers: { cookie },
+        });
+        if (!image.ok) continue;
+        await writeFile(
+          join(OUT_DIR, 'demo', 'photos', `${id}${suffix}.jpg`),
+          Buffer.from(await image.arrayBuffer()),
+        );
+      }
     }
 
     // The report, as the download button would give it.

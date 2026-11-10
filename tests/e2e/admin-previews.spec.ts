@@ -19,7 +19,6 @@ async function signIn(page: Page): Promise<void> {
 
 const PAGES = [
   ['/admin/previews', 'Previews'],
-  ['/admin/photos', 'Photo wall'],
   ['/admin/qa', 'Q&A queue'],
   ['/admin/polls', 'Polls'],
   ['/admin/admins', 'Admins'],

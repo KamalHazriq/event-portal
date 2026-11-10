@@ -319,6 +319,36 @@ async function main(): Promise<void> {
   );
   console.log(`slido sheets imported: 2 (invented)`);
 
+  /* ------------------------------------------------ photo wall --------- */
+
+  // Invented images from scripts/demo-photos: gradients with a label, no
+  // people. Earlier demo photos are removed first, so reruns do not pile up.
+  for (const old of await data.photos.list()) {
+    if (old.deviceId.startsWith('demo-')) await data.photos.remove(old.id);
+  }
+  const photoSpecs: [number, string, 'approved' | 'pending' | 'rejected'][] = [
+    [1, 'Ballroom before doors open', 'approved'],
+    [2, 'Breakout group B', 'approved'],
+    [3, 'Gala dinner, table 4', 'approved'],
+    [4, 'Team photo', 'approved'],
+    [5, 'Night activity', 'pending'],
+    [6, '', 'pending'],
+  ];
+  for (const [n, caption, status] of photoSpecs) {
+    const dir = join(process.cwd(), 'scripts', 'demo-photos');
+    const photo = await data.photos.add({
+      deviceId: `demo-device-${n}`,
+      caption,
+      width: 1200,
+      height: 800,
+      image: readFileSync(join(dir, `demo-${n}.jpg`)),
+      thumbnail: readFileSync(join(dir, `demo-${n}-thumb.jpg`)),
+      at: instant(config.days[0]!.date, 19 * 60 + n * 20),
+    });
+    if (status !== 'pending') await data.photos.setStatus([photo.id], status, 'desk-1');
+  }
+  console.log('photos:               6 (invented, 4 approved)');
+
   /* ------------------------------------------ committee papers --------- */
 
   // Invented papers, so the committee summary has something to count.

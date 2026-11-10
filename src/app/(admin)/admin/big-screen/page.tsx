@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import { requireAdmin } from '@/lib/admin-guard';
@@ -12,9 +11,6 @@ import { availableScreenViews, SCREEN_VIEW_INFO } from '@/modules/big-screen/log
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = { title: 'Big screen' };
-
-/** Views the brief wants on the big screen that arrive with later modules. */
-const LATER = [{ title: 'Photo slideshow', href: '/admin/photos' }];
 
 export default async function BigScreenControlPage() {
   await requireAdmin('/admin/big-screen');
@@ -132,21 +128,6 @@ export default async function BigScreenControlPage() {
             </span>
           ))}
           .
-        </p>
-      </section>
-
-      <section className="text-sm text-ink-soft">
-        <p>
-          Coming with later modules:{' '}
-          {LATER.map((item, i) => (
-            <span key={item.href}>
-              {i > 0 ? ' and ' : ''}
-              <Link href={item.href} className="font-semibold text-primary">
-                {item.title}
-              </Link>
-            </span>
-          ))}
-          , a preview for now.
         </p>
       </section>
     </div>

@@ -28,6 +28,8 @@ export type ReportInput = {
   imports: ImportedSheet[];
   /** Lucky draw winners, in draw order. */
   luckyDraw: LuckyDrawWinnerWithAttendee[];
+  /** Photo wall counts. Only counts: the photos are in their own zip. */
+  photos?: { approved: number; total: number };
   /** When the report was made, as an instant. */
   generatedAt: Date;
 };
@@ -246,6 +248,14 @@ export function buildReportWorkbook(input: ReportInput): SheetInput[] {
     ['Feedback answers', summary.feedbackAnswers],
     ['Average session rating', summary.sessionAverage ?? 'No ratings'],
     ['Average event rating', summary.eventAverage ?? 'No ratings'],
+    ...(input.photos
+      ? [
+          [
+            'Photo wall',
+            `${input.photos.approved} approved of ${input.photos.total} shared`,
+          ] as CellValue[],
+        ]
+      : []),
     ['Lucky draw winners', `${summary.luckyDrawWinners} across ${summary.luckyDrawDraws} draws`],
     [
       'Slido results',

@@ -19,7 +19,7 @@ Check every page at phone (375), tablet (768), laptop (1366) and desktop
 (1920), and fix anything that scrolls sideways, crowds or wastes space:
 attendee pages, admin pages, the guide, the projector views.
 
-## 3. Photo wall (GRC has cleared it)
+## 3. Photo wall (GRC has cleared it) (done)
 
 - Attendees upload from their phone. Photos are shrunk in the browser to
   about 1600 px wide before upload. Up to 10 per phone.

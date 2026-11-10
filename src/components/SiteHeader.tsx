@@ -22,6 +22,7 @@ export function SiteHeader({
   const items: NavItem[] = [{ href: '/', label: 'Home' }];
   if (features.schedule) items.push({ href: '/agenda', label: 'Agenda' });
   if (features.resources) items.push({ href: '/resources', label: 'Resources' });
+  if (features.photoWall) items.push({ href: '/photos', label: 'Photos' });
 
   const dates =
     event.startDate === event.endDate

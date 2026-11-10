@@ -11,6 +11,7 @@ const ITEMS: { href: string; label: string; also?: string[] }[] = [
   { href: '/admin/big-screen', label: 'Big screen' },
   { href: '/admin/reports', label: 'Reports' },
   { href: '/admin/lucky-draw', label: 'Lucky draw' },
+  { href: '/admin/photos', label: 'Photos' },
   { href: '/admin/committees', label: 'Committees' },
   { href: '/admin/name-tags', label: 'Name tags' },
   { href: '/admin/qr-assets', label: 'QR assets' },
@@ -18,7 +19,7 @@ const ITEMS: { href: string; label: string; also?: string[] }[] = [
     href: '/admin/previews',
     label: 'More',
     // The preview pages that have no tab of their own light up "More".
-    also: ['/admin/photos', '/admin/committees', '/admin/qa', '/admin/polls', '/admin/admins'],
+    also: ['/admin/qa', '/admin/polls', '/admin/admins'],
   },
 ];
 
@@ -27,7 +28,8 @@ export function AdminNav() {
 
   return (
     <nav aria-label="Secretariat" className="px-2">
-      <ul className="flex gap-1 overflow-x-auto">
+      {/* A swipeable row on a phone; on a laptop every tab shows, over two rows if needed. */}
+      <ul className="flex gap-1 overflow-x-auto lg:flex-wrap lg:overflow-visible">
         {ITEMS.map((item) => {
           const active = [item.href, ...(item.also ?? [])].some((href) =>
             pathname.startsWith(href),

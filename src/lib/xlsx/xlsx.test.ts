@@ -19,6 +19,12 @@ describe('zip', () => {
     expect(files.get('dir/b.txt')?.toString()).toBe('world '.repeat(500));
   });
 
+  it('round trips a stored entry, as used for photos', () => {
+    const data = Buffer.from([0xff, 0xd8, 0xff, 1, 2, 3]);
+    const files = readZip(writeZip([{ name: 'a.jpg', data, store: true }]));
+    expect(files.get('a.jpg')).toEqual(data);
+  });
+
   it('refuses something that is not a zip', () => {
     expect(() => readZip(Buffer.from('not a zip file at all, just text'))).toThrow(ZipError);
   });

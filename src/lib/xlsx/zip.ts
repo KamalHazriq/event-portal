@@ -33,7 +33,12 @@ export function crc32(data: Uint8Array): number {
 
 /* ----------------------------------------------------------------- writing */
 
-export type ZipEntry = { name: string; data: Buffer };
+export type ZipEntry = {
+  name: string;
+  data: Buffer;
+  /** Stored as is, not compressed. Right for JPEGs, which do not shrink. */
+  store?: boolean;
+};
 
 /** 1 Jan 2026, 00:00, in the DOS format zip uses. A fixed date keeps files reproducible. */
 const DOS_TIME = 0;
@@ -46,14 +51,15 @@ export function writeZip(entries: ZipEntry[]): Buffer {
 
   for (const entry of entries) {
     const name = Buffer.from(entry.name, 'utf8');
-    const compressed = deflateRawSync(entry.data);
+    const compressed = entry.store ? entry.data : deflateRawSync(entry.data);
+    const method = entry.store ? 0 : 8;
     const crc = crc32(entry.data);
 
     const local = Buffer.alloc(30);
     local.writeUInt32LE(0x04034b50, 0);
     local.writeUInt16LE(20, 4); // version needed
     local.writeUInt16LE(0x0800, 6); // UTF-8 names
-    local.writeUInt16LE(8, 8); // deflate
+    local.writeUInt16LE(method, 8); // 0 stored, 8 deflate
     local.writeUInt16LE(DOS_TIME, 10);
     local.writeUInt16LE(DOS_DATE, 12);
     local.writeUInt32LE(crc, 14);
@@ -68,7 +74,7 @@ export function writeZip(entries: ZipEntry[]): Buffer {
     central.writeUInt16LE(20, 4); // version made by
     central.writeUInt16LE(20, 6);
     central.writeUInt16LE(0x0800, 8);
-    central.writeUInt16LE(8, 10);
+    central.writeUInt16LE(method, 10);
     central.writeUInt16LE(DOS_TIME, 12);
     central.writeUInt16LE(DOS_DATE, 14);
     central.writeUInt32LE(crc, 16);

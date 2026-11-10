@@ -171,3 +171,24 @@ export type LuckyDrawWinner = {
 };
 
 export type LuckyDrawWinnerWithAttendee = LuckyDrawWinner & { attendee: Attendee };
+
+export type PhotoStatus = 'pending' | 'approved' | 'rejected';
+
+/**
+ * A photo from the photo wall (an extra from the brief). The image itself is
+ * fetched separately, so lists stay small.
+ */
+export type Photo = {
+  id: string;
+  /** The phone it came from. Not a person, and never shown. */
+  deviceId: string;
+  caption: string;
+  status: PhotoStatus;
+  width: number;
+  height: number;
+  sizeBytes: number;
+  createdAt: string;
+  reviewedAt: string | null;
+  /** The desk label that approved or rejected it. */
+  reviewedBy: string;
+};

@@ -124,6 +124,21 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
         </div>
 
         <div className="space-y-6 lg:col-start-1 lg:row-start-2">
+          {config.features.photoWall ? (
+            <section className="rounded-xl border border-line bg-surface p-4">
+              <h2 className="text-base font-bold text-ink">Share a photo</h2>
+              <p className="mt-1 text-sm text-ink-soft">
+                Your photos play on the big screen during breaks and dinner.
+              </p>
+              <Link
+                href="/photos"
+                className="mt-3 inline-flex min-h-11 items-center rounded-lg bg-primary px-4 py-2.5 font-bold text-on-primary no-underline"
+              >
+                Share photos
+              </Link>
+            </section>
+          ) : null}
+
           {config.features.feedback && eventFeedbackOpen ? (
             <section className="rounded-xl border border-line bg-surface p-4">
               <h2 className="text-base font-bold text-ink">Tell us how it went</h2>

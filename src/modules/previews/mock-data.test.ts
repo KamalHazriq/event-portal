@@ -3,14 +3,13 @@ import { describe, expect, it } from 'vitest';
 import { getEventConfig } from '@/lib/config';
 import { buildAgenda } from '@/modules/schedule/logic';
 
-import { mockOperators, mockPhotos, mockPolls, mockQuestions, MOCK_NAMES } from './mock-data';
+import { mockOperators, mockPolls, mockQuestions, MOCK_NAMES } from './mock-data';
 
 describe('preview mock data', () => {
   const agenda = buildAgenda(getEventConfig());
 
   it('is the same every time', () => {
     expect(mockQuestions(agenda.sessions)).toEqual(mockQuestions(agenda.sessions));
-    expect(mockPhotos()).toEqual(mockPhotos());
     expect(mockPolls(78)).toEqual(mockPolls(78));
   });
 

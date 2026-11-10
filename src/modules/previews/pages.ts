@@ -5,12 +5,6 @@
  */
 export const PREVIEW_PAGES = [
   {
-    href: '/admin/photos',
-    title: 'Photo wall',
-    module: 'Extra, photo wall',
-    description: 'Approve photos before they reach the slideshow.',
-  },
-  {
     href: '/admin/qa',
     title: 'Q&A queue',
     module: 'Module 2, backup Q&A if Slido is down',

@@ -1,9 +1,8 @@
 /**
  * Dummy data for the admin console previews.
  *
- * Several admin pages belong to modules that are not built yet: the extras
- * (the photo wall) and the backup Q&A and polls
- * (Modules 2 and 3). Their pages exist now so the secretariat can see the whole console
+ * Several admin pages belong to modules that are not built yet: the backup
+ * Q&A and polls (Modules 2 and 3), and who else is signed in. Their pages exist now so the secretariat can see the whole console
  * and comment on it before the real thing is built. Module 8 (the big
  * screen), Module 7 (reports) and the lucky draw have since been built for
  * real and left this file.
@@ -223,53 +222,6 @@ export function mockPolls(voters: number, seed = 1214): MockPoll[] {
       voters: 0,
     },
   ];
-}
-
-/* -------------------------------------------------------------- photo wall */
-
-export type MockPhotoStatus = 'pending' | 'approved' | 'rejected';
-
-export type MockPhoto = {
-  id: string;
-  caption: string;
-  /** A device label, never a person. Matches how the real wall will work. */
-  device: string;
-  status: MockPhotoStatus;
-  /** Colour for the placeholder tile, so no image files are needed. */
-  hue: number;
-  sizeKb: number;
-  minutesAgo: number;
-};
-
-const PHOTO_CAPTIONS = [
-  'Our table at the opening',
-  'Breakout group B',
-  'The view from the back row',
-  'Ice breaker chaos',
-  'Gala dinner, table 4',
-  'Coffee queue',
-  'Post-it wall after the breakout',
-  'Team selfie',
-  'The stage before doors open',
-  'Night activity',
-  '',
-  '',
-];
-
-export function mockPhotos(seed = 1612): MockPhoto[] {
-  const random = seededRandom(seed);
-  return Array.from({ length: 18 }, (_, i) => {
-    const roll = random();
-    return {
-      id: `photo-${i + 1}`,
-      caption: pickFrom(random, PHOTO_CAPTIONS),
-      device: `device-${String(intBetween(random, 1, 40)).padStart(2, '0')}`,
-      status: roll < 0.4 ? 'pending' : roll < 0.9 ? 'approved' : 'rejected',
-      hue: Math.floor(random() * 360),
-      sizeKb: intBetween(random, 180, 420),
-      minutesAgo: intBetween(random, 1, 300),
-    } satisfies MockPhoto;
-  });
 }
 
 /* ----------------------------------------------------------------- admins */

@@ -86,7 +86,11 @@ It also holds the lucky draw winners (`luckyDraw`). The table makes the
 attendee unique, so the database itself enforces "nobody wins twice", even
 when two desks draw at the same moment.
 
-Q&A, polls and the photo wall are deliberately **not** in the interface yet. Q&A and polls are backup only because the event runs on Slido,
+It also holds the photo wall (`photos`): the shrunk image and a small
+thumbnail as bytes, behind the same interface, so they can move to approved
+storage with a new adapter and no page changes.
+
+Q&A and polls are deliberately **not** in the interface yet. Q&A and polls are backup only because the event runs on Slido,
 and photo storage still needs a GRC answer. Each gets its own repository on the
 interface when its module is built, rather than guessing the shape now and
 reworking it later.

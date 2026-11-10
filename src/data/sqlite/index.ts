@@ -12,6 +12,7 @@ import type {
   FeedbackRepository,
   ImportRepository,
   LuckyDrawRepository,
+  PhotoRepository,
   SettingsRepository,
 } from '../adapter';
 import type {
@@ -25,6 +26,8 @@ import type {
   ImportedSheet,
   ImportSource,
   LuckyDrawWinnerWithAttendee,
+  Photo,
+  PhotoStatus,
   Setting,
 } from '../types';
 import { newCheckInToken, newId } from '@/lib/ids';
@@ -615,6 +618,105 @@ export function createSqliteAdapter(): DataAdapter {
     },
   };
 
+  const PHOTO_FIELDS = {
+    id: true,
+    deviceId: true,
+    caption: true,
+    status: true,
+    width: true,
+    height: true,
+    sizeBytes: true,
+    createdAt: true,
+    reviewedAt: true,
+    reviewedBy: true,
+  } as const;
+
+  type PhotoRow = {
+    id: string;
+    deviceId: string;
+    caption: string;
+    status: string;
+    width: number;
+    height: number;
+    sizeBytes: number;
+    createdAt: Date;
+    reviewedAt: Date | null;
+    reviewedBy: string;
+  };
+
+  const toPhoto = (row: PhotoRow): Photo => ({
+    id: row.id,
+    deviceId: row.deviceId,
+    caption: row.caption,
+    status: (['pending', 'approved', 'rejected'].includes(row.status)
+      ? row.status
+      : 'pending') as PhotoStatus,
+    width: row.width,
+    height: row.height,
+    sizeBytes: row.sizeBytes,
+    createdAt: row.createdAt.toISOString(),
+    reviewedAt: row.reviewedAt ? row.reviewedAt.toISOString() : null,
+    reviewedBy: row.reviewedBy,
+  });
+
+  const photos: PhotoRepository = {
+    async add(input) {
+      const row = await prisma.photo.create({
+        data: {
+          id: newId(),
+          deviceId: input.deviceId,
+          caption: plainText(input.caption, 120),
+          width: input.width,
+          height: input.height,
+          sizeBytes: input.image.byteLength,
+          image: Buffer.from(input.image),
+          thumbnail: Buffer.from(input.thumbnail),
+          createdAt: input.at ? new Date(input.at) : new Date(),
+        },
+        select: PHOTO_FIELDS,
+      });
+      return toPhoto(row);
+    },
+
+    async list(status) {
+      const rows = await prisma.photo.findMany({
+        where: status ? { status } : {},
+        orderBy: { createdAt: 'desc' },
+        select: PHOTO_FIELDS,
+      });
+      return rows.map(toPhoto);
+    },
+
+    async countByDevice(deviceId) {
+      return prisma.photo.count({ where: { deviceId } });
+    },
+
+    async image(id, size) {
+      const row = await prisma.photo.findUnique({
+        where: { id },
+        select: { ...PHOTO_FIELDS, image: size === 'full', thumbnail: size === 'thumb' },
+      });
+      if (!row) return null;
+      const bytes = size === 'full' ? row.image : row.thumbnail;
+      if (!bytes) return null;
+      return { photo: toPhoto(row), bytes: new Uint8Array(bytes) };
+    },
+
+    async setStatus(ids, status, byOperator) {
+      if (ids.length === 0) return 0;
+      const updated = await prisma.photo.updateMany({
+        where: { id: { in: ids } },
+        data: { status, reviewedAt: new Date(), reviewedBy: plainText(byOperator, 40) },
+      });
+      return updated.count;
+    },
+
+    async remove(id) {
+      const deleted = await prisma.photo.deleteMany({ where: { id } });
+      return deleted.count > 0;
+    },
+  };
+
   return {
     name: 'sqlite',
 
@@ -644,6 +746,7 @@ export function createSqliteAdapter(): DataAdapter {
       await prisma.attendee.deleteMany();
       await prisma.setting.deleteMany();
       await prisma.importedSheet.deleteMany();
+      await prisma.photo.deleteMany();
     },
 
     async close() {
@@ -656,5 +759,6 @@ export function createSqliteAdapter(): DataAdapter {
     settings,
     imports,
     luckyDraw,
+    photos,
   };
 }

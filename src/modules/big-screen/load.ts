@@ -32,6 +32,7 @@ import type {
   CountdownView,
   LuckyDrawView,
   NowNextView,
+  PhotosView,
   ScreenSession,
   WelcomeView,
 } from './components/ScreenViews';
@@ -69,7 +70,8 @@ export type ScreenPayload =
   | { view: 'now-next'; props: ComponentProps<typeof NowNextView> }
   | { view: 'arrivals'; props: ComponentProps<typeof ArrivalsView> }
   | { view: 'countdown'; props: ComponentProps<typeof CountdownView> }
-  | { view: 'lucky-draw'; props: ComponentProps<typeof LuckyDrawView> };
+  | { view: 'lucky-draw'; props: ComponentProps<typeof LuckyDrawView> }
+  | { view: 'photos'; props: ComponentProps<typeof PhotosView> };
 
 export async function loadScreenView(
   view: ScreenView,
@@ -197,6 +199,18 @@ export async function loadScreenView(
             : null,
           spinNames,
           inHat: hat.filter((a) => !wonIds.has(a.id)).length,
+        },
+      };
+    }
+
+    case 'photos': {
+      if (!config.features.photoWall) return loadScreenView('welcome', now, settings);
+      const approved = await data.photos.list('approved');
+      return {
+        view,
+        props: {
+          slides: approved.slice(0, 80).map((p) => ({ id: p.id, caption: p.caption })),
+          shareUrl: `${config.event.portalUrl.replace(/\/$/, '')}/photos`,
         },
       };
     }

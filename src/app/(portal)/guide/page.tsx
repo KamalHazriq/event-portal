@@ -30,7 +30,7 @@ export default function GuidePage() {
     {
       who: 'Attendees',
       where: 'On their phones',
-      what: 'The agenda, what is on now and next, each session with its speakers, the Slido link, feedback forms and take aways. Opened by scanning the QR on the back of the name tag.',
+      what: 'The agenda, what is on now and next, each session with its speakers, the Slido link, feedback forms, take aways and photo sharing. Opened by scanning the QR on the back of the name tag.',
       href: '/',
       link: 'Open the attendee view',
       on: true,
@@ -38,7 +38,7 @@ export default function GuidePage() {
     {
       who: 'The room',
       where: 'On the ballroom projector',
-      what: 'Full screen views with no buttons: a welcome with the portal QR, now and next, a live arrivals counter, the surprise countdown and the lucky draw.',
+      what: 'Full screen views with no buttons: a welcome with the portal QR, now and next, a live arrivals counter, the surprise countdown, the lucky draw and the photo slideshow.',
       href: '/screen/welcome',
       link: 'See a projector view',
       on: features.bigScreen,
@@ -90,10 +90,11 @@ export default function GuidePage() {
     {
       when: 'Breaks and evenings',
       title: 'Put on a show',
-      text: 'Switch the projector from a phone. Start the surprise countdown, or run the lucky draw: it spins through the names of people who checked in and nobody can win twice.',
+      text: 'Switch the projector from a phone. Start the surprise countdown, run the lucky draw (it spins through the names of people who checked in, and nobody can win twice), or play the photo slideshow from the photos attendees shared.',
       links: [
         { href: '/admin/big-screen', label: 'Big screen control', on: features.bigScreen },
         { href: '/admin/lucky-draw', label: 'Lucky draw', on: features.luckyDraw },
+        { href: '/admin/photos', label: 'Photo wall', on: features.photoWall },
         { href: '/screen/countdown', label: 'Countdown on the projector', on: features.bigScreen },
       ],
     },
@@ -156,6 +157,10 @@ export default function GuidePage() {
     [
       'Only invented data in the code',
       'The real attendee list is loaded separately and never stored with the code.',
+    ],
+    [
+      'Photos are checked first',
+      'Every shared photo waits for an organiser. Phones shrink photos and strip the location before sending.',
     ],
     [
       'Names only where needed',

@@ -550,12 +550,11 @@ pages for the remaining modules are already there, running on dummy data.
 Each one has a dashed yellow banner saying so. **Nothing on them is saved**:
 buttons work in the open tab only, and a refresh puts everything back.
 
-| Page                                                | Stands in for                   | What you can try                                       |
-| --------------------------------------------------- | ------------------------------- | ------------------------------------------------------ |
-| [/admin/photos](http://localhost:3000/admin/photos) | Photo wall                      | Approve or reject photos (coloured tiles, no pictures) |
-| [/admin/qa](http://localhost:3000/admin/qa)         | Module 2, backup Q&A            | Approve, pin, mark answered, hide                      |
-| [/admin/polls](http://localhost:3000/admin/polls)   | Module 3, backup polls          | Open, close, reveal results, word cloud                |
-| [/admin/admins](http://localhost:3000/admin/admins) | Module 6, who else is signed in | See the 2 to 3 desks and a log of what they did        |
+| Page                                                | Stands in for                   | What you can try                                |
+| --------------------------------------------------- | ------------------------------- | ----------------------------------------------- |
+| [/admin/qa](http://localhost:3000/admin/qa)         | Module 2, backup Q&A            | Approve, pin, mark answered, hide               |
+| [/admin/polls](http://localhost:3000/admin/polls)   | Module 3, backup polls          | Open, close, reveal results, word cloud         |
+| [/admin/admins](http://localhost:3000/admin/admins) | Module 6, who else is signed in | See the 2 to 3 desks and a log of what they did |
 
 They are all listed on the secretariat home page and under **More** in the
 admin navigation.
@@ -880,3 +879,51 @@ event and what is on at the left, the day down the right); reading pages such
 as the agenda keep a comfortable line length. The printable name tags and
 table tents keep their exact paper sizes: on a narrow screen the tags drop to
 one column and the tents scroll inside their own box.
+
+---
+
+# The photo wall
+
+## For attendees
+
+**Photos** in the menu, or <http://localhost:3000/photos>. Choose or take
+photos, add a caption if you like, and they are sent one at a time.
+
+- Each photo is shrunk **on the phone** before sending: a 4000 by 3000 camera
+  photo of several MB becomes 1600 px on its longest side, about 200 to 300
+  KB. Portrait photos stay upright.
+- Re-encoding on the phone also **removes the location and camera details**
+  hidden in the photo. They never reach the server.
+- **Up to 10 photos per phone.**
+- Sharing needs JavaScript, because the shrinking happens in the browser.
+
+## For the secretariat
+
+**Photos** in the admin navigation. New photos land in **Waiting** and appear
+by themselves every 20 seconds.
+
+- **Approve** puts a photo on the wall; **Reject** keeps it off. **Approve
+  all** clears the queue in one go.
+- **Take down** removes an approved photo from the slideshow later.
+- **Show the slideshow now** switches the projector to it. It is also on the
+  big screen page as **Photo slideshow**: each photo for eight seconds,
+  cross fading, newest first. With nothing approved yet, the projector shows a
+  QR code that opens the sharing page.
+- **Download approved photos** gives one zip of every approved photo, with a
+  `captions.csv` beside them.
+
+## Safety
+
+- The server checks every upload **is a real JPEG** by reading its bytes, not
+  by trusting the file name, and refuses anything else or anything too large.
+- A photo waiting for approval, or rejected, can only be opened by a signed
+  in desk. Only approved photos are public, and only by their random address.
+- Photos are stored through the data adapter (in SQLite today), so they can
+  move to approved storage later without any page changing.
+
+## Trying it
+
+`npm run demo:seed` adds six invented images (colour gradients with a label,
+no people) from `scripts/demo-photos`: four approved, two waiting.
+
+Run `npm run db:push` once first, for the new photo table.

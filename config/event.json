@@ -84,7 +84,7 @@
     "bigScreen": true,
     "arrivalWall": true,
     "luckyDraw": true,
-    "photoWall": false,
+    "photoWall": true,
     "committees": true,
     "qa": false,
     "polls": false
