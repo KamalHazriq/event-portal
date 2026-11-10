@@ -252,6 +252,43 @@ async function main(): Promise<void> {
   await data.settings.set(SURPRISE_KEYS.targetAt, `${config.days[1]!.date}T20:30`);
   await data.settings.set(SURPRISE_KEYS.label, 'Something special starts in');
 
+  /* ------------------------------------------- a Slido import ---------- */
+
+  // Shaped like what the reports page keeps from a Slido Excel export, so the
+  // report and the PDF summary show their Slido sections. Invented throughout.
+  const pollRows: string[][] = [];
+  for (const [poll, options] of [
+    ['How ready is your team for 2027?', ['Very ready', 'Fairly ready', 'Not yet']],
+    ['Which breakout topic matters most?', ['Delivery', 'Digital and data', 'People']],
+    ['One word for the summit', ['Energising', 'Honest', 'Useful', 'Long']],
+  ] as const) {
+    options.forEach((option, i) => {
+      pollRows.push([i === 0 ? poll : '', option, String(10 + Math.floor(random() * 30))]);
+    });
+  }
+  const questionRows: string[][] = [
+    'How will we measure progress a year from now?',
+    'Who owns this at board level?',
+    'Will the flexible working pilot reach operations staff?',
+    'How do site teams hear the same message we heard today?',
+    'Can the slides go on the resources page?',
+  ].map((q) => [q, 'Anonymous', String(Math.floor(random() * 25))]);
+
+  await data.imports.replace(
+    'slido',
+    [
+      { kind: 'polls', name: 'Poll results', headers: ['Poll', 'Option', 'Votes'], rows: pollRows },
+      {
+        kind: 'questions',
+        name: 'Questions',
+        headers: ['Question', 'Author', 'Likes'],
+        rows: questionRows,
+      },
+    ],
+    { fileName: 'slido-demo-export.xlsx', byOperator: 'desk-1' },
+  );
+  console.log(`slido sheets imported: 2 (invented)`);
+
   const summaries = await data.feedback.summaries();
   const rated = summaries.filter((s) => s.averageRating !== null);
   const overall =

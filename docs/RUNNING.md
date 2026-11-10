@@ -433,25 +433,37 @@ laptop, or at least check them before printing anything.
 
 ---
 
-# The schedule preview on GitHub Pages
+# The preview on GitHub Pages
 
 <https://kamalhazriq.github.io/event-portal/>
 
-Published automatically on every push to `main`, and by hand from the Actions
-tab on GitHub, which works from a phone.
+Published automatically on every push to `main` and to the work in progress
+branch (`claude/keen-lovelace-nu62fl`), so each step can be seen as soon as it
+is pushed. It can also be published by hand from the Actions tab on GitHub,
+which works from a phone.
 
-## What is on it, and what is not
+## What is on it
 
-| On the preview                  | Not on the preview                   |
-| ------------------------------- | ------------------------------------ |
-| Home, with now and next         | Check in and the registration desk   |
-| The full agenda, all three days | Feedback forms                       |
-| Every session page              | The admin console                    |
-| Resources                       | Anything that writes to the database |
+| Part           | What it shows                                                                                    |
+| -------------- | ------------------------------------------------------------------------------------------------ |
+| The schedule   | Home with now and next, the full agenda, every session page, resources                           |
+| The admin demo | <https://kamalhazriq.github.io/event-portal/admin/>: every admin page, filled with invented data |
+| The big screen | `/screen/welcome/`, `/screen/now-next/`, `/screen/arrivals/`, `/screen/countdown/`               |
+| The report     | The PDF summary page, and the demo Excel file from the Download Excel button                     |
+| Feedback forms | What attendees see, one page per form                                                            |
 
-GitHub Pages serves flat files only. It cannot run the parts of the portal
-that need a server, which is why half the modules are missing from it. A
-banner at the top of every page says so.
+The admin demo is drawn as if it were Day 2 at 10:40, with three breakouts
+running and most people checked in. A yellow banner on every demo page says
+so. Buttons and forms do nothing, because GitHub Pages cannot run the server
+half of the portal: to try them, run the portal locally.
+
+## How the demo is made safely
+
+The build makes a throwaway database in the system temp folder, loads the
+sample attendees and the invented demo activity into it, starts the portal
+against it with a random one-off PIN, saves the pages, and deletes the
+database. Your local database and any real attendee list are never touched,
+and the PIN is never written anywhere.
 
 ## It is a snapshot, not the live portal
 

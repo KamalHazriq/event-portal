@@ -1,15 +1,17 @@
-name: Publish the schedule preview
+name: Publish the preview
 
-# GitHub Pages can only serve flat files, so this publishes the read-only
-# half of the portal: the home page, the agenda, the session pages and the
-# resources page. Check in, feedback and the admin console need a server and
-# are not part of this.
+# GitHub Pages can only serve flat files, so this publishes a snapshot: the
+# schedule as attendees see it, plus a demo of the admin console, the big
+# screen and the report, rendered from invented data. Nothing on it writes
+# anywhere.
 #
 # See scripts/build-static-preview.ts for how the pages are produced.
 
 on:
   push:
-    branches: [main]
+    # main, and the branch where work in progress lands, so every step can
+    # be seen on the published site as soon as it is pushed.
+    branches: [main, claude/keen-lovelace-nu62fl]
   # So you can publish by hand from the Actions tab, including from a phone.
   workflow_dispatch:
 
