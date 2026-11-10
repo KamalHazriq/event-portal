@@ -2,11 +2,11 @@
  * Dummy data for the admin console previews.
  *
  * Several admin pages belong to modules that are not built yet: the extras
- * (lucky draw, photo wall, committee summary) and the backup Q&A and polls
+ * (photo wall, committee summary) and the backup Q&A and polls
  * (Modules 2 and 3). Their pages exist now so the secretariat can see the whole console
  * and comment on it before the real thing is built. Module 8 (the big
- * screen) and Module 7 (reports) have since been built for real and left
- * this file.
+ * screen), Module 7 (reports) and the lucky draw have since been built for
+ * real and left this file.
  *
  * Rules for this file:
  * - Nothing here is stored. Each page builds its data from this file on every

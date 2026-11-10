@@ -11,6 +11,7 @@ import type {
   FeedbackEntry,
   FeedbackSummary,
   ImportedSheet,
+  LuckyDrawWinnerWithAttendee,
 } from '@/data/types';
 import type { EventConfig } from '@/lib/event-schema';
 import { formatShortDate } from '@/lib/time';
@@ -25,6 +26,8 @@ export type ReportInput = {
   feedback: FeedbackEntry[];
   summaries: FeedbackSummary[];
   imports: ImportedSheet[];
+  /** Lucky draw winners, in draw order. */
+  luckyDraw: LuckyDrawWinnerWithAttendee[];
   /** When the report was made, as an instant. */
   generatedAt: Date;
 };
@@ -107,6 +110,8 @@ export type ReportSummary = {
     average: number | null;
   }[];
   bestSessions: { title: string; votes: number }[];
+  luckyDrawWinners: number;
+  luckyDrawDraws: number;
 };
 
 function average(values: number[]): number | null {
@@ -196,6 +201,8 @@ export function buildReportSummary(input: ReportInput): ReportSummary {
     ),
     eventAnswers: eventEntries.length,
     sessions,
+    luckyDrawWinners: input.luckyDraw.length,
+    luckyDrawDraws: new Set(input.luckyDraw.map((w) => w.drawId)).size,
     bestSessions: tallyBestSessions(eventEntries).map((b) => ({
       title: sessionTitles.get(b.sessionId) ?? titles.get(b.sessionId) ?? b.sessionId,
       votes: b.votes,
@@ -239,6 +246,7 @@ export function buildReportWorkbook(input: ReportInput): SheetInput[] {
     ['Feedback answers', summary.feedbackAnswers],
     ['Average session rating', summary.sessionAverage ?? 'No ratings'],
     ['Average event rating', summary.eventAverage ?? 'No ratings'],
+    ['Lucky draw winners', `${summary.luckyDrawWinners} across ${summary.luckyDrawDraws} draws`],
     [
       'Slido results',
       imports.length > 0
@@ -349,6 +357,28 @@ export function buildReportWorkbook(input: ReportInput): SheetInput[] {
       rows: [
         ['Session', 'Votes'],
         ...summary.bestSessions.map((b): CellValue[] => [b.title, b.votes]),
+      ],
+    });
+  }
+
+  if (input.luckyDraw.length > 0) {
+    const drawNumbers = new Map<string, number>();
+    for (const w of input.luckyDraw) {
+      if (!drawNumbers.has(w.drawId)) drawNumbers.set(w.drawId, drawNumbers.size + 1);
+    }
+    sheets.push({
+      name: 'Lucky draw',
+      rows: [
+        ['Draw', 'Prize', 'Order', 'Name', 'Department', 'Drawn', 'By'],
+        ...input.luckyDraw.map((w): CellValue[] => [
+          drawNumbers.get(w.drawId) ?? null,
+          w.prize,
+          w.position,
+          w.attendee.name,
+          w.attendee.department,
+          localDateTime(w.drawnAt, tz),
+          w.byOperator,
+        ]),
       ],
     });
   }

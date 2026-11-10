@@ -76,7 +76,7 @@
     "feedback": true,
     "bigScreen": true,
     "arrivalWall": true,
-    "luckyDraw": false,
+    "luckyDraw": true,
     "photoWall": false,
     "qa": false,
     "polls": false

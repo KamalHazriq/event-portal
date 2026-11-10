@@ -183,6 +183,36 @@ async function main(): Promise<void> {
     console.log(`${day.dayId}: ${created} of ${everyone.length} arrived`);
   }
 
+  /* ----------------------------------------------- lucky draw ---------- */
+
+  // Two draws on the Day 1 evening, from guests who checked in that day.
+  // Cleared first, so running the demo twice does not pile up winners.
+  await data.luckyDraw.clear();
+  const day1 = config.days[0]!;
+  const hat = (await data.checkIns.listByDay(day1.id))
+    .map((c) => c.attendee)
+    .filter((a) => !a.isSecretariat);
+  const take = (n: number) => {
+    const out: string[] = [];
+    while (out.length < n && hat.length > 0) {
+      out.push(hat.splice(Math.floor(random() * hat.length), 1)[0]!.id);
+    }
+    return out;
+  };
+  for (const [prize, count, minute] of [
+    ['Dinner door prize', 3, 21 * 60 + 15],
+    ['Night activity prize', 1, 22 * 60 + 20],
+  ] as const) {
+    await data.luckyDraw.record({
+      drawId: `demo-${prize}`,
+      prize,
+      byOperator: 'mc',
+      attendeeIds: take(count),
+      at: instant(day1.date, minute),
+    });
+  }
+  console.log('lucky draw winners:   4 across 2 draws');
+
   /* ------------------------------------------------- feedback ---------- */
 
   const forms = feedbackForms(config);

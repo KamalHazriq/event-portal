@@ -82,8 +82,11 @@ export in the report). The upload store keeps each sheet as plain text with a
 `source` label, so the SVC, ATC and OTC committee upload can reuse it later
 with no new table.
 
-Q&A, polls, the photo wall and the lucky draw are deliberately **not** in the
-interface yet. Q&A and polls are backup only because the event runs on Slido,
+It also holds the lucky draw winners (`luckyDraw`). The table makes the
+attendee unique, so the database itself enforces "nobody wins twice", even
+when two desks draw at the same moment.
+
+Q&A, polls and the photo wall are deliberately **not** in the interface yet. Q&A and polls are backup only because the event runs on Slido,
 and photo storage still needs a GRC answer. Each gets its own repository on the
 interface when its module is built, rather than guessing the shape now and
 reworking it later.

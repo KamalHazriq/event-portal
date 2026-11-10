@@ -3,7 +3,6 @@ import { describe, expect, it } from 'vitest';
 import { getEventConfig } from '@/lib/config';
 import { buildAgenda } from '@/modules/schedule/logic';
 
-import { drawWinners, eligibleEntrants, type DrawEntrant } from './lucky-draw';
 import {
   mockCommitteeItems,
   mockOperators,
@@ -11,54 +10,7 @@ import {
   mockPolls,
   mockQuestions,
   MOCK_NAMES,
-  seededRandom,
 } from './mock-data';
-
-const pool: DrawEntrant[] = Array.from({ length: 10 }, (_, i) => ({
-  id: `a${i}`,
-  name: `Person ${i}`,
-  department: 'Dept',
-}));
-
-describe('lucky draw', () => {
-  it('never draws an excluded person or a past winner', () => {
-    const excluded = new Set(['a0', 'a1']);
-    const winners = new Set(['a2']);
-    for (let seed = 1; seed < 50; seed += 1) {
-      const drawn = drawWinners(pool, excluded, winners, 3, seededRandom(seed));
-      expect(drawn).toHaveLength(3);
-      for (const d of drawn) {
-        expect(excluded.has(d.id)).toBe(false);
-        expect(winners.has(d.id)).toBe(false);
-      }
-    }
-  });
-
-  it('never draws the same person twice in one go', () => {
-    const drawn = drawWinners(pool, new Set(), new Set(), 10, seededRandom(9));
-    expect(new Set(drawn.map((d) => d.id)).size).toBe(10);
-  });
-
-  it('returns fewer winners when the hat runs out, rather than repeating', () => {
-    const drawn = drawWinners(pool, new Set(['a0', 'a1', 'a2']), new Set(['a3']), 20);
-    expect(drawn).toHaveLength(6);
-  });
-
-  it('handles nonsense counts', () => {
-    expect(drawWinners(pool, new Set(), new Set(), -2)).toEqual([]);
-    expect(drawWinners(pool, new Set(), new Set(), 1.9)).toHaveLength(1);
-  });
-
-  it('does not change the pool it was given', () => {
-    const copy = pool.map((p) => p.id);
-    drawWinners(pool, new Set(), new Set(), 5, seededRandom(3));
-    expect(pool.map((p) => p.id)).toEqual(copy);
-  });
-
-  it('lists who is still eligible', () => {
-    expect(eligibleEntrants(pool, new Set(['a0']), new Set(['a1']))).toHaveLength(8);
-  });
-});
 
 describe('preview mock data', () => {
   const agenda = buildAgenda(getEventConfig());

@@ -11,8 +11,8 @@
  *
  * Scope note: this covers the modules that are confirmed and imminent, which
  * are check in (Module 4), feedback (Module 5), the admin console
- * (Module 6) and uploaded spreadsheets for the report (Module 7). Q&A, polls, the photo wall and the lucky draw each add their
- * own repository here when their module is built. They are left out on
+ * (Module 6) and uploaded spreadsheets for the report (Module 7). Q&A, polls and the photo wall each add their own repository
+ * here when their module is built. They are left out on
  * purpose: Q&A and polls are backup only because the event runs on Slido, and
  * photo storage still needs a GRC answer, so their shape is not settled and
  * guessing it now would only create rework.
@@ -29,6 +29,7 @@ import type {
   Headcount,
   ImportedSheet,
   ImportSource,
+  LuckyDrawWinnerWithAttendee,
   Setting,
 } from './types';
 
@@ -128,6 +129,29 @@ export interface ImportRepository {
   clear(source: ImportSource): Promise<number>;
 }
 
+/** Lucky draw winners. The store itself refuses anyone who has already won. */
+export interface LuckyDrawRepository {
+  /** Every winner, in the order they were written: draw by draw, by position. */
+  list(): Promise<LuckyDrawWinnerWithAttendee[]>;
+  /**
+   * Saves one draw. All or nothing: if any of these people has already won
+   * (another desk drew them a moment ago), nothing is saved and the answer
+   * says so, so the caller can draw again from a fresh pool.
+   */
+  record(input: {
+    drawId: string;
+    prize: string;
+    byOperator: string;
+    attendeeIds: string[];
+    /** Only the demo seed passes this. See checkIns.create. */
+    at?: string;
+  }): Promise<{ ok: true; winners: LuckyDrawWinnerWithAttendee[] } | { ok: false }>;
+  /** Takes one winner off the list, for someone who was not in the room. */
+  remove(winnerId: string): Promise<boolean>;
+  /** Every winner gone, for a rehearsal. */
+  clear(): Promise<number>;
+}
+
 export interface DataAdapter {
   /** Shown on the admin health page, so it is obvious which store is live. */
   readonly name: string;
@@ -143,6 +167,7 @@ export interface DataAdapter {
   readonly feedback: FeedbackRepository;
   readonly settings: SettingsRepository;
   readonly imports: ImportRepository;
+  readonly luckyDraw: LuckyDrawRepository;
 }
 
 /** The value of DATA_ADAPTER in .env.local. */

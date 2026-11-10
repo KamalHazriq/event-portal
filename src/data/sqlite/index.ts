@@ -11,6 +11,7 @@ import type {
   DataAdapter,
   FeedbackRepository,
   ImportRepository,
+  LuckyDrawRepository,
   SettingsRepository,
 } from '../adapter';
 import type {
@@ -23,6 +24,7 @@ import type {
   Headcount,
   ImportedSheet,
   ImportSource,
+  LuckyDrawWinnerWithAttendee,
   Setting,
 } from '../types';
 import { newCheckInToken, newId } from '@/lib/ids';
@@ -552,6 +554,67 @@ export function createSqliteAdapter(): DataAdapter {
     },
   };
 
+  const luckyDraw: LuckyDrawRepository = {
+    async list() {
+      const rows = await prisma.luckyDrawWinner.findMany({
+        include: { attendee: true },
+        // Ids are time ordered by when they were written. See groupDraws.
+        orderBy: { id: 'asc' },
+      });
+      return rows.map((row): LuckyDrawWinnerWithAttendee => ({
+        id: row.id,
+        drawId: row.drawId,
+        position: row.position,
+        prize: row.prize,
+        attendeeId: row.attendeeId,
+        drawnAt: row.drawnAt.toISOString(),
+        byOperator: row.byOperator,
+        attendee: toAttendee(row.attendee),
+      }));
+    },
+
+    async record(input) {
+      const prize = plainText(input.prize, 80);
+      const byOperator = plainText(input.byOperator, 40);
+      const drawnAt = input.at ? new Date(input.at) : new Date();
+      try {
+        // One transaction: the unique attendeeId makes a double win fail the
+        // whole draw rather than half of it.
+        await prisma.$transaction(
+          input.attendeeIds.map((attendeeId, i) =>
+            prisma.luckyDrawWinner.create({
+              data: {
+                id: newId(),
+                drawId: input.drawId,
+                position: i + 1,
+                prize,
+                attendeeId,
+                drawnAt,
+                byOperator,
+              },
+            }),
+          ),
+        );
+      } catch (error) {
+        const code = (error as { code?: unknown }).code;
+        if (code === 'P2002') return { ok: false };
+        throw error;
+      }
+      const all = await luckyDraw.list();
+      return { ok: true, winners: all.filter((w) => w.drawId === input.drawId) };
+    },
+
+    async remove(winnerId) {
+      const deleted = await prisma.luckyDrawWinner.deleteMany({ where: { id: winnerId } });
+      return deleted.count > 0;
+    },
+
+    async clear() {
+      const deleted = await prisma.luckyDrawWinner.deleteMany();
+      return deleted.count;
+    },
+  };
+
   return {
     name: 'sqlite',
 
@@ -575,6 +638,7 @@ export function createSqliteAdapter(): DataAdapter {
 
     async reset() {
       // Child rows first, so foreign keys stay happy.
+      await prisma.luckyDrawWinner.deleteMany();
       await prisma.feedback.deleteMany();
       await prisma.checkIn.deleteMany();
       await prisma.attendee.deleteMany();
@@ -591,5 +655,6 @@ export function createSqliteAdapter(): DataAdapter {
     feedback,
     settings,
     imports,
+    luckyDraw,
   };
 }

@@ -54,7 +54,7 @@ test.describe('the views', () => {
 
   test('fills a 1920 x 1080 screen without scrolling', async ({ page }) => {
     await signIn(page);
-    for (const view of ['welcome', 'now-next', 'arrivals', 'countdown']) {
+    for (const view of ['welcome', 'now-next', 'arrivals', 'countdown', 'lucky-draw']) {
       await page.goto(`/screen/${view}?now=2026-12-15T10:40`);
       const overflow = await page.evaluate(
         () =>

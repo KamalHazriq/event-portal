@@ -34,6 +34,21 @@ const PAGES = [
     description: 'What people thought of each session, and the settings for names.',
   },
   {
+    href: '/admin/big-screen',
+    title: 'Big screen',
+    description: 'Choose what the ballroom projector shows.',
+  },
+  {
+    href: '/admin/reports',
+    title: 'Reports',
+    description: 'The whole event in Excel, a summary to save as PDF, and the Slido import.',
+  },
+  {
+    href: '/admin/lucky-draw',
+    title: 'Lucky draw',
+    description: 'Draw winners from whoever has checked in. Nobody wins twice.',
+  },
+  {
     href: '/admin/name-tags',
     title: 'Name tags',
     description: 'Print the tags, with a personal QR on the front and the portal QR on the back.',

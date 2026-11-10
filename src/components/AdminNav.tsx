@@ -10,20 +10,14 @@ const ITEMS: { href: string; label: string; also?: string[] }[] = [
   { href: '/admin/feedback', label: 'Feedback' },
   { href: '/admin/big-screen', label: 'Big screen' },
   { href: '/admin/reports', label: 'Reports' },
+  { href: '/admin/lucky-draw', label: 'Lucky draw' },
   { href: '/admin/name-tags', label: 'Name tags' },
   { href: '/admin/qr-assets', label: 'QR assets' },
   {
     href: '/admin/previews',
     label: 'More',
     // The preview pages that have no tab of their own light up "More".
-    also: [
-      '/admin/lucky-draw',
-      '/admin/photos',
-      '/admin/committees',
-      '/admin/qa',
-      '/admin/polls',
-      '/admin/admins',
-    ],
+    also: ['/admin/photos', '/admin/committees', '/admin/qa', '/admin/polls', '/admin/admins'],
   },
 ];
 

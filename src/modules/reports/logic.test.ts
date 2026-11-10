@@ -89,6 +89,7 @@ function input(overrides: Partial<ReportInput> = {}): ReportInput {
     ],
     summaries: [],
     imports: [],
+    luckyDraw: [],
     generatedAt: new Date('2026-12-16T05:00:00Z'),
     ...overrides,
   };
@@ -173,6 +174,29 @@ describe('report workbook', () => {
   it('shows names only where one was given', () => {
     const names = (byName.get('Feedback') ?? []).slice(1).map((r) => r[6]);
     expect(names.sort()).toEqual(['Aina', 'Anonymous', 'Anonymous']);
+  });
+
+  it('adds a lucky draw sheet once someone has won, numbering the draws', () => {
+    const win = (drawId: string, position: number, id: string) => ({
+      id: `${drawId}-${position}`,
+      drawId,
+      position,
+      prize: drawId === 'x' ? 'Door prize' : '',
+      attendeeId: id,
+      drawnAt: '2026-12-14T13:00:00Z',
+      byOperator: 'desk-1',
+      attendee: person(id, 'Finance'),
+    });
+    const withDraw = buildReportWorkbook(
+      input({ luckyDraw: [win('x', 1, 'a'), win('x', 2, 'b'), win('y', 1, 'c')] }),
+    );
+    const sheet = withDraw.find((s) => s.name === 'Lucky draw');
+    expect(sheet?.rows.slice(1).map((r) => [r[0], r[1], r[2], r[3]])).toEqual([
+      [1, 'Door prize', 1, 'Person a'],
+      [1, 'Door prize', 2, 'Person b'],
+      [2, '', 1, 'Person c'],
+    ]);
+    expect(buildReportWorkbook(input()).some((s) => s.name === 'Lucky draw')).toBe(false);
   });
 
   it('adds imported Slido sheets at the end', () => {

@@ -158,6 +158,17 @@ export default async function ReportSummaryPage() {
           </tbody>
         </table>
 
+        {s.luckyDrawWinners > 0 ? (
+          <>
+            <h2 className={h2}>Lucky draw</h2>
+            <p className="mt-1 text-ink">
+              {s.luckyDrawWinners} {s.luckyDrawWinners === 1 ? 'winner' : 'winners'} across{' '}
+              {s.luckyDrawDraws} {s.luckyDrawDraws === 1 ? 'draw' : 'draws'}. The names are in the
+              Excel file.
+            </p>
+          </>
+        ) : null}
+
         <h2 className={h2}>Slido polls and questions</h2>
         {input.imports.length === 0 ? (
           <p className="mt-1 text-ink-soft">

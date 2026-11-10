@@ -107,6 +107,8 @@ export const LIMITS = {
   search: { limit: 120, windowMs: 60 * 1000 },
   /** Uploading a spreadsheet, such as the Slido export. Heavy work, rarely needed. */
   upload: { limit: 10, windowMs: 10 * 60 * 1000 },
+  /** Pressing Draw. Generous, but stops a stuck button filling the winners list. */
+  luckyDraw: { limit: 20, windowMs: 60 * 1000 },
   /** Building the report. Reads every table, so not on a tight loop. */
   report: { limit: 30, windowMs: 10 * 60 * 1000 },
 } as const;

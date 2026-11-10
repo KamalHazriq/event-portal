@@ -550,32 +550,25 @@ pages for the remaining modules are already there, running on dummy data.
 Each one has a dashed yellow banner saying so. **Nothing on them is saved**:
 buttons work in the open tab only, and a refresh puts everything back.
 
-| Page                                                        | Stands in for                   | What you can try                                        |
-| ----------------------------------------------------------- | ------------------------------- | ------------------------------------------------------- |
-| [/admin/lucky-draw](http://localhost:3000/admin/lucky-draw) | Lucky draw                      | Draw 1 to 10 winners, exclude people, nobody wins twice |
-| [/admin/photos](http://localhost:3000/admin/photos)         | Photo wall                      | Approve or reject photos (coloured tiles, no pictures)  |
-| [/admin/committees](http://localhost:3000/admin/committees) | SVC, ATC and OTC summary        | Read only tables of invented papers                     |
-| [/admin/qa](http://localhost:3000/admin/qa)                 | Module 2, backup Q&A            | Approve, pin, mark answered, hide                       |
-| [/admin/polls](http://localhost:3000/admin/polls)           | Module 3, backup polls          | Open, close, reveal results, word cloud                 |
-| [/admin/admins](http://localhost:3000/admin/admins)         | Module 6, who else is signed in | See the 2 to 3 desks and a log of what they did         |
+| Page                                                        | Stands in for                   | What you can try                                       |
+| ----------------------------------------------------------- | ------------------------------- | ------------------------------------------------------ |
+| [/admin/photos](http://localhost:3000/admin/photos)         | Photo wall                      | Approve or reject photos (coloured tiles, no pictures) |
+| [/admin/committees](http://localhost:3000/admin/committees) | SVC, ATC and OTC summary        | Read only tables of invented papers                    |
+| [/admin/qa](http://localhost:3000/admin/qa)                 | Module 2, backup Q&A            | Approve, pin, mark answered, hide                      |
+| [/admin/polls](http://localhost:3000/admin/polls)           | Module 3, backup polls          | Open, close, reveal results, word cloud                |
+| [/admin/admins](http://localhost:3000/admin/admins)         | Module 6, who else is signed in | See the 2 to 3 desks and a log of what they did        |
 
 They are all listed on the secretariat home page and under **More** in the
 admin navigation.
 
-Where something real already exists, the previews use it: the lucky draw
-picks from people actually checked in today (secretariat unticked by
-default). Every
-invented name, question, photo and committee paper comes from
+Every invented name, question, photo and committee paper comes from
 `src/modules/previews/mock-data.ts`, never from the attendee list, so a
 preview can never put an invented question against a real person.
 
-Run `npm run demo:seed` first and the lucky draw fills up.
-
 When a module is built for real, its preview page is replaced in place (same
 address), its line comes out of `src/modules/previews/pages.ts`, and its
-section of `mock-data.ts` is deleted. The lucky draw rules in
-`src/modules/previews/lucky-draw.ts` are already the real rules, tested, and
-move across as they are.
+section of `mock-data.ts` is deleted. The lucky draw and the big screen
+started here and have moved out that way.
 
 ---
 
@@ -733,3 +726,58 @@ npm run dev
 
 `db:push` is needed once, because Module 7 adds one table for uploaded
 spreadsheets. Then open the reports page and download the file.
+
+---
+
+# The lucky draw
+
+Open **Lucky draw** in the admin navigation, or
+<http://localhost:3000/admin/lucky-draw>.
+
+## Drawing
+
+1. Pick how many winners (1, 2, 3, 5 or 10) and, if you like, type the prize,
+   such as "Dinner door prize".
+2. Leave **Put it on the big screen** ticked to switch the projector to the
+   draw at the same time.
+3. Press **Draw**.
+
+The projector spins through the names for about five seconds, slowing like a
+wheel, and stops on the winners. A projector that is reloaded later shows the
+result straight away, and a laptop set to reduce motion skips the spin.
+
+## The rules
+
+- Only people **checked in that day** are in the hat.
+- **Nobody can win twice**, across every draw and every day. The database
+  itself refuses a second win, so this holds even when two desks press Draw
+  at the same moment: the second desk is asked to press Draw again.
+- The draw happens on the server with the computer's secure random numbers,
+  so it is fair and every desk sees the same result.
+
+## Who can win
+
+Open **Who can win** and untick anyone who should not, such as the CDIO, then
+**Save who can win**. The secretariat start unticked. Once you save, the list
+is exactly what you chose.
+
+## Someone is not in the room
+
+Press **Not here** next to their name. They come off the winners list and out
+of the hat, and you can draw again for the same prize.
+
+## Rehearsing
+
+**Start over**, at the bottom, clears every winner (after you tick the
+confirmation box). Who can win stays as it is.
+
+## In the report
+
+The Excel file gains a **Lucky draw** sheet: draw number, prize, order, name,
+department, time and desk. The PDF summary gives the count only, with no
+names, like the rest of the PDF.
+
+## Turning it off
+
+Set `features.luckyDraw` to `false` in `config/event.json`. The page and the
+big screen view disappear.

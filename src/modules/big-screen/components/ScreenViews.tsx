@@ -8,6 +8,8 @@
  */
 import { QrCode } from '@/components/QrCode';
 
+import { LuckyDrawSpinner } from '@/modules/lucky-draw/components/LuckyDrawSpinner';
+
 import type { ArrivalCard } from '../logic';
 import { CountdownDigits } from './CountdownDigits';
 
@@ -277,5 +279,44 @@ export function CountdownView({ label, targetMs }: { label: string; targetMs: nu
         <p className="mt-[2vh] text-[clamp(2rem,4vw,5rem)] text-ink-soft">Stay tuned</p>
       )}
     </div>
+  );
+}
+
+/* ------------------------------------------------------------- lucky draw */
+
+export function LuckyDrawView({
+  latest,
+  spinNames,
+  inHat,
+}: {
+  latest: {
+    drawId: string;
+    prize: string;
+    drawnAtMs: number;
+    winners: { key: string; name: string; department: string }[];
+  } | null;
+  spinNames: string[];
+  inHat: number;
+}) {
+  if (!latest) {
+    return (
+      <div className="screen-fade flex h-full flex-col items-center justify-center text-center">
+        <p className="text-[clamp(2.5rem,7vw,10rem)] font-bold text-ink">Lucky draw</p>
+        <p className="mt-[2vh] text-[clamp(1.2rem,2.6vw,3.5rem)] text-ink-soft">
+          {inHat} {inHat === 1 ? 'name' : 'names'} in the hat
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    // Keyed by draw, so a new draw mounts a fresh spinner.
+    <LuckyDrawSpinner
+      key={latest.drawId}
+      prize={latest.prize}
+      drawnAtMs={latest.drawnAtMs}
+      winners={latest.winners}
+      spinNames={[...new Set([...spinNames, ...latest.winners.map((w) => w.name)])]}
+    />
   );
 }

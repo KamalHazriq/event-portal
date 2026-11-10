@@ -15,6 +15,7 @@ import {
   surpriseInstant,
 } from '@/modules/admin/logic';
 import { arrivalRate, resolveCheckInDay } from '@/modules/check-in/logic';
+import { groupDraws, LUCKY_KEYS, resolveExclusions } from '@/modules/lucky-draw/logic';
 import { buildAgenda, findNowAndNext, type ResolvedSession } from '@/modules/schedule/logic';
 
 import {
@@ -28,6 +29,7 @@ import {
 import type {
   ArrivalsView,
   CountdownView,
+  LuckyDrawView,
   NowNextView,
   ScreenSession,
   WelcomeView,
@@ -65,7 +67,8 @@ export type ScreenPayload =
   | { view: 'welcome'; props: ComponentProps<typeof WelcomeView> }
   | { view: 'now-next'; props: ComponentProps<typeof NowNextView> }
   | { view: 'arrivals'; props: ComponentProps<typeof ArrivalsView> }
-  | { view: 'countdown'; props: ComponentProps<typeof CountdownView> };
+  | { view: 'countdown'; props: ComponentProps<typeof CountdownView> }
+  | { view: 'lucky-draw'; props: ComponentProps<typeof LuckyDrawView> };
 
 export async function loadScreenView(
   view: ScreenView,
@@ -147,6 +150,53 @@ export async function loadScreenView(
       return {
         view,
         props: { label: surprise.label, targetMs: instant ? instant.getTime() : null },
+      };
+    }
+
+    case 'lucky-draw': {
+      // Switched off in config: fall back rather than show an empty view.
+      if (!config.features.luckyDraw) return loadScreenView('welcome', now, settings);
+
+      const day = resolveCheckInDay(config.days, now);
+      const [winners, checkIns, people, stored] = await Promise.all([
+        data.luckyDraw.list(),
+        day ? data.checkIns.listByDay(day.id) : Promise.resolve([]),
+        data.attendees.list(),
+        data.settings.get(LUCKY_KEYS.excluded),
+      ]);
+      const latest = groupDraws(winners).at(-1);
+      const excluded = resolveExclusions(stored, people);
+      const wonIds = new Set(winners.map((w) => w.attendeeId));
+
+      // Names to spin through: whoever could have been drawn, shuffled, plus
+      // the winners, so the spin feels like the real hat.
+      const hat = checkIns
+        .map((c) => c.attendee)
+        .filter((a) => !excluded.has(a.id) && !a.isSecretariat);
+      const spinNames = hat
+        .map((a) => ({ a, k: Math.random() }))
+        .sort((x, y) => x.k - y.k)
+        .slice(0, 60)
+        .map(({ a }) => a.name);
+
+      return {
+        view,
+        props: {
+          latest: latest
+            ? {
+                drawId: latest.drawId,
+                prize: latest.prize,
+                drawnAtMs: new Date(latest.drawnAt).getTime(),
+                winners: latest.winners.map((w) => ({
+                  key: w.id,
+                  name: w.attendee.name,
+                  department: w.attendee.department,
+                })),
+              }
+            : null,
+          spinNames,
+          inHat: hat.filter((a) => !wonIds.has(a.id)).length,
+        },
       };
     }
 

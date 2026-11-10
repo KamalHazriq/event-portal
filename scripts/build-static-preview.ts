@@ -256,7 +256,7 @@ async function buildDemo(days: string[]): Promise<number> {
       file: `admin/${p ? `${p}/` : ''}index.html`,
     })),
     { url: '/screen', file: 'screen/index.html' },
-    ...['welcome', 'now-next', 'arrivals', 'countdown'].map((view) => ({
+    ...['welcome', 'now-next', 'arrivals', 'countdown', 'lucky-draw'].map((view) => ({
       url: `/screen/${view}`,
       file: `screen/${view}/index.html`,
     })),

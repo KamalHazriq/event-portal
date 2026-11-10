@@ -2,7 +2,13 @@ import { AutoRefresh } from '@/components/AutoRefresh';
 
 import { SCREEN_POLL_MS } from '../logic';
 import type { ScreenPayload } from '../load';
-import { ArrivalsView, CountdownView, NowNextView, WelcomeView } from './ScreenViews';
+import {
+  ArrivalsView,
+  CountdownView,
+  LuckyDrawView,
+  NowNextView,
+  WelcomeView,
+} from './ScreenViews';
 
 /**
  * The full screen shell: the chosen view, plus a quiet corner with the event
@@ -40,6 +46,7 @@ export function ScreenFrame({
         {payload.view === 'now-next' ? <NowNextView {...payload.props} /> : null}
         {payload.view === 'arrivals' ? <ArrivalsView {...payload.props} /> : null}
         {payload.view === 'countdown' ? <CountdownView {...payload.props} /> : null}
+        {payload.view === 'lucky-draw' ? <LuckyDrawView {...payload.props} /> : null}
       </div>
     </main>
   );

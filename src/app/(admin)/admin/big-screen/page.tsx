@@ -7,23 +7,21 @@ import { getEventConfig } from '@/lib/config';
 import { setHideNames, setScreenView } from '@/modules/big-screen/actions';
 import { ScaledPreview } from '@/modules/big-screen/components/ScaledPreview';
 import { readScreenSettings } from '@/modules/big-screen/load';
-import { SCREEN_VIEW_INFO, SCREEN_VIEWS } from '@/modules/big-screen/logic';
+import { availableScreenViews, SCREEN_VIEW_INFO } from '@/modules/big-screen/logic';
 
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = { title: 'Big screen' };
 
 /** Views the brief wants on the big screen that arrive with later modules. */
-const LATER = [
-  { title: 'Lucky draw', href: '/admin/lucky-draw' },
-  { title: 'Photo slideshow', href: '/admin/photos' },
-];
+const LATER = [{ title: 'Photo slideshow', href: '/admin/photos' }];
 
 export default async function BigScreenControlPage() {
   await requireAdmin('/admin/big-screen');
 
   const config = getEventConfig();
   const settings = await readScreenSettings();
+  const views = availableScreenViews(config.features);
 
   if (!config.features.bigScreen) notFound();
 
@@ -45,7 +43,7 @@ export default async function BigScreenControlPage() {
       </section>
 
       <ul className="grid gap-3 sm:grid-cols-2">
-        {SCREEN_VIEWS.map((view) => {
+        {views.map((view) => {
           const info = SCREEN_VIEW_INFO[view];
           const active = view === settings.view;
           return (
@@ -120,7 +118,7 @@ export default async function BigScreenControlPage() {
         <p className="mt-3 text-ink-soft">
           A second screen that should always show one thing, such as a monitor by the registration
           desk, can open one view directly:{' '}
-          {SCREEN_VIEWS.map((view, i) => (
+          {views.map((view, i) => (
             <span key={view}>
               {i > 0 ? ', ' : ''}
               <a
@@ -148,7 +146,7 @@ export default async function BigScreenControlPage() {
               </Link>
             </span>
           ))}
-          , both previews for now.
+          , a preview for now.
         </p>
       </section>
     </div>

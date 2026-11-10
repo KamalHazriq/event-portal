@@ -5,12 +5,6 @@
  */
 export const PREVIEW_PAGES = [
   {
-    href: '/admin/lucky-draw',
-    title: 'Lucky draw',
-    module: 'Extra, lucky draw',
-    description: 'Draw winners from whoever has checked in. Nobody wins twice.',
-  },
-  {
     href: '/admin/photos',
     title: 'Photo wall',
     module: 'Extra, photo wall',

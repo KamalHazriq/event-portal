@@ -23,6 +23,7 @@ const SHEETS = [
   ['Feedback', 'Every answer. Names only where the form allowed one and the person gave it'],
   ['Feedback by session', 'Answers, average stars and the spread of stars per session'],
   ['Best session votes', 'From the final event form'],
+  ['Lucky draw', 'Every winner, in draw order, once the draw has been used'],
   ['Slido sheets', 'The polls and questions from the Slido export, once uploaded'],
 ] as const;
 

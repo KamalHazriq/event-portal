@@ -10,12 +10,13 @@ export async function loadReportInput(generatedAt = new Date()): Promise<ReportI
   const config = getEventConfig();
   const data = getData();
 
-  const [attendees, perDay, feedback, summaries, imports] = await Promise.all([
+  const [attendees, perDay, feedback, summaries, imports, luckyDraw] = await Promise.all([
     data.attendees.list(),
     Promise.all(config.days.map((day) => data.checkIns.listByDay(day.id))),
     data.feedback.listAll(),
     data.feedback.summaries(),
     data.imports.list('slido'),
+    data.luckyDraw.list(),
   ]);
 
   return {
@@ -26,6 +27,7 @@ export async function loadReportInput(generatedAt = new Date()): Promise<ReportI
     feedback,
     summaries,
     imports,
+    luckyDraw,
     generatedAt,
   };
 }

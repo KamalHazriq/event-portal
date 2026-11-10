@@ -152,3 +152,23 @@ export type ImportedSheet = {
   byOperator: string;
   importedAt: string;
 };
+
+/**
+ * One lucky draw winner (an extra from the brief). Each press of "Draw" is
+ * one draw, which can pick several winners; they share a drawId and are
+ * numbered by position. Nobody can win twice, across every draw and day.
+ */
+export type LuckyDrawWinner = {
+  id: string;
+  drawId: string;
+  /** 1 for the first name out of the hat in that draw. */
+  position: number;
+  /** What the draw was for, such as "Dinner door prize". May be empty. */
+  prize: string;
+  attendeeId: string;
+  drawnAt: string;
+  /** The desk label that pressed Draw, never a person's name. */
+  byOperator: string;
+};
+
+export type LuckyDrawWinnerWithAttendee = LuckyDrawWinner & { attendee: Attendee };
