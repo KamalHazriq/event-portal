@@ -39,7 +39,7 @@ export function WelcomeView({
         {logoPath ? (
           // A plain img: the logo is a small local SVG and needs no optimiser.
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={logoPath} alt="" className="mb-[3vh] h-[8vh] w-auto" />
+          <img src={logoPath} alt="" className="mb-[4vh] h-auto w-[min(42vw,40rem)]" />
         ) : null}
         <h1 className="text-[clamp(2.5rem,6.5vw,9rem)] font-bold leading-[1.02] tracking-tight text-ink">
           {name}

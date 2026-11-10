@@ -86,3 +86,15 @@ export function buildThemeCss(branding: Branding): string {
 export function resolveTheme(branding: Branding, surface: 'portal' | 'bigScreen'): ThemeName {
   return surface === 'bigScreen' ? branding.bigScreenTheme : branding.defaultTheme;
 }
+
+/** The logo that reads on the given theme: the light lettered one on dark. */
+export function logoFor(branding: Branding, theme: ThemeName): string {
+  return theme === 'dark' ? (branding.logoDarkPath ?? branding.logoPath) : branding.logoPath;
+}
+
+/** The small header mark for the given theme, or null if none is set. */
+export function markFor(branding: Branding, theme: ThemeName): string | null {
+  return theme === 'dark'
+    ? (branding.markDarkPath ?? branding.markPath ?? null)
+    : (branding.markPath ?? null);
+}

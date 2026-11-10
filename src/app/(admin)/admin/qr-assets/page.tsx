@@ -80,7 +80,12 @@ export default async function QrAssetsPage() {
         {Array.from({ length: tentCount }, (_, index) => (
           <div key={index} className="tent">
             <div>
-              <p className="tent-title">{config.event.shortName}</p>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={config.branding.logoPath}
+                alt={config.event.shortName}
+                className="tent-logo"
+              />
               <p className="tent-line">Scan for the agenda, speakers and resources</p>
               <p className="tent-url">{portalUrl}</p>
             </div>

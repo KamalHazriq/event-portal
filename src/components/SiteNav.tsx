@@ -17,7 +17,7 @@ export function SiteNav({ items }: { items: NavItem[] }) {
     href === '/' ? pathname === '/' : pathname.startsWith(href);
 
   return (
-    <nav aria-label="Main" className="px-2">
+    <nav aria-label="Main" className="px-2 sm:px-4 lg:px-6">
       <ul className="flex gap-1">
         {items.map((item) => {
           const active = isActive(item.href);

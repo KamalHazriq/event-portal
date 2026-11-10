@@ -199,6 +199,14 @@
  * redoing a PDF by hand. QR codes stay black on white in every theme.
  * ------------------------------------------------------------------------- */
 
+.tent-logo {
+  display: block;
+  width: 100%;
+  max-width: 90mm;
+  height: auto;
+  margin-bottom: 4mm;
+}
+
 .tag-sheet {
   display: grid;
   grid-template-columns: repeat(2, 90mm);
@@ -376,6 +384,24 @@
   .tag {
     /* Ten to a page, so a page break never lands mid tag. */
     break-inside: avoid;
+  }
+}
+
+/*
+ * On a screen narrower than the paper, the printable sheets still have to be
+ * exact sizes for printing. So on screen only: tags drop to one column, and
+ * the A5 tents scroll sideways inside their own box instead of the page.
+ */
+@media screen and (max-width: 47.5rem) {
+  .tag-sheet {
+    grid-template-columns: 90mm;
+  }
+}
+
+@media screen {
+  .tent-sheet {
+    max-width: 100%;
+    overflow-x: auto;
   }
 }
 

@@ -3,7 +3,7 @@
 Written before starting, so the order survives if a session runs out.
 Each step is committed and published on its own (fast-forward to `main`).
 
-## 1. Logos and favicon
+## 1. Logos and favicon (done)
 
 - The D logo (Digital & Information) becomes the favicon and home screen icon.
 - The event wordmark ("Transforming your Digital & AI Experience") goes in the
@@ -13,7 +13,7 @@ Each step is committed and published on its own (fast-forward to `main`).
 - All logo paths stay in `config/event.json`, so another event swaps them there.
 - Files are converted to small web formats (the originals are 2000 px wide).
 
-## 2. Mobile first, responsive at every size
+## 2. Mobile first, responsive at every size (done)
 
 Check every page at phone (375), tablet (768), laptop (1366) and desktop
 (1920), and fix anything that scrolls sideways, crowds or wastes space:

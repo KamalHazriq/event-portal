@@ -1,6 +1,7 @@
 import { AdminHeader } from '@/components/AdminHeader';
 import { getAdminSession } from '@/lib/admin-guard';
 import { getEventConfig } from '@/lib/config';
+import { markFor, resolveTheme } from '@/lib/theme';
 
 /**
  * The shell for the secretariat.
@@ -18,7 +19,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-5xl flex-col">
-      <AdminHeader shortName={config.event.shortName} operator={session?.operator ?? null} />
+      <AdminHeader
+        shortName={config.event.shortName}
+        operator={session?.operator ?? null}
+        mark={markFor(config.branding, resolveTheme(config.branding, 'portal'))}
+      />
 
       <main id="main" className="flex-1 px-4 pb-16 pt-4">
         {children}

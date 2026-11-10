@@ -125,7 +125,7 @@ export default async function AdminFeedbackPage() {
                 </p>
 
                 <div className="mt-3 flex flex-wrap items-center gap-2">
-                  <form action={updateFormAnonymity} className="flex items-center gap-2">
+                  <form action={updateFormAnonymity} className="flex flex-wrap items-center gap-2">
                     <input type="hidden" name="formId" value={form.id} />
                     <label htmlFor={`mode-${form.id}`} className="text-sm text-ink-soft">
                       Names

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 
 import { getEventConfig } from '@/lib/config';
+import { logoFor, resolveTheme } from '@/lib/theme';
 import { formatShortDate } from '@/lib/time';
 
 export const dynamic = 'force-dynamic';
@@ -186,8 +187,16 @@ export default function GuidePage() {
   ];
 
   return (
-    <div className="space-y-10 py-2">
+    <div className="space-y-10 py-2 lg:!max-w-5xl">
       <section>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={logoFor(config.branding, resolveTheme(config.branding, 'portal'))}
+          alt=""
+          className="mb-6 h-auto w-full max-w-sm"
+          width={1000}
+          height={318}
+        />
         <p className="eyebrow">Team guide</p>
         <h1 className="mt-2 text-3xl font-bold leading-tight text-ink sm:text-4xl">
           How the {event.shortName} portal works
@@ -203,7 +212,7 @@ export default function GuidePage() {
         <h2 id="screens" className="mt-1 text-xl font-bold text-ink">
           Three kinds of screen
         </h2>
-        <ul className="mt-4 grid gap-3 sm:grid-cols-3">
+        <ul className="mt-4 grid gap-3 md:grid-cols-3">
           {screens.map((s) => (
             <li key={s.who} className="flex flex-col rounded-xl border border-line bg-surface p-4">
               <p className="text-lg font-bold text-ink">{s.who}</p>
@@ -267,7 +276,7 @@ export default function GuidePage() {
         <h2 id="roles" className="mt-1 text-xl font-bold text-ink">
           Who does what on the day
         </h2>
-        <ul className="mt-4 grid gap-3 sm:grid-cols-3">
+        <ul className="mt-4 grid gap-3 md:grid-cols-3">
           {roles.map((r) => (
             <li key={r.role} className="rounded-xl border border-line bg-surface p-4">
               <p className="font-bold text-ink">{r.role}</p>

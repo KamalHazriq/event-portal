@@ -854,3 +854,29 @@ for buttons and links.
 
 Every text and background pair was checked to meet the WCAG AA contrast level
 (4.5 to 1 or better) in both themes.
+
+## Logos
+
+All logo files are in `public/branding/` and named in the `branding` block of
+`config/event.json`, so the next event swaps them there:
+
+| Setting                                           | File                                  | Where it shows                                       |
+| ------------------------------------------------- | ------------------------------------- | ---------------------------------------------------- |
+| `logoPath`                                        | `event-wordmark.webp`                 | Light backgrounds and anything printed (table tents) |
+| `logoDarkPath`                                    | `event-wordmark-on-dark.webp`         | The home page, the guide and the projector welcome   |
+| `markPath` / `markDarkPath`                       | `d-logo.webp` / `d-logo-on-dark.webp` | Beside the event name in every page header           |
+| `organisationLogoPath`                            | `digital-information.webp`            | The page footer, on a white tile                     |
+| `iconPath`, `appleIconPath`, `public/favicon.ico` | the D logo                            | The browser tab and the phone home screen            |
+
+The originals were 2000 px wide; these are trimmed and shrunk copies, about
+6 to 23 KB each, so pages stay light on hotel Wi-Fi.
+
+## Screen sizes
+
+Every page is built phone first and checked at four widths: phone (375),
+tablet (768), laptop (1366) and desktop (1920). Nothing scrolls sideways at
+any of them. From laptop width up, the home page becomes two columns (the
+event and what is on at the left, the day down the right); reading pages such
+as the agenda keep a comfortable line length. The printable name tags and
+table tents keep their exact paper sizes: on a narrow screen the tags drop to
+one column and the tents scroll inside their own box.

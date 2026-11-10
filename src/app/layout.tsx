@@ -30,8 +30,16 @@ export async function generateMetadata(): Promise<Metadata> {
     return { title: 'Event portal: configuration problem' };
   }
 
-  const { event } = result.config;
+  const { event, branding } = result.config;
   return {
+    // The favicon.ico in public/ covers old browsers; these cover the rest.
+    icons: {
+      icon: [
+        { url: '/favicon.ico', sizes: 'any' },
+        ...(branding.iconPath ? [{ url: branding.iconPath, type: 'image/png' }] : []),
+      ],
+      apple: branding.appleIconPath ? [{ url: branding.appleIconPath }] : [],
+    },
     title: { default: event.name, template: `%s | ${event.shortName}` },
     description: event.tagline || `${event.name}, ${event.venue}`,
     // Nothing here reaches an external service. No analytics, no tracking.

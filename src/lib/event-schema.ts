@@ -88,8 +88,19 @@ export const ThemeTokensSchema = z.object({
 });
 
 export const BrandingSchema = z.object({
-  logoPath: z.string().default('/branding/logo-placeholder.svg'),
+  /** The event wordmark, for light backgrounds (and anything printed). */
+  logoPath: z.string().default('/branding/event-wordmark.webp'),
+  /** The same wordmark with light lettering, for dark backgrounds. */
   logoDarkPath: z.string().optional(),
+  /** A small mark for page headers, such as the organiser's monogram. */
+  markPath: z.string().optional(),
+  markDarkPath: z.string().optional(),
+  /** The organiser's full logo, shown in the page footer on a white tile. */
+  organisationLogoPath: z.string().optional(),
+  organisationName: z.string().max(120).default(''),
+  /** Square PNG for the browser tab and the phone home screen. */
+  iconPath: z.string().optional(),
+  appleIconPath: z.string().optional(),
   fontFamily: z.string().default('Arial, Helvetica, sans-serif'),
   /** Used for the big numbers on the projector. Falls back to fontFamily. */
   displayFontFamily: z.string().optional(),

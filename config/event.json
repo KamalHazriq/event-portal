@@ -24,7 +24,14 @@
 
   "branding": {
     "_readme": "The dark teal and green theme from the event slide template (Telegraf style). Change the colours here and the whole portal follows, including the big screen. The brand block keeps the TNB colours. Telegraf is a licensed font and is not bundled: where it is installed it is used, otherwise the next font in the list is.",
-    "logoPath": "/branding/logo-placeholder.svg",
+    "logoPath": "/branding/event-wordmark.webp",
+    "logoDarkPath": "/branding/event-wordmark-on-dark.webp",
+    "markPath": "/branding/d-logo.webp",
+    "markDarkPath": "/branding/d-logo-on-dark.webp",
+    "organisationLogoPath": "/branding/digital-information.webp",
+    "organisationName": "Digital & Information",
+    "iconPath": "/branding/d-icon-512.png",
+    "appleIconPath": "/branding/d-icon-apple-180.png",
     "fontFamily": "Telegraf, 'Segoe UI', Arial, Helvetica, sans-serif",
     "displayFontFamily": "Telegraf, 'Segoe UI', Arial, Helvetica, sans-serif",
     "brand": {

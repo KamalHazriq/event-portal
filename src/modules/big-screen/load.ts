@@ -6,6 +6,7 @@
  */
 import { getData } from '@/data';
 import { getEventConfig } from '@/lib/config';
+import { logoFor, resolveTheme } from '@/lib/theme';
 import type { EventConfig } from '@/lib/event-schema';
 import { formatClock, formatShortDate, type EventNow } from '@/lib/time';
 import {
@@ -88,7 +89,7 @@ export async function loadScreenView(
           dates: eventDates(config),
           venue: config.event.venue,
           portalUrl: config.event.portalUrl,
-          logoPath: config.branding.logoPath ?? null,
+          logoPath: logoFor(config.branding, resolveTheme(config.branding, 'bigScreen')),
         },
       };
 
