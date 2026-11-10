@@ -23,7 +23,7 @@
   },
 
   "branding": {
-    "_readme": "The dark teal and green theme from the event slide template (Telegraf style). Change the colours here and the whole portal follows, including the big screen. The brand block keeps the TNB colours. Telegraf is a licensed font and is not bundled: where it is installed it is used, otherwise the next font in the list is.",
+    "_readme": "The dark teal theme from the event slide template (Telegraf style), with buttons and links in the blue from the event logo. Change the colours here and the whole portal follows, including the big screen. The brand block keeps the TNB colours. Telegraf is a licensed font and is not bundled: where it is installed it is used, otherwise the next font in the list is.",
     "logoPath": "/branding/event-wordmark.webp",
     "logoDarkPath": "/branding/event-wordmark-on-dark.webp",
     "markPath": "/branding/d-logo.webp",
@@ -49,7 +49,7 @@
         "border": "#C2D8D9",
         "text": "#06181C",
         "textMuted": "#47656A",
-        "primary": "#0A7355",
+        "primary": "#0B5FE0",
         "primaryText": "#FFFFFF",
         "accent": "#0B6C7A",
         "accentText": "#FFFFFF",
@@ -64,8 +64,8 @@
         "border": "#1C3A42",
         "text": "#EAF4F3",
         "textMuted": "#8FAEB2",
-        "primary": "#22D38A",
-        "primaryText": "#02130C",
+        "primary": "#0F6BF5",
+        "primaryText": "#FFFFFF",
         "accent": "#2FB5C9",
         "accentText": "#021316",
         "live": "#FF8A4C",

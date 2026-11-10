@@ -62,9 +62,9 @@ type Page = { url: string; file: string };
 /** Photo wall images the saved demo pages point at, fetched after them. */
 const photoIds = new Set<string>();
 
-const SCHEDULE_BANNER = `<div style="background:#0F2329;color:#EAF4F3;border-bottom:2px solid #22D38A;padding:10px 16px;font:14px/1.4 Arial,Helvetica,sans-serif;text-align:center">A preview of the schedule. <a href="/guide/" style="color:#22D38A;font-weight:bold">How the portal works</a> / <a href="/admin/" style="color:#22D38A;font-weight:bold">Admin console demo</a></div>`;
+const SCHEDULE_BANNER = `<div style="background:#0F2329;color:#EAF4F3;border-bottom:2px solid #0F6BF5;padding:10px 16px;font:14px/1.4 Arial,Helvetica,sans-serif;text-align:center">A preview of the schedule. <a href="/guide/" style="color:#6FA6F9;font-weight:bold">How the portal works</a> / <a href="/admin/" style="color:#6FA6F9;font-weight:bold">Admin console demo</a></div>`;
 
-const DEMO_BANNER = `<div style="background:#0F2329;color:#EAF4F3;border-bottom:2px solid #FBBF24;padding:10px 16px;font:14px/1.4 Arial,Helvetica,sans-serif;text-align:center">Demo snapshot with invented people and answers, as if it were Day 2 at 10:40. Buttons and forms do nothing here. <a href="/guide/" style="color:#22D38A;font-weight:bold">How the portal works</a> / <a href="/" style="color:#22D38A;font-weight:bold">Schedule</a></div>`;
+const DEMO_BANNER = `<div style="background:#0F2329;color:#EAF4F3;border-bottom:2px solid #FBBF24;padding:10px 16px;font:14px/1.4 Arial,Helvetica,sans-serif;text-align:center">Demo snapshot with invented people and answers, as if it were Day 2 at 10:40. Buttons and forms do nothing here. <a href="/guide/" style="color:#6FA6F9;font-weight:bold">How the portal works</a> / <a href="/" style="color:#6FA6F9;font-weight:bold">Schedule</a></div>`;
 
 async function makePreviewConfig(): Promise<ReturnType<typeof EventConfigSchema.parse>> {
   const raw = await readFile(join(process.cwd(), 'config', 'event.json'), 'utf8');

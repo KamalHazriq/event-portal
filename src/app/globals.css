@@ -470,3 +470,42 @@
   background: linear-gradient(90deg, transparent, var(--c-primary));
   pointer-events: none;
 }
+
+/*
+ * Primary colour as text.
+ *
+ * The logo blue is right for a button with white lettering, but as link text
+ * on the dark theme it is a little too dim to read comfortably (under the
+ * WCAG AA 4.5 to 1 level). So text in the primary colour uses a lighter tint
+ * of the same blue on dark backgrounds. Outside any layer on purpose, so it
+ * wins over the utility class.
+ */
+:root {
+  --c-primary-ink: var(--c-primary);
+}
+
+:root[data-theme='dark'],
+[data-theme='dark'] {
+  --c-primary-ink: color-mix(in srgb, var(--c-primary) 60%, white);
+}
+
+[data-theme='light'] {
+  --c-primary-ink: var(--c-primary);
+}
+
+@media print {
+  :root,
+  :root[data-theme='dark'],
+  [data-theme='dark'] {
+    --c-primary-ink: var(--c-primary);
+  }
+}
+
+.text-primary,
+.eyebrow {
+  color: var(--c-primary-ink);
+}
+
+.eyebrow::before {
+  background: var(--c-primary-ink);
+}
