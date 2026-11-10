@@ -12,15 +12,13 @@ const ITEMS: { href: string; label: string; also?: string[] }[] = [
   { href: '/admin/reports', label: 'Reports' },
   { href: '/admin/lucky-draw', label: 'Lucky draw' },
   { href: '/admin/photos', label: 'Photos' },
+  { href: '/admin/qa', label: 'Q&A' },
+  { href: '/admin/polls', label: 'Polls' },
   { href: '/admin/committees', label: 'Committees' },
   { href: '/admin/name-tags', label: 'Name tags' },
   { href: '/admin/qr-assets', label: 'QR assets' },
-  {
-    href: '/admin/previews',
-    label: 'More',
-    // The preview pages that have no tab of their own light up "More".
-    also: ['/admin/qa', '/admin/polls', '/admin/admins'],
-  },
+  // Still a preview: who else is signed in.
+  { href: '/admin/admins', label: 'Admins' },
 ];
 
 export function AdminNav() {

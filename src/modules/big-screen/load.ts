@@ -16,6 +16,8 @@ import {
   surpriseInstant,
 } from '@/modules/admin/logic';
 import { arrivalRate, resolveCheckInDay } from '@/modules/check-in/logic';
+import { tallyPoll } from '@/modules/polls/logic';
+import { QA_KEYS, screenQuestions } from '@/modules/qa/logic';
 import { groupDraws, LUCKY_KEYS, resolveExclusions } from '@/modules/lucky-draw/logic';
 import { buildAgenda, findNowAndNext, type ResolvedSession } from '@/modules/schedule/logic';
 
@@ -33,6 +35,8 @@ import type {
   LuckyDrawView,
   NowNextView,
   PhotosView,
+  PollView,
+  QuestionsView,
   ScreenSession,
   WelcomeView,
 } from './components/ScreenViews';
@@ -71,7 +75,9 @@ export type ScreenPayload =
   | { view: 'arrivals'; props: ComponentProps<typeof ArrivalsView> }
   | { view: 'countdown'; props: ComponentProps<typeof CountdownView> }
   | { view: 'lucky-draw'; props: ComponentProps<typeof LuckyDrawView> }
-  | { view: 'photos'; props: ComponentProps<typeof PhotosView> };
+  | { view: 'photos'; props: ComponentProps<typeof PhotosView> }
+  | { view: 'qa'; props: ComponentProps<typeof QuestionsView> }
+  | { view: 'poll'; props: ComponentProps<typeof PollView> };
 
 export async function loadScreenView(
   view: ScreenView,
@@ -211,6 +217,60 @@ export async function loadScreenView(
         props: {
           slides: approved.slice(0, 80).map((p) => ({ id: p.id, caption: p.caption })),
           shareUrl: `${config.event.portalUrl.replace(/\/$/, '')}/photos`,
+        },
+      };
+    }
+
+    case 'qa': {
+      if (!config.features.qa) return loadScreenView('welcome', now, settings);
+      const agenda = buildAgenda(config);
+      const qaSessions = agenda.sessions.filter((s) => s.qaEnabled);
+      // The session the moderator chose, else the one running now.
+      const chosen = await data.settings.get(QA_KEYS.screenSession);
+      const liveNow = findNowAndNext(agenda, now).live;
+      const session =
+        qaSessions.find((s) => s.id === chosen) ??
+        qaSessions.find((s) => liveNow.some((l) => l.id === s.id)) ??
+        qaSessions[0];
+      const base = config.event.portalUrl.replace(/\/$/, '');
+      const list = session ? screenQuestions(await data.questions.listBySession(session.id)) : [];
+      return {
+        view,
+        props: {
+          sessionTitle: session?.title ?? '',
+          askUrl: session ? `${base}/qa/${session.id}` : base,
+          questions: list.map((q) => ({
+            id: q.id,
+            text: q.text,
+            name: q.name,
+            votes: q.votes,
+            pinned: q.pinned,
+          })),
+        },
+      };
+    }
+
+    case 'poll': {
+      if (!config.features.polls) return loadScreenView('welcome', now, settings);
+      const polls = await data.polls.list();
+      const poll =
+        polls.find((p) => p.status === 'open') ??
+        [...polls].reverse().find((p) => p.status === 'closed' && p.revealed) ??
+        null;
+      const votes = poll ? await data.polls.votes(poll.id) : [];
+      return {
+        view,
+        props: {
+          poll: poll
+            ? {
+                question: poll.question,
+                kind: poll.kind,
+                open: poll.status === 'open',
+                revealed: poll.revealed,
+                results: tallyPoll(poll, votes),
+              }
+            : null,
+          voteUrl: `${config.event.portalUrl.replace(/\/$/, '')}/poll`,
         },
       };
     }

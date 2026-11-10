@@ -199,6 +199,57 @@ describe('report workbook', () => {
     expect(buildReportWorkbook(input()).some((s) => s.name === 'Lucky draw')).toBe(false);
   });
 
+  it('adds the backup Q&A and poll results when they were used', () => {
+    const withBackup = buildReportWorkbook(
+      input({
+        questions: [
+          {
+            id: 'q1',
+            sessionId: 'd1-keynote',
+            text: 'Who owns this?',
+            name: '',
+            deviceId: 'd',
+            status: 'hidden',
+            pinned: false,
+            votes: 4,
+            createdAt: '2026-12-14T07:00:00Z',
+          },
+        ],
+        polls: [
+          {
+            poll: {
+              id: 'p',
+              question: 'Ready?',
+              kind: 'single',
+              options: ['Yes', 'No'],
+              status: 'closed',
+              revealed: true,
+              position: 1,
+              createdAt: '2026-12-14T07:00:00Z',
+            },
+            votes: [
+              { pollId: 'p', deviceId: 'a', choices: ['0'], at: '' },
+              { pollId: 'p', deviceId: 'b', choices: ['0'], at: '' },
+              { pollId: 'p', deviceId: 'c', choices: ['1'], at: '' },
+            ],
+          },
+        ],
+      }),
+    );
+    const questions = withBackup.find((s) => s.name === 'Questions');
+    // Every question is listed, with its status, including hidden ones.
+    expect(questions?.rows[1]?.slice(1, 5)).toEqual(['Who owns this?', 'Anonymous', 4, 'Hidden']);
+    const polls = withBackup.find((s) => s.name === 'Poll results');
+    expect(polls?.rows.slice(1).map((r) => [r[2], r[3], r[4], r[5]])).toEqual([
+      ['Yes', 2, 67, 3],
+      ['No', 1, 33, 3],
+    ]);
+    // And neither sheet appears when Slido did the job.
+    const plain = buildReportWorkbook(input()).map((s) => s.name);
+    expect(plain).not.toContain('Questions');
+    expect(plain).not.toContain('Poll results');
+  });
+
   it('adds imported Slido sheets at the end', () => {
     const slido: ImportedSheet = {
       id: '1',

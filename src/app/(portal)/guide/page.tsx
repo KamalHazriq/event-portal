@@ -79,6 +79,8 @@ export default function GuidePage() {
       text: 'The MC keeps live control open: what is on, minutes left, what is next and how full the room is. Polls and questions run on Slido, and every session page has the Slido button.',
       links: [
         { href: '/admin/live', label: 'Live control', on: true },
+        { href: '/admin/qa', label: 'Backup Q&A', on: features.qa },
+        { href: '/admin/polls', label: 'Backup polls', on: features.polls },
         { href: '/agenda', label: 'Agenda', on: features.schedule },
         {
           href: '/screen/now-next',
@@ -171,7 +173,7 @@ export default function GuidePage() {
   const faq = [
     [
       'What if Slido is down on the day?',
-      'The agenda, check in, feedback and projector do not depend on Slido. A backup Q&A and polls are planned as the last piece of work.',
+      'One switch on the Q&A or Polls page moves everyone to the portal\'s own Q&A and polls: the Slido button on each session becomes "Ask a question", and the projector can show the top questions and live poll results. Everything else never depended on Slido.',
     ],
     [
       'What if a name tag will not scan?',

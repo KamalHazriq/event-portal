@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import { getEventConfig } from '@/lib/config';
 import { formatLongDate, formatTimeRange, resolveEventNow } from '@/lib/time';
 import { AutoRefresh } from '@/components/AutoRefresh';
+import { readBackupMode } from '@/modules/backup/server';
 import { DevTimeNotice } from '@/modules/schedule/components/DevTimeNotice';
 import { SlidoButton } from '@/modules/schedule/components/SlidoButton';
 import { SpeakerList } from '@/modules/schedule/components/SpeakerList';
@@ -26,6 +27,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function SessionPage({ params, searchParams }: PageProps) {
   const config = getEventConfig();
+  // Only ask the database when the backup Q&A exists at all, so the static
+  // schedule preview (which has no database) never needs one.
+  const backupOn = config.features.qa ? await readBackupMode() : false;
   const [{ id }, query] = await Promise.all([params, searchParams]);
 
   const agenda = buildAgenda(config);
@@ -117,7 +121,15 @@ export default async function SessionPage({ params, searchParams }: PageProps) {
         The portal's own Q&A and feedback appear here instead once those
         modules are built and switched on in config.
       */}
-      {(session.qaEnabled || session.type === 'activity') && session.slidoLink ? (
+      {backupOn && session.qaEnabled ? (
+        // Backup mode: the portal's own Q&A stands in for the Slido button.
+        <Link
+          href={`/qa/${session.id}`}
+          className="inline-flex min-h-11 items-center rounded-lg bg-primary px-4 py-2.5 font-bold text-on-primary no-underline"
+        >
+          Ask a question
+        </Link>
+      ) : (session.qaEnabled || session.type === 'activity') && session.slidoLink ? (
         <SlidoButton slido={session.slidoLink} />
       ) : null}
 

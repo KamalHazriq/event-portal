@@ -256,6 +256,21 @@ export const EventConfigSchema = z
     resources: z.array(ResourceSchema).default([]),
     surprise: SurpriseSchema.optional(),
     /**
+     * Polls prepared ahead of time for the backup polls (Module 3). An admin
+     * loads them with one button; they can also be typed in on the day.
+     */
+    polls: z
+      .array(
+        z.object({
+          id: z.string().regex(/^[a-z0-9-]{1,32}$/),
+          question: z.string().min(1).max(200),
+          kind: z.enum(['single', 'multiple', 'wordcloud']),
+          options: z.array(z.string().min(1).max(80)).max(8).default([]),
+        }),
+      )
+      .max(30)
+      .default([]),
+    /**
      * Committees whose Excel an admin can upload for a read only summary,
      * such as SVC, ATC and OTC. The id is used in addresses and storage.
      */

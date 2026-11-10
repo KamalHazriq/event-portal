@@ -139,3 +139,61 @@ model Photo {
   @@index([status, createdAt])
   @@index([deviceId])
 }
+
+/// A Q&A question (Module 2, the backup for Slido).
+model Question {
+  id        String   @id
+  sessionId String
+  text      String
+  name      String   @default("")
+  deviceId  String
+  /// pending | approved | answered | hidden
+  status    String   @default("pending")
+  pinned    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  votes QuestionVote[]
+
+  @@index([sessionId, status])
+  @@index([sessionId, deviceId])
+}
+
+/// One upvote. The key makes it one per phone per question.
+model QuestionVote {
+  questionId String
+  deviceId   String
+
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@id([questionId, deviceId])
+}
+
+/// A poll (Module 3, the backup for Slido).
+model Poll {
+  id        String   @id
+  question  String
+  /// single | multiple | wordcloud
+  kind      String
+  /// JSON array of the choices.
+  options   String   @default("[]")
+  /// draft | open | closed
+  status    String   @default("draft")
+  revealed  Boolean  @default(false)
+  position  Int      @default(0)
+  createdAt DateTime @default(now())
+
+  votes PollVote[]
+}
+
+/// One phone's answer. The key makes it one per phone per poll.
+model PollVote {
+  pollId   String
+  deviceId String
+  /// JSON array: option numbers as text, or the word for a word cloud.
+  choices  String
+  at       DateTime @default(now())
+
+  poll Poll @relation(fields: [pollId], references: [id], onDelete: Cascade)
+
+  @@id([pollId, deviceId])
+}

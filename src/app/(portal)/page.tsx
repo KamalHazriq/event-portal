@@ -1,9 +1,11 @@
 import Link from 'next/link';
 
+import { getData } from '@/data';
 import { getEventConfig } from '@/lib/config';
 import { logoFor, resolveTheme } from '@/lib/theme';
 import { formatLongDate, formatShortDate, resolveEventNow } from '@/lib/time';
 import { AutoRefresh } from '@/components/AutoRefresh';
+import { readBackupMode } from '@/modules/backup/server';
 import { DevTimeNotice } from '@/modules/schedule/components/DevTimeNotice';
 import { NowNextPanel } from '@/modules/schedule/components/NowNextPanel';
 import { SessionList } from '@/modules/schedule/components/SessionCard';
@@ -39,6 +41,12 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
   const eventFeedbackOpen = config.features.feedback
     ? (await readFormSettings(EVENT_FORM_ID)).open
     : false;
+  // Backup mode only: offer the open poll. Skipped entirely when polls are
+  // off, so the static schedule preview never needs a database.
+  const pollOpen =
+    config.features.polls && (await readBackupMode())
+      ? (await getData().polls.list()).some((poll) => poll.status === 'open')
+      : false;
   const focusDay = nowAndNext.focusDay;
   const isToday = nowAndNext.today !== null;
 
@@ -124,6 +132,19 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
         </div>
 
         <div className="space-y-6 lg:col-start-1 lg:row-start-2">
+          {pollOpen ? (
+            <section className="rounded-xl border-2 border-primary bg-surface p-4">
+              <p className="eyebrow">Live now</p>
+              <h2 className="mt-1 text-base font-bold text-ink">A poll is open</h2>
+              <Link
+                href="/poll"
+                className="mt-3 inline-flex min-h-11 items-center rounded-lg bg-primary px-4 py-2.5 font-bold text-on-primary no-underline"
+              >
+                Answer the poll
+              </Link>
+            </section>
+          ) : null}
+
           {config.features.photoWall ? (
             <section className="rounded-xl border border-line bg-surface p-4">
               <h2 className="text-base font-bold text-ink">Share a photo</h2>

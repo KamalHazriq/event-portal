@@ -19,8 +19,6 @@ async function signIn(page: Page): Promise<void> {
 
 const PAGES = [
   ['/admin/previews', 'Previews'],
-  ['/admin/qa', 'Q&A queue'],
-  ['/admin/polls', 'Polls'],
   ['/admin/admins', 'Admins'],
 ] as const;
 
@@ -38,11 +36,4 @@ test('every preview page opens and is labelled as dummy data', async ({ page }) 
       await expect(page.getByText('Preview with dummy data.')).toBeVisible();
     }
   }
-});
-
-test('the polls preview opens one poll at a time', async ({ page }) => {
-  await signIn(page);
-  await page.goto('/admin/polls');
-  await page.getByRole('button', { name: 'Open', exact: true }).first().click();
-  await expect(page.getByText('Open for votes')).toHaveCount(1);
 });

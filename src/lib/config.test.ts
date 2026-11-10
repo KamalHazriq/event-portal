@@ -76,8 +76,10 @@ describe('the event config that ships with the repo', () => {
     expect(config.features.resources).toBe(true);
     expect(config.features.checkIn).toBe(true);
     expect(config.features.feedback).toBe(true);
-    expect(config.features.qa).toBe(false);
-    expect(config.features.polls).toBe(false);
+    // Built as the backup for Slido. Attendees only see them once an admin
+    // turns backup mode on, which is a stored setting, not this file.
+    expect(config.features.qa).toBe(true);
+    expect(config.features.polls).toBe(true);
   });
 
   it('lists take away resources', () => {

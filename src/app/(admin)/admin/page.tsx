@@ -54,6 +54,16 @@ const PAGES = [
     description: 'Approve photos before they reach the big screen slideshow.',
   },
   {
+    href: '/admin/qa',
+    title: 'Q&A queue',
+    description: 'The backup for Slido: approve, pin, answer or hide questions.',
+  },
+  {
+    href: '/admin/polls',
+    title: 'Polls',
+    description: 'The backup for Slido: open, close and reveal polls and word clouds.',
+  },
+  {
     href: '/admin/committees',
     title: 'Committee summary',
     description: 'Upload a committee Excel and choose who can see its summary.',

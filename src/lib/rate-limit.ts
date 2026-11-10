@@ -107,6 +107,12 @@ export const LIMITS = {
   search: { limit: 120, windowMs: 60 * 1000 },
   /** Uploading a spreadsheet, such as the Slido export. Heavy work, rarely needed. */
   upload: { limit: 10, windowMs: 10 * 60 * 1000 },
+  /** Asking questions from one phone. The real limit is five per session. */
+  qaAsk: { limit: 20, windowMs: 10 * 60 * 1000 },
+  /** Upvoting from one phone. */
+  qaVote: { limit: 120, windowMs: 10 * 60 * 1000 },
+  /** Answering polls from one phone. One answer per poll is the real limit. */
+  pollVote: { limit: 60, windowMs: 10 * 60 * 1000 },
   /** Photo uploads from one phone. Ten is the allowance; this stops a loop. */
   photoUpload: { limit: 20, windowMs: 10 * 60 * 1000 },
   /** Pressing Draw. Generous, but stops a stuck button filling the winners list. */

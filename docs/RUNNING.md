@@ -552,8 +552,6 @@ buttons work in the open tab only, and a refresh puts everything back.
 
 | Page                                                | Stands in for                   | What you can try                                |
 | --------------------------------------------------- | ------------------------------- | ----------------------------------------------- |
-| [/admin/qa](http://localhost:3000/admin/qa)         | Module 2, backup Q&A            | Approve, pin, mark answered, hide               |
-| [/admin/polls](http://localhost:3000/admin/polls)   | Module 3, backup polls          | Open, close, reveal results, word cloud         |
 | [/admin/admins](http://localhost:3000/admin/admins) | Module 6, who else is signed in | See the 2 to 3 desks and a log of what they did |
 
 They are all listed on the secretariat home page and under **More** in the
@@ -927,3 +925,77 @@ by themselves every 20 seconds.
 no people) from `scripts/demo-photos`: four approved, two waiting.
 
 Run `npm run db:push` once first, for the new photo table.
+
+---
+
+# Modules 2 and 3: the backup Q&A and polls
+
+Slido runs Q&A and polls for this event. The portal has its own as a backup,
+**switched off for attendees** until an admin turns backup mode on.
+
+## If Slido fails on the day
+
+1. Open **Q&A** or **Polls** in the admin navigation.
+2. Press **Slido is down, switch to the portal**.
+
+From that moment, with no reload needed on anyone's phone beyond the usual
+refresh:
+
+- the Slido button on each session page becomes **Ask a question**;
+- the home page shows **A poll is open** whenever one is;
+- **Switch back to Slido** undoes it.
+
+While backup mode is off you can still prepare polls and try everything on
+the admin pages. Attendees see none of it: `/poll` and `/qa/...` do not exist.
+
+## Q&A
+
+- Attendees ask a question (up to 280 characters), with their name or
+  anonymously, and vote others up. One vote per phone per question, and at
+  most five questions per phone per session.
+- Questions **wait for approval** by default. On the Q&A page: **Approve**,
+  **Pin** (one per session, shown first as "being answered now"),
+  **Answered**, **Hide**. A hidden or waiting question never reaches phones or
+  the projector.
+- **Approval first: on / off** changes that for one session, if you would
+  rather questions appear straight away.
+- **Show top questions on the big screen** puts the four most voted approved
+  questions on the projector, with a QR code to ask or vote.
+
+## Polls
+
+- Three kinds: single choice, multiple choice, and word cloud (up to 30
+  characters).
+- **Load prepared polls** brings in the ones written under `polls` in
+  `config/event.json`. **Write a new poll** adds one on the day.
+- **Open** a poll (opening one closes any other), **Close** it, and **Reveal
+  results** when you want the room to see them. Until then phones only see
+  "your answer is in" and the projector shows how many have answered.
+- **Put on the big screen** shows the open poll with a QR code to answer,
+  then the bars or the word cloud once revealed.
+- One answer per phone per poll.
+
+## In the report
+
+If the backup was used, the Excel report gains a **Questions** sheet (every
+question with its status and votes) and a **Poll results** sheet.
+
+## The load test
+
+```powershell
+npm run dev
+```
+
+and in a second window:
+
+```powershell
+npm run load:test
+```
+
+It pretends to be 80 phones answering a poll at once and 20 phones asking and
+voting, over the network like real phones, then checks the stored numbers are
+exact, that repeat answers were not counted, and that a sixth question from
+one phone was refused. It makes its own poll and questions, removes them
+afterwards, and puts backup mode back as it found it.
+
+Run `npm run db:push` once first, for the new tables.

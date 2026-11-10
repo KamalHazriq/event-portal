@@ -9,7 +9,10 @@
 import { QrCode } from '@/components/QrCode';
 
 import { LuckyDrawSpinner } from '@/modules/lucky-draw/components/LuckyDrawSpinner';
+import type { PollKind } from '@/data/types';
 import { PhotoSlideshow } from '@/modules/photos/components/PhotoSlideshow';
+import { PollResultsView } from '@/modules/polls/components/PollResultsView';
+import type { PollResults } from '@/modules/polls/logic';
 
 import type { ArrivalCard } from '../logic';
 import { CountdownDigits } from './CountdownDigits';
@@ -353,4 +356,131 @@ export function PhotosView({
     );
   }
   return <PhotoSlideshow slides={slides} />;
+}
+
+/* -------------------------------------------------------------- questions */
+
+function ScanTile({ url, label, caption }: { url: string; label: string; caption: string }) {
+  return (
+    <div className="flex shrink-0 flex-col items-center">
+      <div className="rounded-[1.2vw] bg-white p-[1vw]">
+        <QrCode value={url} label={label} className="block size-[clamp(7rem,16vw,22rem)]" />
+      </div>
+      <p className="mt-[1.5vh] text-center text-[clamp(0.9rem,1.5vw,2rem)] font-bold text-ink">
+        {caption}
+      </p>
+    </div>
+  );
+}
+
+export function QuestionsView({
+  sessionTitle,
+  askUrl,
+  questions,
+}: {
+  sessionTitle: string;
+  askUrl: string;
+  questions: { id: string; text: string; name: string; votes: number; pinned: boolean }[];
+}) {
+  return (
+    <div className="grid h-full grid-cols-[1fr_auto] items-center gap-[4vw]">
+      <div className="min-w-0">
+        <p className={LABEL}>Your questions</p>
+        <p className="mt-[0.5vh] truncate text-[clamp(1rem,1.8vw,2.4rem)] text-ink-soft">
+          {sessionTitle}
+        </p>
+        {questions.length === 0 ? (
+          <p className="mt-[4vh] text-[clamp(2rem,4.5vw,6rem)] font-bold leading-tight text-ink">
+            Scan to ask the first question
+          </p>
+        ) : (
+          <ol className="mt-[3vh] space-y-[1.8vh]">
+            {questions.map((q) => (
+              <li
+                key={q.id}
+                className={[
+                  'screen-arrive flex items-center gap-[2vw] rounded-[1vw] border bg-surface px-[2vw] py-[1.6vh]',
+                  q.pinned ? 'border-[0.3vh] border-primary' : 'border-line',
+                ].join(' ')}
+              >
+                <span className="w-[5vw] shrink-0 text-center text-[clamp(1.4rem,3vw,4rem)] font-bold tabular-nums text-accent">
+                  {q.votes}
+                </span>
+                <span className="min-w-0">
+                  <span className="line-clamp-2 text-[clamp(1.1rem,2.1vw,2.9rem)] font-bold leading-tight text-ink">
+                    {q.text}
+                  </span>
+                  <span className="mt-[0.4vh] block text-[clamp(0.8rem,1.2vw,1.7rem)] text-ink-soft">
+                    {q.name || 'Anonymous'}
+                    {q.pinned ? ' / Being answered now' : ''}
+                  </span>
+                </span>
+              </li>
+            ))}
+          </ol>
+        )}
+      </div>
+      <ScanTile
+        url={askUrl}
+        label="QR code that opens the questions page"
+        caption="Scan to ask or vote"
+      />
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------- poll */
+
+export function PollView({
+  poll,
+  voteUrl,
+}: {
+  poll: {
+    question: string;
+    kind: PollKind;
+    open: boolean;
+    revealed: boolean;
+    results: PollResults;
+  } | null;
+  voteUrl: string;
+}) {
+  if (!poll) {
+    return (
+      <div className="screen-fade flex h-full flex-col items-center justify-center text-center">
+        <p className="text-[clamp(2.5rem,6vw,9rem)] font-bold text-ink">The next poll is coming</p>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className={
+        poll.open
+          ? 'grid h-full grid-cols-[1fr_auto] items-center gap-[4vw]'
+          : 'flex h-full items-center'
+      }
+    >
+      <div className="min-w-0 flex-1">
+        <p className={LABEL}>{poll.open ? 'Poll open' : 'Poll results'}</p>
+        <p className="mt-[1vh] text-[clamp(1.6rem,3.6vw,5rem)] font-bold leading-[1.08] text-ink">
+          {poll.question}
+        </p>
+        <div className="mt-[4vh]">
+          {poll.revealed ? (
+            <PollResultsView kind={poll.kind} results={poll.results} size="screen" />
+          ) : (
+            <p className="text-[clamp(3rem,9vw,12rem)] font-bold leading-none tabular-nums text-ink">
+              {poll.results.voters}
+              <span className="ml-[1.5vw] text-[clamp(1.2rem,2.6vw,3.5rem)] font-normal text-ink-soft">
+                {poll.results.voters === 1 ? 'answer so far' : 'answers so far'}
+              </span>
+            </p>
+          )}
+        </div>
+      </div>
+      {poll.open ? (
+        <ScanTile url={voteUrl} label="QR code that opens the poll" caption="Scan to answer" />
+      ) : null}
+    </div>
+  );
 }

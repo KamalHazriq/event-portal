@@ -20,8 +20,20 @@ export async function loadReportInput(generatedAt = new Date()): Promise<ReportI
     data.photos.list(),
   ]);
 
+  // The backup Q&A and polls: usually empty, since Slido runs them.
+  const qaSessions = config.days.flatMap((d) => d.sessions).filter((s) => s.qaEnabled);
+  const [questionLists, pollList] = await Promise.all([
+    Promise.all(qaSessions.map((s) => data.questions.listBySession(s.id))),
+    data.polls.list(),
+  ]);
+  const pollsWithVotes = await Promise.all(
+    pollList.map(async (poll) => ({ poll, votes: await data.polls.votes(poll.id) })),
+  );
+
   return {
     config,
+    questions: questionLists.flat(),
+    polls: pollsWithVotes,
     attendees,
     // listByDay carries the person too; the report only needs the check in.
     checkIns: perDay.flat().map(({ attendee: _attendee, ...checkIn }) => checkIn),

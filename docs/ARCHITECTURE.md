@@ -90,7 +90,11 @@ It also holds the photo wall (`photos`): the shrunk image and a small
 thumbnail as bytes, behind the same interface, so they can move to approved
 storage with a new adapter and no page changes.
 
-Q&A and polls are deliberately **not** in the interface yet. Q&A and polls are backup only because the event runs on Slido,
+The backup Q&A and polls have their repositories too (`questions`, `polls`).
+The database enforces one vote per phone per question and one answer per phone
+per poll, so the counts stay exact however many phones answer at once.
+
+An older note said they were left out on purpose; they have since been built. Q&A and polls are backup only because the event runs on Slido,
 and photo storage still needs a GRC answer. Each gets its own repository on the
 interface when its module is built, rather than guessing the shape now and
 reworking it later.

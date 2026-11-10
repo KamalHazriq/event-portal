@@ -24,6 +24,7 @@ const SHEETS = [
   ['Feedback by session', 'Answers, average stars and the spread of stars per session'],
   ['Best session votes', 'From the final event form'],
   ['Lucky draw', 'Every winner, in draw order, once the draw has been used'],
+  ['Questions, Poll results', "From the portal's own Q&A and polls, if backup mode was used"],
   ['Slido sheets', 'The polls and questions from the Slido export, once uploaded'],
 ] as const;
 

@@ -8,6 +8,8 @@ import {
   LuckyDrawView,
   NowNextView,
   PhotosView,
+  PollView,
+  QuestionsView,
   WelcomeView,
 } from './ScreenViews';
 
@@ -49,6 +51,8 @@ export function ScreenFrame({
         {payload.view === 'countdown' ? <CountdownView {...payload.props} /> : null}
         {payload.view === 'lucky-draw' ? <LuckyDrawView {...payload.props} /> : null}
         {payload.view === 'photos' ? <PhotosView {...payload.props} /> : null}
+        {payload.view === 'qa' ? <QuestionsView {...payload.props} /> : null}
+        {payload.view === 'poll' ? <PollView {...payload.props} /> : null}
       </div>
     </main>
   );

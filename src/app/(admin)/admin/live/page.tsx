@@ -6,6 +6,7 @@ import { getData } from '@/data';
 import { requireAdmin } from '@/lib/admin-guard';
 import { getEventConfig } from '@/lib/config';
 import { formatClock, formatTimeRange, resolveEventNow } from '@/lib/time';
+import { readBackupMode } from '@/modules/backup/server';
 import { updateCountdown, updateCountdownLabel } from '@/modules/admin/actions';
 import { CountdownClock } from '@/modules/admin/components/CountdownClock';
 import {
@@ -40,6 +41,7 @@ export default async function LiveControlPage() {
   const nowAndNext = findNowAndNext(agenda, now);
 
   const data = getData();
+  const backupOn = await readBackupMode();
   const day = resolveCheckInDay(config.days, now);
 
   const [headcount, enabled, targetAt, label] = await Promise.all([
@@ -192,15 +194,15 @@ export default async function LiveControlPage() {
             ) : null}
           </div>
           <p className="mt-3 text-sm text-ink-soft">
-            If Slido is down:{' '}
+            If Slido is down, switch to the portal&apos;s own{' '}
             <Link href="/admin/qa" className="font-semibold text-primary">
-              backup Q&A queue
+              Q&A
             </Link>{' '}
             and{' '}
             <Link href="/admin/polls" className="font-semibold text-primary">
-              backup polls
+              polls
             </Link>
-            , both previews for now.
+            . Backup mode is {backupOn ? 'on' : 'off'}.
           </p>
         </section>
       ) : null}

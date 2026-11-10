@@ -86,9 +86,41 @@
     "luckyDraw": true,
     "photoWall": true,
     "committees": true,
-    "qa": false,
-    "polls": false
+    "qa": true,
+    "polls": true
   },
+
+  "polls": [
+    {
+      "id": "ice-breaker",
+      "question": "How many years have you been with the company?",
+      "kind": "single",
+      "options": ["Less than 5", "5 to 10", "11 to 20", "More than 20"]
+    },
+    {
+      "id": "breakout-topics",
+      "question": "Which sub topics should your breakout spend most time on?",
+      "kind": "multiple",
+      "options": [
+        "Delivery and reliability",
+        "Digital and data",
+        "People and capability",
+        "Safety culture"
+      ]
+    },
+    {
+      "id": "night-song",
+      "question": "Pick the song for the night activity",
+      "kind": "single",
+      "options": ["Song A", "Song B", "Song C"]
+    },
+    {
+      "id": "one-word",
+      "question": "One word for how you feel about 2027",
+      "kind": "wordcloud",
+      "options": []
+    }
+  ],
 
   "committees": [
     { "id": "svc", "name": "SVC" },

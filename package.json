@@ -22,7 +22,8 @@
     "attendees:generate": "tsx scripts/generate-attendees.ts",
     "simulate:check-in": "tsx scripts/simulate-check-in.ts",
     "preview:static": "next build && tsx scripts/build-static-preview.ts",
-    "demo:seed": "tsx scripts/seed-demo.ts"
+    "demo:seed": "tsx scripts/seed-demo.ts",
+    "load:test": "tsx scripts/load-test.ts"
   },
   "dependencies": {
     "@prisma/adapter-better-sqlite3": "^7.10.1",

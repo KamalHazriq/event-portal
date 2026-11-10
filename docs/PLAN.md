@@ -28,6 +28,6 @@ attendee pages, admin pages, the guide, the projector views.
 - Admin downloads every approved photo as one zip after the event.
 - Storage goes through the data adapter, so it can move to approved storage.
 
-## 4. Backup Q&A and polls (Modules 2 and 3)
+## 4. Backup Q&A and polls (Modules 2 and 3) (done)
 
 Only if Slido is unavailable. Built last, as the brief says.

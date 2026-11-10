@@ -12,11 +12,16 @@ import type {
   FeedbackSummary,
   ImportedSheet,
   LuckyDrawWinnerWithAttendee,
+  Poll,
+  PollVote,
+  Question,
 } from '@/data/types';
 import type { EventConfig } from '@/lib/event-schema';
 import { formatShortDate } from '@/lib/time';
 import type { CellValue, SheetInput } from '@/lib/xlsx/write';
 import { EVENT_FORM_ID, feedbackForms, tallyBestSessions } from '@/modules/feedback/logic';
+import { POLL_KIND_LABEL, tallyPoll } from '@/modules/polls/logic';
+import { QUESTION_STATUS_LABEL } from '@/modules/qa/logic';
 
 export type ReportInput = {
   config: EventConfig;
@@ -28,6 +33,10 @@ export type ReportInput = {
   imports: ImportedSheet[];
   /** Lucky draw winners, in draw order. */
   luckyDraw: LuckyDrawWinnerWithAttendee[];
+  /** Backup Q&A: every question, any status. Empty when Slido was used. */
+  questions?: Question[];
+  /** Backup polls with their answers. Empty when Slido was used. */
+  polls?: { poll: Poll; votes: PollVote[] }[];
   /** Photo wall counts. Only counts: the photos are in their own zip. */
   photos?: { approved: number; total: number };
   /** When the report was made, as an instant. */
@@ -389,6 +398,47 @@ export function buildReportWorkbook(input: ReportInput): SheetInput[] {
           localDateTime(w.drawnAt, tz),
           w.byOperator,
         ]),
+      ],
+    });
+  }
+
+  // The portal's own Q&A and polls, when they were used instead of Slido.
+  const questions = input.questions ?? [];
+  if (questions.length > 0) {
+    sheets.push({
+      name: 'Questions',
+      rows: [
+        ['Session', 'Question', 'Name', 'Votes', 'Status', 'Pinned', 'Asked'],
+        ...questions.map((q): CellValue[] => [
+          sessionTitles.get(q.sessionId) ?? q.sessionId,
+          q.text,
+          q.name || 'Anonymous',
+          q.votes,
+          QUESTION_STATUS_LABEL[q.status],
+          q.pinned ? 'Yes' : '',
+          localDateTime(q.createdAt, tz),
+        ]),
+      ],
+    });
+  }
+
+  const answered = (input.polls ?? []).filter((p) => p.votes.length > 0);
+  if (answered.length > 0) {
+    sheets.push({
+      name: 'Poll results',
+      rows: [
+        ['Poll', 'Type', 'Answer', 'Votes', 'Percent of voters', 'Voters'],
+        ...answered.flatMap(({ poll, votes }) => {
+          const results = tallyPoll(poll, votes);
+          return results.rows.map((row): CellValue[] => [
+            poll.question,
+            POLL_KIND_LABEL[poll.kind],
+            row.label,
+            row.votes,
+            row.percent,
+            results.voters,
+          ]);
+        }),
       ],
     });
   }

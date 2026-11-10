@@ -17,6 +17,8 @@ export const SCREEN_VIEWS = [
   'countdown',
   'lucky-draw',
   'photos',
+  'qa',
+  'poll',
 ] as const;
 export type ScreenView = (typeof SCREEN_VIEWS)[number];
 
@@ -73,6 +75,16 @@ export const SCREEN_VIEW_INFO: Record<
     description: 'Approved photos from the photo wall, one every eight seconds.',
     whenToUse: 'Breaks and dinner',
   },
+  qa: {
+    title: 'Top questions',
+    description: 'The most voted approved questions for a session. Backup Q&A only.',
+    whenToUse: 'Question time, if Slido is down',
+  },
+  poll: {
+    title: 'Poll',
+    description: 'The open poll with a QR to answer it, then the results once revealed.',
+    whenToUse: 'Polls, if Slido is down',
+  },
   'lucky-draw': {
     title: 'Lucky draw',
     description: 'Spins through the names and stops on the winners. Draw on the lucky draw page.',
@@ -84,10 +96,15 @@ export const SCREEN_VIEW_INFO: Record<
 export function availableScreenViews(features: {
   luckyDraw: boolean;
   photoWall: boolean;
+  qa: boolean;
+  polls: boolean;
 }): ScreenView[] {
   return SCREEN_VIEWS.filter(
     (view) =>
-      (view !== 'lucky-draw' || features.luckyDraw) && (view !== 'photos' || features.photoWall),
+      (view !== 'lucky-draw' || features.luckyDraw) &&
+      (view !== 'photos' || features.photoWall) &&
+      (view !== 'qa' || features.qa) &&
+      (view !== 'poll' || features.polls),
   );
 }
 

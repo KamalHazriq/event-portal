@@ -11,8 +11,7 @@
  *
  * Scope note: this covers the modules that are confirmed and imminent, which
  * are check in (Module 4), feedback (Module 5), the admin console
- * (Module 6) and uploaded spreadsheets for the report (Module 7). Q&A and polls each add their own repository here when their
- * module is built. They are left out on
+ * (Module 6) and uploaded spreadsheets for the report (Module 7). Everything in the brief now has its repository here. They are left out on
  * purpose: Q&A and polls are backup only because the event runs on Slido, and
  * photo storage still needs a GRC answer, so their shape is not settled and
  * guessing it now would only create rework.
@@ -32,6 +31,12 @@ import type {
   LuckyDrawWinnerWithAttendee,
   Photo,
   PhotoStatus,
+  Poll,
+  PollKind,
+  PollStatus,
+  PollVote,
+  Question,
+  QuestionStatus,
   Setting,
 } from './types';
 
@@ -179,6 +184,52 @@ export interface PhotoRepository {
   remove(id: string): Promise<boolean>;
 }
 
+/** The backup Q&A (Module 2). */
+export interface QuestionRepository {
+  add(input: {
+    sessionId: string;
+    text: string;
+    name: string;
+    deviceId: string;
+    status: QuestionStatus;
+    /** Only the demo seed passes this. See checkIns.create. */
+    at?: string;
+  }): Promise<Question>;
+  /** Every question for a session, any status, oldest first, with vote counts. */
+  listBySession(sessionId: string): Promise<Question[]>;
+  /** For the per phone limit. */
+  countByDevice(sessionId: string, deviceId: string): Promise<number>;
+  setStatus(id: string, status: QuestionStatus): Promise<boolean>;
+  /** Pinning one question unpins any other in the same session. */
+  setPinned(id: string, pinned: boolean): Promise<boolean>;
+  /** One vote per phone per question. False if this phone already voted. */
+  vote(questionId: string, deviceId: string): Promise<boolean>;
+  /** Which of a session's questions this phone has voted for. */
+  votedIds(sessionId: string, deviceId: string): Promise<string[]>;
+  remove(id: string): Promise<boolean>;
+}
+
+/** The backup polls (Module 3). */
+export interface PollRepository {
+  /** In display order. */
+  list(): Promise<Poll[]>;
+  get(id: string): Promise<Poll | null>;
+  create(input: {
+    id?: string;
+    question: string;
+    kind: PollKind;
+    options: string[];
+  }): Promise<Poll>;
+  /** Opening a poll closes whichever was open: one poll at a time. */
+  setStatus(id: string, status: PollStatus): Promise<boolean>;
+  setRevealed(id: string, revealed: boolean): Promise<boolean>;
+  remove(id: string): Promise<boolean>;
+  /** One answer per phone per poll. duplicate is true if it already answered. */
+  vote(pollId: string, deviceId: string, choices: string[]): Promise<{ duplicate: boolean }>;
+  hasVoted(pollId: string, deviceId: string): Promise<boolean>;
+  votes(pollId: string): Promise<PollVote[]>;
+}
+
 export interface DataAdapter {
   /** Shown on the admin health page, so it is obvious which store is live. */
   readonly name: string;
@@ -196,6 +247,8 @@ export interface DataAdapter {
   readonly imports: ImportRepository;
   readonly luckyDraw: LuckyDrawRepository;
   readonly photos: PhotoRepository;
+  readonly questions: QuestionRepository;
+  readonly polls: PollRepository;
 }
 
 /** The value of DATA_ADAPTER in .env.local. */

@@ -13,6 +13,8 @@ import type {
   ImportRepository,
   LuckyDrawRepository,
   PhotoRepository,
+  PollRepository,
+  QuestionRepository,
   SettingsRepository,
 } from '../adapter';
 import type {
@@ -28,6 +30,11 @@ import type {
   LuckyDrawWinnerWithAttendee,
   Photo,
   PhotoStatus,
+  Poll,
+  PollKind,
+  PollStatus,
+  Question,
+  QuestionStatus,
   Setting,
 } from '../types';
 import { newCheckInToken, newId } from '@/lib/ids';
@@ -717,6 +724,215 @@ export function createSqliteAdapter(): DataAdapter {
     },
   };
 
+  /* ---------------------------------------------------- Q&A and polls */
+
+  const isUniqueClash = (error: unknown) => (error as { code?: unknown }).code === 'P2002';
+
+  type QuestionRow = {
+    id: string;
+    sessionId: string;
+    text: string;
+    name: string;
+    deviceId: string;
+    status: string;
+    pinned: boolean;
+    createdAt: Date;
+    _count?: { votes: number };
+  };
+
+  const toQuestion = (row: QuestionRow): Question => ({
+    id: row.id,
+    sessionId: row.sessionId,
+    text: row.text,
+    name: row.name,
+    deviceId: row.deviceId,
+    status: (['pending', 'approved', 'answered', 'hidden'].includes(row.status)
+      ? row.status
+      : 'pending') as QuestionStatus,
+    pinned: row.pinned,
+    votes: row._count?.votes ?? 0,
+    createdAt: row.createdAt.toISOString(),
+  });
+
+  const questions: QuestionRepository = {
+    async add(input) {
+      const row = await prisma.question.create({
+        data: {
+          id: newId(),
+          sessionId: input.sessionId,
+          text: input.text,
+          name: input.name,
+          deviceId: input.deviceId,
+          status: input.status,
+          createdAt: input.at ? new Date(input.at) : new Date(),
+        },
+      });
+      return toQuestion(row);
+    },
+
+    async listBySession(sessionId) {
+      const rows = await prisma.question.findMany({
+        where: { sessionId },
+        orderBy: { id: 'asc' },
+        include: { _count: { select: { votes: true } } },
+      });
+      return rows.map(toQuestion);
+    },
+
+    async countByDevice(sessionId, deviceId) {
+      return prisma.question.count({ where: { sessionId, deviceId } });
+    },
+
+    async setStatus(id, status) {
+      const updated = await prisma.question.updateMany({
+        where: { id },
+        // A question that leaves the screen cannot stay pinned to it.
+        data: status === 'approved' ? { status } : { status, pinned: false },
+      });
+      return updated.count > 0;
+    },
+
+    async setPinned(id, pinned) {
+      const row = await prisma.question.findUnique({ where: { id } });
+      if (!row) return false;
+      await prisma.$transaction([
+        prisma.question.updateMany({
+          where: { sessionId: row.sessionId, pinned: true },
+          data: { pinned: false },
+        }),
+        prisma.question.update({ where: { id }, data: { pinned } }),
+      ]);
+      return true;
+    },
+
+    async vote(questionId, deviceId) {
+      try {
+        await prisma.questionVote.create({ data: { questionId, deviceId } });
+        return true;
+      } catch (error) {
+        if (isUniqueClash(error)) return false;
+        throw error;
+      }
+    },
+
+    async votedIds(sessionId, deviceId) {
+      const rows = await prisma.questionVote.findMany({
+        where: { deviceId, question: { sessionId } },
+        select: { questionId: true },
+      });
+      return rows.map((r) => r.questionId);
+    },
+
+    async remove(id) {
+      const deleted = await prisma.question.deleteMany({ where: { id } });
+      return deleted.count > 0;
+    },
+  };
+
+  type PollRow = {
+    id: string;
+    question: string;
+    kind: string;
+    options: string;
+    status: string;
+    revealed: boolean;
+    position: number;
+    createdAt: Date;
+  };
+
+  const toPoll = (row: PollRow): Poll => ({
+    id: row.id,
+    question: row.question,
+    kind: (['single', 'multiple', 'wordcloud'].includes(row.kind)
+      ? row.kind
+      : 'single') as PollKind,
+    options: parseStringArray(row.options),
+    status: (['draft', 'open', 'closed'].includes(row.status) ? row.status : 'draft') as PollStatus,
+    revealed: row.revealed,
+    position: row.position,
+    createdAt: row.createdAt.toISOString(),
+  });
+
+  const polls: PollRepository = {
+    async list() {
+      const rows = await prisma.poll.findMany({ orderBy: [{ position: 'asc' }, { id: 'asc' }] });
+      return rows.map(toPoll);
+    },
+
+    async get(id) {
+      const row = await prisma.poll.findUnique({ where: { id } });
+      return row ? toPoll(row) : null;
+    },
+
+    async create(input) {
+      const last = await prisma.poll.findFirst({ orderBy: { position: 'desc' } });
+      const row = await prisma.poll.create({
+        data: {
+          id: input.id ?? newId(),
+          question: input.question,
+          kind: input.kind,
+          options: JSON.stringify(input.options),
+          position: (last?.position ?? 0) + 1,
+        },
+      });
+      return toPoll(row);
+    },
+
+    async setStatus(id, status) {
+      if (status === 'open') {
+        await prisma.$transaction([
+          prisma.poll.updateMany({
+            where: { status: 'open', NOT: { id } },
+            data: { status: 'closed' },
+          }),
+          prisma.poll.updateMany({ where: { id }, data: { status } }),
+        ]);
+        return true;
+      }
+      const updated = await prisma.poll.updateMany({ where: { id }, data: { status } });
+      return updated.count > 0;
+    },
+
+    async setRevealed(id, revealed) {
+      const updated = await prisma.poll.updateMany({ where: { id }, data: { revealed } });
+      return updated.count > 0;
+    },
+
+    async remove(id) {
+      const deleted = await prisma.poll.deleteMany({ where: { id } });
+      return deleted.count > 0;
+    },
+
+    async vote(pollId, deviceId, choices) {
+      try {
+        await prisma.pollVote.create({
+          data: { pollId, deviceId, choices: JSON.stringify(choices) },
+        });
+        return { duplicate: false };
+      } catch (error) {
+        if (isUniqueClash(error)) return { duplicate: true };
+        throw error;
+      }
+    },
+
+    async hasVoted(pollId, deviceId) {
+      const row = await prisma.pollVote.findUnique({
+        where: { pollId_deviceId: { pollId, deviceId } },
+      });
+      return row !== null;
+    },
+
+    async votes(pollId) {
+      const rows = await prisma.pollVote.findMany({ where: { pollId } });
+      return rows.map((r) => ({
+        pollId: r.pollId,
+        deviceId: r.deviceId,
+        choices: parseStringArray(r.choices),
+        at: r.at.toISOString(),
+      }));
+    },
+  };
+
   return {
     name: 'sqlite',
 
@@ -747,6 +963,10 @@ export function createSqliteAdapter(): DataAdapter {
       await prisma.setting.deleteMany();
       await prisma.importedSheet.deleteMany();
       await prisma.photo.deleteMany();
+      await prisma.questionVote.deleteMany();
+      await prisma.question.deleteMany();
+      await prisma.pollVote.deleteMany();
+      await prisma.poll.deleteMany();
     },
 
     async close() {
@@ -760,5 +980,7 @@ export function createSqliteAdapter(): DataAdapter {
     imports,
     luckyDraw,
     photos,
+    questions,
+    polls,
   };
 }

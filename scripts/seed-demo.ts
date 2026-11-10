@@ -319,6 +319,104 @@ async function main(): Promise<void> {
   );
   console.log(`slido sheets imported: 2 (invented)`);
 
+  /* ---------------------------------------- backup Q&A and polls ------- */
+
+  // Backup mode itself is left off, as it would be on a normal day. These
+  // make the Q&A and polls admin pages worth looking at.
+  const QUESTIONS = [
+    'How will we measure whether this is working a year from now?',
+    'What support is there for managers who want to start this in their own team?',
+    'Who owns this at board level?',
+    'How do site teams hear the same message we heard today?',
+    'Will the flexible working pilot be extended to operations staff?',
+    'What is the one thing you would ask us to stop doing?',
+    'Can the slides be shared on the resources page afterwards?',
+  ];
+  const ASKERS = ['', '', '', 'Aina K.', 'Darren Y.', 'Priya M.'];
+  for (const day of config.days) {
+    for (const session of day.sessions) {
+      if (!session.qaEnabled) continue;
+      for (const old of await data.questions.listBySession(session.id)) {
+        if (old.deviceId.startsWith('demo-')) await data.questions.remove(old.id);
+      }
+      const count = 4 + Math.floor(random() * 3);
+      for (let i = 0; i < count; i += 1) {
+        const roll = random();
+        const status =
+          roll < 0.3 ? 'pending' : roll < 0.8 ? 'approved' : roll < 0.92 ? 'answered' : 'hidden';
+        const question = await data.questions.add({
+          sessionId: session.id,
+          text: QUESTIONS[(i + session.id.length) % QUESTIONS.length]!,
+          name: pick(ASKERS),
+          deviceId: `demo-q-${session.id}-${i}`,
+          status,
+        });
+        if (status !== 'pending') {
+          const votes = Math.floor(random() * 18);
+          for (let v = 0; v < votes; v += 1)
+            await data.questions.vote(question.id, `demo-voter-${v}`);
+        }
+      }
+    }
+  }
+
+  for (const old of await data.polls.list()) {
+    if (old.id.startsWith('config-')) await data.polls.remove(old.id);
+  }
+  const guestsForPolls = everyone.filter((p) => !p.isSecretariat);
+  for (const preset of config.polls) {
+    const poll = await data.polls.create({
+      id: `config-${preset.id}`,
+      question: preset.question,
+      kind: preset.kind,
+      options: preset.options,
+    });
+    // The night activity poll stays a draft; the breakout one is left open.
+    if (preset.id === 'night-song') continue;
+    const words = [
+      'ready',
+      'hopeful',
+      'energised',
+      'curious',
+      'busy',
+      'together',
+      'bold',
+      'ready',
+      'hopeful',
+      'ready',
+    ];
+    await data.polls.setStatus(poll.id, 'open');
+    for (const person of guestsForPolls) {
+      if (random() > 0.85) continue;
+      const choices =
+        preset.kind === 'wordcloud'
+          ? [pick(words)]
+          : preset.kind === 'multiple'
+            ? [
+                ...new Set([
+                  pick(preset.options.map((_, i) => String(i))),
+                  pick(preset.options.map((_, i) => String(i))),
+                ]),
+              ]
+            : [
+                String(
+                  Math.min(
+                    preset.options.length - 1,
+                    Math.floor(random() * random() * preset.options.length * 1.6),
+                  ),
+                ),
+              ];
+      await data.polls.vote(poll.id, `demo-${person.id}`, choices);
+    }
+    if (preset.id !== 'breakout-topics') {
+      await data.polls.setStatus(poll.id, 'closed');
+      await data.polls.setRevealed(poll.id, true);
+    }
+  }
+  // Opening each in turn closed the one before; leave the breakout poll open.
+  await data.polls.setStatus('config-breakout-topics', 'open');
+  console.log(`polls:                ${config.polls.length} (invented answers)`);
+
   /* ------------------------------------------------ photo wall --------- */
 
   // Invented images from scripts/demo-photos: gradients with a label, no

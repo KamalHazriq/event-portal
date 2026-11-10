@@ -192,3 +192,42 @@ export type Photo = {
   /** The desk label that approved or rejected it. */
   reviewedBy: string;
 };
+
+/* ------------------------------------------- backup Q&A and polls */
+
+export type QuestionStatus = 'pending' | 'approved' | 'answered' | 'hidden';
+
+/** A question for a session's Q&A (Module 2, the backup for Slido). */
+export type Question = {
+  id: string;
+  sessionId: string;
+  text: string;
+  /** Empty when the person chose to stay anonymous. */
+  name: string;
+  /** The phone it came from. Not a person, and never shown. */
+  deviceId: string;
+  status: QuestionStatus;
+  pinned: boolean;
+  votes: number;
+  createdAt: string;
+};
+
+export type PollKind = 'single' | 'multiple' | 'wordcloud';
+export type PollStatus = 'draft' | 'open' | 'closed';
+
+/** A poll (Module 3, the backup for Slido). */
+export type Poll = {
+  id: string;
+  question: string;
+  kind: PollKind;
+  /** The choices. Empty for a word cloud. */
+  options: string[];
+  status: PollStatus;
+  /** Whether results show on phones and the big screen. */
+  revealed: boolean;
+  position: number;
+  createdAt: string;
+};
+
+/** One phone's answer: option numbers as text, or the word for a word cloud. */
+export type PollVote = { pollId: string; deviceId: string; choices: string[]; at: string };

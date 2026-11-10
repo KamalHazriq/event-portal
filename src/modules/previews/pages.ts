@@ -5,18 +5,6 @@
  */
 export const PREVIEW_PAGES = [
   {
-    href: '/admin/qa',
-    title: 'Q&A queue',
-    module: 'Module 2, backup Q&A if Slido is down',
-    description: 'Approve, pin, answer or hide questions before they reach the screen.',
-  },
-  {
-    href: '/admin/polls',
-    title: 'Polls',
-    module: 'Module 3, backup polls if Slido is down',
-    description: 'Open, close and reveal polls, including word clouds.',
-  },
-  {
     href: '/admin/admins',
     title: 'Admins',
     module: 'Module 6, who else is signed in',

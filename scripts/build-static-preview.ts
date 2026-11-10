@@ -75,6 +75,9 @@ async function makePreviewConfig(): Promise<ReturnType<typeof EventConfigSchema.
   features.checkIn = false;
   features.feedback = false;
   features.bigScreen = false;
+  // These read a stored switch, and the schedule half has no database.
+  features.qa = false;
+  features.polls = false;
 
   const preview = { ...source, features };
   await writeFile(PREVIEW_CONFIG, JSON.stringify(preview, null, 2), 'utf8');
@@ -229,6 +232,9 @@ async function setDemoCountdown(timezone: string): Promise<void> {
     countdownTargetFromNow(wallClockInZone(timezone), 15),
   );
   await data.settings.set(SURPRISE_KEYS.enabled, 'true');
+  // Backup mode on, for the demo only, so the attendee Q&A and poll pages
+  // exist to be saved. On a normal day it is off and Slido is used.
+  await data.settings.set('backup.mode', 'on');
   await data.close();
 }
 
@@ -275,13 +281,17 @@ async function buildDemo(days: string[]): Promise<number> {
       file: `admin/${p ? `${p}/` : ''}index.html`,
     })),
     { url: '/screen', file: 'screen/index.html' },
-    ...['welcome', 'now-next', 'arrivals', 'countdown', 'lucky-draw', 'photos'].map((view) => ({
-      url: `/screen/${view}`,
-      file: `screen/${view}/index.html`,
-    })),
+    ...['welcome', 'now-next', 'arrivals', 'countdown', 'lucky-draw', 'photos', 'qa', 'poll'].map(
+      (view) => ({
+        url: `/screen/${view}`,
+        file: `screen/${view}/index.html`,
+      }),
+    ),
     ...forms.map((slug) => ({ url: `/feedback/${slug}`, file: `feedback/${slug}/index.html` })),
     { url: '/guide', file: 'guide/index.html' },
     { url: '/photos', file: 'photos/index.html' },
+    { url: '/poll', file: 'poll/index.html' },
+    { url: '/qa/d1-keynote', file: 'qa/d1-keynote/index.html' },
     { url: '/admin/photos?status=approved', file: 'admin/photos/approved/index.html' },
   ];
 
