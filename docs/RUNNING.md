@@ -550,13 +550,12 @@ pages for the remaining modules are already there, running on dummy data.
 Each one has a dashed yellow banner saying so. **Nothing on them is saved**:
 buttons work in the open tab only, and a refresh puts everything back.
 
-| Page                                                        | Stands in for                   | What you can try                                       |
-| ----------------------------------------------------------- | ------------------------------- | ------------------------------------------------------ |
-| [/admin/photos](http://localhost:3000/admin/photos)         | Photo wall                      | Approve or reject photos (coloured tiles, no pictures) |
-| [/admin/committees](http://localhost:3000/admin/committees) | SVC, ATC and OTC summary        | Read only tables of invented papers                    |
-| [/admin/qa](http://localhost:3000/admin/qa)                 | Module 2, backup Q&A            | Approve, pin, mark answered, hide                      |
-| [/admin/polls](http://localhost:3000/admin/polls)           | Module 3, backup polls          | Open, close, reveal results, word cloud                |
-| [/admin/admins](http://localhost:3000/admin/admins)         | Module 6, who else is signed in | See the 2 to 3 desks and a log of what they did        |
+| Page                                                | Stands in for                   | What you can try                                       |
+| --------------------------------------------------- | ------------------------------- | ------------------------------------------------------ |
+| [/admin/photos](http://localhost:3000/admin/photos) | Photo wall                      | Approve or reject photos (coloured tiles, no pictures) |
+| [/admin/qa](http://localhost:3000/admin/qa)         | Module 2, backup Q&A            | Approve, pin, mark answered, hide                      |
+| [/admin/polls](http://localhost:3000/admin/polls)   | Module 3, backup polls          | Open, close, reveal results, word cloud                |
+| [/admin/admins](http://localhost:3000/admin/admins) | Module 6, who else is signed in | See the 2 to 3 desks and a log of what they did        |
 
 They are all listed on the secretariat home page and under **More** in the
 admin navigation.
@@ -781,3 +780,77 @@ names, like the rest of the PDF.
 
 Set `features.luckyDraw` to `false` in `config/event.json`. The page and the
 big screen view disappear.
+
+---
+
+# The committee summary
+
+Open **Committees** in the admin navigation, or
+<http://localhost:3000/admin/committees>. One section per committee listed
+under `committees` in `config/event.json` (SVC, ATC and OTC to start with).
+
+## Uploading
+
+Choose the committee's Excel file (`.xlsx`, up to 5 MB) and press **Upload**.
+The portal then shows, read only:
+
+- the rows as they are in the file, the first twelve open and the rest folded
+  away;
+- a count for every column that looks like a category, such as a decision, a
+  status or a division ("Approved 7, Noted 1").
+
+Nothing assumes particular column names, so any tidy table works. A title row
+above the table is fine. Uploading again replaces the earlier file, and
+**Remove this file** takes it out.
+
+## Who can see it
+
+**Secretariat only** (the default) keeps the summaries on the admin page,
+behind the PIN.
+
+**Anyone with the portal link** also opens a read only page at `/committees`.
+The portal has no personal login yet, so that really does mean anyone who has
+the link: check that is acceptable for the papers before choosing it.
+
+## Turning it off
+
+Set `features.committees` to `false` in `config/event.json`.
+
+---
+
+# The team guide
+
+<http://localhost:3000/guide> is a one page tour of the portal for showing
+the team: the three kinds of screen, an event day from start to finish with a
+link to each page involved, who does what, how it is kept safe, and the
+questions people ask. It needs no sign in and holds nothing private.
+
+It reads the config, so it names your event and leaves out anything that is
+switched off. It is linked from the secretariat home page and from the foot of
+every attendee page.
+
+---
+
+# The look
+
+The theme is the dark teal and green from the event slide template (the
+"Telegraf" style): near-black background, deep teal panels, a bright green
+for buttons and links.
+
+- **Colours** are the `branding.themes` block in `config/event.json`. Phones
+  and the console use `defaultTheme` (now `dark`); the projector uses
+  `bigScreenTheme`. A matching light version is there too: set
+  `defaultTheme` to `light` to try it.
+- **Polish** (the glow behind pages, the lift on cards, the accent bar under
+  each page title, the grid on the projector) is in one place, the "Theme
+  polish" part of `src/app/globals.css`, and is built from the same colours.
+  Change the colours and it follows.
+- **The font.** Telegraf is a licensed font, so it is not included. Where it
+  is installed on a device it is used; otherwise the next font in
+  `branding.fontFamily` is. To use it everywhere, the font files would need to
+  be licensed and added.
+- **Printing** always uses the light colours on white paper, whatever the
+  screen theme: name tags, table tents and the report summary.
+
+Every text and background pair was checked to meet the WCAG AA contrast level
+(4.5 to 1 or better) in both themes.

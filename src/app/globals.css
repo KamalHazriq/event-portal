@@ -36,6 +36,19 @@
 
   body {
     background-color: var(--c-background);
+    /* Two soft glows from the theme colours, fixed so they do not scroll. */
+    background-image:
+      radial-gradient(
+        60rem 34rem at 105% -8%,
+        color-mix(in srgb, var(--c-accent) 20%, transparent),
+        transparent 62%
+      ),
+      radial-gradient(
+        44rem 28rem at -12% 108%,
+        color-mix(in srgb, var(--c-primary) 11%, transparent),
+        transparent 60%
+      );
+    background-attachment: fixed;
     color: var(--c-text);
     font-family: var(--font-body);
     /* Mobile first: comfortable reading size on a 375 px phone. */
@@ -49,6 +62,25 @@
   h3 {
     text-wrap: balance;
     line-height: 1.2;
+    font-family: var(--font-display);
+  }
+
+  h1 {
+    letter-spacing: -0.02em;
+  }
+
+  /*
+   * The accent bar from the slide template, under every page title. Sized
+   * in em so it is right on a phone heading and on the projector alike.
+   */
+  main h1::after {
+    content: '';
+    display: block;
+    width: 2.4em;
+    height: 0.14em;
+    margin-top: 0.38em;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--c-primary), var(--c-accent));
   }
 
   /* A visible focus ring for keyboard and switch users. */
@@ -72,6 +104,74 @@
 }
 
 @layer components {
+  /*
+   * Theme polish, all from the theme tokens.
+   *
+   * These hook onto the utility classes the pages already use (a card is
+   * "rounded-xl border", a main button is "bg-primary"), so every page gets
+   * the look at once and no component needs to know about it.
+   */
+
+  /* Cards: a faint tint from the corner, a top highlight and a soft lift. */
+  .rounded-xl.border {
+    box-shadow:
+      inset 0 1px 0 color-mix(in srgb, var(--c-text) 7%, transparent),
+      0 14px 30px -22px color-mix(in srgb, var(--c-accent) 55%, transparent);
+  }
+
+  .rounded-xl.border.bg-surface {
+    background-image: linear-gradient(
+      155deg,
+      color-mix(in srgb, var(--c-accent) 9%, transparent),
+      transparent 58%
+    );
+  }
+
+  /* Main buttons and bars glow a little in the primary colour. */
+  a.bg-primary,
+  button.bg-primary {
+    box-shadow: 0 8px 22px -12px color-mix(in srgb, var(--c-primary) 85%, transparent);
+    transition:
+      transform 120ms ease,
+      box-shadow 120ms ease;
+  }
+
+  a.bg-primary:hover,
+  button.bg-primary:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 26px -12px var(--c-primary);
+  }
+
+  /* The sticky headers end in the accent line rather than a plain rule. */
+  header.sticky {
+    border-image: linear-gradient(
+        90deg,
+        var(--c-primary),
+        var(--c-accent) 45%,
+        color-mix(in srgb, var(--c-border) 60%, transparent)
+      )
+      1;
+  }
+
+  /* Small section labels, as on the slides. */
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--c-primary);
+  }
+
+  .eyebrow::before {
+    content: '';
+    width: 1.25rem;
+    height: 2px;
+    background: var(--c-primary);
+  }
+
   /* The soft pulse on a "happening now" badge. */
   @keyframes live-pulse {
     0%,
@@ -234,7 +334,8 @@
     margin: 8mm;
   }
 
-  /* Paper is white whatever theme the screen is in. */
+  /* Paper is white whatever theme the screen is in. The colour tokens are
+     switched to the light theme for print in src/lib/theme.ts. */
   :root,
   :root[data-theme='dark'] {
     background: #ffffff;
@@ -243,6 +344,14 @@
   body {
     background: #ffffff !important;
     color: #0b1b33 !important;
+  }
+
+  /* No glows or lifts on paper. */
+  .rounded-xl.border,
+  a.bg-primary,
+  button.bg-primary {
+    box-shadow: none !important;
+    background-image: none !important;
   }
 
   /* Everything that is not the sheet stays off the paper. */
@@ -307,13 +416,31 @@
   transition: width 900ms cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 
-/* A soft glow behind the big numbers, from the theme accent colour. */
+/*
+ * The projector backdrop: a faint grid, a teal glow behind the content and
+ * the green corner bar from the slide template. All from theme tokens.
+ */
 .screen-glow {
   background:
+    linear-gradient(color-mix(in srgb, var(--c-text) 4%, transparent) 1px, transparent 1px) 0 0 /
+      100% 6vh,
+    linear-gradient(90deg, color-mix(in srgb, var(--c-text) 4%, transparent) 1px, transparent 1px) 0
+      0 / 6vh 100%,
     radial-gradient(
-      60vw 45vh at 50% 40%,
-      color-mix(in srgb, var(--c-primary) 22%, transparent),
+      62vw 48vh at 50% 42%,
+      color-mix(in srgb, var(--c-accent) 26%, transparent),
       transparent 70%
     ),
     var(--c-background);
+}
+
+.screen-glow::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 24vw;
+  height: 1.2vh;
+  background: linear-gradient(90deg, transparent, var(--c-primary));
+  pointer-events: none;
 }

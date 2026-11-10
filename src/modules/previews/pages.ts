@@ -11,12 +11,6 @@ export const PREVIEW_PAGES = [
     description: 'Approve photos before they reach the slideshow.',
   },
   {
-    href: '/admin/committees',
-    title: 'Committee summary',
-    module: 'Extra, SVC, ATC and OTC summary',
-    description: 'Upload the committee Excel and see a read only summary.',
-  },
-  {
     href: '/admin/qa',
     title: 'Q&A queue',
     module: 'Module 2, backup Q&A if Slido is down',

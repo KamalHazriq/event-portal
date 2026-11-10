@@ -319,6 +319,40 @@ async function main(): Promise<void> {
   );
   console.log(`slido sheets imported: 2 (invented)`);
 
+  /* ------------------------------------------ committee papers --------- */
+
+  // Invented papers, so the committee summary has something to count.
+  const PAPERS = [
+    'Graduate intake plan for 2027',
+    'Flexible working pilot, phase two',
+    'Mentoring programme for first line managers',
+    'Women in engineering scholarship',
+    'Site accessibility upgrades',
+    'Return to work programme after long leave',
+    'Leadership pipeline review',
+    'Pay equity review, terms of reference',
+  ];
+  const DIVISIONS = ['Group Human Resources', 'Generation', 'Grid Division', 'Retail'];
+  const DECISIONS = ['Approved', 'Approved', 'Approved', 'Noted', 'Deferred'];
+  for (const [id, count] of [
+    ['svc', 8],
+    ['atc', 5],
+  ] as const) {
+    if (!config.committees.some((c) => c.id === id)) continue;
+    const rows = Array.from({ length: count }, (_, i) => [
+      `${id.toUpperCase()}/2026/${String(i + 1).padStart(2, '0')}`,
+      PAPERS[i % PAPERS.length]!,
+      pick(DIVISIONS),
+      pick(DECISIONS),
+    ]);
+    await data.imports.replace(
+      `committee:${id}`,
+      [{ kind: 'table', name: 'Papers', headers: ['Ref', 'Paper', 'Division', 'Decision'], rows }],
+      { fileName: `${id}-papers-demo.xlsx`, byOperator: 'desk-1' },
+    );
+  }
+  console.log('committee files:      2 (invented)');
+
   const summaries = await data.feedback.summaries();
   const rated = summaries.filter((s) => s.averageRating !== null);
   const overall =

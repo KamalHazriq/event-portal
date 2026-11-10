@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 import { SiteHeader } from '@/components/SiteHeader';
 import { getEventConfig } from '@/lib/config';
 
@@ -20,6 +22,11 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
           {config.event.city ? `, ${config.event.city}` : ''}
         </p>
         {config.event.helpText ? <p className="mt-2">{config.event.helpText}</p> : null}
+        <p className="mt-2">
+          <Link href="/guide" className="text-ink-soft">
+            How this portal works
+          </Link>
+        </p>
       </footer>
     </div>
   );

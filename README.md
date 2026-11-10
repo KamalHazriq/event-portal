@@ -44,8 +44,8 @@ Full instructions, including how to pretend it is a different date, are in
 | 6. Admin console                      | Done                |
 | 8. Big screen mode                    | Done                |
 | 7. Report export with Slido import    | Done                |
-| Extra: lucky draw                     | Done                |
-| Extras: photo wall, committee summary | Preview, dummy data |
+| Extras: lucky draw, committee summary | Done                |
+| Extra: photo wall                     | Preview, dummy data |
 | 2 and 3. Own Q&A and polls            | Preview, build last |
 
 Live polls and Q&A run on Slido for this event. The portal links out to it.

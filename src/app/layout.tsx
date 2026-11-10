@@ -15,14 +15,14 @@ import './globals.css';
  * (admin)/layout.tsx. Route groups do not change any URL.
  */
 
-export const viewport: Viewport = {
-  width: 'device-width',
-  initialScale: 1,
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#0053A1' },
-    { media: '(prefers-color-scheme: dark)', color: '#04121F' },
-  ],
-};
+/** The browser bar takes the theme's own background, from config. */
+export function generateViewport(): Viewport {
+  const result = tryLoadEventConfig();
+  const base: Viewport = { width: 'device-width', initialScale: 1 };
+  if (!result.ok) return base;
+  const { branding } = result.config;
+  return { ...base, themeColor: branding.themes[resolveTheme(branding, 'portal')].background };
+}
 
 export async function generateMetadata(): Promise<Metadata> {
   const result = tryLoadEventConfig();

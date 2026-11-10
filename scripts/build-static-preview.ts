@@ -59,9 +59,9 @@ const DEMO_NOW = '2026-12-15T10:40';
 
 type Page = { url: string; file: string };
 
-const SCHEDULE_BANNER = `<div style="background:#042C75;color:#fff;padding:10px 16px;font:14px/1.4 Arial,Helvetica,sans-serif;text-align:center">A preview of the schedule. <a href="/admin/" style="color:#fff;font-weight:bold">See the admin console demo</a>.</div>`;
+const SCHEDULE_BANNER = `<div style="background:#0F2329;color:#EAF4F3;border-bottom:2px solid #22D38A;padding:10px 16px;font:14px/1.4 Arial,Helvetica,sans-serif;text-align:center">A preview of the schedule. <a href="/guide/" style="color:#22D38A;font-weight:bold">How the portal works</a> / <a href="/admin/" style="color:#22D38A;font-weight:bold">Admin console demo</a></div>`;
 
-const DEMO_BANNER = `<div style="background:#A16207;color:#fff;padding:10px 16px;font:14px/1.4 Arial,Helvetica,sans-serif;text-align:center">Demo snapshot with invented people and answers, as if it were Day 2 at 10:40. Buttons and forms do nothing here. <a href="/" style="color:#fff;font-weight:bold">Back to the schedule</a>.</div>`;
+const DEMO_BANNER = `<div style="background:#0F2329;color:#EAF4F3;border-bottom:2px solid #FBBF24;padding:10px 16px;font:14px/1.4 Arial,Helvetica,sans-serif;text-align:center">Demo snapshot with invented people and answers, as if it were Day 2 at 10:40. Buttons and forms do nothing here. <a href="/guide/" style="color:#22D38A;font-weight:bold">How the portal works</a> / <a href="/" style="color:#22D38A;font-weight:bold">Schedule</a></div>`;
 
 async function makePreviewConfig(): Promise<ReturnType<typeof EventConfigSchema.parse>> {
   const raw = await readFile(join(process.cwd(), 'config', 'event.json'), 'utf8');
@@ -261,6 +261,7 @@ async function buildDemo(days: string[]): Promise<number> {
       file: `screen/${view}/index.html`,
     })),
     ...forms.map((slug) => ({ url: `/feedback/${slug}`, file: `feedback/${slug}/index.html` })),
+    { url: '/guide', file: 'guide/index.html' },
   ];
 
   const server = startServer(DEMO_PORT, {

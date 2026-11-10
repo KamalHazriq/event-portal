@@ -1,7 +1,7 @@
 import Link from 'next/link';
 
 import { getEventConfig } from '@/lib/config';
-import { formatLongDate, resolveEventNow } from '@/lib/time';
+import { formatLongDate, formatShortDate, resolveEventNow } from '@/lib/time';
 import { AutoRefresh } from '@/components/AutoRefresh';
 import { DevTimeNotice } from '@/modules/schedule/components/DevTimeNotice';
 import { NowNextPanel } from '@/modules/schedule/components/NowNextPanel';
@@ -48,10 +48,18 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
 
       <DevTimeNotice now={now} timezone={config.event.timezone} />
 
-      <section>
-        <h1 className="text-2xl font-bold leading-tight text-ink">{config.event.name}</h1>
-        {config.event.tagline ? <p className="mt-1 text-ink-soft">{config.event.tagline}</p> : null}
-        <p className="mt-2 text-sm text-ink-soft">
+      <section className="rounded-xl border border-line bg-surface p-5">
+        <p className="eyebrow">
+          {formatShortDate(config.event.startDate, config.event.timezone)} to{' '}
+          {formatShortDate(config.event.endDate, config.event.timezone)}
+        </p>
+        <h1 className="mt-2 text-3xl font-bold leading-[1.05] text-ink sm:text-4xl">
+          {config.event.name}
+        </h1>
+        {config.event.tagline ? (
+          <p className="mt-3 text-lg leading-snug text-accent">{config.event.tagline}</p>
+        ) : null}
+        <p className="mt-3 text-sm text-ink-soft">
           {formatLongDate(config.event.startDate, config.event.timezone)} to{' '}
           {formatLongDate(config.event.endDate, config.event.timezone)}
         </p>

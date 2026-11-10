@@ -49,6 +49,11 @@ const PAGES = [
     description: 'Draw winners from whoever has checked in. Nobody wins twice.',
   },
   {
+    href: '/admin/committees',
+    title: 'Committee summary',
+    description: 'Upload a committee Excel and choose who can see its summary.',
+  },
+  {
     href: '/admin/name-tags',
     title: 'Name tags',
     description: 'Print the tags, with a personal QR on the front and the portal QR on the back.',
@@ -134,6 +139,16 @@ export default async function AdminHomePage() {
             </li>
           ))}
         </ul>
+      </section>
+
+      <section className="rounded-xl border border-line bg-surface p-4">
+        <p className="eyebrow">New to this?</p>
+        <p className="mt-1 text-ink">
+          A one page tour of the whole portal, written for showing the team.
+        </p>
+        <Link href="/guide" className="mt-2 inline-block font-bold text-primary">
+          How the portal works
+        </Link>
       </section>
 
       <section className="rounded-lg border border-line bg-muted p-3 text-sm">

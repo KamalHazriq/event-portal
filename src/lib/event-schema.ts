@@ -210,6 +210,7 @@ export const FeaturesSchema = z.object({
   arrivalWall: z.boolean().default(false),
   luckyDraw: z.boolean().default(false),
   photoWall: z.boolean().default(false),
+  committees: z.boolean().default(false),
   qa: z.boolean().default(false),
   polls: z.boolean().default(false),
 });
@@ -243,6 +244,19 @@ export const EventConfigSchema = z
     speakers: z.array(SpeakerSchema).default([]),
     resources: z.array(ResourceSchema).default([]),
     surprise: SurpriseSchema.optional(),
+    /**
+     * Committees whose Excel an admin can upload for a read only summary,
+     * such as SVC, ATC and OTC. The id is used in addresses and storage.
+     */
+    committees: z
+      .array(
+        z.object({
+          id: z.string().regex(/^[a-z0-9-]{1,24}$/, 'use lower case letters, numbers and dashes'),
+          name: z.string().min(1).max(60),
+        }),
+      )
+      .max(12)
+      .default([]),
   })
   /* ----- checks that span more than one field ----- */
   .refine((config) => config.event.endDate >= config.event.startDate, {

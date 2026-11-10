@@ -11,6 +11,7 @@ const ITEMS: { href: string; label: string; also?: string[] }[] = [
   { href: '/admin/big-screen', label: 'Big screen' },
   { href: '/admin/reports', label: 'Reports' },
   { href: '/admin/lucky-draw', label: 'Lucky draw' },
+  { href: '/admin/committees', label: 'Committees' },
   { href: '/admin/name-tags', label: 'Name tags' },
   { href: '/admin/qr-assets', label: 'QR assets' },
   {

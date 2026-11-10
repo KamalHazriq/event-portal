@@ -23,8 +23,9 @@ export function SiteHeader({ event, features }: { event: EventInfo; features: Fe
     <header className="sticky top-0 z-40 border-b border-line bg-canvas/95 backdrop-blur">
       <div className="flex items-baseline justify-between gap-3 px-4 pb-2 pt-4">
         <Link href="/" className="min-w-0 no-underline">
-          <span className="block truncate text-lg font-bold leading-tight text-ink">
-            {event.shortName}
+          <span className="flex items-center gap-2 text-lg font-bold leading-tight text-ink">
+            <span aria-hidden="true" className="h-5 w-1.5 shrink-0 rounded-full bg-primary" />
+            <span className="truncate">{event.shortName}</span>
           </span>
           <span className="block text-xs text-ink-soft">{dates}</span>
         </Link>

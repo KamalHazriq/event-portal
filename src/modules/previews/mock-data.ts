@@ -2,7 +2,7 @@
  * Dummy data for the admin console previews.
  *
  * Several admin pages belong to modules that are not built yet: the extras
- * (photo wall, committee summary) and the backup Q&A and polls
+ * (the photo wall) and the backup Q&A and polls
  * (Modules 2 and 3). Their pages exist now so the secretariat can see the whole console
  * and comment on it before the real thing is built. Module 8 (the big
  * screen), Module 7 (reports) and the lucky draw have since been built for
@@ -270,72 +270,6 @@ export function mockPhotos(seed = 1612): MockPhoto[] {
       minutesAgo: intBetween(random, 1, 300),
     } satisfies MockPhoto;
   });
-}
-
-/* ------------------------------------------------------ committee summary */
-
-export type CommitteeId = 'SVC' | 'ATC' | 'OTC';
-
-export type MockCommitteeItem = {
-  ref: string;
-  title: string;
-  division: string;
-  decision: 'Approved' | 'Noted' | 'Deferred' | 'Approved with conditions';
-  meeting: string;
-};
-
-export const COMMITTEES: { id: CommitteeId; name: string }[] = [
-  { id: 'SVC', name: 'SVC' },
-  { id: 'ATC', name: 'ATC' },
-  { id: 'OTC', name: 'OTC' },
-];
-
-const PAPER_TITLES = [
-  'Graduate intake plan for 2027',
-  'Flexible working pilot, phase two',
-  'Mentoring programme for first line managers',
-  'Women in engineering scholarship',
-  'Site accessibility upgrades',
-  'Return to work programme after long leave',
-  'Leadership pipeline review',
-  'Pay equity review, terms of reference',
-  'Employee resource groups, funding model',
-  'Inclusive hiring panel guidelines',
-];
-
-const DIVISIONS = [
-  'Group Human Resources',
-  'Distribution Network',
-  'Generation',
-  'Grid Division',
-  'Retail',
-  'Group Finance',
-];
-
-const DECISIONS: MockCommitteeItem['decision'][] = [
-  'Approved',
-  'Approved',
-  'Noted',
-  'Approved with conditions',
-  'Deferred',
-];
-
-/**
- * What the committee Excel will look like once read in. The real upload
- * starts with SVC, per the brief, so SVC has the most rows.
- */
-export function mockCommitteeItems(seed = 333): Record<CommitteeId, MockCommitteeItem[]> {
-  const random = seededRandom(seed);
-  const build = (id: CommitteeId, count: number) =>
-    Array.from({ length: count }, (_, i) => ({
-      ref: `${id}/2026/${String(i + 1).padStart(2, '0')}`,
-      title: pickFrom(random, PAPER_TITLES),
-      division: pickFrom(random, DIVISIONS),
-      decision: pickFrom(random, DECISIONS),
-      meeting: `2026-${String(intBetween(random, 1, 11)).padStart(2, '0')}-${String(intBetween(random, 1, 28)).padStart(2, '0')}`,
-    })).sort((a, b) => (a.meeting < b.meeting ? 1 : -1));
-
-  return { SVC: build('SVC', 8), ATC: build('ATC', 5), OTC: build('OTC', 4) };
 }
 
 /* ----------------------------------------------------------------- admins */

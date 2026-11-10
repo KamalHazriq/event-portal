@@ -72,6 +72,13 @@ export function buildThemeCss(branding: Branding): string {
     ':root[data-theme="dark"], [data-theme="dark"] {',
     tokenBlock(branding.themes.dark),
     '}',
+    // Paper is white, so anything printed (name tags, the report summary)
+    // uses the light colours even when the screen theme is dark.
+    '@media print {',
+    ':root, :root[data-theme="dark"], [data-theme="dark"] {',
+    tokenBlock(branding.themes.light),
+    '}',
+    '}',
   ].join('\n');
 }
 

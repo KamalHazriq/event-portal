@@ -3,14 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { getEventConfig } from '@/lib/config';
 import { buildAgenda } from '@/modules/schedule/logic';
 
-import {
-  mockCommitteeItems,
-  mockOperators,
-  mockPhotos,
-  mockPolls,
-  mockQuestions,
-  MOCK_NAMES,
-} from './mock-data';
+import { mockOperators, mockPhotos, mockPolls, mockQuestions, MOCK_NAMES } from './mock-data';
 
 describe('preview mock data', () => {
   const agenda = buildAgenda(getEventConfig());
@@ -48,10 +41,5 @@ describe('preview mock data', () => {
     expect(ops).toHaveLength(3);
     expect(ops[0]?.isYou).toBe(true);
     expect(ops.filter((o) => o.label === 'desk-2')).toHaveLength(1);
-  });
-
-  it('gives SVC the most committee rows', () => {
-    const items = mockCommitteeItems();
-    expect(items.SVC.length).toBeGreaterThan(items.ATC.length);
   });
 });

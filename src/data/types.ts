@@ -128,11 +128,10 @@ export type Setting = {
 };
 
 /**
- * Where an uploaded spreadsheet came from. Slido first (Module 7). The SVC,
- * ATC and OTC committee upload can reuse the same store later as its own
- * source, with no new table.
+ * Where an uploaded spreadsheet came from: the Slido export (Module 7), or
+ * one committee's Excel, as "committee:svc". Same store, no extra table.
  */
-export type ImportSource = 'slido';
+export type ImportSource = 'slido' | `committee:${string}`;
 
 /**
  * One sheet kept from an uploaded spreadsheet, as plain text. Stored so the

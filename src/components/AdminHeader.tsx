@@ -14,7 +14,8 @@ export function AdminHeader({
     <header className="sticky top-0 z-40 border-b border-line bg-canvas/95 backdrop-blur">
       <div className="flex flex-wrap items-baseline justify-between gap-2 px-4 pb-2 pt-3">
         <Link href="/admin" className="no-underline">
-          <span className="block text-base font-bold leading-tight text-ink">
+          <span className="flex items-center gap-2 text-base font-bold leading-tight text-ink">
+            <span aria-hidden="true" className="h-4 w-1.5 shrink-0 rounded-full bg-primary" />
             {shortName} secretariat
           </span>
         </Link>
