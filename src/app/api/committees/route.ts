@@ -18,6 +18,7 @@ import {
   committeeSource,
   parseCommitteeWorkbook,
 } from '@/modules/committees/logic';
+import { recordActivity } from '@/modules/admins/record';
 
 function back(params: Record<string, string>): NextResponse {
   const query = new URLSearchParams(params).toString();
@@ -54,6 +55,12 @@ export async function POST(request: Request): Promise<Response> {
   if (intent === 'access') {
     const everyone = String(form.get('access') ?? '') === 'everyone';
     await data.settings.set(COMMITTEE_ACCESS_KEY, everyone ? 'everyone' : 'secretariat');
+    await recordActivity(
+      everyone
+        ? 'Opened the committee summaries to everyone'
+        : 'Limited the committee summaries to the secretariat',
+      auth.session.operator,
+    );
     return back({ result: 'access-saved' });
   }
 
@@ -64,6 +71,7 @@ export async function POST(request: Request): Promise<Response> {
 
   if (intent === 'clear') {
     await data.imports.clear(committeeSource(committee.id));
+    await recordActivity(`Removed the ${committee.name} committee file`, auth.session.operator);
     return back({ result: 'cleared', c: committee.id });
   }
 
@@ -94,5 +102,6 @@ export async function POST(request: Request): Promise<Response> {
     byOperator: auth.session.operator,
   });
 
+  await recordActivity(`Uploaded the ${committee.name} committee file`, auth.session.operator);
   return back({ result: 'imported', c: committee.id, kept: String(parsed.kept.length) });
 }

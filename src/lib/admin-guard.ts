@@ -9,7 +9,29 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
+import { getData } from '@/data';
+
 import { ADMIN_COOKIE, readSessionValue, type AdminSession } from './admin-session';
+
+/**
+ * Notes that a desk has a page open, for the "who is signed in" list. At most
+ * one write per desk and page every 20 seconds, and never allowed to break
+ * the page it is called from.
+ */
+const lastNoted = new Map<string, number>();
+
+async function notePresence(operator: string, page: string): Promise<void> {
+  const key = `${operator}:${page}`;
+  const now = Date.now();
+  if (now - (lastNoted.get(key) ?? 0) < 20_000) return;
+  if (lastNoted.size > 200) lastNoted.clear();
+  lastNoted.set(key, now);
+  try {
+    await getData().activity.touch(operator, page);
+  } catch {
+    // Presence is a convenience. A page must still load without it.
+  }
+}
 
 /** Returns the signed in operator, or null. Never throws. */
 export async function getAdminSession(): Promise<AdminSession | null> {
@@ -26,6 +48,7 @@ export async function requireAdmin(returnTo: string): Promise<AdminSession> {
   if (!session) {
     redirect(`/admin/sign-in?next=${encodeURIComponent(returnTo)}`);
   }
+  await notePresence(session.operator, returnTo);
   return session;
 }
 

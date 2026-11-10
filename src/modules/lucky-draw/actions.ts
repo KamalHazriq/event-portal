@@ -22,6 +22,7 @@ import {
   resolveExclusions,
   type DrawEntrant,
 } from './logic';
+import { recordActivity } from '@/modules/admins/record';
 
 /**
  * The lucky draw buttons. Each checks the session itself: a Server Action is
@@ -94,6 +95,10 @@ export async function drawLucky(formData: FormData): Promise<void> {
       attendeeIds: picked.map((p) => p.id),
     });
     if (result.ok) {
+      await recordActivity(
+        `Drew ${picked.length} lucky draw ${picked.length === 1 ? 'winner' : 'winners'}`,
+        operator,
+      );
       if (showOnScreen) await data.settings.set(SCREEN_KEYS.view, 'lucky-draw');
       done();
       return;
@@ -111,6 +116,7 @@ export async function removeWinner(formData: FormData): Promise<void> {
   const data = getData();
 
   await data.luckyDraw.remove(winnerId);
+  await recordActivity('Marked a lucky draw winner as not here');
 
   if (formData.get('exclude') === 'yes' && attendeeId) {
     const [stored, everyone] = await Promise.all([
@@ -132,6 +138,7 @@ export async function saveExclusions(formData: FormData): Promise<void> {
   const included = new Set(formData.getAll('include').map((v) => String(v)));
   const excluded = everyone.filter((p) => !included.has(p.id)).map((p) => p.id);
   await data.settings.set(LUCKY_KEYS.excluded, JSON.stringify(excluded));
+  await recordActivity('Changed who can win the lucky draw');
   done();
 }
 
@@ -140,5 +147,6 @@ export async function clearWinners(formData: FormData): Promise<void> {
   await assertAdmin();
   if (formData.get('confirm') !== 'yes') return;
   await getData().luckyDraw.clear();
+  await recordActivity('Cleared the lucky draw winners');
   done();
 }

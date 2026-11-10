@@ -7,6 +7,7 @@ import { getEventConfig } from '@/lib/config';
 
 import { findFeedbackForm, isAnonymityMode } from './logic';
 import { setEventAnonymityDefault, setFormAnonymity, setFormOpen } from './settings';
+import { recordActivity } from '@/modules/admins/record';
 
 /**
  * The admin controls for feedback.
@@ -29,6 +30,7 @@ export async function updateDefaultAnonymity(formData: FormData): Promise<void> 
   if (!isAnonymityMode(mode)) throw new Error('That is not an anonymity setting.');
 
   await setEventAnonymityDefault(mode);
+  await recordActivity('Changed the default name setting for feedback');
   revalidatePath('/admin/feedback');
 }
 
@@ -48,6 +50,7 @@ export async function updateFormAnonymity(formData: FormData): Promise<void> {
     throw new Error('That is not an anonymity setting.');
   }
 
+  await recordActivity("Changed a feedback form's name setting");
   revalidatePath('/admin/feedback');
 }
 
@@ -58,6 +61,8 @@ export async function updateFormOpen(formData: FormData): Promise<void> {
   const formId = String(formData.get('formId') ?? '');
   if (!findFeedbackForm(getEventConfig(), formId)) throw new Error('No such form.');
 
-  await setFormOpen(formId, String(formData.get('open') ?? '') === 'open');
+  const open = String(formData.get('open') ?? '') === 'open';
+  await setFormOpen(formId, open);
+  await recordActivity(open ? 'Opened a feedback form' : 'Closed a feedback form');
   revalidatePath('/admin/feedback');
 }

@@ -6,6 +6,7 @@
  * beats a clever query, and the same code will port to any other store.
  */
 import type {
+  ActivityRepository,
   AttendeeRepository,
   CheckInRepository,
   DataAdapter,
@@ -724,6 +725,48 @@ export function createSqliteAdapter(): DataAdapter {
     },
   };
 
+  /* -------------------------------------------------- the secretariat */
+
+  const activity: ActivityRepository = {
+    async log(operator, action) {
+      await prisma.adminActivity.create({
+        data: { id: newId(), operator: plainText(operator, 40), action: plainText(action, 160) },
+      });
+    },
+
+    async recent(limit = 50) {
+      const rows = await prisma.adminActivity.findMany({ orderBy: { id: 'desc' }, take: limit });
+      return rows.map((r) => ({
+        id: r.id,
+        operator: r.operator,
+        action: r.action,
+        at: r.at.toISOString(),
+      }));
+    },
+
+    async touch(operator, page) {
+      const label = plainText(operator, 40);
+      const where = plainText(page, 120);
+      await prisma.adminPresence.upsert({
+        where: { operator: label },
+        create: { operator: label, page: where },
+        update: { page: where, lastSeenAt: new Date() },
+      });
+    },
+
+    async seenSince(sinceIso) {
+      const rows = await prisma.adminPresence.findMany({
+        where: { lastSeenAt: { gte: new Date(sinceIso) } },
+        orderBy: { lastSeenAt: 'desc' },
+      });
+      return rows.map((r) => ({
+        operator: r.operator,
+        page: r.page,
+        lastSeenAt: r.lastSeenAt.toISOString(),
+      }));
+    },
+  };
+
   /* ---------------------------------------------------- Q&A and polls */
 
   const isUniqueClash = (error: unknown) => (error as { code?: unknown }).code === 'P2002';
@@ -967,6 +1010,8 @@ export function createSqliteAdapter(): DataAdapter {
       await prisma.question.deleteMany();
       await prisma.pollVote.deleteMany();
       await prisma.poll.deleteMany();
+      await prisma.adminActivity.deleteMany();
+      await prisma.adminPresence.deleteMany();
     },
 
     async close() {
@@ -982,5 +1027,6 @@ export function createSqliteAdapter(): DataAdapter {
     photos,
     questions,
     polls,
+    activity,
   };
 }

@@ -31,3 +31,18 @@ attendee pages, admin pages, the guide, the projector views.
 ## 4. Backup Q&A and polls (Modules 2 and 3) (done)
 
 Only if Slido is unavailable. Built last, as the brief says.
+
+## 5. Who else is signed in (done)
+
+The last preview page, made real: presence per desk and a shared activity log.
+
+## What is left
+
+Nothing from the brief's build list. Before the event:
+
+- load the real attendee list (git-ignored `config/attendees.csv`);
+- replace the placeholder agenda, speakers, Slido link and portal address in
+  `config/event.json`;
+- decide hosting (see `docs/DEPLOYING.md`) and change the admin PIN;
+- try a real Slido Excel export on the reports page;
+- rehearse once with `npm run demo:seed` on the venue Wi-Fi.

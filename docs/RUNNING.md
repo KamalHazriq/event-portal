@@ -543,28 +543,19 @@ Note: after `npm run demo:seed`, two of the feedback browser tests ("an
 optional name is kept when given") fail, because the demo changes the name
 setting on some forms. Run `npm run db:reset` before `npm run test:e2e`.
 
-## Previews of the modules still to come
+## Who else is signed in
 
-So you can see and try the whole console before everything is built, the
-pages for the remaining modules are already there, running on dummy data.
-Each one has a dashed yellow banner saying so. **Nothing on them is saved**:
-buttons work in the open tab only, and a refresh puts everything back.
+**Admins** in the admin navigation shows every desk that has a page open
+(green while it is there, grey for half an hour after it goes quiet), which
+page each is on, and a log of what was done: check ins, countdown changes,
+what went on the projector, approvals, uploads, downloads and so on. Runs of
+the same line from one desk are folded together ("12 times").
 
-| Page                                                | Stands in for                   | What you can try                                |
-| --------------------------------------------------- | ------------------------------- | ----------------------------------------------- |
-| [/admin/admins](http://localhost:3000/admin/admins) | Module 6, who else is signed in | See the 2 to 3 desks and a log of what they did |
+It holds desk labels and plain descriptions only. It never names an attendee,
+and the wording is fixed in the code, never taken from anything typed in.
 
-They are all listed on the secretariat home page and under **More** in the
-admin navigation.
-
-Every invented name, question, photo and committee paper comes from
-`src/modules/previews/mock-data.ts`, never from the attendee list, so a
-preview can never put an invented question against a real person.
-
-When a module is built for real, its preview page is replaced in place (same
-address), its line comes out of `src/modules/previews/pages.ts`, and its
-section of `mock-data.ts` is deleted. The lucky draw and the big screen
-started here and have moved out that way.
+Every admin page is now real. The earlier "preview" pages with dummy data
+have all been replaced.
 
 ---
 
@@ -998,4 +989,5 @@ exact, that repeat answers were not counted, and that a sixth question from
 one phone was refused. It makes its own poll and questions, removes them
 afterwards, and puts backup mode back as it found it.
 
-Run `npm run db:push` once first, for the new tables.
+Run `npm run db:push` once first, for the new tables (questions, polls, and
+the admin log).

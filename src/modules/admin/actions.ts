@@ -14,6 +14,7 @@ import {
   MAX_SURPRISE_LABEL,
   SURPRISE_KEYS,
 } from './logic';
+import { recordActivity } from '@/modules/admins/record';
 
 /**
  * The countdown control used during the event.
@@ -36,6 +37,7 @@ export async function updateCountdown(formData: FormData): Promise<void> {
 
   if (intent === 'off') {
     await data.settings.set(SURPRISE_KEYS.enabled, 'false');
+    await recordActivity('Switched the countdown off');
     revalidatePath('/admin/live');
     return;
   }
@@ -47,6 +49,7 @@ export async function updateCountdown(formData: FormData): Promise<void> {
       data.settings.remove(SURPRISE_KEYS.targetAt),
       data.settings.remove(SURPRISE_KEYS.label),
     ]);
+    await recordActivity('Reset the countdown to the config file');
     revalidatePath('/admin/live');
     return;
   }
@@ -75,6 +78,7 @@ export async function updateCountdown(formData: FormData): Promise<void> {
     data.settings.set(SURPRISE_KEYS.targetAt, targetAt),
     data.settings.set(SURPRISE_KEYS.enabled, 'true'),
   ]);
+  await recordActivity('Started the countdown');
 
   revalidatePath('/admin/live');
 }
@@ -87,6 +91,7 @@ export async function updateCountdownLabel(formData: FormData): Promise<void> {
 
   if (label.length === 0) await data.settings.remove(SURPRISE_KEYS.label);
   else await data.settings.set(SURPRISE_KEYS.label, label);
+  await recordActivity('Changed the countdown label');
 
   revalidatePath('/admin/live');
 }

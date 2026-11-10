@@ -17,7 +17,6 @@ const ITEMS: { href: string; label: string; also?: string[] }[] = [
   { href: '/admin/committees', label: 'Committees' },
   { href: '/admin/name-tags', label: 'Name tags' },
   { href: '/admin/qr-assets', label: 'QR assets' },
-  // Still a preview: who else is signed in.
   { href: '/admin/admins', label: 'Admins' },
 ];
 

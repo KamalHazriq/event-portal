@@ -15,6 +15,7 @@ import { LIMITS, rateLimit } from '@/lib/rate-limit';
 import { arrivalRate, parseScanPayload, scanOutcomeMessage } from '@/modules/check-in/logic';
 import type { ScanOutcome } from '@/modules/check-in/logic';
 import { getEventConfig } from '@/lib/config';
+import { recordActivity } from '@/modules/admins/record';
 
 const BodySchema = z.object({
   /** What the scanner read, or what was typed. Either a URL or a token. */
@@ -88,6 +89,12 @@ export async function POST(request: Request): Promise<Response> {
 
     const headcount = await data.checkIns.headcount(dayId);
 
+    if (!alreadyCheckedIn) {
+      await recordActivity(
+        method === 'qr' ? 'Checked in a guest by QR' : 'Checked in a guest by name search',
+        operator,
+      );
+    }
     return reply(alreadyCheckedIn ? 'already-checked-in' : 'checked-in', {
       // Only what the desk screen shows. Never the check in token.
       attendee: {

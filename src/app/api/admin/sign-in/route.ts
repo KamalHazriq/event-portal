@@ -16,6 +16,7 @@ import {
 import { getAdminPin, pinMatches } from '@/lib/auth';
 import { isRateLimited, LIMITS, rateLimit } from '@/lib/rate-limit';
 import { plainText } from '@/lib/text';
+import { recordActivity } from '@/modules/admins/record';
 
 /** Only ever used to send someone back inside this portal. */
 function safeNext(value: string | null): string {
@@ -75,5 +76,6 @@ export async function POST(request: Request): Promise<NextResponse> {
   const operator = normaliseOperator(String(form.get('operator') ?? 'desk'));
   const response = redirectTo(next);
   response.cookies.set(ADMIN_COOKIE, createSessionValue(operator, pin), cookieOptions);
+  await recordActivity('Signed in', operator);
   return response;
 }

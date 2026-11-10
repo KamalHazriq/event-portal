@@ -7,6 +7,7 @@ import { getEventConfig } from '@/lib/config';
 import { writeZip } from '@/lib/xlsx/zip';
 import { zipName } from '@/modules/photos/logic';
 import { localDateTime } from '@/modules/reports/logic';
+import { recordActivity } from '@/modules/admins/record';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,6 +15,7 @@ export async function GET(): Promise<Response> {
   const auth = await requireAdminApi();
   if (!auth.ok) return auth.response;
 
+  await recordActivity('Downloaded the approved photos', auth.session.operator);
   const config = getEventConfig();
   const data = getData();
   // Oldest first, so the numbering follows the event.

@@ -181,7 +181,7 @@ export default function GuidePage() {
     ],
     [
       'Can two people use the console at once?',
-      'Yes. Each device signs in with the PIN and its own label, and they all see the same numbers.',
+      'Yes. Each device signs in with the PIN and its own label, and they all see the same numbers. The Admins page shows which desks are signed in and a log of what each one did.',
     ],
     [
       'How do we change the colours or the logo?',

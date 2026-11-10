@@ -17,6 +17,7 @@
  * guessing it now would only create rework.
  */
 import type {
+  ActivityEntry,
   Attendee,
   AttendeeImportResult,
   AttendeeImportRow,
@@ -29,6 +30,7 @@ import type {
   ImportedSheet,
   ImportSource,
   LuckyDrawWinnerWithAttendee,
+  OperatorPresence,
   Photo,
   PhotoStatus,
   Poll,
@@ -230,6 +232,21 @@ export interface PollRepository {
   votes(pollId: string): Promise<PollVote[]>;
 }
 
+/**
+ * What the secretariat did and who is signed in, so two or three desks can
+ * see each other. Holds desk labels and plain descriptions only: no names,
+ * no attendee details.
+ */
+export interface ActivityRepository {
+  log(operator: string, action: string): Promise<void>;
+  /** Newest first. */
+  recent(limit?: number): Promise<ActivityEntry[]>;
+  /** Records that a desk just opened a page. */
+  touch(operator: string, page: string): Promise<void>;
+  /** Every desk seen since the given moment, most recent first. */
+  seenSince(sinceIso: string): Promise<OperatorPresence[]>;
+}
+
 export interface DataAdapter {
   /** Shown on the admin health page, so it is obvious which store is live. */
   readonly name: string;
@@ -249,6 +266,7 @@ export interface DataAdapter {
   readonly photos: PhotoRepository;
   readonly questions: QuestionRepository;
   readonly polls: PollRepository;
+  readonly activity: ActivityRepository;
 }
 
 /** The value of DATA_ADAPTER in .env.local. */

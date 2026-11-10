@@ -14,6 +14,7 @@ import { LIMITS, rateLimit } from '@/lib/rate-limit';
 import { plainText } from '@/lib/text';
 import { readXlsx, XlsxError } from '@/lib/xlsx/read';
 import { parseSlidoWorkbook, SLIDO_LIMITS } from '@/modules/reports/slido';
+import { recordActivity } from '@/modules/admins/record';
 
 function back(params: Record<string, string>): NextResponse {
   const query = new URLSearchParams(params).toString();
@@ -43,6 +44,7 @@ export async function POST(request: Request): Promise<Response> {
 
   if (String(form.get('intent') ?? '') === 'clear') {
     await data.imports.clear('slido');
+    await recordActivity('Removed the Slido results', auth.session.operator);
     return back({ slido: 'cleared' });
   }
 
@@ -69,6 +71,7 @@ export async function POST(request: Request): Promise<Response> {
     byOperator: auth.session.operator,
   });
 
+  await recordActivity('Imported the Slido results', auth.session.operator);
   return back({
     slido: 'imported',
     kept: String(parsed.kept.length),

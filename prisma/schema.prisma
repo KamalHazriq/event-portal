@@ -197,3 +197,20 @@ model PollVote {
 
   @@id([pollId, deviceId])
 }
+
+/// One line of the secretariat's log. A desk label and a plain description.
+model AdminActivity {
+  id       String   @id
+  operator String
+  action   String
+  at       DateTime @default(now())
+
+  @@index([at])
+}
+
+/// When each desk was last seen.
+model AdminPresence {
+  operator   String   @id
+  page       String   @default("")
+  lastSeenAt DateTime @default(now())
+}

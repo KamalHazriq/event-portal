@@ -8,6 +8,7 @@ import { requireAdminApi } from '@/lib/admin-guard';
 import { getEventConfig } from '@/lib/config';
 import { LIMITS, rateLimit } from '@/lib/rate-limit';
 import { arrivalRate } from '@/modules/check-in/logic';
+import { recordActivity } from '@/modules/admins/record';
 
 const BodySchema = z.object({
   attendeeId: z.string().min(1).max(64),
@@ -50,6 +51,7 @@ export async function POST(request: Request): Promise<Response> {
 
   const data = getData();
   const removed = await data.checkIns.remove(attendeeId, dayId);
+  if (removed) await recordActivity('Undid a check in', auth.session.operator);
   const headcount = await data.checkIns.headcount(dayId);
 
   return Response.json({

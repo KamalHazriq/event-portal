@@ -9,6 +9,7 @@ import { LIMITS, rateLimit } from '@/lib/rate-limit';
 import { writeXlsx } from '@/lib/xlsx/write';
 import { buildReportWorkbook, reportFileName } from '@/modules/reports/logic';
 import { loadReportInput } from '@/modules/reports/load';
+import { recordActivity } from '@/modules/admins/record';
 
 export const dynamic = 'force-dynamic';
 
@@ -24,6 +25,7 @@ export async function GET(): Promise<Response> {
     });
   }
 
+  await recordActivity('Downloaded the Excel report', auth.session.operator);
   const input = await loadReportInput();
   const file = writeXlsx(buildReportWorkbook(input));
   const name = reportFileName(

@@ -7,7 +7,7 @@
  *    resources, rendered from the real config at the real time.
  *
  * 2. A demo of everything else: the admin console, the big screen views,
- *    the report summary, the feedback forms and the previews. These need a
+ *    the report summary, the feedback forms, photos, Q&A and polls. These need a
  *    database and a signed in desk, so the build makes a throwaway database,
  *    fills it with the invented demo data, signs in with a throwaway PIN and
  *    saves what the portal renders. Nothing real is involved: the database
@@ -266,7 +266,6 @@ async function buildDemo(days: string[]): Promise<number> {
     'reports/summary',
     'name-tags',
     'qr-assets',
-    'previews',
     'lucky-draw',
     'photos',
     'committees',

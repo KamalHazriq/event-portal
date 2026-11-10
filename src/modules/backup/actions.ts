@@ -9,6 +9,7 @@ import { plainText } from '@/lib/text';
 import { SCREEN_KEYS } from '@/modules/big-screen/logic';
 import { validatePollInput } from '@/modules/polls/logic';
 import { QA_KEYS } from '@/modules/qa/logic';
+import { recordActivity } from '@/modules/admins/record';
 
 /**
  * Admin controls for the backup Q&A and polls. Each checks the session
@@ -28,7 +29,11 @@ function done(): void {
 /** Slido is down: switch attendees over to the portal's own Q&A and polls. */
 export async function setBackupMode(formData: FormData): Promise<void> {
   await assertAdmin();
-  await getData().settings.set(QA_KEYS.backupMode, formData.get('mode') === 'on' ? 'on' : 'off');
+  const on = formData.get('mode') === 'on';
+  await getData().settings.set(QA_KEYS.backupMode, on ? 'on' : 'off');
+  await recordActivity(
+    on ? 'Switched attendees to the portal Q&A and polls' : 'Switched attendees back to Slido',
+  );
   done();
 }
 
@@ -45,6 +50,15 @@ export async function moderateQuestion(formData: FormData): Promise<void> {
   else if (act === 'pin') await data.questions.setPinned(id, true);
   else if (act === 'unpin') await data.questions.setPinned(id, false);
   else if (act === 'delete') await data.questions.remove(id);
+  const did: Record<string, string> = {
+    approve: 'Approved a question',
+    answered: 'Marked a question as answered',
+    hide: 'Hid a question',
+    pin: 'Pinned a question',
+    unpin: 'Unpinned a question',
+    delete: 'Deleted a question',
+  };
+  if (did[act]) await recordActivity(did[act]);
   done();
 }
 
@@ -65,6 +79,7 @@ export async function showQuestionsOnScreen(formData: FormData): Promise<void> {
   const data = getData();
   await data.settings.set(QA_KEYS.screenSession, sessionId);
   await data.settings.set(SCREEN_KEYS.view, 'qa');
+  await recordActivity('Put the top questions on the big screen');
   done();
 }
 
@@ -80,6 +95,7 @@ export async function createPoll(formData: FormData): Promise<void> {
   // The form has "required" on its fields; this is the safety net.
   if (!checked.ok) return;
   await getData().polls.create(checked.value);
+  await recordActivity('Wrote a new poll');
   done();
 }
 
@@ -111,5 +127,16 @@ export async function controlPoll(formData: FormData): Promise<void> {
   else if (act === 'conceal') await data.polls.setRevealed(id, false);
   else if (act === 'delete' && formData.get('confirm') === 'yes') await data.polls.remove(id);
   else if (act === 'screen') await data.settings.set(SCREEN_KEYS.view, 'poll');
+  const did: Record<string, string> = {
+    open: 'Opened a poll',
+    close: 'Closed a poll',
+    reveal: 'Revealed poll results',
+    conceal: 'Hid poll results',
+    delete: 'Deleted a poll',
+    screen: 'Put the poll on the big screen',
+  };
+  if (did[act] && (act !== 'delete' || formData.get('confirm') === 'yes')) {
+    await recordActivity(did[act]);
+  }
   done();
 }

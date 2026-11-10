@@ -231,3 +231,11 @@ export type Poll = {
 
 /** One phone's answer: option numbers as text, or the word for a word cloud. */
 export type PollVote = { pollId: string; deviceId: string; choices: string[]; at: string };
+
+/* ------------------------------------------------------ the secretariat */
+
+/** One line in the secretariat's log. Desk labels only, never a person. */
+export type ActivityEntry = { id: string; operator: string; action: string; at: string };
+
+/** When a desk was last seen, and on which page. */
+export type OperatorPresence = { operator: string; page: string; lastSeenAt: string };

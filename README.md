@@ -7,7 +7,7 @@ Built to be reused: the event lives in a config file, not in the code.
 
 ## Have a look
 
-Schedule preview: <https://kamalhazriq.github.io/event-portal/>
+Live preview and admin demo: <https://kamalhazriq.github.io/event-portal/>
 
 That is the read-only half, published to GitHub Pages. Check in, feedback and
 the admin console need a server, so they are not on it.
@@ -49,10 +49,6 @@ Full instructions, including how to pretend it is a different date, are in
 | 2 and 3. Own Q&A and polls (backup for Slido) | Done  |
 
 Live polls and Q&A run on Slido for this event. The portal links out to it.
-
-"Preview" means the admin page exists and can be clicked through, running on
-invented data that is never saved. See "Previews of the modules still to come"
-in [docs/RUNNING.md](docs/RUNNING.md).
 
 ## Ground rules
 
