@@ -147,6 +147,19 @@ Then `npm run db:seed` again. People are matched on staff number, so loading a
 corrected list updates them rather than creating duplicates, and the QR code
 already printed on someone's name tag keeps working.
 
+**The HR list export loads as it comes.** Its columns (`No`, `Holder`,
+`Complete Name`, `Position Text`, `Remarks (date)`) are read as the number,
+staff number, name, title and remark. It has no department column, so either
+add a `department` column (the headcount groups by it) or leave it and
+everyone is grouped under "No department".
+
+Secretariat members are left out of the lucky draw. They are recognised by
+the word "Secretariat" in their department or remark, so add them to the list
+with `Event Secretariat` as their department.
+
+`npm run demo:seed` refuses to run while a real list is loaded, so invented
+check ins and feedback can never be written against real people.
+
 ## Starting the data over
 
 ```powershell
@@ -370,7 +383,7 @@ why the result comes back in the web address rather than on the page.
 npm run dev
 ```
 
-Then open <http://localhost:3000/feedback/d1-keynote> on a phone, leave an
+Then open <http://localhost:3000/feedback/d1-reflection> on a phone, leave an
 answer, and look at <http://localhost:3000/admin/feedback> to see it.
 
 To start again with no answers:
@@ -452,7 +465,7 @@ phone.
 | The report     | The PDF summary page, and the demo Excel file from the Download Excel button                     |
 | Feedback forms | What attendees see, one page per form                                                            |
 
-The admin demo is drawn as if it were Day 2 at 10:40, with three breakouts
+The admin demo is drawn as if it were Day 2 at 10:00, with the breakouts
 running and most people checked in. A yellow banner on every demo page says
 so. Buttons and forms do nothing, because GitHub Pages cannot run the server
 half of the portal: to try them, run the portal locally.
@@ -618,7 +631,7 @@ npm run dev
 
 Then open these, each with a pretend time so there is something to show:
 
-- <http://localhost:3000/screen/now-next?now=2026-12-15T10:40> (three breakouts)
+- <http://localhost:3000/screen/now-next?now=2026-12-15T10:00> (the Day 2 breakouts)
 - <http://localhost:3000/screen/now-next?now=2026-12-14T15:10> (the keynote)
 - <http://localhost:3000/screen/arrivals?now=2026-12-15T09:00>
 - <http://localhost:3000/screen/countdown> (set a time on the live control page first)
@@ -1014,3 +1027,26 @@ device set to reduce motion gets none of it, and nothing printed has any.
 
 The page list for the sidebar, the phone tabs and the dashboard is in one
 place, `src/components/admin-pages.ts`.
+
+---
+
+# The agenda
+
+`config/event.json` holds the draft agenda from the team briefing deck of
+28 October 2026: Wyndham Ion Majestic, Genting Highlands, 14 to 16 December,
+with the rooms and dress code for each day.
+
+- Speakers are listed by role (CDIO, Head of SPTx, domain speakers, committee
+  secretariat), not by name, because this file is committed and the agenda is
+  published on the preview site. The external speaker, Datuk Suhaimi
+  Sulaiman, is named.
+- Three end times were not in the deck and are marked "to confirm" in their
+  descriptions: the Day 2 dinner, Day 3 wellness and Day 3 lunch.
+- The countdown is set to Synergy Night on Day 1, 8 pm.
+- Q&A and feedback are on for the talks and sharings, the reflection panel,
+  the setting the stage talk, the group presentations and the external
+  speaker.
+
+Edit the file and refresh: the portal picks up changes without a restart in
+development. The tests use `config/event.test.json`, a frozen copy of the
+earlier dummy agenda, so changing the real one never breaks a test.

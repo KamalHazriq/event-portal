@@ -46,6 +46,9 @@ export default defineConfig({
         // The ?now= override is refused on a production build unless this is
         // set, and the tests pin the clock so they pass on any date.
         env: {
+          // The browser tests are written against the frozen dummy agenda,
+          // not the real one, which changes as the event is planned.
+          EVENT_CONFIG_PATH: 'config/event.test.json',
           ALLOW_TIME_OVERRIDE: 'true',
           // Next fills in .env.local only for names it does not already have,
           // so this wins and the tests do not depend on anyone's local PIN.

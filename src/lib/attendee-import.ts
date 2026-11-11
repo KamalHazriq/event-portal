@@ -4,6 +4,12 @@
  * Expected columns (brief Module 4): no, staff_no, name, title, department,
  * remark. Column order does not matter and the names are matched loosely, so
  * a file edited by hand still loads.
+ *
+ * The HR list export loads as it comes, too: "Holder" is the staff number,
+ * "Complete Name" the name, "Position Text" the title, and any column whose
+ * name starts with "Remarks" (it carries a date, such as "Remarks (27Oct2026)")
+ * is the remark. Department is optional; without it the headcount simply
+ * groups everyone under "No department".
  */
 import type { AttendeeImportRow } from '@/data/types';
 
@@ -17,15 +23,43 @@ export type AttendeeCsvResult = {
   problems: AttendeeCsvProblem[];
 };
 
-const REQUIRED_COLUMNS = ['staff_no', 'name'] as const;
+/** Every accepted spelling of each column, after lower casing and spaces to underscores. */
+const COLUMNS = {
+  staffNo: [
+    'staff_no',
+    'staffno',
+    'staff_number',
+    'staff_id',
+    'holder',
+    'personnel_no',
+    'employee_no',
+  ],
+  name: ['name', 'full_name', 'complete_name'],
+  title: ['title', 'position', 'job_title', 'position_text', 'designation'],
+  department: ['department', 'division', 'dept', 'department_name', 'unit'],
+  remark: ['remark', 'remarks', 'notes', 'note'],
+  no: ['no', 'number', 'no.', 'bil'],
+} as const;
 
 /** Reads one of several acceptable spellings for a column. */
-function field(record: Record<string, string>, ...names: string[]): string {
+function field(record: Record<string, string>, ...names: readonly string[]): string {
   for (const name of names) {
     const value = record[name];
     if (typeof value === 'string' && value.length > 0) return value;
   }
   return '';
+}
+
+/** A remarks column with something after the word, such as "remarks_(27oct2026)". */
+function datedRemark(record: Record<string, string>): string {
+  for (const [key, value] of Object.entries(record)) {
+    if (/^remarks?[_(]/.test(key) && value.length > 0) return value;
+  }
+  return '';
+}
+
+function hasColumn(record: Record<string, string>, names: readonly string[]): boolean {
+  return names.some((name) => name in record);
 }
 
 /**
@@ -48,7 +82,10 @@ export function parseAttendeeCsv(text: string): AttendeeCsvResult {
   }
 
   const firstRecord = records[0] as Record<string, string>;
-  const missing = REQUIRED_COLUMNS.filter((column) => !(column in firstRecord));
+  const missing = [
+    ...(hasColumn(firstRecord, COLUMNS.staffNo) ? [] : ['staff_no (or Holder)']),
+    ...(hasColumn(firstRecord, COLUMNS.name) ? [] : ['name (or Complete Name)']),
+  ];
   if (missing.length > 0) {
     return {
       rows: [],
@@ -68,8 +105,8 @@ export function parseAttendeeCsv(text: string): AttendeeCsvResult {
     // Header is line 1, so the first data row is line 2.
     const line = index + 2;
 
-    const staffNo = plainText(field(record, 'staff_no', 'staffno', 'staff_number'), 40);
-    const name = plainText(field(record, 'name', 'full_name'), 120);
+    const staffNo = plainText(field(record, ...COLUMNS.staffNo), 40);
+    const name = plainText(field(record, ...COLUMNS.name), 120);
 
     if (staffNo.length === 0 && name.length === 0) return; // blank row, ignore
     if (staffNo.length === 0) {
@@ -91,16 +128,16 @@ export function parseAttendeeCsv(text: string): AttendeeCsvResult {
     }
     seenStaffNumbers.set(staffNo, line);
 
-    const department = plainText(field(record, 'department', 'division', 'dept'), 120);
-    const remark = plainText(field(record, 'remark', 'remarks', 'notes'), 300);
-    const rawNo = field(record, 'no', 'number', 'no.');
+    const department = plainText(field(record, ...COLUMNS.department), 120);
+    const remark = plainText(field(record, ...COLUMNS.remark) || datedRemark(record), 300);
+    const rawNo = field(record, ...COLUMNS.no);
     const parsedNo = Number.parseInt(rawNo, 10);
 
     rows.push({
       no: Number.isFinite(parsedNo) ? parsedNo : null,
       staffNo,
       name,
-      title: plainText(field(record, 'title', 'position', 'job_title'), 200),
+      title: plainText(field(record, ...COLUMNS.title), 200),
       department,
       remark,
       isSecretariat: looksLikeSecretariat(department, remark),

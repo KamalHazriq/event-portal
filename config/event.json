@@ -1,27 +1,27 @@
 {
   "_readme": [
     "This is the whole event. Nothing here is hard-coded in the app.",
-    "To run the portal for another event, copy this file and change it.",
-    "Every name, bio and link below is invented placeholder content. Replace",
-    "before the event. Keys starting with an underscore are ignored by the",
-    "validator, so you can leave notes like this one anywhere in the file.",
-    "Validated by src/lib/event-schema.ts. Run 'npm run dev' to see errors."
+    "Agenda from the team briefing deck of 28 Oct 2026 (draft). Times marked",
+    "'to confirm' in a description were not in the deck and are best guesses.",
+    "Speakers are listed by role, not by name, because this file is committed",
+    "and the agenda is published on the preview site. Names can be added later.",
+    "Validated by src/lib/event-schema.ts. Tests use config/event.test.json,",
+    "a frozen copy of the earlier dummy agenda, so editing this file never",
+    "breaks a test."
   ],
   "configVersion": 1,
-
   "event": {
-    "name": "D&I Power Summit 2026",
+    "name": "Power Summit 2027",
     "shortName": "Power Summit",
-    "tagline": "Leading the energy transition together",
+    "tagline": "Next S-Curve: Perform Today, Transform Tomorrow",
     "startDate": "2026-12-14",
     "endDate": "2026-12-16",
-    "venue": "Grand Ballroom, Level 2 (venue TBC)",
-    "city": "Kuala Lumpur",
+    "venue": "Wyndham Ion Majestic",
+    "city": "Genting Highlands",
     "timezone": "Asia/Kuala_Lumpur",
     "portalUrl": "https://events.example.com/power-summit",
     "helpText": "Need help? Ask anyone at the registration desk."
   },
-
   "branding": {
     "_readme": "The dark teal theme from the event slide template (Telegraf style), with buttons and links in the blue from the event logo. Change the colours here and the whole portal follows, including the big screen. The brand block keeps the TNB colours. Telegraf is a licensed font and is not bundled: where it is installed it is used, otherwise the next font in the list is.",
     "logoPath": "/branding/event-wordmark.webp",
@@ -74,7 +74,6 @@
       }
     }
   },
-
   "features": {
     "_readme": "Switches for whole modules. Only what is built is on.",
     "schedule": true,
@@ -89,7 +88,6 @@
     "qa": true,
     "polls": true
   },
-
   "polls": [
     {
       "id": "ice-breaker",
@@ -99,14 +97,9 @@
     },
     {
       "id": "breakout-topics",
-      "question": "Which sub topics should your breakout spend most time on?",
+      "question": "Which focus area should your breakout spend most time on?",
       "kind": "multiple",
-      "options": [
-        "Delivery and reliability",
-        "Digital and data",
-        "People and capability",
-        "Safety culture"
-      ]
+      "options": ["Modernisation", "Workforce", "Operational hygiene", "Something else"]
     },
     {
       "id": "night-song",
@@ -121,13 +114,20 @@
       "options": []
     }
   ],
-
   "committees": [
-    { "id": "svc", "name": "SVC" },
-    { "id": "atc", "name": "ATC" },
-    { "id": "otc", "name": "OTC" }
+    {
+      "id": "svc",
+      "name": "SVC"
+    },
+    {
+      "id": "atc",
+      "name": "ATC"
+    },
+    {
+      "id": "otc",
+      "name": "OTC"
+    }
   ],
-
   "integrations": {
     "slido": {
       "_readme": "Live polls and Q&A run on Slido under the company licence. Replace the link and code with the real event before 14 Dec.",
@@ -137,204 +137,248 @@
       "label": "Join Slido"
     }
   },
-
   "speakers": [
     {
-      "id": "sp-mc",
-      "name": "Event MC",
-      "title": "Master of Ceremonies",
-      "organisation": "",
-      "bio": "Placeholder entry. Replace with the real MC details before the event."
-    },
-    {
-      "id": "sp-ceo",
-      "name": "Nurul Hashim",
-      "title": "Group Chief Executive Officer",
-      "organisation": "",
-      "bio": "Placeholder bio, invented for layout checking. Replace with the real biography before the event."
-    },
-    {
       "id": "sp-cdio",
-      "name": "Reza Aziz",
-      "title": "Chief Digital and Information Officer",
+      "name": "CDIO",
+      "title": "Chief Digital & Information Officer",
       "organisation": "",
-      "bio": "Placeholder bio, invented for layout checking. Replace with the real biography before the event."
+      "bio": ""
     },
     {
-      "id": "sp-chro",
-      "name": "Suria Daud",
-      "title": "Chief Human Resources Officer",
+      "id": "sp-head-sptx",
+      "name": "Head of SPTx",
+      "title": "Strategy, Partnership & Transformation",
       "organisation": "",
-      "bio": "Placeholder bio, invented for layout checking. Replace with the real biography before the event."
+      "bio": ""
     },
     {
-      "id": "sp-coach",
-      "name": "Melissa Tan",
-      "title": "Leadership Coach",
-      "organisation": "Placeholder Advisory",
-      "bio": "Placeholder bio, invented for layout checking. Replace with the real biography before the event."
+      "id": "sp-sgm",
+      "name": "Senior General Managers",
+      "title": "Two senior general managers, to confirm",
+      "organisation": "",
+      "bio": ""
     },
     {
-      "id": "sp-guest",
-      "name": "Arvind Pillai",
-      "title": "Managing Director",
-      "organisation": "Placeholder Energy Group",
-      "bio": "Placeholder bio, invented for layout checking. Replace with the real biography before the event."
+      "id": "sp-sbi",
+      "name": "SBI team",
+      "title": "Business plan, MBOs and 2027 priorities",
+      "organisation": "",
+      "bio": ""
     },
     {
-      "id": "sp-facilitator",
-      "name": "Hana Idris",
-      "title": "Lead Facilitator",
-      "organisation": "Placeholder Advisory",
-      "bio": "Placeholder bio, invented for layout checking. Replace with the real biography before the event."
+      "id": "sp-domain",
+      "name": "Domain speakers",
+      "title": "From the department leading each sharing",
+      "organisation": "",
+      "bio": ""
+    },
+    {
+      "id": "sp-secretariat",
+      "name": "Committee secretariat",
+      "title": "SVC, DLC, ATC and OTC secretariats",
+      "organisation": "",
+      "bio": ""
+    },
+    {
+      "id": "sp-facilitators",
+      "name": "Day 2 facilitators",
+      "title": "Strategy, Partnership & Transformation",
+      "organisation": "",
+      "bio": ""
+    },
+    {
+      "id": "sp-emcee",
+      "name": "Emcee",
+      "title": "Master of ceremonies",
+      "organisation": "",
+      "bio": ""
+    },
+    {
+      "id": "sp-datuk",
+      "name": "Datuk Suhaimi Sulaiman",
+      "title": "External speaker",
+      "organisation": "",
+      "bio": "Details to follow after the scoping call."
     }
   ],
-
   "days": [
     {
       "id": "day-1",
       "date": "2026-12-14",
       "label": "Day 1",
-      "subtitle": "Arrival, opening and welcome dinner",
+      "subtitle": "Set the direction. Dress code: formal, full suit and tie. Group photo today, time to confirm.",
       "sessions": [
         {
           "id": "d1-registration",
-          "start": "13:00",
-          "end": "14:00",
-          "title": "Registration and light lunch",
-          "description": "Collect your name tag at the desk. Scan the QR code on the front of your tag so we know you have arrived.",
-          "room": "Ballroom Foyer",
+          "start": "10:00",
+          "end": "11:00",
+          "title": "Arrival and registration",
           "type": "logistics",
-          "objectives": [],
-          "speakerIds": [],
-          "qaEnabled": false,
-          "feedbackEnabled": false
+          "room": "Classroom hall",
+          "description": "Scan the QR on your name tag at the registration desk."
         },
         {
-          "id": "d1-opening",
-          "start": "14:00",
-          "end": "14:20",
-          "title": "Welcome and opening remarks",
-          "description": "Why we are here, how the three days work, and what we want to walk away with.",
-          "room": "Grand Ballroom",
+          "id": "d1-welcome",
+          "start": "11:00",
+          "end": "11:10",
+          "title": "Welcome and doa",
           "type": "talk",
-          "objectives": [
-            "Understand the purpose of the summit",
-            "Know how the three days fit together"
-          ],
-          "speakerIds": ["sp-mc", "sp-ceo"],
-          "qaEnabled": false,
-          "feedbackEnabled": false
+          "room": "Classroom hall",
+          "description": "Opening of Power Summit 2027.",
+          "speakerIds": ["sp-emcee"]
         },
         {
           "id": "d1-ice-breaker",
-          "start": "14:20",
-          "end": "14:50",
-          "title": "Ice breaker: who is in the room",
-          "description": "A quick live poll game. Open Slido on your phone and answer as fast as you can.",
-          "room": "Grand Ballroom",
+          "start": "11:10",
+          "end": "11:30",
+          "title": "Bingo ice breaker",
           "type": "activity",
-          "objectives": ["Meet people from other divisions", "Warm up for the working sessions"],
-          "speakerIds": ["sp-mc"],
-          "qaEnabled": false,
-          "feedbackEnabled": false
+          "room": "Classroom hall",
+          "description": "Find the people who match your bingo card. Mix with someone from another department.",
+          "speakerIds": ["sp-emcee"]
         },
         {
-          "id": "d1-keynote",
-          "start": "14:50",
-          "end": "15:50",
-          "title": "Keynote: powering the nation through change",
-          "description": "The outlook for the next three years, what it asks of leaders, and the decisions ahead of us.",
-          "room": "Grand Ballroom",
-          "type": "talk",
-          "objectives": [
-            "Understand the three year outlook",
-            "See where leadership attention is needed most",
-            "Hear the questions the board is asking"
-          ],
-          "speakerIds": ["sp-ceo"],
-          "qaEnabled": true,
-          "feedbackEnabled": true
-        },
-        {
-          "id": "d1-break-pm",
-          "start": "15:50",
-          "end": "16:15",
-          "title": "Coffee break",
-          "description": "Refreshments in the foyer.",
-          "room": "Ballroom Foyer",
-          "type": "break",
-          "objectives": [],
-          "speakerIds": [],
-          "qaEnabled": false,
-          "feedbackEnabled": false
-        },
-        {
-          "id": "d1-panel",
-          "start": "16:15",
-          "end": "17:15",
-          "title": "Panel: leading through uncertainty",
-          "description": "Three leaders on what changed their mind this year. Bring your questions to Slido.",
-          "room": "Grand Ballroom",
+          "id": "d1-reflection",
+          "start": "11:30",
+          "end": "12:30",
+          "title": "2026 reflection: setting the context",
           "type": "panel",
+          "room": "Classroom hall",
+          "description": "A podcast style conversation looking back at 2026 and setting the context for the next three days.",
           "objectives": [
-            "Hear how peers handle competing priorities",
-            "Collect practical habits you can try next week"
+            "Understand where we stand at the end of 2026",
+            "See what the next three days are for"
           ],
-          "speakerIds": ["sp-cdio", "sp-chro", "sp-guest"],
+          "speakerIds": ["sp-head-sptx", "sp-sgm"],
           "qaEnabled": true,
           "feedbackEnabled": true
         },
         {
-          "id": "d1-wrap",
-          "start": "17:15",
-          "end": "17:30",
-          "title": "Day 1 wrap and housekeeping",
-          "description": "What happens tonight and what to bring tomorrow.",
-          "room": "Grand Ballroom",
-          "type": "logistics",
-          "objectives": [],
-          "speakerIds": ["sp-mc"],
-          "qaEnabled": false,
-          "feedbackEnabled": false
+          "id": "d1-lunch",
+          "start": "12:30",
+          "end": "14:00",
+          "title": "Lunch",
+          "type": "meal"
         },
         {
-          "id": "d1-free-time",
-          "start": "17:30",
-          "end": "19:30",
-          "title": "Free time",
-          "description": "Check in to your room and freshen up.",
-          "room": "",
-          "type": "break",
-          "objectives": [],
-          "speakerIds": [],
-          "qaEnabled": false,
-          "feedbackEnabled": false
+          "id": "d1-svc",
+          "start": "14:00",
+          "end": "14:10",
+          "title": "Secretariat sharing: SVC",
+          "type": "talk",
+          "room": "Classroom hall",
+          "description": "The biggest decisions and guidance from the SVC committee this year.",
+          "speakerIds": ["sp-secretariat"]
+        },
+        {
+          "id": "d1-sharing-value",
+          "start": "14:10",
+          "end": "14:40",
+          "title": "Sharing 1: Value",
+          "type": "talk",
+          "room": "Classroom hall",
+          "description": "How our work creates value for the business.",
+          "speakerIds": ["sp-domain"],
+          "qaEnabled": true,
+          "feedbackEnabled": true
+        },
+        {
+          "id": "d1-dlc",
+          "start": "14:40",
+          "end": "14:50",
+          "title": "Secretariat sharing: DLC",
+          "type": "talk",
+          "room": "Classroom hall",
+          "description": "The biggest decisions and guidance from the DLC committee this year.",
+          "speakerIds": ["sp-secretariat"]
+        },
+        {
+          "id": "d1-sharing-comms",
+          "start": "14:50",
+          "end": "15:20",
+          "title": "Sharing 2: Comms Network",
+          "type": "talk",
+          "room": "Classroom hall",
+          "description": "Where the communications network stands and where it is heading.",
+          "speakerIds": ["sp-domain"],
+          "qaEnabled": true,
+          "feedbackEnabled": true
+        },
+        {
+          "id": "d1-tea",
+          "start": "15:20",
+          "end": "15:40",
+          "title": "Tea break",
+          "type": "break"
+        },
+        {
+          "id": "d1-atc",
+          "start": "15:40",
+          "end": "15:50",
+          "title": "Secretariat sharing: ATC",
+          "type": "talk",
+          "room": "Classroom hall",
+          "description": "The biggest decisions and guidance from the ATC committee this year.",
+          "speakerIds": ["sp-secretariat"]
+        },
+        {
+          "id": "d1-sharing-dc",
+          "start": "15:50",
+          "end": "16:20",
+          "title": "Sharing 3: Data Centre and Cloud",
+          "type": "talk",
+          "room": "Classroom hall",
+          "description": "Our data centre and cloud direction.",
+          "speakerIds": ["sp-domain"],
+          "qaEnabled": true,
+          "feedbackEnabled": true
+        },
+        {
+          "id": "d1-otc",
+          "start": "16:20",
+          "end": "16:30",
+          "title": "Secretariat sharing: OTC",
+          "type": "talk",
+          "room": "Classroom hall",
+          "description": "The biggest decisions and guidance from the OTC committee this year.",
+          "speakerIds": ["sp-secretariat"]
+        },
+        {
+          "id": "d1-sharing-procurement",
+          "start": "16:30",
+          "end": "17:00",
+          "title": "Sharing 4: Procurement",
+          "type": "talk",
+          "room": "Classroom hall",
+          "description": "What is changing in procurement, and what it means for your projects.",
+          "speakerIds": ["sp-domain"],
+          "qaEnabled": true,
+          "feedbackEnabled": true
+        },
+        {
+          "id": "d1-free",
+          "start": "17:00",
+          "end": "19:00",
+          "title": "Free and easy",
+          "type": "break"
         },
         {
           "id": "d1-dinner",
-          "start": "19:30",
-          "end": "21:00",
-          "title": "Welcome dinner",
-          "description": "Seated dinner. Table numbers are on your name tag.",
-          "room": "Terrace Ballroom",
-          "type": "meal",
-          "objectives": [],
-          "speakerIds": [],
-          "qaEnabled": false,
-          "feedbackEnabled": false
+          "start": "19:00",
+          "end": "20:00",
+          "title": "Group dinner",
+          "type": "meal"
         },
         {
-          "id": "d1-night-activity",
-          "start": "21:00",
-          "end": "22:30",
-          "title": "Night activity: the power challenge",
-          "description": "Mixed teams, light competition, no preparation needed. Song requests go through Slido.",
-          "room": "Terrace Ballroom",
+          "id": "d1-synergy-night",
+          "start": "20:00",
+          "end": "22:00",
+          "title": "Synergy Night",
           "type": "activity",
-          "objectives": ["Build trust across divisions in a relaxed setting"],
-          "speakerIds": ["sp-mc"],
-          "qaEnabled": false,
+          "room": "Majestic 2 ballroom",
+          "description": "A team activity for everyone, participants and secretariat together.",
+          "speakerIds": ["sp-emcee"],
           "feedbackEnabled": true
         }
       ]
@@ -343,195 +387,87 @@
       "id": "day-2",
       "date": "2026-12-15",
       "label": "Day 2",
-      "subtitle": "Full working day, breakouts and gala dinner",
+      "subtitle": "Breakouts and group presentations. Dress code: smart casual. Sustain, strengthen, step up.",
       "sessions": [
         {
-          "id": "d2-breakfast",
-          "start": "08:00",
-          "end": "08:45",
-          "title": "Breakfast",
-          "description": "Buffet breakfast. Please scan your name tag at the desk on your way in.",
-          "room": "Hotel Restaurant",
-          "type": "meal",
-          "objectives": [],
-          "speakerIds": [],
-          "qaEnabled": false,
-          "feedbackEnabled": false
-        },
-        {
-          "id": "d2-energiser",
-          "start": "08:45",
-          "end": "09:00",
-          "title": "Morning energiser",
-          "description": "Short standing activity to start the day.",
-          "room": "Grand Ballroom",
-          "type": "activity",
-          "objectives": [],
-          "speakerIds": ["sp-facilitator"],
-          "qaEnabled": false,
-          "feedbackEnabled": false
-        },
-        {
-          "id": "d2-strategy",
+          "id": "d2-setting-stage",
           "start": "09:00",
-          "end": "10:00",
-          "title": "Strategy briefing: where we are and what is next",
-          "description": "The numbers behind the plan, the gaps, and the three bets for 2027.",
-          "room": "Grand Ballroom",
+          "end": "09:30",
+          "title": "Setting the stage: our next S-curve",
           "type": "talk",
-          "objectives": [
-            "Know the three strategic bets for 2027",
-            "Understand how your division contributes",
-            "Leave with the questions your team will ask you"
-          ],
-          "speakerIds": ["sp-ceo", "sp-cdio"],
+          "room": "Banquet hall",
+          "description": "An overview of the business plan, MBOs and priorities for 2027, and how the breakouts will work.",
+          "objectives": ["Know the 2027 priorities", "Know how the breakout workshop runs"],
+          "speakerIds": ["sp-sbi"],
           "qaEnabled": true,
           "feedbackEnabled": true
         },
         {
-          "id": "d2-break-am",
-          "start": "10:00",
+          "id": "d2-breakout-1",
+          "start": "09:30",
           "end": "10:30",
-          "title": "Coffee break",
-          "description": "Refreshments in the foyer. Breakout rooms open at 10:25.",
-          "room": "Ballroom Foyer",
-          "type": "break",
-          "objectives": [],
-          "speakerIds": [],
-          "qaEnabled": false,
-          "feedbackEnabled": false
-        },
-        {
-          "id": "d2-breakout-a",
-          "start": "10:30",
-          "end": "12:30",
-          "title": "Breakout A: delivery and reliability",
-          "description": "Working session. Your group is on your name tag. Output goes on the wall for the report back.",
-          "room": "Breakout Room 1",
+          "title": "Breakout 1: Sustain, Strengthen and Step Up",
           "type": "breakout",
-          "objectives": [
-            "Agree the top three delivery blockers",
-            "Write one owner and one date against each"
-          ],
-          "speakerIds": ["sp-facilitator"],
-          "qaEnabled": false,
+          "room": "Breakout rooms",
+          "description": "Explore focus areas such as modernisation, workforce and operational hygiene.",
+          "speakerIds": ["sp-facilitators"],
           "feedbackEnabled": true
         },
         {
-          "id": "d2-breakout-b",
-          "start": "10:30",
+          "id": "d2-m-level",
+          "start": "09:30",
           "end": "12:30",
-          "title": "Breakout B: digital and data",
-          "description": "Working session. Your group is on your name tag. Output goes on the wall for the report back.",
-          "room": "Breakout Room 2",
+          "title": "M-level session (HODs)",
           "type": "breakout",
-          "objectives": [
-            "Pick the two data problems worth fixing first",
-            "Name what you will stop doing to make room"
-          ],
-          "speakerIds": ["sp-cdio"],
-          "qaEnabled": false,
-          "feedbackEnabled": true
+          "room": "Separate room",
+          "description": "A separate morning session for heads of department, running alongside the breakouts. Everyone joins the plenary from lunch.",
+          "speakerIds": ["sp-facilitators"]
         },
         {
-          "id": "d2-breakout-c",
+          "id": "d2-tea",
           "start": "10:30",
+          "end": "10:45",
+          "title": "Tea break",
+          "type": "break"
+        },
+        {
+          "id": "d2-breakout-2",
+          "start": "10:45",
           "end": "12:30",
-          "title": "Breakout C: people and capability",
-          "description": "Working session. Your group is on your name tag. Output goes on the wall for the report back.",
-          "room": "Breakout Room 3",
+          "title": "Breakout 2: From Issues to Interventions",
           "type": "breakout",
-          "objectives": [
-            "Identify the capability gap that hurts most in 2027",
-            "Agree one change each leader will make"
-          ],
-          "speakerIds": ["sp-chro"],
-          "qaEnabled": false,
+          "room": "Breakout rooms",
+          "description": "Identify root causes, priority interventions and 2027 initiatives.",
+          "speakerIds": ["sp-facilitators"],
           "feedbackEnabled": true
         },
         {
           "id": "d2-lunch",
           "start": "12:30",
-          "end": "13:30",
+          "end": "14:00",
           "title": "Lunch",
-          "description": "Buffet lunch in the foyer.",
-          "room": "Ballroom Foyer",
-          "type": "meal",
-          "objectives": [],
-          "speakerIds": [],
-          "qaEnabled": false,
-          "feedbackEnabled": false
+          "type": "meal"
         },
         {
-          "id": "d2-report-back",
-          "start": "13:30",
-          "end": "15:00",
-          "title": "Breakout report back",
-          "description": "Ten minutes per group, then open discussion. Vote on priorities in Slido.",
-          "room": "Grand Ballroom",
-          "type": "panel",
-          "objectives": [
-            "Hear all three groups in one place",
-            "Agree which items go to the leadership agenda"
-          ],
-          "speakerIds": ["sp-facilitator"],
-          "qaEnabled": true,
-          "feedbackEnabled": true
-        },
-        {
-          "id": "d2-break-pm",
-          "start": "15:00",
-          "end": "15:30",
-          "title": "Coffee break",
-          "description": "Refreshments in the foyer.",
-          "room": "Ballroom Foyer",
-          "type": "break",
-          "objectives": [],
-          "speakerIds": [],
-          "qaEnabled": false,
-          "feedbackEnabled": false
-        },
-        {
-          "id": "d2-masterclass",
-          "start": "15:30",
+          "id": "d2-presentations",
+          "start": "14:00",
           "end": "17:00",
-          "title": "Fireside chat: the leader people want to follow",
-          "description": "An honest conversation about hard feedback, trust and energy.",
-          "room": "Grand Ballroom",
-          "type": "talk",
-          "objectives": [
-            "Name one habit to drop and one to start",
-            "Practise giving feedback that lands"
-          ],
-          "speakerIds": ["sp-coach", "sp-guest"],
+          "title": "Shaping our next S-curve: group presentations",
+          "type": "panel",
+          "room": "Banquet hall",
+          "description": "Each group presents its priorities and proposed actions. Cut off at 5 pm.",
+          "objectives": ["Agree the priorities for 2027", "Agree the proposed actions"],
+          "speakerIds": ["sp-facilitators"],
           "qaEnabled": true,
           "feedbackEnabled": true
         },
         {
-          "id": "d2-free-time",
-          "start": "17:00",
-          "end": "19:00",
-          "title": "Free time",
-          "description": "Gala dinner is smart casual.",
-          "room": "",
-          "type": "break",
-          "objectives": [],
-          "speakerIds": [],
-          "qaEnabled": false,
-          "feedbackEnabled": false
-        },
-        {
-          "id": "d2-gala",
-          "start": "19:00",
-          "end": "21:30",
-          "title": "Gala dinner and recognition",
-          "description": "Dinner, awards and something we have not told you about yet.",
-          "room": "Terrace Ballroom",
+          "id": "d2-dinner",
+          "start": "18:30",
+          "end": "20:30",
+          "title": "Group dinner",
           "type": "meal",
-          "objectives": [],
-          "speakerIds": ["sp-mc"],
-          "qaEnabled": false,
-          "feedbackEnabled": true
+          "description": "End time to confirm."
         }
       ]
     },
@@ -539,139 +475,101 @@
       "id": "day-3",
       "date": "2026-12-16",
       "label": "Day 3",
-      "subtitle": "Commitments and close by noon",
+      "subtitle": "Commit and close. Dress code: Baju F1.",
       "sessions": [
         {
-          "id": "d3-breakfast",
-          "start": "08:00",
-          "end": "08:45",
-          "title": "Breakfast",
-          "description": "Buffet breakfast. Please check out of your room before the morning session.",
-          "room": "Hotel Restaurant",
-          "type": "meal",
-          "objectives": [],
-          "speakerIds": [],
-          "qaEnabled": false,
-          "feedbackEnabled": false
+          "id": "d3-wellness",
+          "start": "07:00",
+          "end": "08:00",
+          "title": "Morning wellness: Pound, Zumba or Yoga",
+          "type": "activity",
+          "description": "One of the three, to be confirmed. Indoors if it rains. End time to confirm."
         },
         {
-          "id": "d3-masterclass",
+          "id": "d3-speaker",
           "start": "09:00",
-          "end": "10:00",
-          "title": "Leadership masterclass: making change stick",
-          "description": "What actually survives contact with a busy quarter, and how to protect it.",
-          "room": "Grand Ballroom",
+          "end": "11:00",
+          "title": "External speaker: Datuk Suhaimi Sulaiman",
           "type": "talk",
-          "objectives": [
-            "Understand why most change efforts fade by March",
-            "Pick a tracking habit that takes under ten minutes a week"
-          ],
-          "speakerIds": ["sp-coach"],
+          "room": "Theatre hall",
+          "description": "A sharing session with our guest speaker.",
+          "speakerIds": ["sp-datuk"],
           "qaEnabled": true,
           "feedbackEnabled": true
         },
         {
-          "id": "d3-break",
-          "start": "10:00",
-          "end": "10:20",
-          "title": "Coffee break",
-          "description": "Last one. Group photo straight after the closing address.",
-          "room": "Ballroom Foyer",
-          "type": "break",
-          "objectives": [],
-          "speakerIds": [],
-          "qaEnabled": false,
-          "feedbackEnabled": false
-        },
-        {
-          "id": "d3-commitments",
-          "start": "10:20",
-          "end": "11:20",
-          "title": "Commitments and next steps",
-          "description": "Write down the one thing you will change in 2027, and who will hold you to it.",
-          "room": "Grand Ballroom",
+          "id": "d3-recap",
+          "start": "11:00",
+          "end": "11:30",
+          "title": "Recap video",
           "type": "activity",
-          "objectives": [
-            "Write one commitment for 2027",
-            "Name the person who will check on you",
-            "Agree how progress gets reported"
-          ],
-          "speakerIds": ["sp-facilitator", "sp-chro"],
-          "qaEnabled": false,
-          "feedbackEnabled": true
+          "room": "Theatre hall",
+          "description": "Three days in a few minutes."
         },
         {
           "id": "d3-closing",
-          "start": "11:20",
-          "end": "11:50",
-          "title": "Closing address",
-          "description": "What we heard over three days, and what happens next.",
-          "room": "Grand Ballroom",
+          "start": "11:30",
+          "end": "12:15",
+          "title": "CDIO closing remarks",
           "type": "talk",
-          "objectives": [],
-          "speakerIds": ["sp-ceo"],
-          "qaEnabled": false,
+          "room": "Theatre hall",
+          "description": "Closing remarks and the way forward for 2027.",
+          "speakerIds": ["sp-cdio"],
           "feedbackEnabled": true
         },
         {
-          "id": "d3-photo",
-          "start": "11:50",
-          "end": "12:00",
-          "title": "Group photo and departure",
-          "description": "Everyone on the ballroom steps. Please complete the event feedback form before you leave.",
-          "room": "Ballroom Steps",
+          "id": "d3-adjourn",
+          "start": "12:15",
+          "end": "12:30",
+          "title": "Adjourn",
           "type": "logistics",
-          "objectives": [],
-          "speakerIds": ["sp-mc"],
-          "qaEnabled": false,
-          "feedbackEnabled": false
+          "room": "Theatre hall"
+        },
+        {
+          "id": "d3-lunch",
+          "start": "12:30",
+          "end": "14:00",
+          "title": "Lunch",
+          "type": "meal",
+          "description": "End time to confirm."
         }
       ]
     }
   ],
-
   "resources": [
     {
-      "id": "res-slides",
-      "title": "Summit slide pack",
-      "url": "https://example.com/power-summit/slides",
-      "description": "All plenary slides in one PDF. Published after Day 3.",
+      "id": "res-posters",
+      "title": "Session summary posters",
+      "url": "https://example.com/power-summit/posters",
+      "description": "One poster per session with the key points, to keep and share with your team. Published after each day.",
       "kind": "file"
     },
     {
-      "id": "res-strategy",
-      "title": "Strategy briefing one pager",
-      "url": "https://example.com/power-summit/strategy-one-pager",
-      "description": "The three bets for 2027 on a single page, for cascading to your team.",
+      "id": "res-sharing-slides",
+      "title": "Day 1 sharing slides",
+      "url": "https://example.com/power-summit/sharing-slides",
+      "description": "The slides from the four domain sharings and the committee secretariat updates.",
       "kind": "file"
     },
     {
-      "id": "res-breakout-outputs",
+      "id": "res-breakouts",
       "title": "Breakout outputs",
-      "url": "https://example.com/power-summit/breakout-outputs",
-      "description": "What each group agreed, with owners and dates.",
+      "url": "https://example.com/power-summit/breakouts",
+      "description": "What each Day 2 group proposed, as presented in the afternoon.",
       "kind": "file"
-    },
-    {
-      "id": "res-feedback-habit",
-      "title": "Feedback conversation guide",
-      "url": "https://example.com/power-summit/feedback-guide",
-      "description": "A short script for the conversation you have been putting off.",
-      "kind": "link"
     },
     {
       "id": "res-photos",
       "title": "Event photos",
       "url": "https://example.com/power-summit/photos",
-      "description": "Official photographs. Available one week after the event.",
+      "description": "Photos from all three days, including the Day 1 group photo.",
       "kind": "link"
     }
   ],
-
   "surprise": {
-    "_readme": "The countdown for the Day 2 gala reveal. Turn off, or move the time, from the admin console during the event.",
+    "_readme": "Counts down to Synergy Night on Day 1. Move or switch it off from live control.",
     "enabled": true,
-    "label": "Something special starts in",
-    "targetAt": "2026-12-15T20:30"
+    "label": "Synergy Night starts in",
+    "targetAt": "2026-12-14T20:00"
   }
 }

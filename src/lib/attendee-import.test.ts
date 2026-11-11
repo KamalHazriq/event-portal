@@ -153,3 +153,41 @@ describe('the dummy attendee list that ships with the repo', () => {
     }
   });
 });
+
+describe('the HR list export', () => {
+  it('loads as it comes, with its own column names and a dated remarks column', () => {
+    const csv = [
+      'No,Holder,Complete Name,Position Text,Remarks (27Oct2026)',
+      '1,10000001,Invented Person One,Head,',
+      '2,10000002,Invented Person Two,Lead,"Team X, waiting confirmation"',
+    ].join('\n');
+    const { rows, problems } = parseAttendeeCsv(csv);
+    expect(problems).toEqual([]);
+    expect(rows).toEqual([
+      {
+        no: 1,
+        staffNo: '10000001',
+        name: 'Invented Person One',
+        title: 'Head',
+        department: '',
+        remark: '',
+        isSecretariat: false,
+      },
+      {
+        no: 2,
+        staffNo: '10000002',
+        name: 'Invented Person Two',
+        title: 'Lead',
+        department: '',
+        remark: 'Team X, waiting confirmation',
+        isSecretariat: false,
+      },
+    ]);
+  });
+
+  it('names both spellings when the key columns are missing', () => {
+    const { problems } = parseAttendeeCsv('No,Who,What\n1,a,b');
+    expect(problems[0]?.reason).toContain('staff_no (or Holder)');
+    expect(problems[0]?.reason).toContain('name (or Complete Name)');
+  });
+});

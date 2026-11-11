@@ -1,22 +1,29 @@
 /**
- * These tests guard the real config/event.json that ships with the repo.
- *
- * If someone edits the agenda and breaks it, this fails before the portal is
- * ever opened in a browser.
+ * These tests run against config/event.test.json, a frozen copy of the
+ * earlier dummy agenda (vitest.config.mts points EVENT_CONFIG_PATH at it), so
+ * their details never change underneath them. The real config/event.json is
+ * checked separately, in real-config.test.ts, for the things that must always
+ * hold however the agenda changes.
  */
 import { describe, expect, it } from 'vitest';
 
 import { clearConfigCache, loadEventConfig, resolveConfigPath, ConfigError } from './config';
 import { EventConfigSchema } from './event-schema';
 
-describe('the event config that ships with the repo', () => {
+describe('the frozen test config', () => {
   const config = (() => {
     clearConfigCache();
     return loadEventConfig();
   })();
 
   it('loads from config/event.json by default', () => {
-    expect(resolveConfigPath().replace(/\\/g, '/')).toMatch(/config\/event\.json$/);
+    const saved = process.env.EVENT_CONFIG_PATH;
+    delete process.env.EVENT_CONFIG_PATH;
+    try {
+      expect(resolveConfigPath().replace(/\\/g, '/')).toMatch(/config\/event\.json$/);
+    } finally {
+      process.env.EVENT_CONFIG_PATH = saved;
+    }
   });
 
   it('describes a three day event in Malaysia', () => {
