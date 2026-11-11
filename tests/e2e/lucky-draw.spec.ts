@@ -33,8 +33,8 @@ test('draws winners from people checked in, and nobody wins twice', async ({ pag
 
   // Check five guests in for Day 1, which is "today" before the event starts.
   const search = await page.request.get('/api/attendees/search?q=an&dayId=day-1');
-  const { results } = (await search.json()) as { results: { id: string; department: string }[] };
-  const guests = results.filter((r) => r.department !== 'Event Secretariat').slice(0, 5);
+  const { results } = (await search.json()) as { results: { id: string; remark: string }[] };
+  const guests = results.filter((r) => !/secretariat/i.test(r.remark)).slice(0, 5);
   expect(guests).toHaveLength(5);
   for (const g of guests) {
     const r = await page.request.post('/api/check-in', {

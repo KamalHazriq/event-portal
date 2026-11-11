@@ -112,41 +112,37 @@ const LAST_NAMES = [
   'Zainal',
 ];
 
-const DEPARTMENTS = [
-  'Generation',
-  'Grid Division',
-  'Retail',
-  'Digital',
-  'Group Finance',
-  'Human Resources',
-  'Group Strategy',
-  'Legal and Compliance',
-  'Procurement',
-  'Safety Health and Environment',
-  'Regulatory and Economics',
-  'Corporate Affairs',
+/**
+ * The departments from the real participant list, and roughly how many
+ * people each has in it, so the demo headcount looks like the real one. Only
+ * department names here: the people are invented.
+ */
+const DEPARTMENT_COUNTS: [string, number][] = [
+  ['CDOS', 36],
+  ['CSM', 9],
+  ['DDAI', 6],
+  ['D&I Div', 5],
+  ['GRC', 5],
+  ['EoTF', 5],
+  ['CCOO', 4],
+  ['TA', 4],
+  ['SPTx', 3],
+  ['CISO', 1],
 ];
 
-const TITLES = [
-  'General Manager',
-  'Deputy General Manager',
-  'Senior Manager',
-  'Manager',
-  'Head of Department',
-  'Head of Unit',
-  'Chief Engineer',
-  'Principal Engineer',
-  'Senior Specialist',
-  'Senior Executive',
+/** The titles from the real list, in about the same mix. */
+const TITLE_COUNTS: [string, number][] = [
+  ['Lead', 49],
+  ['Head', 15],
+  ['Team Lead', 9],
+  ['Technical Expert', 3],
+  ['Senior Manager', 2],
 ];
 
-const SECRETARIAT_TITLES = [
-  'Event Secretariat',
-  'Registration Desk',
-  'Logistics Coordinator',
-  'Technical Crew',
-  'Protocol Officer',
-];
+/** The secretariat are the SPTx team, so they need no department of their own. */
+const SECRETARIAT_DEPARTMENT = 'SPTx';
+
+const SECRETARIAT_TITLES = ['Secretariat', 'Floor Manager', 'Registration Desk', 'Logistics'];
 
 const REMARKS = [
   '',
@@ -167,6 +163,16 @@ type Row = {
   department: string;
   remark: string;
 };
+
+/** Every value repeated its count, then shuffled with the seeded generator. */
+function shuffledPool(random: () => number, counts: [string, number][]): string[] {
+  const pool = counts.flatMap(([value, count]) => Array.from({ length: count }, () => value));
+  for (let i = pool.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(random() * (i + 1));
+    [pool[i], pool[j]] = [pool[j] as string, pool[i] as string];
+  }
+  return pool;
+}
 
 function pick<T>(random: () => number, list: readonly T[]): T {
   const index = Math.floor(random() * list.length);
@@ -198,13 +204,16 @@ function build(): Row[] {
     return fallback;
   };
 
+  const departments = shuffledPool(random, DEPARTMENT_COUNTS);
+  const titles = shuffledPool(random, TITLE_COUNTS);
+
   for (let i = 0; i < ATTENDEE_COUNT; i += 1) {
     rows.push({
       no: rows.length + 1,
       staffNo: `D${String(10_001 + i)}`,
       name: makeName(),
-      title: pick(random, TITLES),
-      department: pick(random, DEPARTMENTS),
+      title: titles[i % titles.length] as string,
+      department: departments[i % departments.length] as string,
       remark: pick(random, REMARKS),
     });
   }
@@ -215,7 +224,7 @@ function build(): Row[] {
       staffNo: `S${String(90_001 + i)}`,
       name: makeName(),
       title: pick(random, SECRETARIAT_TITLES),
-      department: 'Event Secretariat',
+      department: SECRETARIAT_DEPARTMENT,
       // The importer reads this word to flag secretariat, who are excluded
       // from the lucky draw by default.
       remark: 'Secretariat',

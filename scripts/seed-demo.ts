@@ -460,7 +460,7 @@ async function main(): Promise<void> {
     'Leadership pipeline review',
     'Pay equity review, terms of reference',
   ];
-  const DIVISIONS = ['Group Human Resources', 'Generation', 'Grid Division', 'Retail'];
+  const DIVISIONS = ['CDOS', 'CSM', 'DDAI', 'GRC', 'TA'];
   const DECISIONS = ['Approved', 'Approved', 'Approved', 'Noted', 'Deferred'];
   for (const [id, count] of [
     ['svc', 8],

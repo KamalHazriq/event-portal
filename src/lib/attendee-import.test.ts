@@ -140,6 +140,11 @@ describe('the dummy attendee list that ships with the repo', () => {
     expect(result.rows.length - secretariat.length).toBe(78);
   });
 
+  it('uses only the departments from the real participant list', () => {
+    const real = ['CDOS', 'CSM', 'DDAI', 'D&I Div', 'GRC', 'EoTF', 'CCOO', 'TA', 'SPTx', 'CISO'];
+    for (const row of result.rows) expect(real, row.name).toContain(row.department);
+  });
+
   it('gives everyone a unique staff number', () => {
     const staffNumbers = new Set(result.rows.map((row) => row.staffNo));
     expect(staffNumbers.size).toBe(result.rows.length);

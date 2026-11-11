@@ -128,7 +128,11 @@ problem and the field it is in, instead of a stack trace. The rules are in
 ## The attendee list
 
 `config/attendees.sample.csv` holds 90 invented people: 78 attendees and 12
-secretariat. No one in it is real.
+secretariat. No one in it is real. Their departments and titles are the ones
+from the real participant list (CDOS, CSM, DDAI, D&I Div, GRC, EoTF, CCOO, TA,
+SPTx, CISO), in about the same proportions, so the demo headcount looks like
+the real one. The secretariat sit under SPTx, flagged by the word
+"Secretariat" in their remark.
 
 To regenerate it:
 
