@@ -379,124 +379,127 @@ export function DeskConsole({
         )}
       </section>
 
-      <section className="rounded-xl border border-line bg-surface p-4">
-        <h2 className="font-bold text-ink">Scan</h2>
+      {/* Side by side on a laptop: scanning on the left, searching on the right. */}
+      <div className="grid gap-4 xl:grid-cols-2 xl:items-start">
+        <section className="rounded-xl border border-line bg-surface p-4">
+          <h2 className="font-bold text-ink">Scan</h2>
 
-        <div className="mt-2 flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={() => (cameraOn ? stopCamera() : void startCamera())}
-            className="min-h-11 rounded-lg bg-primary px-4 py-2 font-bold text-on-primary"
+          <div className="mt-2 flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => (cameraOn ? stopCamera() : void startCamera())}
+              className="min-h-11 rounded-lg bg-primary px-4 py-2 font-bold text-on-primary"
+            >
+              {cameraOn ? 'Stop the camera' : 'Use the camera'}
+            </button>
+            <button
+              type="button"
+              onClick={() => manualRef.current?.focus()}
+              className="min-h-11 rounded-lg border border-line px-4 py-2 font-semibold text-ink"
+            >
+              Type a code
+            </button>
+          </div>
+
+          {cameraError ? (
+            <p role="alert" className="mt-2 text-sm font-semibold text-warning">
+              {cameraError}
+            </p>
+          ) : null}
+
+          <div className={cameraOn ? 'mt-3' : 'hidden'}>
+            <video
+              ref={videoRef}
+              playsInline
+              muted
+              className="aspect-video w-full rounded-lg bg-black object-cover"
+            />
+            <canvas ref={canvasRef} className="hidden" />
+            <p className="mt-1 text-sm text-ink-soft">
+              Hold the front of the name tag in the picture. It checks people in as it reads them.
+            </p>
+          </div>
+
+          <form
+            className="mt-3"
+            onSubmit={(event) => {
+              event.preventDefault();
+              const value = manualRef.current?.value ?? '';
+              if (value.trim().length > 0) {
+                handleScanned(value);
+                if (manualRef.current) manualRef.current.value = '';
+              }
+            }}
           >
-            {cameraOn ? 'Stop the camera' : 'Use the camera'}
-          </button>
-          <button
-            type="button"
-            onClick={() => manualRef.current?.focus()}
-            className="min-h-11 rounded-lg border border-line px-4 py-2 font-semibold text-ink"
-          >
-            Type a code
-          </button>
-        </div>
+            <label htmlFor="manual-code" className="block text-sm font-semibold text-ink">
+              Or scan with a handheld scanner, or type the code
+            </label>
+            <input
+              id="manual-code"
+              ref={manualRef}
+              type="text"
+              autoComplete="off"
+              spellCheck={false}
+              className="mt-1 min-h-11 w-full rounded-lg border border-line bg-canvas px-3 py-2 font-mono text-ink"
+            />
+          </form>
+        </section>
 
-        {cameraError ? (
-          <p role="alert" className="mt-2 text-sm font-semibold text-warning">
-            {cameraError}
-          </p>
-        ) : null}
+        <section className="rounded-xl border border-line bg-surface p-4">
+          <h2 className="font-bold text-ink">Search by name</h2>
+          <p className="text-sm text-ink-soft">For a lost tag or a code that will not read.</p>
 
-        <div className={cameraOn ? 'mt-3' : 'hidden'}>
-          <video
-            ref={videoRef}
-            playsInline
-            muted
-            className="aspect-video w-full rounded-lg bg-black object-cover"
-          />
-          <canvas ref={canvasRef} className="hidden" />
-          <p className="mt-1 text-sm text-ink-soft">
-            Hold the front of the name tag in the picture. It checks people in as it reads them.
-          </p>
-        </div>
-
-        <form
-          className="mt-3"
-          onSubmit={(event) => {
-            event.preventDefault();
-            const value = manualRef.current?.value ?? '';
-            if (value.trim().length > 0) {
-              handleScanned(value);
-              if (manualRef.current) manualRef.current.value = '';
-            }
-          }}
-        >
-          <label htmlFor="manual-code" className="block text-sm font-semibold text-ink">
-            Or scan with a handheld scanner, or type the code
+          <label htmlFor="desk-search" className="sr-only">
+            Search for a name or staff number
           </label>
           <input
-            id="manual-code"
-            ref={manualRef}
-            type="text"
-            autoComplete="off"
-            spellCheck={false}
-            className="mt-1 min-h-11 w-full rounded-lg border border-line bg-canvas px-3 py-2 font-mono text-ink"
+            id="desk-search"
+            type="search"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Name or staff number"
+            className="mt-2 min-h-11 w-full rounded-lg border border-line bg-canvas px-3 py-2 text-ink"
           />
-        </form>
-      </section>
 
-      <section className="rounded-xl border border-line bg-surface p-4">
-        <h2 className="font-bold text-ink">Search by name</h2>
-        <p className="text-sm text-ink-soft">For a lost tag or a code that will not read.</p>
+          {searchMessage ? <p className="mt-2 text-sm text-ink-soft">{searchMessage}</p> : null}
 
-        <label htmlFor="desk-search" className="sr-only">
-          Search for a name or staff number
-        </label>
-        <input
-          id="desk-search"
-          type="search"
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          placeholder="Name or staff number"
-          className="mt-2 min-h-11 w-full rounded-lg border border-line bg-canvas px-3 py-2 text-ink"
-        />
+          {searchResults.length > 0 ? (
+            <ul className="mt-3 space-y-2">
+              {searchResults.map((person) => (
+                <li
+                  key={person.id}
+                  className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-line p-3"
+                >
+                  <div className="min-w-0">
+                    <p className="font-bold text-ink">{person.name}</p>
+                    <p className="text-sm text-ink-soft">
+                      {[person.title, person.department].filter(Boolean).join(', ')}
+                    </p>
+                    {person.remark ? (
+                      <p className="text-sm font-semibold text-ink">{person.remark}</p>
+                    ) : null}
+                  </div>
 
-        {searchMessage ? <p className="mt-2 text-sm text-ink-soft">{searchMessage}</p> : null}
-
-        {searchResults.length > 0 ? (
-          <ul className="mt-3 space-y-2">
-            {searchResults.map((person) => (
-              <li
-                key={person.id}
-                className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-line p-3"
-              >
-                <div className="min-w-0">
-                  <p className="font-bold text-ink">{person.name}</p>
-                  <p className="text-sm text-ink-soft">
-                    {[person.title, person.department].filter(Boolean).join(', ')}
-                  </p>
-                  {person.remark ? (
-                    <p className="text-sm font-semibold text-ink">{person.remark}</p>
-                  ) : null}
-                </div>
-
-                {person.checkedIn ? (
-                  <span className="shrink-0 rounded-full bg-success/15 px-3 py-1 text-sm font-bold text-success">
-                    Already in
-                  </span>
-                ) : (
-                  <button
-                    type="button"
-                    disabled={busy}
-                    onClick={() => void sendCheckIn({ attendeeId: person.id, method: 'manual' })}
-                    className="min-h-11 shrink-0 rounded-lg bg-primary px-4 py-2 font-bold text-on-primary disabled:opacity-60"
-                  >
-                    Check in
-                  </button>
-                )}
-              </li>
-            ))}
-          </ul>
-        ) : null}
-      </section>
+                  {person.checkedIn ? (
+                    <span className="shrink-0 rounded-full bg-success/15 px-3 py-1 text-sm font-bold text-success">
+                      Already in
+                    </span>
+                  ) : (
+                    <button
+                      type="button"
+                      disabled={busy}
+                      onClick={() => void sendCheckIn({ attendeeId: person.id, method: 'manual' })}
+                      className="min-h-11 shrink-0 rounded-lg bg-primary px-4 py-2 font-bold text-on-primary disabled:opacity-60"
+                    >
+                      Check in
+                    </button>
+                  )}
+                </li>
+              ))}
+            </ul>
+          ) : null}
+        </section>
+      </div>
     </div>
   );
 }

@@ -3,52 +3,87 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-const ITEMS: { href: string; label: string; also?: string[] }[] = [
-  { href: '/admin/live', label: 'Live' },
-  { href: '/admin/desk', label: 'Desk' },
-  { href: '/admin/headcount', label: 'Headcount' },
-  { href: '/admin/feedback', label: 'Feedback' },
-  { href: '/admin/big-screen', label: 'Big screen' },
-  { href: '/admin/reports', label: 'Reports' },
-  { href: '/admin/lucky-draw', label: 'Lucky draw' },
-  { href: '/admin/photos', label: 'Photos' },
-  { href: '/admin/qa', label: 'Q&A' },
-  { href: '/admin/polls', label: 'Polls' },
-  { href: '/admin/committees', label: 'Committees' },
-  { href: '/admin/name-tags', label: 'Name tags' },
-  { href: '/admin/qr-assets', label: 'QR assets' },
-  { href: '/admin/admins', label: 'Admins' },
-];
+import { ADMIN_GROUPS, ADMIN_PAGES } from './admin-pages';
+import { Icon } from './icons';
 
-export function AdminNav() {
+function isActive(pathname: string, href: string): boolean {
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
+/** Phones and tablets: one swipeable row of tabs under the header. */
+export function AdminTabs() {
   const pathname = usePathname();
-
   return (
-    <nav aria-label="Secretariat" className="px-2">
-      {/* A swipeable row on a phone; on a laptop every tab shows, over two rows if needed. */}
-      <ul className="flex gap-1 overflow-x-auto lg:flex-wrap lg:overflow-visible">
-        {ITEMS.map((item) => {
-          const active = [item.href, ...(item.also ?? [])].some((href) =>
-            pathname.startsWith(href),
-          );
+    <nav aria-label="Secretariat" className="px-2 lg:hidden">
+      <ul className="no-scrollbar flex gap-1 overflow-x-auto">
+        {ADMIN_PAGES.map((page) => {
+          const active = isActive(pathname, page.href);
           return (
-            <li key={item.href} className="shrink-0">
+            <li key={page.href} className="shrink-0">
               <Link
-                href={item.href}
+                href={page.href}
                 aria-current={active ? 'page' : undefined}
                 className={[
-                  'block border-b-2 px-3 py-2.5 text-sm font-semibold no-underline transition-colors',
+                  'flex items-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-semibold no-underline transition-colors',
                   active
                     ? 'border-primary text-primary'
                     : 'border-transparent text-ink-soft hover:text-ink',
                 ].join(' ')}
               >
-                {item.label}
+                <Icon name={page.icon} className="size-4" />
+                {page.label}
               </Link>
             </li>
           );
         })}
       </ul>
+    </nav>
+  );
+}
+
+/** Laptops and up: a sidebar with the pages grouped by when they are used. */
+export function AdminSidebarNav() {
+  const pathname = usePathname();
+  return (
+    <nav aria-label="Secretariat" className="flex-1 overflow-y-auto px-3 pb-4">
+      <Link
+        href="/admin"
+        aria-current={pathname === '/admin' ? 'page' : undefined}
+        className={[
+          'side-link mb-2 flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-semibold no-underline',
+          pathname === '/admin' ? 'is-active' : '',
+        ].join(' ')}
+      >
+        <Icon name="home" />
+        Overview
+      </Link>
+      {ADMIN_GROUPS.map((group) => (
+        <div key={group.name} className="mt-4">
+          <p className="px-3 pb-1.5 text-[0.68rem] font-bold uppercase tracking-[0.16em] text-ink-soft">
+            {group.name}
+          </p>
+          <ul className="space-y-0.5">
+            {group.pages.map((page) => {
+              const active = isActive(pathname, page.href);
+              return (
+                <li key={page.href}>
+                  <Link
+                    href={page.href}
+                    aria-current={active ? 'page' : undefined}
+                    className={[
+                      'side-link flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-semibold no-underline',
+                      active ? 'is-active' : '',
+                    ].join(' ')}
+                  >
+                    <Icon name={page.icon} />
+                    {page.label}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      ))}
     </nav>
   );
 }

@@ -37,18 +37,6 @@
   body {
     background-color: var(--c-background);
     /* Two soft glows from the theme colours, fixed so they do not scroll. */
-    background-image:
-      radial-gradient(
-        60rem 34rem at 105% -8%,
-        color-mix(in srgb, var(--c-accent) 20%, transparent),
-        transparent 62%
-      ),
-      radial-gradient(
-        44rem 28rem at -12% 108%,
-        color-mix(in srgb, var(--c-primary) 11%, transparent),
-        transparent 60%
-      );
-    background-attachment: fixed;
     color: var(--c-text);
     font-family: var(--font-body);
     /* Mobile first: comfortable reading size on a 375 px phone. */
@@ -508,4 +496,264 @@
 
 .eyebrow::before {
   background: var(--c-primary-ink);
+}
+
+/* ===========================================================================
+ * Motion and depth
+ *
+ * Minimal, futuristic, and all CSS: no animation library and no script, so
+ * pages stay light on hotel Wi-Fi. Everything here is switched off for a
+ * device set to reduce motion (see the base layer), and nothing here is
+ * needed to read or use a page.
+ * ======================================================================== */
+
+/* -- The aurora: two slow drifting glows and a faint grid behind every page.
+ *    One fixed layer, moved with transforms only, so it costs next to nothing. */
+body::before,
+body::after {
+  content: '';
+  position: fixed;
+  pointer-events: none;
+  z-index: -1;
+}
+
+body::before {
+  inset: -20vmax;
+  background:
+    radial-gradient(
+      42vmax 30vmax at 78% 12%,
+      color-mix(in srgb, var(--c-primary) 22%, transparent),
+      transparent 65%
+    ),
+    radial-gradient(
+      38vmax 28vmax at 12% 88%,
+      color-mix(in srgb, var(--c-accent) 16%, transparent),
+      transparent 65%
+    );
+  animation: aurora 28s ease-in-out infinite alternate;
+}
+
+body::after {
+  inset: 0;
+  background:
+    linear-gradient(color-mix(in srgb, var(--c-text) 3.5%, transparent) 1px, transparent 1px) 0 0 /
+      56px 56px,
+    linear-gradient(90deg, color-mix(in srgb, var(--c-text) 3.5%, transparent) 1px, transparent 1px)
+      0 0 / 56px 56px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black, transparent 75%);
+}
+
+@keyframes aurora {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  50% {
+    transform: translate3d(-4vmax, 3vmax, 0) rotate(6deg);
+  }
+  100% {
+    transform: translate3d(3vmax, -2vmax, 0) rotate(-4deg);
+  }
+}
+
+/* -- Pages rise in, and the cards in a grid follow one after another. */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.page-enter > *,
+main#main > * {
+  animation: rise 520ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.stagger > * {
+  animation: rise 560ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.stagger > :nth-child(1) {
+  animation-delay: 60ms;
+}
+.stagger > :nth-child(2) {
+  animation-delay: 110ms;
+}
+.stagger > :nth-child(3) {
+  animation-delay: 160ms;
+}
+.stagger > :nth-child(4) {
+  animation-delay: 210ms;
+}
+.stagger > :nth-child(5) {
+  animation-delay: 260ms;
+}
+.stagger > :nth-child(6) {
+  animation-delay: 310ms;
+}
+.stagger > :nth-child(7) {
+  animation-delay: 360ms;
+}
+.stagger > :nth-child(n + 8) {
+  animation-delay: 400ms;
+}
+
+/* -- Cards that are links lift and glow under the pointer. */
+.card-hover,
+a.rounded-xl,
+a.rounded-lg.border {
+  transition:
+    transform 220ms cubic-bezier(0.2, 0.7, 0.2, 1),
+    border-color 220ms ease,
+    box-shadow 220ms ease,
+    background-color 220ms ease;
+}
+
+.card-hover:hover,
+a.rounded-xl:hover,
+a.rounded-lg.border:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--c-primary) 60%, var(--c-border));
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--c-primary) 25%, transparent),
+    0 18px 40px -20px color-mix(in srgb, var(--c-primary) 70%, transparent);
+}
+
+/* -- Primary buttons: a quick sweep of light on hover. */
+a.bg-primary,
+button.bg-primary,
+label.bg-primary {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+a.bg-primary::after,
+button.bg-primary::after,
+label.bg-primary::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    105deg,
+    transparent 35%,
+    color-mix(in srgb, white 35%, transparent) 50%,
+    transparent 65%
+  );
+  transform: translateX(-120%);
+  transition: transform 700ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+a.bg-primary:hover::after,
+button.bg-primary:hover:not(:disabled)::after,
+label.bg-primary:hover::after {
+  transform: translateX(120%);
+}
+
+/* -- Whatever is happening now breathes, gently. */
+@keyframes breathe {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--c-live) 0%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 28px -4px color-mix(in srgb, var(--c-live) 45%, transparent);
+  }
+}
+
+.border-live {
+  animation: breathe 3.2s ease-in-out infinite;
+}
+
+/* -- The progress ring on the dashboard draws itself in. */
+@keyframes ring-draw {
+  from {
+    stroke-dasharray: 0 100;
+  }
+}
+
+.ring-draw {
+  animation: ring-draw 1.1s cubic-bezier(0.2, 0.7, 0.2, 1) 200ms both;
+}
+
+/* -- Text in the brand gradient, for a name or a key word. */
+.text-gradient {
+  background: linear-gradient(90deg, var(--c-primary-ink), var(--c-accent));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* -- The secretariat sidebar on laptops. */
+.admin-sidebar {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--c-surface) 92%, transparent),
+    color-mix(in srgb, var(--c-background) 88%, transparent)
+  );
+  backdrop-filter: blur(18px);
+}
+
+.side-link {
+  position: relative;
+  color: var(--c-text-muted);
+  transition:
+    color 160ms ease,
+    background-color 160ms ease;
+}
+
+.side-link:hover {
+  color: var(--c-text);
+  background: color-mix(in srgb, var(--c-text) 6%, transparent);
+}
+
+.side-link.is-active {
+  color: var(--c-text);
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--c-primary) 26%, transparent),
+    color-mix(in srgb, var(--c-primary) 6%, transparent)
+  );
+}
+
+.side-link.is-active::before {
+  content: '';
+  position: absolute;
+  left: -0.75rem;
+  top: 22%;
+  bottom: 22%;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--c-primary-ink);
+  box-shadow: 0 0 12px var(--c-primary);
+}
+
+.side-link.is-active svg {
+  color: var(--c-primary-ink);
+}
+
+/* -- Rows that scroll sideways on a phone, without a scrollbar in the way. */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* -- Big screen pages have their own backdrop, and paper has none. */
+@media print {
+  body::before,
+  body::after {
+    display: none;
+  }
+
+  main#main > *,
+  .stagger > * {
+    animation: none !important;
+  }
 }

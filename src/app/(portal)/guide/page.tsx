@@ -194,7 +194,7 @@ export default function GuidePage() {
   ];
 
   return (
-    <div className="space-y-10 py-2 lg:!max-w-5xl">
+    <div className="space-y-12 py-2 lg:!max-w-6xl">
       <section>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
@@ -219,7 +219,7 @@ export default function GuidePage() {
         <h2 id="screens" className="mt-1 text-xl font-bold text-ink">
           Three kinds of screen
         </h2>
-        <ul className="mt-4 grid gap-3 md:grid-cols-3">
+        <ul className="stagger mt-4 grid gap-3 md:grid-cols-3">
           {screens.map((s) => (
             <li key={s.who} className="flex flex-col rounded-xl border border-line bg-surface p-4">
               <p className="text-lg font-bold text-ink">{s.who}</p>
@@ -238,7 +238,7 @@ export default function GuidePage() {
         <h2 id="day" className="mt-1 text-xl font-bold text-ink">
           An event day, start to finish
         </h2>
-        <ol className="mt-4 space-y-3">
+        <ol className="stagger mt-4 grid gap-3 lg:grid-cols-2">
           {day.map((step, i) => {
             const links = step.links.filter((l) => l.on);
             return (
@@ -283,7 +283,7 @@ export default function GuidePage() {
         <h2 id="roles" className="mt-1 text-xl font-bold text-ink">
           Who does what on the day
         </h2>
-        <ul className="mt-4 grid gap-3 md:grid-cols-3">
+        <ul className="stagger mt-4 grid gap-3 md:grid-cols-3">
           {roles.map((r) => (
             <li key={r.role} className="rounded-xl border border-line bg-surface p-4">
               <p className="font-bold text-ink">{r.role}</p>
@@ -299,7 +299,7 @@ export default function GuidePage() {
         <h2 id="rules" className="mt-1 text-xl font-bold text-ink">
           How it is built to be safe
         </h2>
-        <dl className="mt-4 grid gap-3 sm:grid-cols-2">
+        <dl className="stagger mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {rules.map(([title, text]) => (
             <div key={title} className="rounded-xl border border-line bg-muted p-4">
               <dt className="font-bold text-ink">{title}</dt>

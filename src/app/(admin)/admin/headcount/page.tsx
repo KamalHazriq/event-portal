@@ -116,7 +116,7 @@ export default async function HeadcountPage({ searchParams }: { searchParams: Se
       <section>
         <h2 className="mb-2 text-lg font-bold text-ink">By department</h2>
         <p className="mb-2 text-sm text-ink-soft">Whoever is furthest behind is at the top.</p>
-        <ul className="space-y-2">
+        <ul className="stagger grid gap-2 lg:grid-cols-2 2xl:grid-cols-3">
           {departments.map((row) => {
             const departmentRate = arrivalRate(row.arrived, row.expected);
             return (
@@ -155,7 +155,7 @@ export default async function HeadcountPage({ searchParams }: { searchParams: Se
             Nobody has checked in yet.
           </p>
         ) : (
-          <ul className="space-y-2">
+          <ul className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
             {newestFirst.map((row) => (
               <li
                 key={row.id}

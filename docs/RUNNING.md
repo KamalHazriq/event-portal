@@ -991,3 +991,26 @@ afterwards, and puts backup mode back as it found it.
 
 Run `npm run db:push` once first, for the new tables (questions, polls, and
 the admin log).
+
+---
+
+# The layout and the motion
+
+**On a laptop or desktop**, the secretariat pages are an app: a sidebar on
+the left with the pages grouped by when they are used (on the day, engaging
+the room, after the event, set up), and the page filling the rest of the
+screen. The home page is a dashboard with the live numbers first. **On a
+phone or tablet** it is a header with a swipeable row of tabs instead.
+
+**Attendee pages** use the full width too: the home page is two columns from
+laptop width, the agenda lists sessions in two columns, and the menu sits
+beside the name.
+
+**Motion** is subtle and all done in CSS, so pages stay light: a slow drifting
+glow and a faint grid behind every page, cards that rise in one after another
+as a page opens, a lift and glow when a card is hovered, a light sweep across
+main buttons, and a gentle breathing glow on whatever is happening now. A
+device set to reduce motion gets none of it, and nothing printed has any.
+
+The page list for the sidebar, the phone tabs and the dashboard is in one
+place, `src/components/admin-pages.ts`.

@@ -31,7 +31,7 @@ export function SessionCard({
       <Link
         href={`/session/${session.id}${linkSuffix}`}
         className={[
-          'block rounded-lg border bg-surface p-3 no-underline transition-colors',
+          'block h-full rounded-lg border bg-surface p-3 no-underline sm:p-4',
           'hover:border-primary focus-visible:border-primary',
           status === 'live'
             ? 'border-live border-l-4'
@@ -77,11 +77,14 @@ export function SessionList({
   statusOf,
   linkSuffix = '',
   emptyMessage = 'Nothing scheduled.',
+  columns = 1,
 }: {
   sessions: ResolvedSession[];
   statusOf: (session: ResolvedSession) => SessionStatus;
   linkSuffix?: string;
   emptyMessage?: string;
+  /** 2 lays the list out in two columns on wide screens. */
+  columns?: 1 | 2;
 }) {
   if (sessions.length === 0) {
     return (
@@ -90,7 +93,9 @@ export function SessionList({
   }
 
   return (
-    <ul className="space-y-2">
+    <ul
+      className={columns === 2 ? 'stagger grid gap-2 lg:grid-cols-2 lg:gap-3' : 'stagger space-y-2'}
+    >
       {sessions.map((session) => (
         <SessionCard
           key={session.id}

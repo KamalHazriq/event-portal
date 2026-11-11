@@ -13,7 +13,7 @@ async function signIn(page: Page, label: string): Promise<void> {
   await page.getByLabel('Admin PIN').fill(PIN);
   await page.getByRole('button', { name: 'Sign in' }).click();
   await expect(
-    page.getByRole('heading', { name: 'Secretariat', level: 1, exact: true }),
+    page.getByRole('heading', { name: /^Good (morning|afternoon|evening)/, level: 1 }),
   ).toBeVisible();
 }
 

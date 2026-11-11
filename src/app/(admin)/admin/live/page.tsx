@@ -62,11 +62,13 @@ export default async function LiveControlPage() {
   const slido = live?.slidoLink ?? null;
 
   return (
-    <div className="space-y-5">
+    // Two columns from a wide laptop up: the session on the left, the room
+    // and the controls on the right.
+    <div className="grid gap-5 xl:grid-cols-2 xl:items-start">
       {/* The clock moves, so this page must not go stale behind the MC. */}
       <AutoRefresh intervalMs={20_000} />
 
-      <header className="flex flex-wrap items-baseline justify-between gap-2">
+      <header className="flex flex-wrap items-baseline justify-between gap-2 xl:col-span-2">
         <h1 className="text-2xl font-bold text-ink">Live control</h1>
         <p className="text-sm text-ink-soft">
           Event time{' '}
@@ -327,7 +329,7 @@ export default async function LiveControlPage() {
         </p>
       </section>
 
-      <nav aria-label="Other admin pages" className="flex flex-wrap gap-2">
+      <nav aria-label="Other admin pages" className="flex flex-wrap gap-2 xl:col-span-2">
         {[
           { href: '/admin/desk', label: 'Desk' },
           { href: '/admin/headcount', label: 'Headcount' },

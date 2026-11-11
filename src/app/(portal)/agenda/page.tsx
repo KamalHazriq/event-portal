@@ -35,7 +35,7 @@ export default async function AgendaPage({ searchParams }: { searchParams: Searc
   const linkSuffix = nowLinkSuffix(now);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 lg:!max-w-6xl">
       <AutoRefresh enabled={!now.isOverride} />
       <DevTimeNotice now={now} timezone={config.event.timezone} />
 
@@ -63,6 +63,7 @@ export default async function AgendaPage({ searchParams }: { searchParams: Searc
           )}
 
           <SessionList
+            columns={2}
             sessions={selectedDay.sessions}
             statusOf={(session) => sessionStatus(session, now)}
             linkSuffix={linkSuffix}

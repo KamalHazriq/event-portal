@@ -30,22 +30,25 @@ export function SiteHeader({
       : `${formatShortDate(event.startDate, event.timezone)} to ${formatShortDate(event.endDate, event.timezone)}`;
 
   return (
-    <header className="sticky top-0 z-40 border-b border-line bg-canvas/95 backdrop-blur">
-      <div className="flex items-baseline justify-between gap-3 px-4 pb-2 pt-4 sm:px-6 lg:px-8">
-        <Link href="/" className="min-w-0 no-underline">
-          <span className="flex items-center gap-2 text-lg font-bold leading-tight text-ink">
-            {mark ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={mark} alt="" className="h-7 w-auto shrink-0" />
-            ) : (
-              <span aria-hidden="true" className="h-5 w-1.5 shrink-0 rounded-full bg-primary" />
-            )}
-            <span className="truncate">{event.shortName}</span>
-          </span>
-          <span className="block text-xs text-ink-soft">{dates}</span>
-        </Link>
+    <header className="sticky top-0 z-40 border-b border-line bg-canvas/80 backdrop-blur-xl">
+      {/* One row from tablet width: the name on the left, the menu on the right. */}
+      <div className="mx-auto flex max-w-[96rem] flex-col md:flex-row md:items-center md:justify-between md:gap-6 md:px-6 lg:px-10">
+        <div className="flex items-baseline justify-between gap-3 px-4 pb-2 pt-4 sm:px-6 md:px-0 md:py-3">
+          <Link href="/" className="min-w-0 no-underline">
+            <span className="flex items-center gap-2 text-lg font-bold leading-tight text-ink">
+              {mark ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={mark} alt="" className="h-7 w-auto shrink-0" />
+              ) : (
+                <span aria-hidden="true" className="h-5 w-1.5 shrink-0 rounded-full bg-primary" />
+              )}
+              <span className="truncate">{event.shortName}</span>
+            </span>
+            <span className="block text-xs text-ink-soft">{dates}</span>
+          </Link>
+        </div>
+        <SiteNav items={items} />
       </div>
-      <SiteNav items={items} />
     </header>
   );
 }
