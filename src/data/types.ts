@@ -19,6 +19,8 @@ export type Attendee = {
   title: string;
   department: string;
   remark: string;
+  /** Work email, lower case, or "". Used to match a scanned business card. */
+  email: string;
   /**
    * The secret printed in this person's QR code on the front of their name
    * tag. Never shown on screen and never logged.
@@ -38,6 +40,8 @@ export type AttendeeImportRow = {
   title: string;
   department: string;
   remark: string;
+  /** Left as it is when the list has no email for this person. */
+  email?: string;
   isSecretariat?: boolean;
 };
 

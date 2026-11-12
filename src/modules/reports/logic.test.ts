@@ -28,6 +28,7 @@ function person(id: string, department: string, isSecretariat = false): Attendee
     title: 'Manager',
     department,
     remark: 'Vegetarian meal',
+    email: '',
     checkInToken: `secret-${id}`,
     isSecretariat,
     createdAt: '2026-11-01T00:00:00Z',

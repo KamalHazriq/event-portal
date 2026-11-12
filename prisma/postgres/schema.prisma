@@ -22,6 +22,9 @@ model Attendee {
   title      String   @default("")
   department String   @default("")
   remark     String   @default("")
+  /// Work email, from the list or learned from a scanned business card.
+  /// Lets the desk match the TNB app's digital card instantly.
+  email      String   @default("")
 
   /// The secret printed in this person's name tag QR code.
   checkInToken   String  @unique

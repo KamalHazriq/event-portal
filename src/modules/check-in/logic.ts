@@ -110,7 +110,14 @@ export function arrivalRate(arrived: number, expected: number): ArrivalRate {
  * the screen can be loud and unambiguous at a busy desk.
  */
 export type ScanOutcome =
-  'checked-in' | 'already-checked-in' | 'not-found' | 'unreadable' | 'rate-limited' | 'error';
+  | 'checked-in'
+  | 'already-checked-in'
+  | 'choose'
+  | 'not-found'
+  | 'card-not-found'
+  | 'unreadable'
+  | 'rate-limited'
+  | 'error';
 
 export function scanOutcomeMessage(outcome: ScanOutcome): string {
   switch (outcome) {
@@ -118,8 +125,12 @@ export function scanOutcomeMessage(outcome: ScanOutcome): string {
       return 'Checked in';
     case 'already-checked-in':
       return 'Already checked in';
+    case 'choose':
+      return 'Which person is this?';
     case 'not-found':
       return 'Tag not recognised';
+    case 'card-not-found':
+      return 'Business card not on the list';
     case 'unreadable':
       return 'Could not read that code';
     case 'rate-limited':

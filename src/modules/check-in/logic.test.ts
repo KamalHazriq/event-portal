@@ -165,7 +165,9 @@ describe('scanOutcomeMessage', () => {
       [
         'checked-in',
         'already-checked-in',
+        'choose',
         'not-found',
+        'card-not-found',
         'unreadable',
         'rate-limited',
         'error',

@@ -66,7 +66,7 @@ export default function GuidePage() {
     {
       when: 'Arrival',
       title: 'Scan people in',
-      text: 'The desk scans the QR on each name tag, or searches by name if a tag is missing. The projector can show a live "arrived" counter with a welcome card for each person.',
+      text: 'The desk scans the QR on each name tag, or the digital business card in the TNB app, or searches by name if neither is to hand. The projector can show a live "arrived" counter with a welcome card for each person.',
       links: [
         { href: '/admin/desk', label: 'Registration desk', on: features.checkIn },
         { href: '/admin/headcount', label: 'Headcount', on: features.checkIn },
@@ -174,6 +174,10 @@ export default function GuidePage() {
     [
       'What if Slido is down on the day?',
       'One switch on the Q&A or Polls page moves everyone to the portal\'s own Q&A and polls: the Slido button on each session becomes "Ask a question", and the projector can show the top questions and live poll results. Everything else never depended on Slido.',
+    ],
+    [
+      'Can people check in with the business card in the TNB app?',
+      'Yes. The desk camera reads it like a name tag. Only the name and email are used: an exact match checks the person in at once, a close one asks the desk to tap the right person, and the email is remembered so the next day is instant. The phone number and address on the card are never kept. Ask people to turn their screen brightness up.',
     ],
     [
       'What if a name tag will not scan?',

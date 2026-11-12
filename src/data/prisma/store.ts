@@ -80,6 +80,7 @@ type AttendeeRow = {
   title: string;
   department: string;
   remark: string;
+  email: string;
   checkInToken: string;
   isSecretariat: boolean;
   createdAt: Date;
@@ -95,6 +96,7 @@ function toAttendee(row: AttendeeRow): Attendee {
     title: row.title,
     department: row.department,
     remark: row.remark,
+    email: row.email,
     checkInToken: row.checkInToken,
     isSecretariat: row.isSecretariat,
     createdAt: row.createdAt.toISOString(),
@@ -250,6 +252,12 @@ export function createPrismaAdapter(
       return row ? toAttendee(row) : null;
     },
 
+    async rememberEmail(id, email) {
+      const clean = email.trim().toLowerCase();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(clean) || clean.length > 200) return;
+      await prisma.attendee.updateMany({ where: { id, email: '' }, data: { email: clean } });
+    },
+
     async search(query, limit = 20) {
       const clean = plainText(query, 80);
       if (clean.length < 2) return [];
@@ -307,6 +315,8 @@ export function createPrismaAdapter(
           remark: plainText(row.remark, 300),
           isSecretariat: row.isSecretariat ?? false,
         };
+        // An empty email in the list keeps one learned from a card.
+        const email = (row.email ?? '').trim().toLowerCase().slice(0, 200);
 
         const existing = await prisma.attendee.findUnique({ where: { staffNo } });
 
@@ -319,6 +329,7 @@ export function createPrismaAdapter(
               // list is corrected and imported again.
               checkInToken: newCheckInToken(),
               ...incoming,
+              email,
             },
           });
           result.created += 1;
@@ -331,14 +342,18 @@ export function createPrismaAdapter(
           existing.title === incoming.title &&
           existing.department === incoming.department &&
           existing.remark === incoming.remark &&
-          existing.isSecretariat === incoming.isSecretariat;
+          existing.isSecretariat === incoming.isSecretariat &&
+          (email === '' || existing.email === email);
 
         if (unchanged) {
           result.unchanged += 1;
           continue;
         }
 
-        await prisma.attendee.update({ where: { staffNo }, data: incoming });
+        await prisma.attendee.update({
+          where: { staffNo },
+          data: email ? { ...incoming, email } : incoming,
+        });
         result.updated += 1;
       }
 

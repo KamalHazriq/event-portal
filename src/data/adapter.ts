@@ -49,6 +49,11 @@ export interface AttendeeRepository {
   /** Used by the QR scanner at the registration desk. */
   findByCheckInToken(token: string): Promise<Attendee | null>;
   findByStaffNo(staffNo: string): Promise<Attendee | null>;
+  /**
+   * Saves an email learned from a business card, only if the person has
+   * none yet, so their next scan matches at once.
+   */
+  rememberEmail(id: string, email: string): Promise<void>;
   /** The manual fallback at the desk: match on part of a name or staff number. */
   search(query: string, limit?: number): Promise<Attendee[]>;
   count(): Promise<number>;

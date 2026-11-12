@@ -35,9 +35,10 @@ const COLUMNS = {
     'employee_no',
   ],
   name: ['name', 'full_name', 'complete_name'],
-  title: ['title', 'position', 'job_title', 'position_text', 'designation'],
+  title: ['title', 'position', 'job_title', 'position_text', 'designation', 'role'],
   department: ['department', 'division', 'dept', 'department_name', 'unit'],
   remark: ['remark', 'remarks', 'notes', 'note'],
+  email: ['email', 'e-mail', 'email_address', 'work_email', 'e-mail_address'],
   no: ['no', 'number', 'no.', 'bil'],
 } as const;
 
@@ -63,11 +64,26 @@ function hasColumn(record: Record<string, string>, names: readonly string[]): bo
 }
 
 /**
- * The secretariat are flagged so the lucky draw can leave them out. Either
- * the remark or the department can say so.
+ * The secretariat are flagged so the lucky draw can leave them out. The
+ * department, the role or the remark can say so.
  */
-function looksLikeSecretariat(department: string, remark: string): boolean {
-  return /secretariat/i.test(`${department} ${remark}`);
+function looksLikeSecretariat(department: string, remark: string, title = ''): boolean {
+  return /secretariat/i.test(`${department} ${remark} ${title}`);
+}
+
+/**
+ * People with no staff number, such as external pilots, get a stand in made
+ * from their name, so they can still be checked in. It is the same every
+ * time the list is imported, so re-importing updates them rather than
+ * adding them again.
+ */
+export function standInStaffNo(name: string): string {
+  const slug = name
+    .toUpperCase()
+    .replace(/[^A-Z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 32);
+  return `EXT-${slug}`;
 }
 
 export function parseAttendeeCsv(text: string): AttendeeCsvResult {
@@ -105,14 +121,11 @@ export function parseAttendeeCsv(text: string): AttendeeCsvResult {
     // Header is line 1, so the first data row is line 2.
     const line = index + 2;
 
-    const staffNo = plainText(field(record, ...COLUMNS.staffNo), 40);
     const name = plainText(field(record, ...COLUMNS.name), 120);
+    const givenStaffNo = plainText(field(record, ...COLUMNS.staffNo), 40);
 
-    if (staffNo.length === 0 && name.length === 0) return; // blank row, ignore
-    if (staffNo.length === 0) {
-      problems.push({ row: line, reason: 'no staff_no' });
-      return;
-    }
+    if (givenStaffNo.length === 0 && name.length === 0) return; // blank row, ignore
+    const staffNo = givenStaffNo || standInStaffNo(name);
     if (name.length === 0) {
       problems.push({ row: line, reason: 'no name' });
       return;
@@ -130,6 +143,8 @@ export function parseAttendeeCsv(text: string): AttendeeCsvResult {
 
     const department = plainText(field(record, ...COLUMNS.department), 120);
     const remark = plainText(field(record, ...COLUMNS.remark) || datedRemark(record), 300);
+    const title = plainText(field(record, ...COLUMNS.title), 200);
+    const email = plainText(field(record, ...COLUMNS.email), 200).toLowerCase();
     const rawNo = field(record, ...COLUMNS.no);
     const parsedNo = Number.parseInt(rawNo, 10);
 
@@ -137,10 +152,11 @@ export function parseAttendeeCsv(text: string): AttendeeCsvResult {
       no: Number.isFinite(parsedNo) ? parsedNo : null,
       staffNo,
       name,
-      title: plainText(field(record, ...COLUMNS.title), 200),
+      title,
       department,
       remark,
-      isSecretariat: looksLikeSecretariat(department, remark),
+      ...(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? { email } : {}),
+      isSecretariat: looksLikeSecretariat(department, remark, title),
     });
   });
 

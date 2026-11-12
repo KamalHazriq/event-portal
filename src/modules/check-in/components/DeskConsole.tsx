@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+import { looksLikeBusinessCard } from '../business-card';
 import { parseScanPayload, scanOutcomeMessage, type ScanOutcome } from '../logic';
 
 /**
@@ -40,6 +41,10 @@ type Result = {
   outcome: ScanOutcome;
   message: string;
   attendee?: DeskAttendee;
+  /** From a scanned business card: who it says it is. */
+  card?: { name: string; email: string };
+  /** When a card's name is close to more than one person, or not exact. */
+  candidates?: DeskAttendee[];
 };
 
 /** Ignore the same tag for this long, so one tag held up does not spam. */
@@ -107,7 +112,12 @@ export function DeskConsole({
   /* ---------------------------------------------------------- check in */
 
   const sendCheckIn = useCallback(
-    async (input: { payload?: string; attendeeId?: string; method: 'qr' | 'manual' }) => {
+    async (input: {
+      payload?: string;
+      attendeeId?: string;
+      cardEmail?: string;
+      method: 'qr' | 'manual';
+    }) => {
       setBusy(true);
       try {
         const response = await fetch('/api/check-in', {
@@ -117,8 +127,16 @@ export function DeskConsole({
         });
         const body = (await response.json()) as Result & { headcount?: Rate };
 
-        setResult({ outcome: body.outcome, message: body.message, attendee: body.attendee });
+        setResult({
+          outcome: body.outcome,
+          message: body.message,
+          attendee: body.attendee,
+          card: body.card,
+          candidates: body.candidates,
+        });
         if (body.headcount) setHeadcount(body.headcount);
+        // Not on the list: start the name search for the desk.
+        if (body.outcome === 'card-not-found' && body.card?.name) setQuery(body.card.name);
         beep(body.outcome === 'checked-in');
 
         // Refresh the search list so it stops saying someone is not in yet.
@@ -151,6 +169,13 @@ export function DeskConsole({
 
   const handleScanned = useCallback(
     (raw: string) => {
+      // The digital business card in the TNB app. The server reads it and
+      // matches it on email or name.
+      if (looksLikeBusinessCard(raw)) {
+        if (seenRecently(raw)) return;
+        void sendCheckIn({ payload: raw, method: 'qr' });
+        return;
+      }
       const token = parseScanPayload(raw);
       if (!token) {
         setResult({ outcome: 'unreadable', message: scanOutcomeMessage('unreadable') });
@@ -317,7 +342,7 @@ export function DeskConsole({
   const tone =
     result?.outcome === 'checked-in'
       ? 'border-success bg-success/10'
-      : result?.outcome === 'already-checked-in'
+      : result?.outcome === 'already-checked-in' || result?.outcome === 'choose'
         ? 'border-warning bg-warning/10'
         : result
           ? 'border-live bg-live/10'
@@ -373,9 +398,52 @@ export function DeskConsole({
                 ) : null}
               </>
             ) : null}
+            {result.card && !result.attendee ? (
+              <p className="mt-1 text-ink">
+                The card says: <span className="font-bold">{result.card.name || 'no name'}</span>
+              </p>
+            ) : null}
+            {result.outcome === 'card-not-found' ? (
+              <p className="mt-1 text-sm text-ink-soft">
+                Search below. The name is filled in for you.
+              </p>
+            ) : null}
+            {result.outcome === 'choose' && result.candidates ? (
+              <ul className="mt-3 space-y-2">
+                {result.candidates.map((person) => (
+                  <li
+                    key={person.id}
+                    className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-line bg-surface p-3"
+                  >
+                    <div className="min-w-0">
+                      <p className="font-bold text-ink">{person.name}</p>
+                      <p className="text-sm text-ink-soft">
+                        {[person.title, person.department].filter(Boolean).join(', ')}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      disabled={busy}
+                      onClick={() =>
+                        void sendCheckIn({
+                          attendeeId: person.id,
+                          cardEmail: result.card?.email || undefined,
+                          method: 'qr',
+                        })
+                      }
+                      className="min-h-11 shrink-0 rounded-lg bg-primary px-4 py-2 font-bold text-on-primary disabled:opacity-60"
+                    >
+                      This is them
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
           </>
         ) : (
-          <p className="text-ink-soft">Scan a name tag, or search for a name below.</p>
+          <p className="text-ink-soft">
+            Scan a name tag or the business card in the TNB app, or search for a name below.
+          </p>
         )}
       </section>
 
@@ -416,7 +484,8 @@ export function DeskConsole({
             />
             <canvas ref={canvasRef} className="hidden" />
             <p className="mt-1 text-sm text-ink-soft">
-              Hold the front of the name tag in the picture. It checks people in as it reads them.
+              Hold the name tag, or the phone showing the business card, in the picture. Ask people
+              to turn their screen brightness up. It checks people in as it reads them.
             </p>
           </div>
 

@@ -3,7 +3,7 @@ import { join } from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 
-import { parseAttendeeCsv } from './attendee-import';
+import { parseAttendeeCsv, standInStaffNo } from './attendee-import';
 import { parseCsv, parseCsvRecords } from './csv';
 
 describe('parseCsv', () => {
@@ -95,13 +95,37 @@ describe('parseAttendeeCsv', () => {
     expect(result.rows[1]?.isSecretariat).toBe(false);
   });
 
-  it('reports the line number of a row with no staff number', () => {
+  it('gives someone with no staff number a stand in made from their name', () => {
     const result = parseAttendeeCsv(
-      ['no,staff_no,name', '1,D1,Fine', '2,,Missing staff number'].join('\n'),
+      ['no,staff_no,name', '1,D1,Fine', '2,,Pilot 1 Hj Example'].join('\n'),
     );
 
-    expect(result.rows).toHaveLength(1);
-    expect(result.problems).toEqual([{ row: 3, reason: 'no staff_no' }]);
+    expect(result.problems).toEqual([]);
+    expect(result.rows[1]?.staffNo).toBe('EXT-PILOT-1-HJ-EXAMPLE');
+    // The same every import, so re-importing updates rather than duplicates.
+    expect(standInStaffNo('Pilot 1 Hj Example')).toBe(result.rows[1]?.staffNo);
+  });
+
+  it('reads the participant list layout: Role, Grade, Dept, and secretariat in Role', () => {
+    const result = parseAttendeeCsv(
+      [
+        'No,Staff No,Name,Role,Grade,Dept,Remarks,Email',
+        '1,D1,Person One,Lead,E16,TNS,,One@Example.com',
+        '2,D2,Person Two,Secretariat,,SPTx,,',
+        '3,,Pilot Three,Pilot,,Secretariat,External pilot,',
+      ].join('\n'),
+    );
+
+    expect(result.problems).toEqual([]);
+    expect(result.rows[0]).toMatchObject({
+      title: 'Lead',
+      department: 'TNS',
+      email: 'one@example.com',
+      isSecretariat: false,
+    });
+    expect(result.rows[1]).toMatchObject({ title: 'Secretariat', isSecretariat: true });
+    expect(result.rows[1]).not.toHaveProperty('email');
+    expect(result.rows[2]).toMatchObject({ staffNo: 'EXT-PILOT-THREE', isSecretariat: true });
   });
 
   it('refuses a duplicate staff number and says which line it clashes with', () => {

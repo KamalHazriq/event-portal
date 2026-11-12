@@ -130,6 +130,65 @@ test.describe('the registration desk', () => {
   });
 });
 
+test.describe('the digital business card in the TNB app', () => {
+  // The camera is not available in a test, so these use the single line
+  // MECARD form of a business card in the handheld scanner box. The camera
+  // hands the server the vCard form; both go through the same code.
+  async function scanCard(page: Page, card: string): Promise<void> {
+    await page.goto('/admin/desk');
+    await page.getByLabel(/handheld scanner/).fill(card);
+    await page.getByLabel(/handheld scanner/).press('Enter');
+  }
+
+  test('a card whose name matches checks the person straight in', async ({ page }) => {
+    await signIn(page);
+    // Written differently from the list ("Hafiz Mahmud"): a title and "bin".
+    await scanCard(page, 'MECARD:N:Mahmud,Ir. Hafiz bin;EMAIL:hafiz.card@example.com;;');
+    await expect(page.getByText(/^(Checked in|Already checked in)$/)).toBeVisible();
+    await expect(page.getByText('Hafiz Mahmud', { exact: true })).toBeVisible();
+  });
+
+  test('a close name asks the desk which person it is', async ({ page }) => {
+    await signIn(page);
+    await scanCard(page, 'MECARD:N:,Gopal;;');
+    await expect(page.getByText('Which person is this?')).toBeVisible();
+    await expect(page.getByText('The card says:')).toContainText('Gopal');
+
+    await page.getByRole('button', { name: 'This is them' }).first().click();
+    await expect(page.getByText(/^(Checked in|Already checked in)$/)).toBeVisible();
+  });
+
+  test('a card not on the list starts a name search', async ({ page }) => {
+    await signIn(page);
+    await scanCard(page, 'MECARD:N:Atall,Nobody;;');
+    await expect(page.getByText('Business card not on the list')).toBeVisible();
+    await expect(page.getByLabel('Search for a name or staff number')).toHaveValue('Nobody Atall');
+  });
+
+  test('the server keeps only the name and email from a card', async ({ page }) => {
+    await signIn(page);
+    const response = await page.request.post('/api/check-in', {
+      data: {
+        dayId: 'day-1',
+        payload: [
+          'BEGIN:VCARD',
+          'VERSION:3.0',
+          'N:;Nobody Atall;;;',
+          'TEL;TYPE=cell:0120000000',
+          'EMAIL:nobody@example.com',
+          'ADR;TYPE=work:;;Somewhere;Kuala Lumpur;;50000;MY',
+          'END:VCARD',
+        ].join('\n'),
+      },
+    });
+    expect(response.status()).toBe(404);
+    const body = await response.json();
+    expect(body.outcome).toBe('card-not-found');
+    expect(body.card).toEqual({ name: 'Nobody Atall', email: 'nobody@example.com' });
+    expect(JSON.stringify(body)).not.toContain('0120000000');
+  });
+});
+
 test.describe('printable assets', () => {
   test('name tag fronts carry a personal QR code', async ({ page }) => {
     await signIn(page);
