@@ -87,7 +87,9 @@
     "committees": true,
     "qa": true,
     "polls": true,
-    "leaderboard": true
+    "leaderboard": true,
+    "reactions": true,
+    "comments": true
   },
   "polls": [
     {

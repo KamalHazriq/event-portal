@@ -28,12 +28,16 @@ export const POINTS = {
   photo: 5,
   /** A question asked in the backup Q&A that was not hidden. */
   question: 3,
+  /** Reacting during a talk, once per talk. */
+  reaction: 1,
+  /** A comment on a talk that the secretariat approved. */
+  comment: 3,
 } as const;
 
 export type PointKind = keyof typeof POINTS;
 
 /** Most that count, so nobody wins by uploading forty photos. */
-export const CAPS: Partial<Record<PointKind, number>> = { photo: 4, question: 4 };
+export const CAPS: Partial<Record<PointKind, number>> = { photo: 4, question: 4, comment: 4 };
 
 export const POINT_LABELS: Record<PointKind, string> = {
   joined: 'Signed in on your phone',
@@ -43,6 +47,8 @@ export const POINT_LABELS: Record<PointKind, string> = {
   poll: 'Poll answered',
   photo: 'Photo on the wall',
   question: 'Question asked',
+  reaction: 'Reacted during a talk',
+  comment: 'Comment on a talk shown',
 };
 
 export type ScorePerson = {
@@ -63,6 +69,10 @@ export type ScoreSources = {
   photos: { id: string; deviceId: string }[];
   /** Questions that were not hidden. */
   questions: { id: string; deviceId: string }[];
+  /** Each phone that reacted in each talk, once. */
+  reactions?: { sessionId: string; deviceId: string }[];
+  /** Approved comments only. */
+  comments?: { id: string; deviceId: string }[];
 };
 
 export type Score = {
@@ -73,7 +83,17 @@ export type Score = {
 };
 
 function emptyCounts(): Record<PointKind, number> {
-  return { joined: 0, checkIn: 0, onTime: 0, feedback: 0, poll: 0, photo: 0, question: 0 };
+  return {
+    joined: 0,
+    checkIn: 0,
+    onTime: 0,
+    feedback: 0,
+    poll: 0,
+    photo: 0,
+    question: 0,
+    reaction: 0,
+    comment: 0,
+  };
 }
 
 export function computeScores(sources: ScoreSources): Map<string, Score> {
@@ -114,6 +134,12 @@ export function computeScores(sources: ScoreSources): Map<string, Score> {
   for (const photo of sources.photos) add(ownerOf.get(photo.deviceId), 'photo', photo.id);
   for (const question of sources.questions) {
     add(ownerOf.get(question.deviceId), 'question', question.id);
+  }
+  for (const reaction of sources.reactions ?? []) {
+    add(ownerOf.get(reaction.deviceId), 'reaction', reaction.sessionId);
+  }
+  for (const comment of sources.comments ?? []) {
+    add(ownerOf.get(comment.deviceId), 'comment', comment.id);
   }
 
   const scores = new Map<string, Score>();

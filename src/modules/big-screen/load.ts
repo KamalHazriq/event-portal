@@ -8,6 +8,13 @@ import { getData } from '@/data';
 import { getEventConfig } from '@/lib/config';
 import { passLink } from '@/lib/event-pass-server';
 import { shortName } from '@/modules/points/logic';
+import {
+  COMMENT_KEYS,
+  publicComments,
+  reactionEmoji,
+  SCREEN_COMMENTS,
+  SCREEN_REACTION_WINDOW_MS,
+} from '@/modules/talk/logic';
 import { loadScoreboard } from '@/modules/points/server';
 import { logoFor, resolveTheme } from '@/lib/theme';
 import type { EventConfig } from '@/lib/event-schema';
@@ -35,6 +42,7 @@ import {
 import type {
   ArrivalsView,
   CountdownView,
+  CommentsView,
   LeaderboardView,
   LuckyDrawView,
   NowNextView,
@@ -45,6 +53,22 @@ import type {
   WelcomeView,
 } from './components/ScreenViews';
 import type { ComponentProps } from 'react';
+
+/**
+ * Reaction taps from the last few seconds, for the floating reactions over
+ * every view. None when reactions are off, or switched off for the screen.
+ */
+export async function loadScreenReactions(): Promise<{ id: string; emoji: string }[]> {
+  const config = getEventConfig();
+  if (!config.features.reactions) return [];
+  const data = getData();
+  if ((await data.settings.get(COMMENT_KEYS.screenReactions)) === 'off') return [];
+  const since = new Date(Date.now() - SCREEN_REACTION_WINDOW_MS).toISOString();
+  return (await data.reactions.since(since, 80)).map((r) => ({
+    id: r.id,
+    emoji: reactionEmoji(r.kind),
+  }));
+}
 
 export async function readScreenSettings(): Promise<ScreenSettings> {
   const data = getData();
@@ -82,7 +106,8 @@ export type ScreenPayload =
   | { view: 'photos'; props: ComponentProps<typeof PhotosView> }
   | { view: 'qa'; props: ComponentProps<typeof QuestionsView> }
   | { view: 'poll'; props: ComponentProps<typeof PollView> }
-  | { view: 'leaderboard'; props: ComponentProps<typeof LeaderboardView> };
+  | { view: 'leaderboard'; props: ComponentProps<typeof LeaderboardView> }
+  | { view: 'comments'; props: ComponentProps<typeof CommentsView> };
 
 export async function loadScreenView(
   view: ScreenView,
@@ -276,6 +301,34 @@ export async function loadScreenView(
               }
             : null,
           voteUrl: passLink(`${config.event.portalUrl.replace(/\/$/, '')}/poll`),
+        },
+      };
+    }
+
+    case 'comments': {
+      if (!config.features.comments) return loadScreenView('welcome', now, settings);
+      const agenda = buildAgenda(config);
+      // The talk the secretariat chose, else the one on now, else the next.
+      const chosen = await data.settings.get(COMMENT_KEYS.screenSession);
+      const live = findNowAndNext(agenda, now);
+      const session =
+        agenda.byId.get(chosen ?? '') ?? live.live[0] ?? live.next ?? agenda.sessions[0];
+      const list = session
+        ? publicComments(await data.comments.listBySession(session.id)).slice(0, SCREEN_COMMENTS)
+        : [];
+      return {
+        view,
+        props: {
+          sessionTitle: session?.title ?? '',
+          comments: list.map((c) => ({
+            id: c.id,
+            text: c.text,
+            name: settings.hideNames ? '' : c.name,
+            likes: c.likes,
+          })),
+          commentUrl: passLink(
+            `${config.event.portalUrl.replace(/\/$/, '')}/session/${session?.id ?? ''}`,
+          ),
         },
       };
     }

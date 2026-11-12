@@ -10,7 +10,7 @@ import { resolveEventNow } from '@/lib/time';
 import { readNowParam } from '@/modules/schedule/logic';
 
 import { ScreenFrame } from './components/ScreenFrame';
-import { loadScreenView, readScreenSettings } from './load';
+import { loadScreenReactions, loadScreenView, readScreenSettings } from './load';
 import { clockFromMinutes, type ScreenView } from './logic';
 
 export async function renderScreen(options: {
@@ -33,11 +33,15 @@ export async function renderScreen(options: {
     overrideParam: readNowParam(options.nowParam),
   });
   const settings = await readScreenSettings();
-  const payload = await loadScreenView(options.view ?? settings.view, now, settings);
+  const [payload, reactions] = await Promise.all([
+    loadScreenView(options.view ?? settings.view, now, settings),
+    loadScreenReactions(),
+  ]);
 
   return (
     <ScreenFrame
       payload={payload}
+      reactions={reactions}
       shortName={config.event.shortName}
       clock={clockFromMinutes(now.minutes)}
       testMode={now.isOverride}

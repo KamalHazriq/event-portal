@@ -5,7 +5,11 @@ import { notFound } from 'next/navigation';
 import { getEventConfig } from '@/lib/config';
 import { formatLongDate, formatTimeRange, resolveEventNow } from '@/lib/time';
 import { AutoRefresh } from '@/components/AutoRefresh';
-import { readBackupMode } from '@/modules/backup/server';
+import { getData } from '@/data';
+import { currentDeviceId, readBackupMode } from '@/modules/backup/server';
+import { CommentsWall } from '@/modules/talk/components/CommentsWall';
+import { ReactionBar } from '@/modules/talk/components/ReactionBar';
+import { reactionsOpen } from '@/modules/talk/logic';
 import { DevTimeNotice } from '@/modules/schedule/components/DevTimeNotice';
 import { SlidoButton } from '@/modules/schedule/components/SlidoButton';
 import { SpeakerList } from '@/modules/schedule/components/SpeakerList';
@@ -43,6 +47,20 @@ export default async function SessionPage({ params, searchParams }: PageProps) {
 
   const status = sessionStatus(session, now);
   const linkSuffix = nowLinkSuffix(now);
+  // Passed back with each reaction and comment, so a test clock agrees.
+  const nowParam = now.isOverride ? (readNowParam(query.now) ?? null) : null;
+  const state = typeof query.state === 'string' ? query.state : null;
+
+  const data = getData();
+  const deviceId =
+    config.features.reactions || config.features.comments ? await currentDeviceId() : null;
+  const [reactionTotals, comments, likedIds] = await Promise.all([
+    config.features.reactions ? data.reactions.totals(session.id) : null,
+    config.features.comments ? data.comments.listBySession(session.id) : [],
+    config.features.comments && deviceId
+      ? data.comments.likedIds(session.id, deviceId)
+      : Promise.resolve([] as string[]),
+  ]);
 
   // Previous and next on the same day, so you can walk through the programme.
   const sameDay = agenda.days.find((day) => day.id === session.dayId)?.sessions ?? [];
@@ -133,6 +151,15 @@ export default async function SessionPage({ params, searchParams }: PageProps) {
         <SlidoButton slido={session.slidoLink} />
       ) : null}
 
+      {reactionTotals ? (
+        <ReactionBar
+          sessionId={session.id}
+          open={reactionsOpen(session, now)}
+          initialTotals={reactionTotals}
+          nowParam={nowParam}
+        />
+      ) : null}
+
       {config.features.feedback && session.feedbackEnabled ? (
         <section className="rounded-lg border border-line bg-surface p-4">
           <h2 className="text-base font-bold text-ink">Feedback</h2>
@@ -143,6 +170,16 @@ export default async function SessionPage({ params, searchParams }: PageProps) {
             Rate this session
           </Link>
         </section>
+      ) : null}
+
+      {config.features.comments ? (
+        <CommentsWall
+          sessionId={session.id}
+          comments={comments}
+          likedIds={likedIds}
+          state={state}
+          nowParam={nowParam}
+        />
       ) : null}
 
       <nav

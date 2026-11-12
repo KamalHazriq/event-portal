@@ -41,7 +41,11 @@ export async function loadScoreboard(): Promise<Scoreboard> {
         ? Promise.all(qaSessions.map((s) => data.questions.listBySession(s.id)))
         : Promise.resolve([]),
     ]);
-  const voteLists = await Promise.all(polls.map((poll) => data.polls.votes(poll.id)));
+  const [voteLists, reactions, comments] = await Promise.all([
+    Promise.all(polls.map((poll) => data.polls.votes(poll.id))),
+    config.features.reactions ? data.reactions.participation() : Promise.resolve([]),
+    config.features.comments ? data.comments.listApproved() : Promise.resolve([]),
+  ]);
 
   const dayStarts: ScoreSources['dayStarts'] = {};
   for (const day of config.days) {
@@ -71,6 +75,8 @@ export async function loadScoreboard(): Promise<Scoreboard> {
       .flat()
       .filter((q) => q.status !== 'hidden')
       .map((q) => ({ id: q.id, deviceId: q.deviceId })),
+    reactions,
+    comments: comments.map((c) => ({ id: c.id, deviceId: c.deviceId })),
   });
 
   return {

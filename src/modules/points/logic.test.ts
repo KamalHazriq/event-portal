@@ -78,6 +78,21 @@ describe('computeScores', () => {
     expect(scores.get('a')?.counts.photo).toBe(4);
   });
 
+  it('counts reacting once per talk, and approved comments', () => {
+    const scores = computeScores({
+      ...empty,
+      links: [{ deviceId: 'p', attendeeId: 'a' }],
+      reactions: [
+        { sessionId: 's1', deviceId: 'p' },
+        { sessionId: 's1', deviceId: 'p' },
+        { sessionId: 's2', deviceId: 'p' },
+      ],
+      comments: [{ id: 'c1', deviceId: 'p' }],
+    });
+    expect(scores.get('a')?.counts).toMatchObject({ reaction: 2, comment: 1 });
+    expect(scores.get('a')?.total).toBe(POINTS.joined + 2 * POINTS.reaction + POINTS.comment);
+  });
+
   it('uses a named feedback answer even without a signed in phone', () => {
     const scores = computeScores({
       ...empty,

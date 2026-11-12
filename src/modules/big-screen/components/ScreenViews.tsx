@@ -570,3 +570,55 @@ export function LeaderboardView({
     </div>
   );
 }
+
+/* --------------------------------------------------------------- comments */
+
+export function CommentsView({
+  sessionTitle,
+  comments,
+  commentUrl,
+}: {
+  sessionTitle: string;
+  comments: { id: string; text: string; name: string; likes: number }[];
+  commentUrl: string;
+}) {
+  return (
+    <div className="screen-fade grid h-full gap-[3vw] lg:grid-cols-[1fr_auto]">
+      <section className="min-h-0">
+        <p className="text-[clamp(0.9rem,1.4vw,2rem)] font-semibold text-ink-soft">
+          {sessionTitle}
+        </p>
+        <h2 className="text-[clamp(1.6rem,3vw,4.2rem)] font-bold text-ink">
+          What people are saying
+        </h2>
+        {comments.length === 0 ? (
+          <p className="mt-[3vh] text-[clamp(1.2rem,2.2vw,3rem)] text-ink-soft">
+            No comments yet. Scan to add yours.
+          </p>
+        ) : (
+          <ul className="mt-[3vh] space-y-[1.6vh]">
+            {comments.map((c) => (
+              <li
+                key={c.id}
+                className="rounded-[1vw] border border-line bg-surface px-[1.6vw] py-[1.4vh]"
+              >
+                <p className="text-[clamp(1.1rem,1.9vw,2.6rem)] font-semibold leading-snug text-ink">
+                  {c.text}
+                </p>
+                <p className="mt-[0.6vh] flex justify-between text-[clamp(0.8rem,1.2vw,1.6rem)] text-ink-soft">
+                  <span>{c.name || 'Anonymous'}</span>
+                  <span className="tabular-nums">👍 {c.likes}</span>
+                </p>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+      <ScanTile
+        url={commentUrl}
+        label="QR code that opens the talk to comment"
+        caption="Scan to comment"
+      />
+    </div>
+  );
+}

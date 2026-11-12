@@ -51,6 +51,13 @@ export const ADMIN_GROUPS: { name: string; pages: AdminPage[] }[] = [
     name: 'Engage the room',
     pages: [
       {
+        href: '/admin/comments',
+        label: 'Comments',
+        title: 'Comments and reactions',
+        description: 'Approve comments on each talk, and see the live reactions.',
+        icon: 'message',
+      },
+      {
         href: '/admin/lucky-draw',
         label: 'Lucky draw',
         title: 'Lucky draw',

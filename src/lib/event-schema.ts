@@ -226,6 +226,10 @@ export const FeaturesSchema = z.object({
   polls: z.boolean().default(false),
   /** Points for taking part, and a leaderboard on phones and the projector. */
   leaderboard: z.boolean().default(false),
+  /** Reaction buttons during talks, floating up on the projector. */
+  reactions: z.boolean().default(false),
+  /** A moderated comments and take aways wall on each talk. */
+  comments: z.boolean().default(false),
 });
 
 export const EventInfoSchema = z.object({

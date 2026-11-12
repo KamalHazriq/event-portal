@@ -78,6 +78,8 @@ async function makePreviewConfig(): Promise<ReturnType<typeof EventConfigSchema.
   // These read a stored switch, and the schedule half has no database.
   features.qa = false;
   features.polls = false;
+  features.reactions = false;
+  features.comments = false;
 
   const preview = { ...source, features };
   await writeFile(PREVIEW_CONFIG, JSON.stringify(preview, null, 2), 'utf8');
@@ -271,6 +273,7 @@ async function buildDemo(days: string[]): Promise<number> {
     'committees',
     'qa',
     'polls',
+    'comments',
     'admins',
   ];
 
@@ -290,6 +293,7 @@ async function buildDemo(days: string[]): Promise<number> {
       'qa',
       'poll',
       'leaderboard',
+      'comments',
     ].map((view) => ({
       url: `/screen/${view}`,
       file: `screen/${view}/index.html`,

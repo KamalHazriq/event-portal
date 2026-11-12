@@ -24,6 +24,8 @@ import type {
   CheckIn,
   CheckInMethod,
   CheckInWithAttendee,
+  Comment,
+  CommentStatus,
   DeviceLink,
   FeedbackEntry,
   FeedbackSummary,
@@ -40,6 +42,8 @@ import type {
   PollVote,
   Question,
   QuestionStatus,
+  Reaction,
+  ReactionKind,
   Setting,
 } from './types';
 
@@ -253,6 +257,32 @@ export interface ActivityRepository {
   seenSince(sinceIso: string): Promise<OperatorPresence[]>;
 }
 
+/** Reaction taps during talks. */
+export interface ReactionRepository {
+  add(input: { sessionId: string; deviceId: string; kind: ReactionKind }): Promise<Reaction>;
+  /** Newest last, at most `limit`, for the projector's floating reactions. */
+  since(sinceIso: string, limit?: number): Promise<Reaction[]>;
+  /** Taps per kind for one talk. */
+  totals(sessionId: string): Promise<Record<ReactionKind, number>>;
+  /** Each phone that reacted in each talk, once. For points. */
+  participation(): Promise<{ sessionId: string; deviceId: string }[]>;
+}
+
+/** Comments and take aways on talks. */
+export interface CommentRepository {
+  add(input: { sessionId: string; text: string; name: string; deviceId: string }): Promise<Comment>;
+  /** With like counts. Every status: callers filter. */
+  listBySession(sessionId: string): Promise<Comment[]>;
+  /** Approved comments across every talk, for points. */
+  listApproved(): Promise<Comment[]>;
+  countByDevice(sessionId: string, deviceId: string): Promise<number>;
+  setStatus(id: string, status: CommentStatus): Promise<boolean>;
+  remove(id: string): Promise<boolean>;
+  /** False when this phone already liked it. */
+  like(commentId: string, deviceId: string): Promise<boolean>;
+  likedIds(sessionId: string, deviceId: string): Promise<string[]>;
+}
+
 /** Phones signed in as people, for points and the leaderboard. */
 export interface PlayerRepository {
   /** Signs this phone in as this person, replacing any earlier link. */
@@ -284,6 +314,8 @@ export interface DataAdapter {
   readonly polls: PollRepository;
   readonly activity: ActivityRepository;
   readonly players: PlayerRepository;
+  readonly reactions: ReactionRepository;
+  readonly comments: CommentRepository;
 }
 
 /** The value of DATA_ADAPTER in .env.local. */

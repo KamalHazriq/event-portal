@@ -20,6 +20,7 @@ export const SCREEN_VIEWS = [
   'qa',
   'poll',
   'leaderboard',
+  'comments',
 ] as const;
 export type ScreenView = (typeof SCREEN_VIEWS)[number];
 
@@ -86,6 +87,11 @@ export const SCREEN_VIEW_INFO: Record<
     description: 'The open poll with a QR to answer it, then the results once revealed.',
     whenToUse: 'Polls, if Slido is down',
   },
+  comments: {
+    title: 'Comments',
+    description: 'The most liked approved comments on a talk, with a QR to add one.',
+    whenToUse: 'After a talk, or while people are reacting',
+  },
   leaderboard: {
     title: 'Leaderboard',
     description: 'The top eight people and the department ranking, with a QR to join.',
@@ -105,6 +111,7 @@ export function availableScreenViews(features: {
   qa: boolean;
   polls: boolean;
   leaderboard?: boolean;
+  comments?: boolean;
 }): ScreenView[] {
   return SCREEN_VIEWS.filter(
     (view) =>
@@ -112,7 +119,8 @@ export function availableScreenViews(features: {
       (view !== 'photos' || features.photoWall) &&
       (view !== 'qa' || features.qa) &&
       (view !== 'poll' || features.polls) &&
-      (view !== 'leaderboard' || features.leaderboard === true),
+      (view !== 'leaderboard' || features.leaderboard === true) &&
+      (view !== 'comments' || features.comments === true),
   );
 }
 

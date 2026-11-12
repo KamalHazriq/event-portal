@@ -234,6 +234,23 @@ export type Poll = {
 };
 
 /** One phone's answer: option numbers as text, or the word for a word cloud. */
+export type ReactionKind = 'clap' | 'fire' | 'idea' | 'love';
+
+export type Reaction = { id: string; sessionId: string; kind: ReactionKind; at: string };
+
+export type CommentStatus = 'pending' | 'approved' | 'hidden';
+
+export type Comment = {
+  id: string;
+  sessionId: string;
+  text: string;
+  name: string;
+  deviceId: string;
+  status: CommentStatus;
+  likes: number;
+  createdAt: string;
+};
+
 /** A phone signed in as a person, for points. */
 export type DeviceLink = { deviceId: string; attendeeId: string; linkedAt: string };
 

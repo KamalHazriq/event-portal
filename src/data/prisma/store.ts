@@ -21,8 +21,10 @@ import type {
   ImportRepository,
   LuckyDrawRepository,
   PhotoRepository,
+  CommentRepository,
   PlayerRepository,
   PollRepository,
+  ReactionRepository,
   QuestionRepository,
   SettingsRepository,
 } from '../adapter';
@@ -1064,6 +1066,145 @@ export function createPrismaAdapter(
     },
   };
 
+  const REACTION_KINDS = ['clap', 'fire', 'idea', 'love'] as const;
+  const toReaction = (row: { id: string; sessionId: string; kind: string; at: Date }) => ({
+    id: row.id,
+    sessionId: row.sessionId,
+    kind: (REACTION_KINDS as readonly string[]).includes(row.kind)
+      ? (row.kind as (typeof REACTION_KINDS)[number])
+      : 'clap',
+    at: row.at.toISOString(),
+  });
+
+  const reactions: ReactionRepository = {
+    async add({ sessionId, deviceId, kind }) {
+      const row = await prisma.reaction.create({
+        data: { id: newId(), sessionId, deviceId, kind },
+      });
+      return toReaction(row);
+    },
+
+    async since(sinceIso, limit = 60) {
+      const rows = await prisma.reaction.findMany({
+        where: { at: { gt: new Date(sinceIso) } },
+        orderBy: { at: 'desc' },
+        take: Math.min(Math.max(limit, 1), 200),
+      });
+      return rows.reverse().map(toReaction);
+    },
+
+    async totals(sessionId) {
+      const rows = await prisma.reaction.groupBy({
+        by: ['kind'],
+        where: { sessionId },
+        _count: { _all: true },
+      });
+      const out = { clap: 0, fire: 0, idea: 0, love: 0 };
+      for (const row of rows) {
+        if ((REACTION_KINDS as readonly string[]).includes(row.kind)) {
+          out[row.kind as keyof typeof out] = row._count._all;
+        }
+      }
+      return out;
+    },
+
+    async participation() {
+      return prisma.reaction.findMany({
+        distinct: ['sessionId', 'deviceId'],
+        select: { sessionId: true, deviceId: true },
+      });
+    },
+  };
+
+  type CommentRow = {
+    id: string;
+    sessionId: string;
+    text: string;
+    name: string;
+    deviceId: string;
+    status: string;
+    createdAt: Date;
+    _count: { likes: number };
+  };
+  const toComment = (row: CommentRow) => ({
+    id: row.id,
+    sessionId: row.sessionId,
+    text: row.text,
+    name: row.name,
+    deviceId: row.deviceId,
+    status:
+      row.status === 'approved' || row.status === 'hidden'
+        ? (row.status as 'approved' | 'hidden')
+        : ('pending' as const),
+    likes: row._count.likes,
+    createdAt: row.createdAt.toISOString(),
+  });
+
+  const comments: CommentRepository = {
+    async add(input) {
+      const row = await prisma.comment.create({
+        data: {
+          id: newId(),
+          sessionId: input.sessionId,
+          text: input.text,
+          name: plainText(input.name, 60),
+          deviceId: input.deviceId,
+        },
+        include: { _count: { select: { likes: true } } },
+      });
+      return toComment(row);
+    },
+
+    async listBySession(sessionId) {
+      const rows = await prisma.comment.findMany({
+        where: { sessionId },
+        orderBy: { createdAt: 'asc' },
+        include: { _count: { select: { likes: true } } },
+      });
+      return rows.map(toComment);
+    },
+
+    async listApproved() {
+      const rows = await prisma.comment.findMany({
+        where: { status: 'approved' },
+        include: { _count: { select: { likes: true } } },
+      });
+      return rows.map(toComment);
+    },
+
+    async countByDevice(sessionId, deviceId) {
+      return prisma.comment.count({ where: { sessionId, deviceId } });
+    },
+
+    async setStatus(id, status) {
+      const updated = await prisma.comment.updateMany({ where: { id }, data: { status } });
+      return updated.count > 0;
+    },
+
+    async remove(id) {
+      const deleted = await prisma.comment.deleteMany({ where: { id } });
+      return deleted.count > 0;
+    },
+
+    async like(commentId, deviceId) {
+      try {
+        await prisma.commentLike.create({ data: { commentId, deviceId } });
+        return true;
+      } catch (error) {
+        if (isUniqueConflict(error)) return false;
+        throw error;
+      }
+    },
+
+    async likedIds(sessionId, deviceId) {
+      const rows = await prisma.commentLike.findMany({
+        where: { deviceId, comment: { sessionId } },
+        select: { commentId: true },
+      });
+      return rows.map((r) => r.commentId);
+    },
+  };
+
   const players: PlayerRepository = {
     async link(deviceId, attendeeId) {
       await prisma.deviceLink.upsert({
@@ -1116,6 +1257,9 @@ export function createPrismaAdapter(
     async reset() {
       // Child rows first, so foreign keys stay happy.
       await prisma.deviceLink.deleteMany();
+      await prisma.commentLike.deleteMany();
+      await prisma.comment.deleteMany();
+      await prisma.reaction.deleteMany();
       await prisma.luckyDrawWinner.deleteMany();
       await prisma.feedback.deleteMany();
       await prisma.checkIn.deleteMany();
@@ -1146,5 +1290,7 @@ export function createPrismaAdapter(
     polls,
     activity,
     players,
+    reactions,
+    comments,
   };
 }

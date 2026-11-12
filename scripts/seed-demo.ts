@@ -440,6 +440,57 @@ async function main(): Promise<void> {
   }
   console.log(`leaderboard:          ${joined} phones signed in`);
 
+  /* ------------------------------------------------ talks: comments ---- */
+
+  // Invented comments and reactions on the talks that have Q&A, so the
+  // session pages, the comments page and the projector have something to
+  // show. Earlier demo ones go first, so reruns do not pile up.
+  const COMMENTS = [
+    'The three horizons framing finally made the roadmap click for me.',
+    'Would love the slides for the data platform part.',
+    'Practical and honest. More of this format please.',
+    'Great point about fixing the basics before chasing new tools.',
+    'Our team will try the weekly demo idea from this session.',
+  ];
+  let commentCount = 0;
+  let reactionCount = 0;
+  const talks = config.days.flatMap((d) => d.sessions).filter((s) => s.qaEnabled);
+  for (const talk of talks) {
+    for (const old of await data.comments.listBySession(talk.id)) {
+      if (old.deviceId.startsWith('demo-')) await data.comments.remove(old.id);
+    }
+    const said = COMMENTS.filter(() => random() < 0.7);
+    for (const [i, text] of said.entries()) {
+      const author = pick(everyone);
+      const comment = await data.comments.add({
+        sessionId: talk.id,
+        text,
+        name: random() < 0.5 ? author.name : '',
+        deviceId: `demo-c-${talk.id}-${i}`,
+      });
+      await data.comments.setStatus(comment.id, random() < 0.85 ? 'approved' : 'pending');
+      const likes = Math.floor(random() * 12);
+      for (let n = 0; n < likes; n += 1) {
+        await data.comments.like(comment.id, `demo-like-${talk.id}-${i}-${n}`);
+      }
+      commentCount += 1;
+    }
+    for (const person of everyone) {
+      if (person.isSecretariat || random() > 0.35) continue;
+      const kinds = ['clap', 'fire', 'idea', 'love'] as const;
+      const taps = 1 + Math.floor(random() * 4);
+      for (let t = 0; t < taps; t += 1) {
+        await data.reactions.add({
+          sessionId: talk.id,
+          deviceId: `demo-${person.id}`,
+          kind: kinds[Math.floor(random() * kinds.length)] ?? 'clap',
+        });
+        reactionCount += 1;
+      }
+    }
+  }
+  console.log(`talks:                ${commentCount} comments, ${reactionCount} reactions`);
+
   /* ------------------------------------------------ photo wall --------- */
 
   // Invented images from scripts/demo-photos: gradients with a label, no

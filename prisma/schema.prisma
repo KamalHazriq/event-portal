@@ -206,6 +206,47 @@ model PollVote {
   @@id([pollId, deviceId])
 }
 
+/// A tap on a reaction button during a talk. Kept for the projector's
+/// floating reactions and the per talk totals. The phone, never a name.
+model Reaction {
+  id        String   @id
+  sessionId String
+  deviceId  String
+  /// clap | fire | idea | love
+  kind      String
+  at        DateTime @default(now())
+
+  @@index([sessionId, at])
+  @@index([at])
+}
+
+/// A comment or take away on a talk. Waits for approval before anyone sees it.
+model Comment {
+  id        String   @id
+  sessionId String
+  text      String
+  name      String   @default("")
+  deviceId  String
+  /// pending | approved | hidden
+  status    String   @default("pending")
+  createdAt DateTime @default(now())
+
+  likes CommentLike[]
+
+  @@index([sessionId, status])
+  @@index([sessionId, deviceId])
+}
+
+/// One like. The key makes it one per phone per comment.
+model CommentLike {
+  commentId String
+  deviceId  String
+
+  comment Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  @@id([commentId, deviceId])
+}
+
 /// One line of the secretariat's log. A desk label and a plain description.
 model AdminActivity {
   id       String   @id

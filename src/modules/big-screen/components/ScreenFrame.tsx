@@ -2,8 +2,10 @@ import { AutoRefresh } from '@/components/AutoRefresh';
 
 import { SCREEN_POLL_MS } from '../logic';
 import type { ScreenPayload } from '../load';
+import { ReactionOverlay } from './ReactionOverlay';
 import {
   ArrivalsView,
+  CommentsView,
   CountdownView,
   LeaderboardView,
   LuckyDrawView,
@@ -20,11 +22,14 @@ import {
  */
 export function ScreenFrame({
   payload,
+  reactions = [],
   shortName,
   clock,
   testMode,
 }: {
   payload: ScreenPayload;
+  /** Recent taps from phones, floating up over the view. */
+  reactions?: { id: string; emoji: string }[];
   shortName: string;
   clock: string;
   testMode: boolean;
@@ -55,7 +60,9 @@ export function ScreenFrame({
         {payload.view === 'qa' ? <QuestionsView {...payload.props} /> : null}
         {payload.view === 'poll' ? <PollView {...payload.props} /> : null}
         {payload.view === 'leaderboard' ? <LeaderboardView {...payload.props} /> : null}
+        {payload.view === 'comments' ? <CommentsView {...payload.props} /> : null}
       </div>
+      <ReactionOverlay reactions={reactions} />
     </main>
   );
 }

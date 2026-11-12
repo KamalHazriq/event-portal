@@ -31,6 +31,8 @@ const EARN_ORDER: PointKind[] = [
   'poll',
   'photo',
   'question',
+  'reaction',
+  'comment',
 ];
 
 export default async function MyPointsPage({
@@ -54,7 +56,9 @@ export default async function MyPointsPage({
       (kind !== 'feedback' || config.features.feedback) &&
       (kind !== 'poll' || config.features.polls) &&
       (kind !== 'photo' || config.features.photoWall) &&
-      (kind !== 'question' || config.features.qa),
+      (kind !== 'question' || config.features.qa) &&
+      (kind !== 'reaction' || config.features.reactions) &&
+      (kind !== 'comment' || config.features.comments),
   );
 
   return (
