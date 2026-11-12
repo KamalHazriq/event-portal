@@ -1,0 +1,219 @@
+// GENERATED from prisma/schema.prisma by `npm run db:postgres`. Do not edit.
+// The hosted store (Neon, through Firebase App Hosting) uses this copy.
+// Local development store. See src/data/adapter.ts for why this is swappable.
+//
+// Hard rule 2: no real personal data in the repo. The dev.db file this
+// creates is git-ignored. Real attendees are loaded from a git-ignored CSV.
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../src/generated/postgres"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Attendee {
+  id         String   @id
+  no         Int?
+  staffNo    String   @unique
+  name       String
+  title      String   @default("")
+  department String   @default("")
+  remark     String   @default("")
+
+  /// The secret printed in this person's name tag QR code.
+  checkInToken   String  @unique
+  isSecretariat  Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  checkIns CheckIn[]
+  feedback Feedback[]
+  luckyDrawWins LuckyDrawWinner[]
+
+  @@index([department])
+  @@index([name])
+}
+
+model CheckIn {
+  id         String   @id
+  attendeeId String
+  /// Matches a day id in config/event.json.
+  dayId      String
+  at         DateTime @default(now())
+  /// qr | manual | admin
+  method     String   @default("qr")
+  /// A desk label such as "desk-1". Never a person's name.
+  byOperator String   @default("")
+
+  attendee Attendee @relation(fields: [attendeeId], references: [id], onDelete: Cascade)
+
+  /// Day level check in: one arrival per person per day.
+  @@unique([attendeeId, dayId])
+  @@index([dayId, at])
+}
+
+model Feedback {
+  id     String @id
+  /// A session id, or "event-final" for the whole event form.
+  formId String
+  /// session | event
+  kind   String @default("session")
+  rating Int?
+  /// The free text answers as a JSON object. SQLite has no JSON column, so
+  /// the adapter encodes and decodes this. Pages never see the raw string.
+  answers String @default("{}")
+
+  /// Null when the form is anonymous or the person chose not to be named.
+  attendeeId  String?
+  displayName String  @default("")
+
+  /// Random id from the browser's localStorage. Enforces one per device.
+  deviceId String
+  at       DateTime @default(now())
+
+  attendee Attendee? @relation(fields: [attendeeId], references: [id], onDelete: SetNull)
+
+  @@unique([formId, deviceId])
+  @@index([formId])
+}
+
+model Setting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
+/// A sheet kept from an uploaded spreadsheet, such as the Slido export.
+model ImportedSheet {
+  id         String   @id
+  /// slido, and later the committee upload
+  source     String
+  kind       String
+  name       String
+  /// JSON arrays. SQLite has no JSON column, so the adapter encodes them.
+  headers    String   @default("[]")
+  rows       String   @default("[]")
+  fileName   String   @default("")
+  byOperator String   @default("")
+  /// Keeps the sheets in the order they were in the file.
+  position   Int      @default(0)
+  importedAt DateTime @default(now())
+
+  @@index([source, position])
+}
+
+/// A lucky draw winner. attendeeId is unique, so nobody can win twice, even
+/// when two desks press Draw at the same moment.
+model LuckyDrawWinner {
+  id         String   @id
+  drawId     String
+  position   Int
+  prize      String   @default("")
+  attendeeId String   @unique
+  drawnAt    DateTime @default(now())
+  byOperator String   @default("")
+
+  attendee Attendee @relation(fields: [attendeeId], references: [id], onDelete: Cascade)
+
+  @@index([drawnAt])
+}
+
+/// A photo wall photo, shrunk in the browser before upload. The image lives
+/// here for local work; the adapter can move it to approved storage later.
+model Photo {
+  id         String    @id
+  deviceId   String
+  caption    String    @default("")
+  /// pending | approved | rejected
+  status     String    @default("pending")
+  width      Int
+  height     Int
+  sizeBytes  Int
+  image      Bytes
+  thumbnail  Bytes
+  createdAt  DateTime  @default(now())
+  reviewedAt DateTime?
+  reviewedBy String    @default("")
+
+  @@index([status, createdAt])
+  @@index([deviceId])
+}
+
+/// A Q&A question (Module 2, the backup for Slido).
+model Question {
+  id        String   @id
+  sessionId String
+  text      String
+  name      String   @default("")
+  deviceId  String
+  /// pending | approved | answered | hidden
+  status    String   @default("pending")
+  pinned    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  votes QuestionVote[]
+
+  @@index([sessionId, status])
+  @@index([sessionId, deviceId])
+}
+
+/// One upvote. The key makes it one per phone per question.
+model QuestionVote {
+  questionId String
+  deviceId   String
+
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@id([questionId, deviceId])
+}
+
+/// A poll (Module 3, the backup for Slido).
+model Poll {
+  id        String   @id
+  question  String
+  /// single | multiple | wordcloud
+  kind      String
+  /// JSON array of the choices.
+  options   String   @default("[]")
+  /// draft | open | closed
+  status    String   @default("draft")
+  revealed  Boolean  @default(false)
+  position  Int      @default(0)
+  createdAt DateTime @default(now())
+
+  votes PollVote[]
+}
+
+/// One phone's answer. The key makes it one per phone per poll.
+model PollVote {
+  pollId   String
+  deviceId String
+  /// JSON array: option numbers as text, or the word for a word cloud.
+  choices  String
+  at       DateTime @default(now())
+
+  poll Poll @relation(fields: [pollId], references: [id], onDelete: Cascade)
+
+  @@id([pollId, deviceId])
+}
+
+/// One line of the secretariat's log. A desk label and a plain description.
+model AdminActivity {
+  id       String   @id
+  operator String
+  action   String
+  at       DateTime @default(now())
+
+  @@index([at])
+}
+
+/// When each desk was last seen.
+model AdminPresence {
+  operator   String   @id
+  page       String   @default("")
+  lastSeenAt DateTime @default(now())
+}

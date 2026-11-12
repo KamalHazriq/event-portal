@@ -44,9 +44,10 @@ jobs:
 
       - run: npm ci
 
-      # The data adapter imports the Prisma client, so it has to exist even
+      # The data adapter imports both Prisma clients (SQLite and Postgres), so
+      # they have to exist even
       # though the preview pages never read from the database.
-      - run: npx prisma generate
+      - run: npm run db:generate
 
       - name: Check it before publishing it
         run: |

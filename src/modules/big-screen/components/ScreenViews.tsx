@@ -7,6 +7,7 @@
  * Every colour comes from the theme tokens.
  */
 import { QrCode } from '@/components/QrCode';
+import { displayUrl } from '@/lib/event-pass';
 
 import { LuckyDrawSpinner } from '@/modules/lucky-draw/components/LuckyDrawSpinner';
 import type { PollKind } from '@/data/types';
@@ -71,7 +72,7 @@ export function WelcomeView({
           Scan for the agenda
         </p>
         <p className="max-w-[30vw] break-all text-center text-[clamp(0.8rem,1.1vw,1.5rem)] text-ink-soft">
-          {portalUrl.replace(/^https?:\/\//, '')}
+          {displayUrl(portalUrl)}
         </p>
       </div>
     </div>

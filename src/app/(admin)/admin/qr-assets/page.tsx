@@ -4,6 +4,8 @@ import { encode } from 'uqr';
 import { QrCode } from '@/components/QrCode';
 import { requireAdmin } from '@/lib/admin-guard';
 import { getEventConfig } from '@/lib/config';
+import { displayUrl } from '@/lib/event-pass';
+import { eventPass, passLink } from '@/lib/event-pass-server';
 import { QrDownload } from '@/modules/check-in/components/QrDownload';
 
 export const dynamic = 'force-dynamic';
@@ -22,10 +24,14 @@ export default async function QrAssetsPage() {
 
   const config = getEventConfig();
   const portalUrl = config.event.portalUrl;
+  // What the QR codes hold: the address plus the event pass, when there is
+  // one, so a scan lets people straight in. The printed text leaves it out.
+  const qrUrl = passLink(portalUrl);
+  const hasPass = qrUrl !== portalUrl;
   const isPlaceholder = portalUrl.includes('example.com') || portalUrl.includes('example.invalid');
 
   // Worked out here so the browser never needs a QR library.
-  const encoded = encode(portalUrl, { ecc: 'M', border: 2 });
+  const encoded = encode(qrUrl, { ecc: 'M', border: 2 });
   const rows = encoded.data.map((row) => row.map((filled) => (filled ? '1' : '0')).join(''));
 
   const tentCount = 12;
@@ -52,9 +58,21 @@ export default async function QrAssetsPage() {
           <p className="mt-1 break-all font-mono text-sm text-ink">{portalUrl}</p>
 
           <div className="mt-3 flex flex-wrap items-center gap-4">
-            <QrCode value={portalUrl} label="Event portal" className="size-32" />
+            <QrCode value={qrUrl} label="Event portal" className="size-32" />
             <QrDownload rows={rows} filename="portal-qr" label="Event portal" />
           </div>
+
+          {hasPass ? (
+            <p className="mt-3 rounded-lg border border-line bg-muted p-3 text-sm text-ink">
+              The portal is for participants only. These QR codes carry the event code, so scanning
+              one lets people straight in. Anyone without a code sees a page asking for it. Share
+              the codes only with participants.
+              <span className="mt-2 block">
+                Event code, for anyone whose camera will not scan:{' '}
+                <span className="font-mono font-bold tracking-widest">{eventPass()}</span>
+              </span>
+            </p>
+          ) : null}
 
           <p className="mt-3 text-sm text-ink-soft">
             This same code goes on the back of every name tag, on the welcome slide, on the table
@@ -87,9 +105,9 @@ export default async function QrAssetsPage() {
                 className="tent-logo"
               />
               <p className="tent-line">Scan for the agenda, speakers and resources</p>
-              <p className="tent-url">{portalUrl}</p>
+              <p className="tent-url">{displayUrl(portalUrl)}</p>
             </div>
-            <QrCode value={portalUrl} label="Event portal" className="tent-qr" />
+            <QrCode value={qrUrl} label="Event portal" className="tent-qr" />
           </div>
         ))}
       </div>

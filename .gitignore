@@ -28,6 +28,9 @@ next-env.d.ts
 /private/
 /uploads/
 
+# generated Prisma client for Postgres (npm run db:generate)
+/src/generated/
+
 # local database
 *.db
 *.db-journal

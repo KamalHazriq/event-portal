@@ -275,3 +275,27 @@ function brokenConfig(session?: { start: string; end: string }): LooseConfig {
     ],
   };
 }
+
+describe('PORTAL_URL', () => {
+  it('replaces the portal address from the config file', () => {
+    process.env.PORTAL_URL = 'https://portal.example.org';
+    try {
+      clearConfigCache();
+      expect(loadEventConfig().event.portalUrl).toBe('https://portal.example.org');
+    } finally {
+      delete process.env.PORTAL_URL;
+      clearConfigCache();
+    }
+  });
+
+  it('refuses something that is not a web address', () => {
+    process.env.PORTAL_URL = 'portal.example.org';
+    try {
+      clearConfigCache();
+      expect(() => loadEventConfig()).toThrow(ConfigError);
+    } finally {
+      delete process.env.PORTAL_URL;
+      clearConfigCache();
+    }
+  });
+});

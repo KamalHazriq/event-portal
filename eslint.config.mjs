@@ -14,6 +14,7 @@ const config = [
       'playwright-report/**',
       'test-results/**',
       'coverage/**',
+      'src/generated/**',
     ],
   },
 
@@ -37,9 +38,9 @@ const config = [
         {
           patterns: [
             {
-              group: ['@prisma/client', '@prisma/adapter-*', 'better-sqlite3'],
+              group: ['@prisma/client', '@prisma/adapter-*', 'better-sqlite3', 'pg', '@/generated/*'],
               message:
-                'Only src/data/sqlite may touch Prisma. Everything else goes through the adapter: import { getData } from "@/data".',
+                'Only the stores in src/data may touch Prisma. Everything else goes through the adapter: import { getData } from "@/data".',
             },
           ],
         },
@@ -49,7 +50,13 @@ const config = [
 
   {
     // The one place allowed to know which database is underneath.
-    files: ['src/data/sqlite/**', 'scripts/**', 'prisma*.ts'],
+    files: [
+      'src/data/sqlite/**',
+      'src/data/postgres/**',
+      'src/data/prisma/**',
+      'scripts/**',
+      'prisma*.ts',
+    ],
     rules: { 'no-restricted-imports': 'off' },
   },
 ];

@@ -6,6 +6,7 @@
  */
 import { getData } from '@/data';
 import { getEventConfig } from '@/lib/config';
+import { passLink } from '@/lib/event-pass-server';
 import { logoFor, resolveTheme } from '@/lib/theme';
 import type { EventConfig } from '@/lib/event-schema';
 import { formatClock, formatShortDate, type EventNow } from '@/lib/time';
@@ -96,7 +97,7 @@ export async function loadScreenView(
           tagline: config.event.tagline,
           dates: eventDates(config),
           venue: config.event.venue,
-          portalUrl: config.event.portalUrl,
+          portalUrl: passLink(config.event.portalUrl),
           logoPath: logoFor(config.branding, resolveTheme(config.branding, 'bigScreen')),
         },
       };
@@ -216,7 +217,7 @@ export async function loadScreenView(
         view,
         props: {
           slides: approved.slice(0, 80).map((p) => ({ id: p.id, caption: p.caption })),
-          shareUrl: `${config.event.portalUrl.replace(/\/$/, '')}/photos`,
+          shareUrl: passLink(`${config.event.portalUrl.replace(/\/$/, '')}/photos`),
         },
       };
     }
@@ -238,7 +239,7 @@ export async function loadScreenView(
         view,
         props: {
           sessionTitle: session?.title ?? '',
-          askUrl: session ? `${base}/qa/${session.id}` : base,
+          askUrl: passLink(session ? `${base}/qa/${session.id}` : base),
           questions: list.map((q) => ({
             id: q.id,
             text: q.text,
@@ -270,7 +271,7 @@ export async function loadScreenView(
                 results: tallyPoll(poll, votes),
               }
             : null,
-          voteUrl: `${config.event.portalUrl.replace(/\/$/, '')}/poll`,
+          voteUrl: passLink(`${config.event.portalUrl.replace(/\/$/, '')}/poll`),
         },
       };
     }

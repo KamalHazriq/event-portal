@@ -1,0 +1,45 @@
+# Firebase App Hosting settings for the hosted portal.
+# Step by step setup: docs/DEPLOYING.md.
+#
+# Nothing secret is written here. The three secrets are stored in Google
+# Cloud Secret Manager and only their names appear below.
+
+runConfig:
+  # 0 costs nothing when idle, but the first visitor after a quiet spell
+  # waits a few seconds. Set it to 1 for the three event days, then back.
+  minInstances: 0
+  maxInstances: 2
+  concurrency: 80
+  cpu: 1
+  memoryMiB: 512
+
+env:
+  # The hosted store: Postgres (a free Neon database).
+  - variable: DATA_ADAPTER
+    value: postgres
+    availability: [RUNTIME]
+
+  - variable: EVENT_CONFIG_PATH
+    value: config/event.json
+    availability: [RUNTIME]
+
+  # Neon connection string, postgresql://...
+  - variable: DATABASE_URL
+    secret: portal-database-url
+    availability: [RUNTIME]
+
+  # The secretariat PIN for /admin.
+  - variable: ADMIN_PIN
+    secret: portal-admin-pin
+    availability: [RUNTIME]
+
+  # The event code. Only people with it can open the portal.
+  - variable: EVENT_PASS
+    secret: portal-event-pass
+    availability: [RUNTIME]
+
+  # The address Firebase gives the portal (or your own domain). Every QR code
+  # points here, so set it before printing anything. Uncomment and fill in:
+  # - variable: PORTAL_URL
+  #   value: https://your-backend--your-project.asia-southeast1.hosted.app
+  #   availability: [RUNTIME]

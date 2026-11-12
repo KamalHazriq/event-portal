@@ -2,12 +2,12 @@
  * The one interface every storage back end implements.
  *
  * Brief hard rule 4: all reads and writes go through this. Components and
- * pages never import the database. Hosting is not decided yet, so the store
- * has to be swappable.
+ * pages never import the database, so the store is swappable.
  *
- * Today there is one implementation, SQLite via Prisma, for local work. When
- * hosting is settled, a Supabase or SharePoint adapter is a new folder next
- * to src/data/sqlite that implements this same interface. No page changes.
+ * One implementation, written against Prisma (src/data/prisma/store.ts),
+ * serves two stores: SQLite for local work and tests, and Postgres (Neon)
+ * when hosted on Firebase App Hosting. Another kind of store would be a new
+ * folder in src/data implementing this same interface. No page changes.
  *
  * Scope note: this covers the modules that are confirmed and imminent, which
  * are check in (Module 4), feedback (Module 5), the admin console
@@ -270,5 +270,5 @@ export interface DataAdapter {
 }
 
 /** The value of DATA_ADAPTER in .env.local. */
-export const DATA_ADAPTERS = ['sqlite'] as const;
+export const DATA_ADAPTERS = ['sqlite', 'postgres'] as const;
 export type DataAdapterName = (typeof DATA_ADAPTERS)[number];

@@ -5,11 +5,12 @@
  *   const data = getData();
  *   const headcount = await data.checkIns.headcount('day-1');
  *
- * Which store answers is decided by DATA_ADAPTER in .env.local. Today the
- * only one is sqlite. When hosting is settled, add the new adapter to the
- * switch below. No page or component changes.
+ * Which store answers is decided by DATA_ADAPTER: "sqlite" for local work
+ * and tests, "postgres" when hosted (Firebase App Hosting with Neon). A new
+ * store is a new case in the switch below. No page or component changes.
  */
 import { DATA_ADAPTERS, type DataAdapter, type DataAdapterName } from './adapter';
+import { createPostgresAdapter } from './postgres';
 import { createSqliteAdapter } from './sqlite';
 
 export type { DataAdapter } from './adapter';
@@ -32,6 +33,9 @@ export function getData(): DataAdapter {
   switch (name) {
     case 'sqlite':
       instance = createSqliteAdapter();
+      return instance;
+    case 'postgres':
+      instance = createPostgresAdapter();
       return instance;
     default: {
       // Makes TypeScript complain here if a new adapter name is added to

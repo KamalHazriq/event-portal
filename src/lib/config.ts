@@ -98,8 +98,25 @@ export function loadEventConfig(): EventConfig {
     throw new ConfigError(filePath, describeIssues(result.error));
   }
 
-  cache = { mtimeMs, config: result.data };
-  return result.data;
+  const config = withEnvironment(result.data);
+  cache = { mtimeMs, config };
+  return config;
+}
+
+/**
+ * PORTAL_URL, when set, replaces event.portalUrl. The hosted address is only
+ * known once Firebase gives it out, and this way it is set next to the other
+ * hosting settings in apphosting.yaml, not by editing the event file.
+ */
+function withEnvironment(config: EventConfig): EventConfig {
+  const portalUrl = process.env.PORTAL_URL?.trim();
+  if (!portalUrl) return config;
+  try {
+    new URL(portalUrl);
+  } catch {
+    throw new ConfigError('PORTAL_URL', [`"${portalUrl}" is not a full web address.`]);
+  }
+  return { ...config, event: { ...config.event, portalUrl } };
 }
 
 /** Same as loadEventConfig, but returns the error instead of throwing. */
