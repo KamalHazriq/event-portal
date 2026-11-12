@@ -30,7 +30,7 @@ export default function GuidePage() {
     {
       who: 'Attendees',
       where: 'On their phones',
-      what: 'The agenda, what is on now and next, each session with its speakers, the Slido link, feedback forms, take aways and photo sharing. Opened by scanning the QR on the back of the name tag.',
+      what: 'The agenda, what is on now and next, each session with its speakers, the Slido link, feedback forms, take aways and photo sharing. Opened by scanning the QR on the name tag, a table tent or the projector.',
       href: '/',
       link: 'Open the attendee view',
       on: true,
@@ -57,7 +57,7 @@ export default function GuidePage() {
     {
       when: 'Before the event',
       title: 'Print and prepare',
-      text: 'Print the name tags (a personal QR on the front, the portal QR on the back), the table tents, and drop the portal QR into the welcome slide.',
+      text: 'Print the name tags (one sided: the name and the portal QR), the table tents, and drop the portal QR into the welcome slide.',
       links: [
         { href: '/admin/name-tags', label: 'Name tags', on: features.checkIn },
         { href: '/admin/qr-assets', label: 'QR assets', on: features.checkIn },
@@ -66,7 +66,7 @@ export default function GuidePage() {
     {
       when: 'Arrival',
       title: 'Scan people in',
-      text: 'The desk scans the QR on each name tag, or the digital business card in the TNB app, or searches by name if neither is to hand. The projector can show a live "arrived" counter with a welcome card for each person.',
+      text: 'The desk scans the digital business card in the TNB app, or searches by name if it will not scan. The projector can show a live "arrived" counter with a welcome card for each person.',
       links: [
         { href: '/admin/desk', label: 'Registration desk', on: features.checkIn },
         { href: '/admin/headcount', label: 'Headcount', on: features.checkIn },
@@ -177,7 +177,7 @@ export default function GuidePage() {
     ],
     [
       'Can people check in with the business card in the TNB app?',
-      'Yes. The desk camera reads it like a name tag. Only the name and email are used: an exact match checks the person in at once, a close one asks the desk to tap the right person, and the email is remembered so the next day is instant. The phone number and address on the card are never kept. Ask people to turn their screen brightness up.',
+      'Yes, that is the main way. The desk camera reads it. Only the name and email are used: an exact match checks the person in at once, a close one asks the desk to tap the right person, and the email is remembered so the next day is instant. The phone number and address on the card are never kept. Ask people to turn their screen brightness up.',
     ],
     [
       'Can people react and comment during a talk?',
@@ -188,7 +188,7 @@ export default function GuidePage() {
       'People join once on their phone with their staff number and first name. After that, arriving (a bonus for being early), sending feedback, answering polls, a photo on the wall and asking a question all earn points. Departments are ranked by average points per person, so a big team does not win by size. The secretariat are not ranked. Feedback stays anonymous: only the fact a form was sent counts. The projector has a Leaderboard view.',
     ],
     [
-      'What if a name tag will not scan?',
+      'What if a business card will not scan?',
       'Search for the person by name at the desk and check them in from the list. It takes a few seconds.',
     ],
     [

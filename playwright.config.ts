@@ -18,6 +18,9 @@ import { defineConfig, devices } from '@playwright/test';
  * project using devices['iPhone 13'] and run "npx playwright install webkit".
  */
 const PORT = Number(process.env.PLAYWRIGHT_PORT ?? 3200);
+
+/** Spec files that change state the whole portal shares. See projects below. */
+const SHARED_SWITCHES = /backup-qa-polls\.spec\.ts$/;
 const useDevServer = process.env.PLAYWRIGHT_DEV === '1';
 const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? `http://127.0.0.1:${PORT}`;
 
@@ -32,8 +35,20 @@ export default defineConfig({
   use: { baseURL, trace: 'on-first-retry' },
 
   projects: [
-    { name: 'phone', use: { ...devices['Pixel 7'], viewport: { width: 375, height: 812 } } },
-    { name: 'desktop', use: { ...devices['Desktop Chrome'] } },
+    {
+      name: 'phone',
+      use: { ...devices['Pixel 7'], viewport: { width: 375, height: 812 } },
+      testIgnore: SHARED_SWITCHES,
+    },
+    { name: 'desktop', use: { ...devices['Desktop Chrome'] }, testIgnore: SHARED_SWITCHES },
+    {
+      // Tests that flip a switch every page reads (Slido is down). They run
+      // on their own, after the others, so nothing sees the switch mid-way.
+      name: 'shared-switches',
+      use: { ...devices['Desktop Chrome'] },
+      testMatch: SHARED_SWITCHES,
+      dependencies: ['phone', 'desktop'],
+    },
   ],
 
   webServer: process.env.PLAYWRIGHT_BASE_URL

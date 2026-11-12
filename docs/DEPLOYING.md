@@ -105,6 +105,20 @@ Open the address with the event code (`https://...hosted.app/?pass=CODE`),
 sign in at `/admin` with the PIN, and upload the participant list on the
 Attendees page.
 
+## Dress rehearsal
+
+Once the live address works, run this from the repository folder. It reads
+only, so it is safe against the real database at any time:
+
+```sh
+REHEARSAL_PASS=<event code> npm run rehearsal -- https://<the portal address>
+```
+
+It checks the event pass, loads every attendee page, then sends 100 phones
+at once through the first minute after scanning the welcome QR, and prints
+response times. Run it the week before, and again on the morning of Day 1
+with `minInstances: 1` set.
+
 ## After setup
 
 - **Every push to `main` deploys by itself.** The App Hosting page shows each

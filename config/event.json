@@ -91,6 +91,10 @@
     "reactions": true,
     "comments": true
   },
+  "nameTags": {
+    "_readme": "personalQr false: one sided tags with the portal QR. Check in is by the TNB app business card, or by name at the desk.",
+    "personalQr": false
+  },
   "polls": [
     {
       "id": "ice-breaker",

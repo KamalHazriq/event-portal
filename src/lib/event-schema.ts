@@ -262,6 +262,13 @@ export const EventConfigSchema = z
     resources: z.array(ResourceSchema).default([]),
     surprise: SurpriseSchema.optional(),
     /**
+     * Name tags. With personalQr off (the default), each tag is one sided:
+     * the name and the portal QR, and the desk checks people in by their
+     * digital business card or by name. On adds a personal check in QR on
+     * the front and the portal QR on the back.
+     */
+    nameTags: z.object({ personalQr: z.boolean().default(false) }).prefault({}),
+    /**
      * Polls prepared ahead of time for the backup polls (Module 3). An admin
      * loads them with one button; they can also be typed in on the day.
      */

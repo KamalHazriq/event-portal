@@ -23,6 +23,23 @@ async function signIn(page: Page, label = 'desk-test'): Promise<void> {
   ).toBeVisible();
 }
 
+/**
+ * Whatever happens in a test, hand back to Slido afterwards. A failure half
+ * way must not leave every session page without its Slido button.
+ */
+test.afterEach(async ({ browser }, testInfo) => {
+  if (testInfo.project.name !== 'shared-switches') return;
+  const admin = await browser.newPage();
+  await signIn(admin, 'cleanup');
+  await admin.goto('/admin/polls');
+  const back = admin.getByRole('button', { name: 'Switch back to Slido' });
+  if (await back.isVisible()) {
+    await back.click();
+    await expect(admin.getByText('Off: attendees are using Slido')).toBeVisible();
+  }
+  await admin.close();
+});
+
 test('the backup admin pages need the PIN', async ({ page }) => {
   for (const path of ['/admin/qa', '/admin/polls']) {
     await page.goto(path);
@@ -33,7 +50,10 @@ test('the backup admin pages need the PIN', async ({ page }) => {
 test('Slido fails: the portal takes over Q&A and polls, then hands back', async ({
   browser,
 }, testInfo) => {
-  test.skip(testInfo.project.name !== 'desktop', 'Changes a shared switch, so runs once.');
+  test.skip(
+    testInfo.project.name !== 'shared-switches',
+    'Changes a shared switch, so runs once, on its own.',
+  );
   test.setTimeout(90_000);
 
   const admin = await browser.newPage();

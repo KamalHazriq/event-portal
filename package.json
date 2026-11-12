@@ -24,7 +24,8 @@
     "simulate:check-in": "tsx scripts/simulate-check-in.ts",
     "preview:static": "next build && tsx scripts/build-static-preview.ts",
     "demo:seed": "tsx scripts/seed-demo.ts",
-    "load:test": "tsx scripts/load-test.ts"
+    "load:test": "tsx scripts/load-test.ts",
+    "rehearsal": "tsx scripts/rehearsal.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1167.0",

@@ -190,24 +190,21 @@ test.describe('the digital business card in the TNB app', () => {
 });
 
 test.describe('printable assets', () => {
-  test('name tag fronts carry a personal QR code', async ({ page }) => {
+  // The test config leaves nameTags.personalQr off, as the real event does:
+  // check in is by business card or by name, so tags are one sided.
+  test('name tags are one sided, with the portal QR and no personal code', async ({ page }) => {
     await signIn(page);
-    await page.goto('/admin/name-tags?side=front');
+    await page.goto('/admin/name-tags');
 
     await expect(page.getByRole('heading', { name: 'Name tags', level: 1 })).toBeVisible();
-
-    // One QR per person, each labelled with whose tag it is.
-    const codes = page.getByRole('img', { name: /^Check in code for / });
-    expect(await codes.count()).toBeGreaterThan(50);
-  });
-
-  test('name tag backs carry the portal QR', async ({ page }) => {
-    await signIn(page);
-    await page.goto('/admin/name-tags?side=back');
+    await expect(page.getByText(/tags, one sided/)).toBeVisible();
 
     const codes = page.getByRole('img', { name: 'Event portal' });
     expect(await codes.count()).toBeGreaterThan(50);
     await expect(page.getByText('Scan for the agenda').first()).toBeVisible();
+    await expect(page.getByRole('img', { name: /^Check in code for / })).toHaveCount(0);
+    // No fronts and backs to line up.
+    await expect(page.getByRole('link', { name: 'Backs' })).toHaveCount(0);
   });
 
   test('the QR assets page offers a slide ready file and table tents', async ({ page }) => {

@@ -262,6 +262,15 @@
   text-align: center;
 }
 
+.tag-scan {
+  margin-top: 2mm;
+  font-size: 7pt;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #4b5563;
+}
+
 .tag-qr-back {
   width: 30mm;
   height: 30mm;
