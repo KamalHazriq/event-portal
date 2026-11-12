@@ -165,7 +165,22 @@ describe('the dummy attendee list that ships with the repo', () => {
   });
 
   it('uses only the departments from the real participant list', () => {
-    const real = ['CDOS', 'CSM', 'DDAI', 'D&I Div', 'GRC', 'EoTF', 'CCOO', 'TA', 'SPTx', 'CISO'];
+    const real = [
+      'TNS',
+      'CSM',
+      'CS',
+      'DAX',
+      'EOTF',
+      'CDOS',
+      'TA',
+      'GRC',
+      'ERP',
+      'ECS',
+      'Cores',
+      'SPTx',
+      'IO',
+      'CDIO',
+    ];
     for (const row of result.rows) expect(real, row.name).toContain(row.department);
   });
 

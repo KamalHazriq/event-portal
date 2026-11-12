@@ -118,25 +118,30 @@ const LAST_NAMES = [
  * department names here: the people are invented.
  */
 const DEPARTMENT_COUNTS: [string, number][] = [
-  ['CDOS', 36],
+  ['TNS', 13],
   ['CSM', 9],
-  ['DDAI', 6],
-  ['D&I Div', 5],
+  ['CS', 8],
+  ['DAX', 7],
+  ['EOTF', 7],
+  ['CDOS', 5],
+  ['TA', 5],
   ['GRC', 5],
-  ['EoTF', 5],
-  ['CCOO', 4],
-  ['TA', 4],
+  ['ERP', 4],
+  ['ECS', 4],
+  ['Cores', 4],
   ['SPTx', 3],
-  ['CISO', 1],
+  ['IO', 3],
+  ['CDIO', 1],
 ];
 
 /** The titles from the real list, in about the same mix. */
 const TITLE_COUNTS: [string, number][] = [
-  ['Lead', 49],
+  ['Lead', 45],
   ['Head', 15],
   ['Team Lead', 9],
-  ['Technical Expert', 3],
+  ['Technical Expert', 5],
   ['Senior Manager', 2],
+  ['SGM', 2],
 ];
 
 /** The secretariat are the SPTx team, so they need no department of their own. */

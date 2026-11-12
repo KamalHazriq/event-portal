@@ -485,3 +485,88 @@ export function PollView({
     </div>
   );
 }
+
+/* ------------------------------------------------------------ leaderboard */
+
+export function LeaderboardView({
+  people,
+  departments,
+  joinUrl,
+}: {
+  people: { id: string; rank: number; name: string; department: string; points: number }[];
+  departments: { department: string; rank: number; average: number }[];
+  joinUrl: string;
+}) {
+  const best = departments[0]?.average || 1;
+  return (
+    <div className="screen-fade grid h-full gap-[3vw] lg:grid-cols-[1.4fr_1fr_auto]">
+      <section className="min-h-0">
+        <h2 className="text-[clamp(1.4rem,2.6vw,3.6rem)] font-bold text-ink">Leaderboard</h2>
+        {people.length === 0 ? (
+          <p className="mt-[2vh] text-[clamp(1.1rem,2vw,2.8rem)] text-ink-soft">
+            No points yet. Scan to join, then take part.
+          </p>
+        ) : (
+          <ol className="mt-[2vh] space-y-[0.8vh]">
+            {people.map((row) => (
+              <li
+                key={row.id}
+                className="flex items-center gap-[1.2vw] rounded-[1vw] border border-line bg-surface px-[1.2vw] py-[0.5vh]"
+              >
+                <span
+                  className={`flex size-[clamp(2rem,3vw,4rem)] shrink-0 items-center justify-center rounded-full text-[clamp(1rem,1.8vw,2.4rem)] font-bold tabular-nums ${
+                    row.rank <= 3 ? 'bg-primary text-on-primary' : 'bg-muted text-ink'
+                  }`}
+                >
+                  {row.rank}
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-[clamp(1rem,1.6vw,2.2rem)] font-bold text-ink">
+                    {row.name}
+                  </span>
+                  <span className="block text-[clamp(0.8rem,1.05vw,1.4rem)] text-ink-soft">
+                    {row.department}
+                  </span>
+                </span>
+                <span className="text-[clamp(1.2rem,2vw,2.8rem)] font-bold tabular-nums text-ink">
+                  {row.points}
+                </span>
+              </li>
+            ))}
+          </ol>
+        )}
+      </section>
+
+      <section className="min-h-0">
+        <h2 className="text-[clamp(1.4rem,2.6vw,3.6rem)] font-bold text-ink">Departments</h2>
+        <ol className="mt-[2vh] space-y-[1.6vh]">
+          {departments.map((row) => (
+            <li key={row.department}>
+              <div className="flex items-baseline justify-between gap-[1vw] text-[clamp(1rem,1.7vw,2.4rem)]">
+                <span className="font-bold text-ink">
+                  {row.rank}. {row.department}
+                </span>
+                <span className="tabular-nums text-ink-soft">{row.average}</span>
+              </div>
+              <div className="mt-[0.6vh] h-[1vh] overflow-hidden rounded-full bg-muted">
+                <div
+                  className="h-full rounded-full bg-primary"
+                  style={{ width: `${Math.round((row.average / best) * 100)}%` }}
+                />
+              </div>
+            </li>
+          ))}
+        </ol>
+        <p className="mt-[2vh] text-[clamp(0.8rem,1.1vw,1.5rem)] text-ink-soft">
+          Average points per person on the list.
+        </p>
+      </section>
+
+      <ScanTile
+        url={joinUrl}
+        label="QR code that opens the leaderboard sign in"
+        caption="Scan to join"
+      />
+    </div>
+  );
+}

@@ -180,6 +180,10 @@ export default function GuidePage() {
       'Yes. The desk camera reads it like a name tag. Only the name and email are used: an exact match checks the person in at once, a close one asks the desk to tap the right person, and the email is remembered so the next day is instant. The phone number and address on the card are never kept. Ask people to turn their screen brightness up.',
     ],
     [
+      'How do the points and the leaderboard work?',
+      'People join once on their phone with their staff number and first name. After that, arriving (a bonus for being early), sending feedback, answering polls, a photo on the wall and asking a question all earn points. Departments are ranked by average points per person, so a big team does not win by size. The secretariat are not ranked. Feedback stays anonymous: only the fact a form was sent counts. The projector has a Leaderboard view.',
+    ],
+    [
       'What if a name tag will not scan?',
       'Search for the person by name at the desk and check them in from the list. It takes a few seconds.',
     ],

@@ -33,6 +33,7 @@ model Attendee {
   checkIns CheckIn[]
   feedback Feedback[]
   luckyDrawWins LuckyDrawWinner[]
+  devices  DeviceLink[]
 
   @@index([department])
   @@index([name])
@@ -209,6 +210,19 @@ model AdminActivity {
   at       DateTime @default(now())
 
   @@index([at])
+}
+
+/// Which person a phone belongs to, for points and the leaderboard. Set
+/// when someone signs in on their phone with their staff number. A person
+/// may have more than one phone; a phone belongs to one person.
+model DeviceLink {
+  deviceId   String   @id
+  attendeeId String
+  linkedAt   DateTime @default(now())
+
+  attendee Attendee @relation(fields: [attendeeId], references: [id], onDelete: Cascade)
+
+  @@index([attendeeId])
 }
 
 /// When each desk was last seen.

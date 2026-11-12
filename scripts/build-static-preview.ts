@@ -280,16 +280,25 @@ async function buildDemo(days: string[]): Promise<number> {
       file: `admin/${p ? `${p}/` : ''}index.html`,
     })),
     { url: '/screen', file: 'screen/index.html' },
-    ...['welcome', 'now-next', 'arrivals', 'countdown', 'lucky-draw', 'photos', 'qa', 'poll'].map(
-      (view) => ({
-        url: `/screen/${view}`,
-        file: `screen/${view}/index.html`,
-      }),
-    ),
+    ...[
+      'welcome',
+      'now-next',
+      'arrivals',
+      'countdown',
+      'lucky-draw',
+      'photos',
+      'qa',
+      'poll',
+      'leaderboard',
+    ].map((view) => ({
+      url: `/screen/${view}`,
+      file: `screen/${view}/index.html`,
+    })),
     ...forms.map((slug) => ({ url: `/feedback/${slug}`, file: `feedback/${slug}/index.html` })),
     { url: '/guide', file: 'guide/index.html' },
     { url: '/photos', file: 'photos/index.html' },
     { url: '/poll', file: 'poll/index.html' },
+    { url: '/leaderboard', file: 'leaderboard/index.html' },
     // The Q&A page for the first session that has Q&A, whatever the agenda.
     ...config.days
       .flatMap((day) => day.sessions)

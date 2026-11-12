@@ -86,7 +86,8 @@
     "photoWall": true,
     "committees": true,
     "qa": true,
-    "polls": true
+    "polls": true,
+    "leaderboard": true
   },
   "polls": [
     {

@@ -224,6 +224,8 @@ export const FeaturesSchema = z.object({
   committees: z.boolean().default(false),
   qa: z.boolean().default(false),
   polls: z.boolean().default(false),
+  /** Points for taking part, and a leaderboard on phones and the projector. */
+  leaderboard: z.boolean().default(false),
 });
 
 export const EventInfoSchema = z.object({

@@ -5,6 +5,7 @@ import type { ScreenPayload } from '../load';
 import {
   ArrivalsView,
   CountdownView,
+  LeaderboardView,
   LuckyDrawView,
   NowNextView,
   PhotosView,
@@ -53,6 +54,7 @@ export function ScreenFrame({
         {payload.view === 'photos' ? <PhotosView {...payload.props} /> : null}
         {payload.view === 'qa' ? <QuestionsView {...payload.props} /> : null}
         {payload.view === 'poll' ? <PollView {...payload.props} /> : null}
+        {payload.view === 'leaderboard' ? <LeaderboardView {...payload.props} /> : null}
       </div>
     </main>
   );

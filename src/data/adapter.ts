@@ -24,6 +24,7 @@ import type {
   CheckIn,
   CheckInMethod,
   CheckInWithAttendee,
+  DeviceLink,
   FeedbackEntry,
   FeedbackSummary,
   Headcount,
@@ -252,6 +253,16 @@ export interface ActivityRepository {
   seenSince(sinceIso: string): Promise<OperatorPresence[]>;
 }
 
+/** Phones signed in as people, for points and the leaderboard. */
+export interface PlayerRepository {
+  /** Signs this phone in as this person, replacing any earlier link. */
+  link(deviceId: string, attendeeId: string): Promise<void>;
+  unlink(deviceId: string): Promise<void>;
+  /** Who this phone belongs to, or null. */
+  ownerOf(deviceId: string): Promise<string | null>;
+  links(): Promise<DeviceLink[]>;
+}
+
 export interface DataAdapter {
   /** Shown on the admin health page, so it is obvious which store is live. */
   readonly name: string;
@@ -272,6 +283,7 @@ export interface DataAdapter {
   readonly questions: QuestionRepository;
   readonly polls: PollRepository;
   readonly activity: ActivityRepository;
+  readonly players: PlayerRepository;
 }
 
 /** The value of DATA_ADAPTER in .env.local. */

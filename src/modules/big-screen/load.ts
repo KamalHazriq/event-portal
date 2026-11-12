@@ -7,6 +7,8 @@
 import { getData } from '@/data';
 import { getEventConfig } from '@/lib/config';
 import { passLink } from '@/lib/event-pass-server';
+import { shortName } from '@/modules/points/logic';
+import { loadScoreboard } from '@/modules/points/server';
 import { logoFor, resolveTheme } from '@/lib/theme';
 import type { EventConfig } from '@/lib/event-schema';
 import { formatClock, formatShortDate, type EventNow } from '@/lib/time';
@@ -33,6 +35,7 @@ import {
 import type {
   ArrivalsView,
   CountdownView,
+  LeaderboardView,
   LuckyDrawView,
   NowNextView,
   PhotosView,
@@ -78,7 +81,8 @@ export type ScreenPayload =
   | { view: 'lucky-draw'; props: ComponentProps<typeof LuckyDrawView> }
   | { view: 'photos'; props: ComponentProps<typeof PhotosView> }
   | { view: 'qa'; props: ComponentProps<typeof QuestionsView> }
-  | { view: 'poll'; props: ComponentProps<typeof PollView> };
+  | { view: 'poll'; props: ComponentProps<typeof PollView> }
+  | { view: 'leaderboard'; props: ComponentProps<typeof LeaderboardView> };
 
 export async function loadScreenView(
   view: ScreenView,
@@ -272,6 +276,33 @@ export async function loadScreenView(
               }
             : null,
           voteUrl: passLink(`${config.event.portalUrl.replace(/\/$/, '')}/poll`),
+        },
+      };
+    }
+
+    case 'leaderboard': {
+      if (!config.features.leaderboard) return loadScreenView('welcome', now, settings);
+      const board = await loadScoreboard();
+      const name = (full: string) => (settings.hideNames ? shortName(full) : full);
+      return {
+        view,
+        props: {
+          people: board.people
+            // Eight fit a 1080p projector at a size the back row can read.
+            .slice(0, 8)
+            .map((row) => ({
+              id: row.attendeeId,
+              rank: row.rank,
+              name: name(row.name),
+              department: row.department,
+              points: row.points,
+            })),
+          departments: board.departments.slice(0, 8).map((row) => ({
+            department: row.department,
+            rank: row.rank,
+            average: row.average,
+          })),
+          joinUrl: passLink(`${config.event.portalUrl.replace(/\/$/, '')}/me`),
         },
       };
     }

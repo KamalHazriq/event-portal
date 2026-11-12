@@ -417,6 +417,29 @@ async function main(): Promise<void> {
   await data.polls.setStatus('config-breakout-topics', 'open');
   console.log(`polls:                ${config.polls.length} (invented answers)`);
 
+  /* ------------------------------------------------ leaderboard ------- */
+
+  // Most of the invented people sign in on the phone they answered polls
+  // with, so the leaderboard has points from arrivals and polls to show.
+  // Their feedback was sent from a made up phone per form, so those count
+  // too, which spreads the scores out the way real taking part would.
+  const feedbackDevices = new Map<string, string[]>();
+  for (const entry of await data.feedback.listAll()) {
+    const owner = everyone.find((p) => entry.deviceId.endsWith(`-${p.id}`));
+    if (!owner) continue;
+    feedbackDevices.set(owner.id, [...(feedbackDevices.get(owner.id) ?? []), entry.deviceId]);
+  }
+  let joined = 0;
+  for (const person of everyone) {
+    if (person.isSecretariat || random() > 0.7) continue;
+    await data.players.link(`demo-${person.id}`, person.id);
+    for (const deviceId of feedbackDevices.get(person.id) ?? []) {
+      await data.players.link(deviceId, person.id);
+    }
+    joined += 1;
+  }
+  console.log(`leaderboard:          ${joined} phones signed in`);
+
   /* ------------------------------------------------ photo wall --------- */
 
   // Invented images from scripts/demo-photos: gradients with a label, no
@@ -460,7 +483,7 @@ async function main(): Promise<void> {
     'Leadership pipeline review',
     'Pay equity review, terms of reference',
   ];
-  const DIVISIONS = ['CDOS', 'CSM', 'DDAI', 'GRC', 'TA'];
+  const DIVISIONS = ['TNS', 'CS', 'DAX', 'CSM', 'GRC'];
   const DECISIONS = ['Approved', 'Approved', 'Approved', 'Noted', 'Deferred'];
   for (const [id, count] of [
     ['svc', 8],

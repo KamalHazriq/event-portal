@@ -1,82 +1,82 @@
 no,staff_no,name,title,department,remark
-1,D10001,Mei Ling Nathan,Lead,CDOS,Vegetarian meal
-2,D10002,Lailatul Zainal,Lead,EoTF,
-3,D10003,Hafiz Mahmud,Lead,CDOS,Halal meal
-4,D10004,Bella Rahman,Lead,CDOS,Wheelchair access
-5,D10005,Shanti Fernandez,Lead,CSM,
-6,D10006,Suhaimi Jalil,Lead,D&I Div,Halal meal
-7,D10007,Hafiz Tai,Team Lead,CDOS,
-8,D10008,Kamala Mansor,Head,D&I Div,
-9,D10009,Bella Ibrahim,Lead,CSM,Joining Day 2 only
-10,D10010,Faizal Veerasamy,Lead,CCOO,Halal meal
-11,D10011,Zarina Osman,Lead,CDOS,
-12,D10012,Ramesh Abdullah,Team Lead,CSM,Joining Day 2 only
-13,D10013,Lailatul Veerasamy,Lead,CDOS,Wheelchair access
-14,D10014,Wan Ghani,Lead,CDOS,Vegetarian meal
-15,D10015,Arif Yahya,Lead,CCOO,Halal meal
-16,D10016,Imran Lai,Lead,CDOS,Wheelchair access
-17,D10017,Imran Ng,Head,CSM,
-18,D10018,Arif Raju,Lead,D&I Div,
-19,D10019,Rahim Raju,Lead,SPTx,Halal meal
-20,D10020,Maria Hashim,Lead,CDOS,
-21,D10021,Kamala Wong,Lead,DDAI,Halal meal
-22,D10022,Kamala Fernandez,Technical Expert,CSM,
-23,D10023,Mei Ling Tai,Lead,CDOS,Wheelchair access
-24,D10024,Zaki Rahman,Lead,CDOS,
-25,D10025,Ramesh Zainal,Lead,DDAI,
-26,D10026,Noraini Abdullah,Lead,CDOS,Wheelchair access
-27,D10027,Maria Mahmud,Team Lead,CDOS,Joining Day 2 only
-28,D10028,Omar Lai,Lead,GRC,
-29,D10029,Shanti Yahya,Head,CDOS,
-30,D10030,Kamala Musa,Team Lead,CDOS,
-31,D10031,Gopal Ng,Lead,CDOS,
-32,D10032,Nizam Lai,Lead,CDOS,Vegetarian meal
-33,D10033,Rahim Osman,Team Lead,TA,Vegetarian meal
-34,D10034,Vijay Nathan,Lead,DDAI,Joining Day 2 only
-35,D10035,Ramesh Chandran,Head,CDOS,Wheelchair access
-36,D10036,Tan Ibrahim,Team Lead,CDOS,Halal meal
+1,D10001,Mei Ling Nathan,Head,DAX,Vegetarian meal
+2,D10002,Lailatul Zainal,Lead,ECS,
+3,D10003,Hafiz Mahmud,Lead,CS,Halal meal
+4,D10004,Bella Rahman,Head,CSM,Wheelchair access
+5,D10005,Shanti Fernandez,Lead,EOTF,
+6,D10006,Suhaimi Jalil,Lead,GRC,Halal meal
+7,D10007,Hafiz Tai,Technical Expert,DAX,
+8,D10008,Kamala Mansor,Head,GRC,
+9,D10009,Bella Ibrahim,Lead,EOTF,Joining Day 2 only
+10,D10010,Faizal Veerasamy,Lead,Cores,Halal meal
+11,D10011,Zarina Osman,Lead,CSM,
+12,D10012,Ramesh Abdullah,Technical Expert,DAX,Joining Day 2 only
+13,D10013,Lailatul Veerasamy,Lead,CS,Wheelchair access
+14,D10014,Wan Ghani,Lead,DAX,Vegetarian meal
+15,D10015,Arif Yahya,Lead,Cores,Halal meal
+16,D10016,Imran Lai,Lead,CSM,Wheelchair access
+17,D10017,Imran Ng,Head,EOTF,
+18,D10018,Arif Raju,Lead,TA,
+19,D10019,Rahim Raju,Lead,IO,Halal meal
+20,D10020,Maria Hashim,Lead,CS,
+21,D10021,Kamala Wong,Lead,CDOS,Halal meal
+22,D10022,Kamala Fernandez,Senior Manager,EOTF,
+23,D10023,Mei Ling Tai,Lead,CSM,Wheelchair access
+24,D10024,Zaki Rahman,Lead,CSM,
+25,D10025,Ramesh Zainal,Head,CDOS,
+26,D10026,Noraini Abdullah,Lead,TNS,Wheelchair access
+27,D10027,Maria Mahmud,Technical Expert,CS,Joining Day 2 only
+28,D10028,Omar Lai,Lead,ERP,
+29,D10029,Shanti Yahya,Head,TNS,
+30,D10030,Kamala Musa,Technical Expert,CSM,
+31,D10031,Gopal Ng,Lead,TNS,
+32,D10032,Nizam Lai,Lead,TNS,Vegetarian meal
+33,D10033,Rahim Osman,Team Lead,SPTx,Vegetarian meal
+34,D10034,Vijay Nathan,Lead,CDOS,Joining Day 2 only
+35,D10035,Ramesh Chandran,Head,TNS,Wheelchair access
+36,D10036,Tan Ibrahim,Team Lead,DAX,Halal meal
 37,D10037,Gopal Nathan,Lead,GRC,Joining Day 2 only
 38,D10038,Shanti Sulaiman,Technical Expert,GRC,
-39,D10039,Noraini Kamaruddin,Lead,CDOS,Vegetarian meal
-40,D10040,Gopal Rahman,Head,CCOO,Halal meal
-41,D10041,Arif Mahmud,Lead,CDOS,Vegetarian meal
-42,D10042,Gopal Chin,Team Lead,CISO,Vegetarian meal
-43,D10043,Omar Musa,Lead,DDAI,Joining Day 2 only
-44,D10044,Nizam Musa,Lead,SPTx,
-45,D10045,Suhaimi Mahmud,Head,DDAI,
-46,D10046,Azman Wong,Lead,CDOS,
-47,D10047,Jaya Rahman,Lead,TA,Vegetarian meal
-48,D10048,Lailatul Baskaran,Lead,CDOS,Halal meal
-49,D10049,Noraini Veerasamy,Head,EoTF,Vegetarian meal
-50,D10050,Chong Mansor,Head,CDOS,Vegetarian meal
-51,D10051,Bella Chandran,Lead,CDOS,
-52,D10052,Zulkifli Abdullah,Lead,CDOS,
-53,D10053,Nizam Samad,Head,EoTF,
-54,D10054,Rina Fernandez,Lead,EoTF,Joining Day 2 only
-55,D10055,Devi Ghani,Head,GRC,Vegetarian meal
-56,D10056,Jaya Samad,Lead,CDOS,
-57,D10057,Daniel Fernandez,Lead,SPTx,Wheelchair access
-58,D10058,Zulkifli Chandran,Lead,CDOS,Joining Day 2 only
-59,D10059,Gopal Abdullah,Lead,CCOO,
-60,D10060,Zarina Hashim,Head,GRC,
-61,D10061,Nizam Daud,Lead,DDAI,Vegetarian meal
-62,D10062,Salleh Yap,Head,CDOS,Wheelchair access
-63,D10063,Tan Ng,Head,CDOS,Joining Day 2 only
-64,D10064,Kamala Samad,Team Lead,CDOS,Wheelchair access
-65,D10065,Aisyah Lai,Lead,CSM,
-66,D10066,Khairul Raju,Head,CDOS,Vegetarian meal
-67,D10067,Pavithra Tai,Lead,CDOS,
-68,D10068,Rina Hashim,Senior Manager,CDOS,Halal meal
-69,D10069,Ida Mahmud,Lead,CSM,Joining Day 2 only
-70,D10070,Siti Hashim,Senior Manager,TA,
-71,D10071,Rina Ibrahim,Lead,CDOS,
-72,D10072,Rina Tai,Lead,CSM,
-73,D10073,Jaya Lai,Head,TA,
-74,D10074,Aisyah Chandran,Team Lead,CSM,
-75,D10075,Maria Shariff,Lead,EoTF,Joining Day 2 only
-76,D10076,Gopal Fernandez,Lead,D&I Div,
-77,D10077,Aisyah Raju,Lead,D&I Div,
-78,D10078,Wan Rahman,Technical Expert,CDOS,Wheelchair access
+39,D10039,Noraini Kamaruddin,Lead,CSM,Vegetarian meal
+40,D10040,Gopal Rahman,Team Lead,ECS,Halal meal
+41,D10041,Arif Mahmud,Lead,CS,Vegetarian meal
+42,D10042,Gopal Chin,Team Lead,CDIO,Vegetarian meal
+43,D10043,Omar Musa,Lead,TA,Joining Day 2 only
+44,D10044,Nizam Musa,Lead,IO,
+45,D10045,Suhaimi Mahmud,Head,CDOS,
+46,D10046,Azman Wong,Lead,CSM,
+47,D10047,Jaya Rahman,Lead,Cores,Vegetarian meal
+48,D10048,Lailatul Baskaran,Lead,TNS,Halal meal
+49,D10049,Noraini Veerasamy,Head,ECS,Vegetarian meal
+50,D10050,Chong Mansor,Head,CS,Vegetarian meal
+51,D10051,Bella Chandran,Lead,CS,
+52,D10052,Zulkifli Abdullah,Lead,TNS,
+53,D10053,Nizam Samad,Team Lead,ERP,
+54,D10054,Rina Fernandez,Lead,ECS,Joining Day 2 only
+55,D10055,Devi Ghani,Head,ERP,Vegetarian meal
+56,D10056,Jaya Samad,Lead,CSM,
+57,D10057,Daniel Fernandez,Lead,IO,Wheelchair access
+58,D10058,Zulkifli Chandran,Lead,TNS,Joining Day 2 only
+59,D10059,Gopal Abdullah,Head,Cores,
+60,D10060,Zarina Hashim,Team Lead,GRC,
+61,D10061,Nizam Daud,Lead,TA,Vegetarian meal
+62,D10062,Salleh Yap,Head,CS,Wheelchair access
+63,D10063,Tan Ng,Team Lead,TNS,Joining Day 2 only
+64,D10064,Kamala Samad,Team Lead,TNS,Wheelchair access
+65,D10065,Aisyah Lai,Lead,CDOS,
+66,D10066,Khairul Raju,Head,TNS,Vegetarian meal
+67,D10067,Pavithra Tai,Lead,DAX,
+68,D10068,Rina Hashim,SGM,TNS,Halal meal
+69,D10069,Ida Mahmud,Lead,EOTF,Joining Day 2 only
+70,D10070,Siti Hashim,SGM,SPTx,
+71,D10071,Rina Ibrahim,Lead,TNS,
+72,D10072,Rina Tai,Lead,EOTF,
+73,D10073,Jaya Lai,Head,SPTx,
+74,D10074,Aisyah Chandran,Team Lead,EOTF,
+75,D10075,Maria Shariff,Lead,ERP,Joining Day 2 only
+76,D10076,Gopal Fernandez,Lead,TA,
+77,D10077,Aisyah Raju,Lead,TA,
+78,D10078,Wan Rahman,Senior Manager,DAX,Wheelchair access
 79,S90001,Kamala Mahmud,Registration Desk,SPTx,Secretariat
 80,S90002,Daniel Zainal,Secretariat,SPTx,Secretariat
 81,S90003,Rina Samad,Secretariat,SPTx,Secretariat

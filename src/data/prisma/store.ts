@@ -19,6 +19,7 @@ import type {
   ImportRepository,
   LuckyDrawRepository,
   PhotoRepository,
+  PlayerRepository,
   PollRepository,
   QuestionRepository,
   SettingsRepository,
@@ -1015,6 +1016,34 @@ export function createPrismaAdapter(
     },
   };
 
+  const players: PlayerRepository = {
+    async link(deviceId, attendeeId) {
+      await prisma.deviceLink.upsert({
+        where: { deviceId },
+        create: { deviceId, attendeeId },
+        update: { attendeeId, linkedAt: new Date() },
+      });
+    },
+
+    async unlink(deviceId) {
+      await prisma.deviceLink.deleteMany({ where: { deviceId } });
+    },
+
+    async ownerOf(deviceId) {
+      const row = await prisma.deviceLink.findUnique({ where: { deviceId } });
+      return row?.attendeeId ?? null;
+    },
+
+    async links() {
+      const rows = await prisma.deviceLink.findMany();
+      return rows.map((row) => ({
+        deviceId: row.deviceId,
+        attendeeId: row.attendeeId,
+        linkedAt: row.linkedAt.toISOString(),
+      }));
+    },
+  };
+
   return {
     name: options.name,
 
@@ -1038,6 +1067,7 @@ export function createPrismaAdapter(
 
     async reset() {
       // Child rows first, so foreign keys stay happy.
+      await prisma.deviceLink.deleteMany();
       await prisma.luckyDrawWinner.deleteMany();
       await prisma.feedback.deleteMany();
       await prisma.checkIn.deleteMany();
@@ -1067,5 +1097,6 @@ export function createPrismaAdapter(
     questions,
     polls,
     activity,
+    players,
   };
 }

@@ -113,6 +113,8 @@ export const LIMITS = {
   qaVote: { limit: 120, windowMs: 10 * 60 * 1000 },
   /** Answering polls from one phone. One answer per poll is the real limit. */
   pollVote: { limit: 60, windowMs: 10 * 60 * 1000 },
+  /** Signing in for points from one phone. Stops someone trying staff numbers. */
+  join: { limit: 10, windowMs: 10 * 60 * 1000 },
   /** Photo uploads from one phone. Ten is the allowance; this stops a loop. */
   photoUpload: { limit: 20, windowMs: 10 * 60 * 1000 },
   /** Pressing Draw. Generous, but stops a stuck button filling the winners list. */

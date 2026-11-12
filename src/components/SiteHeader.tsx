@@ -23,6 +23,7 @@ export function SiteHeader({
   if (features.schedule) items.push({ href: '/agenda', label: 'Agenda' });
   if (features.resources) items.push({ href: '/resources', label: 'Resources' });
   if (features.photoWall) items.push({ href: '/photos', label: 'Photos' });
+  if (features.leaderboard) items.push({ href: '/leaderboard', label: 'Leaderboard' });
 
   const dates =
     event.startDate === event.endDate

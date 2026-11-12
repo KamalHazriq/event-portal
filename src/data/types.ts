@@ -234,6 +234,9 @@ export type Poll = {
 };
 
 /** One phone's answer: option numbers as text, or the word for a word cloud. */
+/** A phone signed in as a person, for points. */
+export type DeviceLink = { deviceId: string; attendeeId: string; linkedAt: string };
+
 export type PollVote = { pollId: string; deviceId: string; choices: string[]; at: string };
 
 /* ------------------------------------------------------ the secretariat */
