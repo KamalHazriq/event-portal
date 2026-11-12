@@ -34,7 +34,29 @@ migration to run.
 1. In the Firebase console, create a project, then upgrade it to Blaze.
 2. Add the budget alert.
 
-### 3. Save the three secrets
+### 3. Save the secrets
+
+The app uses Neon for two things: Postgres, and Object Storage for the photo
+wall (the `assets` bucket in `neon.ts`). Get every value at once on your own
+computer, in the repository folder:
+
+```sh
+npm i -g neon@latest
+neon login                 # signs in with your browser
+neon env pull              # writes the values into .env.local
+```
+
+Then save each one as a Firebase secret (each command asks for the value):
+
+| Secret                         | Value from .env.local   |
+| ------------------------------ | ----------------------- |
+| `portal-database-url`          | `DATABASE_URL`          |
+| `portal-database-url-unpooled` | `DATABASE_URL_UNPOOLED` |
+| `portal-s3-access-key-id`      | `AWS_ACCESS_KEY_ID`     |
+| `portal-s3-secret-access-key`  | `AWS_SECRET_ACCESS_KEY` |
+| `portal-s3-endpoint`           | `AWS_ENDPOINT_URL_S3`   |
+
+plus the two of your own: `portal-admin-pin` and `portal-event-pass`.
 
 Open **Google Cloud Shell** (the `>_` button at the top of
 console.cloud.google.com). It already has the Firebase tools. Run these one
@@ -42,7 +64,11 @@ at a time. Each asks you to paste the value:
 
 ```sh
 firebase use YOUR-PROJECT-ID
-firebase apphosting:secrets:set portal-database-url   # the Neon string
+firebase apphosting:secrets:set portal-database-url
+firebase apphosting:secrets:set portal-database-url-unpooled
+firebase apphosting:secrets:set portal-s3-access-key-id
+firebase apphosting:secrets:set portal-s3-secret-access-key
+firebase apphosting:secrets:set portal-s3-endpoint
 firebase apphosting:secrets:set portal-admin-pin      # the secretariat PIN
 firebase apphosting:secrets:set portal-event-pass     # the event code
 ```
@@ -62,7 +88,7 @@ scan.
 4. If it says the backend cannot read the secrets, run in Cloud Shell:
 
    ```sh
-   firebase apphosting:secrets:grantaccess portal-database-url,portal-admin-pin,portal-event-pass --backend portal
+   firebase apphosting:secrets:grantaccess portal-database-url,portal-database-url-unpooled,portal-s3-access-key-id,portal-s3-secret-access-key,portal-s3-endpoint,portal-admin-pin,portal-event-pass --backend portal
    ```
 
    then start a new rollout from the App Hosting page.

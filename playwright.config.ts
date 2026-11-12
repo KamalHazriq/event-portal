@@ -50,6 +50,10 @@ export default defineConfig({
           // not the real one, which changes as the event is planned.
           EVENT_CONFIG_PATH: 'config/event.test.json',
           ALLOW_TIME_OVERRIDE: 'true',
+          // The tests seed and reset data, so they run on local SQLite unless
+          // a run asks for Postgres. Next does not override names already
+          // set, so a .env.local pointing at Neon cannot leak in.
+          DATA_ADAPTER: process.env.DATA_ADAPTER ?? 'sqlite',
           // Next fills in .env.local only for names it does not already have,
           // so this wins and the tests do not depend on anyone's local PIN.
           ADMIN_PIN: process.env.E2E_ADMIN_PIN ?? '246810',

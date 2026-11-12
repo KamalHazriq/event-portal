@@ -25,6 +25,7 @@ const sqlModulePath = path.join(root, 'src', 'data', 'postgres', 'schema-sql.ts'
 const EXTRA_STATEMENTS: string[] = [
   // Added after the first hosted setup could exist.
   `ALTER TABLE "Attendee" ADD COLUMN IF NOT EXISTS "email" TEXT NOT NULL DEFAULT '';`,
+  `ALTER TABLE "Photo" ADD COLUMN IF NOT EXISTS "storageKey" TEXT NOT NULL DEFAULT '';`,
 ];
 
 mkdirSync(path.dirname(targetPath), { recursive: true });

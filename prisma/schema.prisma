@@ -134,8 +134,12 @@ model Photo {
   width      Int
   height     Int
   sizeBytes  Int
+  /// Empty when the photo is in object storage; see storageKey.
   image      Bytes
   thumbnail  Bytes
+  /// "photos/<id>" when the bytes are in the Neon bucket, as <key>.jpg and
+  /// <key>-thumb.jpg. Empty when they are in the two columns above.
+  storageKey String    @default("")
   createdAt  DateTime  @default(now())
   reviewedAt DateTime?
   reviewedBy String    @default("")

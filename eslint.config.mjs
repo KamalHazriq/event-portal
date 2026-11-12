@@ -38,7 +38,15 @@ const config = [
         {
           patterns: [
             {
-              group: ['@prisma/client', '@prisma/adapter-*', 'better-sqlite3', 'pg', '@/generated/*'],
+              group: [
+                '@prisma/client',
+                '@prisma/adapter-*',
+                'better-sqlite3',
+                'pg',
+                '@neondatabase/*',
+                '@aws-sdk/*',
+                '@/generated/*',
+              ],
               message:
                 'Only the stores in src/data may touch Prisma. Everything else goes through the adapter: import { getData } from "@/data".',
             },
@@ -54,6 +62,7 @@ const config = [
       'src/data/sqlite/**',
       'src/data/postgres/**',
       'src/data/prisma/**',
+      'src/data/object-storage/**',
       'scripts/**',
       'prisma*.ts',
     ],

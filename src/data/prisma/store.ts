@@ -9,6 +9,8 @@
  */
 import type { PrismaClient } from '@prisma/client';
 
+import type { ObjectStore } from '../object-storage';
+
 import type {
   ActivityRepository,
   AttendeeRepository,
@@ -216,6 +218,11 @@ export type PrismaStoreOptions = {
    * to be asked, or the desk search for "azlan" would miss "Azlan".
    */
   caseInsensitiveSearch: boolean;
+  /**
+   * Where photo bytes go. With a bucket, the row keeps only the key; without
+   * one, the bytes are stored in the row as before.
+   */
+  objects?: ObjectStore | null;
 };
 
 export function createPrismaAdapter(
@@ -707,22 +714,46 @@ export function createPrismaAdapter(
     reviewedBy: row.reviewedBy,
   });
 
+  const objects = options.objects ?? null;
+  const objectKey = (storageKey: string, size: 'full' | 'thumb') =>
+    `${storageKey}${size === 'thumb' ? '-thumb' : ''}.jpg`;
+  const EMPTY = Buffer.alloc(0);
+
   const photos: PhotoRepository = {
     async add(input) {
-      const row = await prisma.photo.create({
-        data: {
-          id: newId(),
-          deviceId: input.deviceId,
-          caption: plainText(input.caption, 120),
-          width: input.width,
-          height: input.height,
-          sizeBytes: input.image.byteLength,
-          image: Buffer.from(input.image),
-          thumbnail: Buffer.from(input.thumbnail),
-          createdAt: input.at ? new Date(input.at) : new Date(),
-        },
-        select: PHOTO_FIELDS,
-      });
+      const id = newId();
+      let storageKey = '';
+      if (objects) {
+        storageKey = `photos/${id}`;
+        await objects.put(objectKey(storageKey, 'full'), input.image, 'image/jpeg');
+        await objects.put(objectKey(storageKey, 'thumb'), input.thumbnail, 'image/jpeg');
+      }
+      const row = await prisma.photo
+        .create({
+          data: {
+            id,
+            deviceId: input.deviceId,
+            caption: plainText(input.caption, 120),
+            width: input.width,
+            height: input.height,
+            sizeBytes: input.image.byteLength,
+            image: storageKey ? EMPTY : Buffer.from(input.image),
+            thumbnail: storageKey ? EMPTY : Buffer.from(input.thumbnail),
+            storageKey,
+            createdAt: input.at ? new Date(input.at) : new Date(),
+          },
+          select: PHOTO_FIELDS,
+        })
+        .catch(async (error: unknown) => {
+          // No row means nothing points at the files, so do not leave them.
+          if (objects && storageKey) {
+            await Promise.allSettled([
+              objects.remove(objectKey(storageKey, 'full')),
+              objects.remove(objectKey(storageKey, 'thumb')),
+            ]);
+          }
+          throw error;
+        });
       return toPhoto(row);
     },
 
@@ -742,9 +773,19 @@ export function createPrismaAdapter(
     async image(id, size) {
       const row = await prisma.photo.findUnique({
         where: { id },
-        select: { ...PHOTO_FIELDS, image: size === 'full', thumbnail: size === 'thumb' },
+        select: {
+          ...PHOTO_FIELDS,
+          storageKey: true,
+          image: size === 'full',
+          thumbnail: size === 'thumb',
+        },
       });
       if (!row) return null;
+      if (row.storageKey) {
+        if (!objects) return null;
+        const stored = await objects.get(objectKey(row.storageKey, size));
+        return stored ? { photo: toPhoto(row), bytes: stored } : null;
+      }
       const bytes = size === 'full' ? row.image : row.thumbnail;
       if (!bytes) return null;
       return { photo: toPhoto(row), bytes: new Uint8Array(bytes) };
@@ -760,7 +801,14 @@ export function createPrismaAdapter(
     },
 
     async remove(id) {
+      const row = await prisma.photo.findUnique({ where: { id }, select: { storageKey: true } });
       const deleted = await prisma.photo.deleteMany({ where: { id } });
+      if (row?.storageKey && objects) {
+        await Promise.allSettled([
+          objects.remove(objectKey(row.storageKey, 'full')),
+          objects.remove(objectKey(row.storageKey, 'thumb')),
+        ]);
+      }
       return deleted.count > 0;
     },
   };

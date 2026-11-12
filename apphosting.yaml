@@ -1,8 +1,9 @@
 # Firebase App Hosting settings for the hosted portal.
 # Step by step setup: docs/DEPLOYING.md.
 #
-# Nothing secret is written here. The three secrets are stored in Google
-# Cloud Secret Manager and only their names appear below.
+# Nothing secret is written here. The secrets are stored in Google Cloud
+# Secret Manager and only their names appear below. Their values come from
+# Neon: run `neon env pull` on your computer (see docs/DEPLOYING.md).
 
 runConfig:
   # 0 costs nothing when idle, but the first visitor after a quiet spell
@@ -23,9 +24,29 @@ env:
     value: config/event.json
     availability: [RUNTIME]
 
-  # Neon connection string, postgresql://...
+  # Neon Postgres. The pooled string for the app's queries, and the direct
+  # one for creating the tables on first start.
   - variable: DATABASE_URL
     secret: portal-database-url
+    availability: [RUNTIME]
+  - variable: DATABASE_URL_UNPOOLED
+    secret: portal-database-url-unpooled
+    availability: [RUNTIME]
+
+  # Neon Object Storage, for the photo wall. The bucket ("assets") is
+  # declared in neon.ts. The endpoint is kept as a secret only because it
+  # names the branch; the region is the project's (Singapore).
+  - variable: AWS_ACCESS_KEY_ID
+    secret: portal-s3-access-key-id
+    availability: [RUNTIME]
+  - variable: AWS_SECRET_ACCESS_KEY
+    secret: portal-s3-secret-access-key
+    availability: [RUNTIME]
+  - variable: AWS_ENDPOINT_URL_S3
+    secret: portal-s3-endpoint
+    availability: [RUNTIME]
+  - variable: AWS_REGION
+    value: ap-southeast-1
     availability: [RUNTIME]
 
   # The secretariat PIN for /admin.
