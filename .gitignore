@@ -63,3 +63,4 @@ npm-debug.log*
 # the static preview build output
 /out/
 /config/.event.preview.json
+.neon
