@@ -40,12 +40,11 @@ export function ScreenFrame({
   return (
     <main
       id="main"
-      className="screen-glow relative flex h-dvh w-full flex-col overflow-hidden px-[5vw] pb-[5vh] pt-[7vh]"
+      className="screen-glow relative flex h-dvh w-full flex-col overflow-hidden px-[5vw] pb-[5vh] pt-[9vh]"
     >
       <AutoRefresh intervalMs={SCREEN_POLL_MS} />
-      {payload.view === 'arrivals' ? (
-        <div aria-hidden="true" className="arrivals-bg pointer-events-none absolute inset-0" />
-      ) : null}
+      {/* The same calm navy backdrop behind every view. */}
+      <div aria-hidden="true" className="screen-bg pointer-events-none absolute inset-0" />
 
       <div className="absolute inset-x-[5vw] top-[2.5vh] z-20 flex items-center justify-between text-[clamp(0.8rem,1.2vw,1.6rem)] text-ink-soft">
         <span className="flex items-center gap-[1vw]">

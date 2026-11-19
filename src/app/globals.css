@@ -1191,7 +1191,7 @@ label.bg-primary:hover::after {
  * the projector's graphics chip handles without effort.
  * ---------------------------------------------------------------------- */
 
-.arrivals-bg {
+.screen-bg {
   z-index: 0;
   background:
     radial-gradient(
