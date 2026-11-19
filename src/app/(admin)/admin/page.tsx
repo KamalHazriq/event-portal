@@ -7,6 +7,9 @@ import { Icon, type IconName } from '@/components/icons';
 import { getData } from '@/data';
 import { requireAdmin } from '@/lib/admin-guard';
 import { getEventConfig } from '@/lib/config';
+import { STYLE_INFO, STYLES } from '@/lib/look';
+import { setStyle } from '@/modules/look/actions';
+import { readStyle } from '@/modules/look/server';
 import { isPlaceholderUrl, looksUnconfirmed } from '@/lib/placeholder';
 import { formatClock, formatShortDate, resolveEventNow } from '@/lib/time';
 import { readBackupMode } from '@/modules/backup/server';
@@ -147,6 +150,7 @@ export default async function AdminHomePage() {
     ...(isPlaceholderUrl(config.event.portalUrl) ? ['The portal address for the QR codes.'] : []),
   ];
 
+  const style = await readStyle();
   const rate = headcount ? arrivalRate(headcount.arrived, headcount.expected) : null;
   const answers = summaries.reduce((sum, s) => sum + s.responses, 0);
   const rated = summaries.filter((s) => s.averageRating !== null);
@@ -335,6 +339,44 @@ export default async function AdminHomePage() {
           </ul>
         </section>
       ))}
+
+      <section aria-labelledby="look" className="rounded-xl border border-line bg-surface p-5">
+        <h2 id="look" className="font-bold text-ink">
+          Portal style
+        </h2>
+        <p className="mt-1 text-sm text-ink-soft">
+          How the whole portal is set: attendee pages, this console and the big screen. The colours
+          stay the same; switch back any time.
+        </p>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          {STYLES.map((option) => {
+            const current = option === style;
+            return (
+              <form key={option} action={setStyle}>
+                <input type="hidden" name="style" value={option} />
+                <button
+                  type="submit"
+                  disabled={current}
+                  aria-pressed={current}
+                  className={`flex w-full flex-col items-start gap-1 rounded-lg border p-4 text-left ${
+                    current ? 'border-primary bg-primary/10' : 'border-line hover:border-primary'
+                  }`}
+                >
+                  <span className="font-semibold text-ink">
+                    {STYLE_INFO[option].title}
+                    {current ? (
+                      <span className="ml-2 text-xs font-bold uppercase tracking-[0.12em] text-primary">
+                        In use
+                      </span>
+                    ) : null}
+                  </span>
+                  <span className="text-sm text-ink-soft">{STYLE_INFO[option].description}</span>
+                </button>
+              </form>
+            );
+          })}
+        </div>
+      </section>
 
       <section className="grid gap-3 md:grid-cols-[2fr_1fr]">
         <Link

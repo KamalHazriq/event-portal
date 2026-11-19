@@ -1,15 +1,35 @@
 import Link from 'next/link';
 
 import { SiteHeader } from '@/components/SiteHeader';
+import { RULED_CONTAINER, RuledFooter, RuledHeader } from '@/components/ruled/RuledChrome';
+import { readStyle } from '@/modules/look/server';
 import { getEventConfig } from '@/lib/config';
 import { isPlaceholderUrl } from '@/lib/placeholder';
 import { markFor, resolveTheme } from '@/lib/theme';
 
 /** The shell every attendee page sits in. */
-export default function PortalLayout({ children }: { children: React.ReactNode }) {
+export default async function PortalLayout({ children }: { children: React.ReactNode }) {
   const config = getEventConfig();
   const { branding } = config;
   const theme = resolveTheme(branding, 'portal');
+
+  if ((await readStyle()) === 'ruled') {
+    return (
+      // overflow-x: clip lets the home page's hero run edge to edge without
+      // ever making the page scroll sideways.
+      <div className="flex min-h-dvh w-full flex-col overflow-x-clip">
+        <RuledHeader config={config} mark={markFor(branding, theme)} />
+        <main
+          id="main"
+          // Reading pages keep a comfortable width; the home page opts out.
+          className={`${RULED_CONTAINER} flex-1 pb-8 pt-8 lg:pt-12 [&>*]:mx-auto [&>*]:w-full [&>*]:max-w-3xl`}
+        >
+          {children}
+        </main>
+        <RuledFooter config={config} />
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-dvh w-full flex-col">

@@ -4,6 +4,12 @@ import { ConfigErrorScreen } from '@/components/ConfigErrorScreen';
 import { tryLoadEventConfig } from '@/lib/config';
 import { buildThemeCss, resolveTheme } from '@/lib/theme';
 
+// The Ruled style's typefaces, bundled with the site (nothing loads from an
+// outside service). A browser only downloads them when a page uses them.
+import '@fontsource-variable/host-grotesk';
+import '@fontsource-variable/instrument-sans';
+import { readStyle } from '@/modules/look/server';
+
 import './globals.css';
 
 /**
@@ -48,7 +54,7 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const result = tryLoadEventConfig();
 
   // A broken config file must not produce a stack trace on a phone in a
@@ -65,9 +71,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
   const config = result.config;
   const theme = resolveTheme(config.branding, 'portal');
+  // The style layer over the colours: see src/lib/look.ts.
+  const style = await readStyle();
 
   return (
-    <html lang="en" data-theme={theme}>
+    <html lang="en" data-theme={theme} data-style={style}>
       <head>
         {/* Theme tokens from config/event.json. See src/lib/theme.ts. */}
         <style>{buildThemeCss(config.branding)}</style>

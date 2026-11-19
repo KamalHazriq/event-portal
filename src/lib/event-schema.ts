@@ -114,6 +114,12 @@ export const BrandingSchema = z.object({
   defaultTheme: z.enum(['light', 'dark']).default('light'),
   /** The projector often wants the opposite of the phone theme. */
   bigScreenTheme: z.enum(['light', 'dark']).default('dark'),
+  /**
+   * The style over the colours: "classic" (glows, lifted cards) or "ruled"
+   * (new typefaces, flat outlined cards). The default; the secretariat can
+   * switch it from the dashboard. See src/lib/look.ts.
+   */
+  style: z.enum(['classic', 'ruled']).default('classic'),
 });
 
 /* ----------------------------------------------------------------- people */

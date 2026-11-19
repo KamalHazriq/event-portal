@@ -41,6 +41,7 @@
     },
     "defaultTheme": "dark",
     "bigScreenTheme": "dark",
+    "style": "ruled",
     "themes": {
       "light": {
         "background": "#F3F8F8",

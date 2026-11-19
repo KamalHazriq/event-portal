@@ -7,6 +7,8 @@ import { logoFor, resolveTheme } from '@/lib/theme';
 import { formatLongDate, formatShortDate, resolveEventNow } from '@/lib/time';
 import { AutoRefresh } from '@/components/AutoRefresh';
 import { readBackupMode } from '@/modules/backup/server';
+import { RuledHome } from '@/modules/look/RuledHome';
+import { readStyle } from '@/modules/look/server';
 import { DevTimeNotice } from '@/modules/schedule/components/DevTimeNotice';
 import { NowNextPanel } from '@/modules/schedule/components/NowNextPanel';
 import { SessionList } from '@/modules/schedule/components/SessionCard';
@@ -61,6 +63,23 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
       ? (focusDay?.sessions ?? []).filter((s) => sessionStatus(s, now) !== 'past')
       : (focusDay?.sessions ?? [])
   ).slice(0, HOME_SESSIONS);
+
+  if ((await readStyle()) === 'ruled') {
+    return (
+      <>
+        <AutoRefresh enabled={!now.isOverride} />
+        <RuledHome
+          notice={<DevTimeNotice now={now} timezone={config.event.timezone} />}
+          config={config}
+          now={now}
+          nowAndNext={nowAndNext}
+          eventFeedbackOpen={eventFeedbackOpen}
+          eventFeedbackHref={`/feedback/${EVENT_FORM_SLUG}${linkSuffix}`}
+          pollOpen={pollOpen}
+        />
+      </>
+    );
+  }
 
   return (
     <div className="space-y-6 lg:!max-w-none">

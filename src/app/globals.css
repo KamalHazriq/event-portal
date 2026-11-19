@@ -838,3 +838,116 @@ label.bg-primary:hover::after {
     transform: translateY(-75vh) scale(1.4);
   }
 }
+
+/* ===========================================================================
+ * The "Ruled" style (src/lib/look.ts): the same theme colours, set
+ * differently. Host Grotesk for display, Instrument Sans for reading, flat
+ * cards outlined in a firm rule, soft 8 px corners, one background, and no
+ * glows, shadows or lifts. Everything below applies only while
+ * <html data-style="ruled">, so Classic is untouched.
+ * ======================================================================== */
+
+:root[data-style='ruled'] {
+  --font-body: 'Instrument Sans Variable', 'Segoe UI', Arial, Helvetica, sans-serif;
+  --font-display: 'Host Grotesk Variable', 'Segoe UI', Arial, Helvetica, sans-serif;
+  /* Soft corners: one radius for surfaces and controls. */
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 8px;
+  --radius-2xl: 10px;
+  /* The rule that outlines every content block. */
+  --rule: 1.5px;
+}
+
+/* One background: no drifting glows or grid behind the page. */
+[data-style='ruled'] body::before,
+[data-style='ruled'] body::after {
+  display: none;
+}
+
+/* Display type at a steady 500, tight, with no accent bar under titles. */
+[data-style='ruled'] :is(h1, h2, h3) {
+  font-weight: 500;
+  letter-spacing: -0.015em;
+}
+[data-style='ruled'] h1 {
+  letter-spacing: -0.02em;
+}
+[data-style='ruled'] main h1::after {
+  display: none;
+}
+
+/* Flat cards, outlined in the rule. */
+[data-style='ruled'] .border {
+  border-width: var(--rule);
+}
+[data-style='ruled'] .rounded-xl.border,
+[data-style='ruled'] .rounded-xl.border.bg-surface {
+  box-shadow: none;
+  background-image: none;
+}
+
+/* Buttons: solid fills, no glow, no sweep of light. Hover darkens a step. */
+[data-style='ruled'] :is(a, button, label).bg-primary {
+  box-shadow: none;
+}
+[data-style='ruled'] :is(a, button, label).bg-primary::after {
+  display: none;
+}
+[data-style='ruled'] :is(a, button, label).bg-primary:hover:not(:disabled) {
+  transform: none;
+  box-shadow: none;
+  background-color: color-mix(in srgb, var(--c-primary) 86%, black);
+}
+
+/* Linked cards answer the pointer with their rule, not a lift. */
+[data-style='ruled'] :is(.card-hover, a.rounded-xl, a.rounded-lg.border):hover {
+  transform: none;
+  box-shadow: none;
+  border-color: var(--c-primary);
+}
+
+/* Plain words, not gradient ones. */
+[data-style='ruled'] .text-gradient {
+  background: none;
+  color: var(--c-text);
+}
+
+/* Headers and sidebars sit on the one background, ruled off. */
+[data-style='ruled'] header.sticky {
+  border-image: none;
+  backdrop-filter: none;
+  background-color: var(--c-background);
+}
+[data-style='ruled'] .admin-sidebar {
+  background: var(--c-background);
+}
+
+/* Glows that mark live things become plain markers. */
+[data-style='ruled'] .live-dot,
+[data-style='ruled'] .breathe {
+  box-shadow: none;
+}
+
+/* Selection and the scrollbar, in the theme. */
+[data-style='ruled'] ::selection {
+  background: color-mix(in srgb, var(--c-primary) 45%, transparent);
+  color: var(--c-text);
+}
+[data-style='ruled'] {
+  scrollbar-color: var(--c-border) var(--c-background);
+}
+
+/* The projector on the one background, with a plain rule along its foot
+   instead of the glow and grid. */
+[data-style='ruled'] .screen-glow {
+  background: var(--c-background);
+}
+[data-style='ruled'] .screen-glow::after {
+  left: 5vw;
+  right: 5vw;
+  width: auto;
+  height: var(--rule);
+  bottom: 3vh;
+  background: var(--c-border);
+}
