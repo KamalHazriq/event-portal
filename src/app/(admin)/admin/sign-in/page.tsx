@@ -1,7 +1,9 @@
 import type { Metadata } from 'next';
+import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
 import { getAdminSession } from '@/lib/admin-guard';
+import { KIOSK_COOKIE } from '@/lib/kiosk';
 import { getAdminPin } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
@@ -27,8 +29,12 @@ export default async function SignInPage({ searchParams }: { searchParams: Searc
   const next = first(params.next) ?? '/admin';
   const error = first(params.error);
 
+  // A kiosk tablet must type the PIN to leave the kiosk, even though it is
+  // signed in, so the form shows instead of skipping ahead.
+  const kioskLocked = (await cookies()).has(KIOSK_COOKIE);
+
   // Already signed in, so go where they were heading.
-  if (await getAdminSession()) {
+  if (!kioskLocked && (await getAdminSession())) {
     redirect(next.startsWith('/') && !next.startsWith('//') ? next : '/admin');
   }
 
@@ -38,6 +44,11 @@ export default async function SignInPage({ searchParams }: { searchParams: Searc
     <div className="mx-auto max-w-sm space-y-5 py-6">
       <header>
         <h1 className="text-2xl font-bold text-ink">Secretariat sign in</h1>
+        {kioskLocked ? (
+          <p className="mt-1 font-semibold text-ink">
+            This device is locked to the self check in kiosk. Sign in with the PIN to unlock it.
+          </p>
+        ) : null}
         <p className="mt-1 text-ink-soft">
           For the registration desk and the admin screens. Attendees do not need this.
         </p>

@@ -20,6 +20,7 @@ import { getAdminPin, pinMatches } from '@/lib/auth';
 import { isRateLimited, LIMITS, rateLimit } from '@/lib/rate-limit';
 import { plainText } from '@/lib/text';
 import { recordActivity } from '@/modules/admins/record';
+import { KIOSK_COOKIE } from '@/lib/kiosk';
 
 /** Only ever used to send someone back inside this portal. */
 function safeNext(value: string | null): string {
@@ -89,6 +90,8 @@ export async function POST(request: Request): Promise<NextResponse> {
     : null;
   const now = Date.now();
   const expiresAt = sessionExpiry(now, eventEnd);
+  // Signing in with the PIN is how a kiosk tablet is unlocked.
+  response.cookies.delete(KIOSK_COOKIE);
   response.cookies.set(ADMIN_COOKIE, createSessionValue(operator, pin, now, expiresAt), {
     ...cookieOptions,
     maxAge: Math.floor((expiresAt - now) / 1000),

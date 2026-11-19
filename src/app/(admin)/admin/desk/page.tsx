@@ -56,8 +56,9 @@ export default async function DeskPage({ searchParams }: { searchParams: SearchP
             cannot match is sent to this desk; it never shows other people&apos;s names.
           </p>
           <p className="text-sm text-ink-soft">
-            The tablet is signed in as the secretariat, so lock it to the page: screen pinning on
-            Android, Guided Access on an iPad.
+            Opening the kiosk locks that device to it: admin pages send it back to the kiosk until
+            someone signs in again with the PIN. Pin the screen too (screen pinning on Android,
+            Guided Access on an iPad) so the browser stays open on it.
           </p>
           <Link
             href="/kiosk"

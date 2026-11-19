@@ -5,13 +5,41 @@
  *
  * With no EVENT_PASS, as in local work and the tests, it lets everything
  * through. The admin PIN still guards the secretariat pages either way.
+ *
+ * It also keeps a tablet locked to the self check in kiosk on the kiosk
+ * (src/lib/kiosk.ts).
  */
 import { NextResponse, type NextRequest } from 'next/server';
 
 import { isOpenPath, PASS_COOKIE, PASS_COOKIE_MAX_AGE, PASS_PARAM } from '@/lib/event-pass';
 import { digestMatches, eventPass, passDigest } from '@/lib/event-pass-server';
+import { KIOSK_COOKIE, kioskBlocks } from '@/lib/kiosk';
 
 export function proxy(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  // A tablet locked to the self check in kiosk stays on it.
+  if (kioskBlocks(pathname, request.cookies.has(KIOSK_COOKIE))) {
+    const url = request.nextUrl.clone();
+    url.pathname = '/kiosk';
+    url.search = '';
+    return NextResponse.redirect(url);
+  }
+
+  const response = passGate(request);
+  if (pathname === '/kiosk') {
+    response.cookies.set(KIOSK_COOKIE, '1', {
+      httpOnly: true,
+      secure: request.nextUrl.protocol === 'https:',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 4 * 24 * 60 * 60,
+    });
+  }
+  return response;
+}
+
+function passGate(request: NextRequest) {
   const pass = eventPass();
   if (!pass) return NextResponse.next();
 

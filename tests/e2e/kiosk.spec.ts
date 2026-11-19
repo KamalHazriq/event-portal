@@ -16,4 +16,19 @@ test('the kiosk needs the PIN, then waits for a card', async ({ page }) => {
   await expect(page.getByText(/business card in your TNB app/)).toBeVisible();
   // Nothing to wander off to.
   await expect(page.getByRole('navigation')).toHaveCount(0);
+
+  // The device is locked to the kiosk: admin pages send it back.
+  await page.goto('/admin');
+  await expect(page).toHaveURL(/\/kiosk$/);
+  await page.goto('/admin/attendees');
+  await expect(page).toHaveURL(/\/kiosk$/);
+
+  // Signing in again with the PIN unlocks it.
+  await page.goto('/admin/sign-in');
+  await page.getByLabel('Which desk is this?').fill('desk-1');
+  await page.getByLabel('Admin PIN').fill(PIN);
+  await page.getByRole('button', { name: 'Sign in' }).click();
+  await expect(
+    page.getByRole('heading', { name: /^Good (morning|afternoon|evening)/, level: 1 }),
+  ).toBeVisible();
 });
