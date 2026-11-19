@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { formatTimeRange } from '@/lib/time';
 
 import type { ResolvedSession, SessionStatus } from '../logic';
+import { FavouriteStar } from './FavouriteStar';
 import { SpeakerNames } from './SpeakerList';
 import { StatusBadge } from './StatusBadge';
 import { TypeBadge } from './TypeBadge';
@@ -25,9 +26,10 @@ export function SessionCard({
   linkSuffix?: string;
 }) {
   const quiet = session.type === 'break' || session.type === 'logistics';
+  const starrable = !quiet && session.type !== 'meal';
 
   return (
-    <li>
+    <li className="relative">
       <Link
         href={`/session/${session.id}${linkSuffix}`}
         className={[
@@ -40,7 +42,7 @@ export function SessionCard({
               : 'border-line',
         ].join(' ')}
       >
-        <div className="flex flex-wrap items-center gap-2">
+        <div className={`flex flex-wrap items-center gap-2 ${starrable ? 'pr-10' : ''}`}>
           <span className="font-mono text-sm font-semibold text-ink-soft">
             {formatTimeRange(session.start, session.end)}
           </span>
@@ -67,6 +69,11 @@ export function SessionCard({
           {session.room ? <span className="text-sm text-ink-soft">{session.room}</span> : null}
         </div>
       </Link>
+      {starrable ? (
+        <div className="absolute top-1 right-1">
+          <FavouriteStar sessionId={session.id} title={session.title} />
+        </div>
+      ) : null}
     </li>
   );
 }

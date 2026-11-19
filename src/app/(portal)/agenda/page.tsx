@@ -5,6 +5,7 @@ import { formatLongDate, resolveEventNow } from '@/lib/time';
 import { AutoRefresh } from '@/components/AutoRefresh';
 import { DayTabs } from '@/modules/schedule/components/DayTabs';
 import { DevTimeNotice } from '@/modules/schedule/components/DevTimeNotice';
+import { MyAgenda } from '@/modules/schedule/components/MyAgenda';
 import { SessionList } from '@/modules/schedule/components/SessionCard';
 import {
   buildAgenda,
@@ -31,7 +32,9 @@ export default async function AgendaPage({ searchParams }: { searchParams: Searc
 
   const agenda = buildAgenda(config);
   const requestedDay = readNowParam(params.day);
-  const selectedDay = resolveSelectedDay(agenda, requestedDay, now);
+  const mine = requestedDay === 'mine';
+  const selectedDay = mine ? null : resolveSelectedDay(agenda, requestedDay, now);
+  const tz = config.event.timezone;
   const linkSuffix = nowLinkSuffix(now);
 
   return (
@@ -43,12 +46,26 @@ export default async function AgendaPage({ searchParams }: { searchParams: Searc
 
       <DayTabs
         days={agenda.days}
-        selectedDayId={selectedDay?.id ?? ''}
+        selectedDayId={mine ? 'mine' : (selectedDay?.id ?? '')}
+        showMine
         timezone={config.event.timezone}
         extraParams={nowLinkSuffix(now, '&')}
       />
 
-      {selectedDay ? (
+      {mine ? (
+        <MyAgenda
+          days={agenda.days.map((d) => ({
+            id: d.id,
+            label: d.label,
+            dateLabel: formatLongDate(d.date, tz),
+            sessions: d.sessions,
+          }))}
+          statuses={Object.fromEntries(
+            agenda.days.flatMap((d) => d.sessions).map((s) => [s.id, sessionStatus(s, now)]),
+          )}
+          linkSuffix={linkSuffix}
+        />
+      ) : selectedDay ? (
         <section>
           <h2 className="text-lg font-bold text-ink">
             {selectedDay.label}
