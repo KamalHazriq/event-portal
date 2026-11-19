@@ -74,6 +74,9 @@ export function WelcomeView({
         <p className="mt-[2vh] text-center text-[clamp(1rem,1.8vw,2.4rem)] font-bold text-ink">
           Scan for the agenda
         </p>
+        <p className="mt-[0.4vh] text-center text-[clamp(0.8rem,1.3vw,1.8rem)] text-accent">
+          Then tap “Turn on alerts” for live updates
+        </p>
         <p className="max-w-[30vw] break-all text-center text-[clamp(0.8rem,1.1vw,1.5rem)] text-ink-soft">
           {displayUrl(portalUrl)}
         </p>
