@@ -61,8 +61,7 @@ env:
     secret: portal-event-pass
     availability: [RUNTIME]
 
-  # The address Firebase gives the portal (or your own domain). Every QR code
-  # points here, so set it before printing anything. Uncomment and fill in:
-  # - variable: PORTAL_URL
-  #   value: https://your-backend--your-project.asia-southeast1.hosted.app
-  #   availability: [RUNTIME]
+  # The address Firebase gave the portal. Every QR code points here.
+  - variable: PORTAL_URL
+    value: https://portal--powersummit-7d255.asia-southeast1.hosted.app
+    availability: [RUNTIME]
