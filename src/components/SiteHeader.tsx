@@ -13,15 +13,20 @@ export function SiteHeader({
   event,
   features,
   mark = null,
+  hasResources = true,
 }: {
   event: EventInfo;
   features: Features;
+  /** False while every resource is still "coming soon": no menu item yet. */
+  hasResources?: boolean;
   /** The small header logo for the current theme, if the config has one. */
   mark?: string | null;
 }) {
   const items: NavItem[] = [{ href: '/', label: 'Home' }];
   if (features.schedule) items.push({ href: '/agenda', label: 'Agenda' });
-  if (features.resources) items.push({ href: '/resources', label: 'Resources' });
+  if (features.resources && hasResources) {
+    items.push({ href: '/resources', label: 'Resources' });
+  }
   if (features.photoWall) items.push({ href: '/photos', label: 'Photos' });
   if (features.leaderboard) items.push({ href: '/leaderboard', label: 'Leaderboard' });
 

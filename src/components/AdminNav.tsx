@@ -3,11 +3,29 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-import { ADMIN_GROUPS, ADMIN_PAGES } from './admin-pages';
+import { ADMIN_GROUPS, ADMIN_PAGES, EVERYDAY_PAGES, type AdminPage } from './admin-pages';
 import { Icon } from './icons';
 
 function isActive(pathname: string, href: string): boolean {
   return pathname === href || pathname.startsWith(`${href}/`);
+}
+
+/**
+ * The phone tab row: the everyday pages, the page you are on if it lives
+ * under More, and More itself (the full list on the overview).
+ */
+function tabPages(pathname: string): AdminPage[] {
+  const current = ADMIN_PAGES.find(
+    (page) => isActive(pathname, page.href) && !EVERYDAY_PAGES.includes(page),
+  );
+  const more: AdminPage = {
+    href: '/admin#more',
+    label: 'More',
+    title: 'More',
+    description: '',
+    icon: 'folder',
+  };
+  return [...EVERYDAY_PAGES, ...(current ? [current] : []), more];
 }
 
 /** Phones and tablets: one swipeable row of tabs under the header. */
@@ -16,7 +34,7 @@ export function AdminTabs() {
   return (
     <nav aria-label="Secretariat" className="px-2 lg:hidden">
       <ul className="no-scrollbar flex gap-1 overflow-x-auto">
-        {ADMIN_PAGES.map((page) => {
+        {tabPages(pathname).map((page) => {
           const active = isActive(pathname, page.href);
           return (
             <li key={page.href} className="shrink-0">
@@ -57,11 +75,8 @@ export function AdminSidebarNav() {
         <Icon name="home" />
         Overview
       </Link>
-      {ADMIN_GROUPS.map((group) => (
-        <div key={group.name} className="mt-4">
-          <p className="px-3 pb-1.5 text-[0.68rem] font-bold uppercase tracking-[0.16em] text-ink-soft">
-            {group.name}
-          </p>
+      {ADMIN_GROUPS.map((group) => {
+        const links = (
           <ul className="space-y-0.5">
             {group.pages.map((page) => {
               const active = isActive(pathname, page.href);
@@ -82,8 +97,28 @@ export function AdminSidebarNav() {
               );
             })}
           </ul>
-        </div>
-      ))}
+        );
+        return group.folded ? (
+          // Folded until needed; open by itself when you are on one of its pages.
+          <details
+            key={group.name}
+            className="group/more mt-4"
+            open={group.pages.some((page) => isActive(pathname, page.href))}
+          >
+            <summary className="cursor-pointer list-none px-3 pb-1.5 text-[0.68rem] font-bold uppercase tracking-[0.16em] text-ink-soft">
+              {group.name} <span aria-hidden="true">▾</span>
+            </summary>
+            {links}
+          </details>
+        ) : (
+          <div key={group.name} className="mt-4">
+            <p className="px-3 pb-1.5 text-[0.68rem] font-bold uppercase tracking-[0.16em] text-ink-soft">
+              {group.name}
+            </p>
+            {links}
+          </div>
+        );
+      })}
     </nav>
   );
 }

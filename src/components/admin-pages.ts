@@ -13,24 +13,17 @@ export type AdminPage = {
   icon: IconName;
 };
 
-export const ADMIN_GROUPS: { name: string; pages: AdminPage[] }[] = [
+/**
+ * A group of pages. A folded group sits under "More": pages used rarely or
+ * only when something goes wrong (the Slido backups, reports, the log), so
+ * the everyday menu stays short.
+ */
+export type AdminGroup = { name: string; folded?: boolean; pages: AdminPage[] };
+
+export const ADMIN_GROUPS: AdminGroup[] = [
   {
     name: 'On the day',
     pages: [
-      {
-        href: '/admin/runbook',
-        label: 'Runbook',
-        title: 'Event-day runbook',
-        description: 'The morning checklist, who does what, and the plan for each day. Printable.',
-        icon: 'book',
-      },
-      {
-        href: '/admin/live',
-        label: 'Live',
-        title: 'Live control',
-        description: 'What is on now, minutes left, what is next, the room and the countdown.',
-        icon: 'live',
-      },
       {
         href: '/admin/desk',
         label: 'Desk',
@@ -47,11 +40,25 @@ export const ADMIN_GROUPS: { name: string; pages: AdminPage[] }[] = [
         icon: 'users',
       },
       {
+        href: '/admin/live',
+        label: 'Live',
+        title: 'Live control',
+        description: 'What is on now, minutes left, what is next, the room and the countdown.',
+        icon: 'live',
+      },
+      {
         href: '/admin/big-screen',
         label: 'Big screen',
         title: 'Big screen',
         description: 'Choose what the ballroom projector shows, from your phone.',
         icon: 'monitor',
+      },
+      {
+        href: '/admin/runbook',
+        label: 'Runbook',
+        title: 'Event-day runbook',
+        description: 'The morning checklist, who does what, and the plan for each day. Printable.',
+        icon: 'book',
       },
     ],
   },
@@ -66,19 +73,51 @@ export const ADMIN_GROUPS: { name: string; pages: AdminPage[] }[] = [
         icon: 'message',
       },
       {
-        href: '/admin/lucky-draw',
-        label: 'Lucky draw',
-        title: 'Lucky draw',
-        description: 'Draw winners from whoever has checked in. Nobody wins twice.',
-        icon: 'gift',
-      },
-      {
         href: '/admin/photos',
         label: 'Photos',
         title: 'Photo wall',
         description: 'Approve photos before they reach the big screen slideshow.',
         icon: 'image',
       },
+      {
+        href: '/admin/lucky-draw',
+        label: 'Lucky draw',
+        title: 'Lucky draw',
+        description: 'Draw winners from whoever has checked in. Nobody wins twice.',
+        icon: 'gift',
+      },
+    ],
+  },
+  {
+    name: 'Set up',
+    pages: [
+      {
+        href: '/admin/attendees',
+        label: 'Attendees',
+        title: 'Attendees',
+        description: 'Upload the participant list from Excel or CSV, and see who is on it.',
+        icon: 'users',
+      },
+      {
+        href: '/admin/name-tags',
+        label: 'Name tags',
+        title: 'Name tags',
+        description: 'Print one sided name tags with the portal QR, ten to an A4 page.',
+        icon: 'tag',
+      },
+      {
+        href: '/admin/qr-assets',
+        label: 'QR assets',
+        title: 'QR assets',
+        description: 'Table tents to print and a portal QR to drop into a slide.',
+        icon: 'qr',
+      },
+    ],
+  },
+  {
+    name: 'More',
+    folded: true,
+    pages: [
       {
         href: '/admin/feedback',
         label: 'Feedback',
@@ -100,11 +139,6 @@ export const ADMIN_GROUPS: { name: string; pages: AdminPage[] }[] = [
         description: 'The backup for Slido: open, close and reveal polls and word clouds.',
         icon: 'poll',
       },
-    ],
-  },
-  {
-    name: 'After the event',
-    pages: [
       {
         href: '/admin/reports',
         label: 'Reports',
@@ -119,32 +153,6 @@ export const ADMIN_GROUPS: { name: string; pages: AdminPage[] }[] = [
         description: 'Upload a committee Excel and choose who can see its summary.',
         icon: 'folder',
       },
-    ],
-  },
-  {
-    name: 'Set up',
-    pages: [
-      {
-        href: '/admin/attendees',
-        label: 'Attendees',
-        title: 'Attendees',
-        description: 'Upload the participant list from Excel or CSV, and see who is on it.',
-        icon: 'users',
-      },
-      {
-        href: '/admin/name-tags',
-        label: 'Name tags',
-        title: 'Name tags',
-        description: 'Print tags with a personal QR on the front and the portal QR on the back.',
-        icon: 'tag',
-      },
-      {
-        href: '/admin/qr-assets',
-        label: 'QR assets',
-        title: 'QR assets',
-        description: 'Table tents to print and a portal QR to drop into a slide.',
-        icon: 'qr',
-      },
       {
         href: '/admin/admins',
         label: 'Admins',
@@ -157,3 +165,8 @@ export const ADMIN_GROUPS: { name: string; pages: AdminPage[] }[] = [
 ];
 
 export const ADMIN_PAGES: AdminPage[] = ADMIN_GROUPS.flatMap((g) => g.pages);
+
+/** The pages in the everyday menu, without the folded "More" group. */
+export const EVERYDAY_PAGES: AdminPage[] = ADMIN_GROUPS.filter((g) => !g.folded).flatMap(
+  (g) => g.pages,
+);

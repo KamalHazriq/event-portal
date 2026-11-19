@@ -274,7 +274,7 @@ export default async function AdminHomePage() {
         </section>
       ) : null}
 
-      {ADMIN_GROUPS.map((group) => (
+      {ADMIN_GROUPS.filter((group) => !group.folded).map((group) => (
         <section key={group.name} aria-labelledby={`g-${group.name}`}>
           <h2
             id={`g-${group.name}`}
@@ -301,6 +301,33 @@ export default async function AdminHomePage() {
                       />
                     </span>
                     <span className="mt-1 block text-sm text-ink-soft">{page.description}</span>
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
+
+      {ADMIN_GROUPS.filter((group) => group.folded).map((group) => (
+        <section key={group.name} id="more" aria-labelledby="more-heading" className="scroll-mt-24">
+          <h2
+            id="more-heading"
+            className="mb-3 text-xs font-bold uppercase tracking-[0.16em] text-ink-soft"
+          >
+            More tools
+          </h2>
+          <ul className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+            {group.pages.map((page) => (
+              <li key={page.href}>
+                <Link
+                  href={page.href}
+                  className="flex items-center gap-3 rounded-lg border border-line bg-surface px-3 py-2.5 no-underline hover:border-primary"
+                >
+                  <Icon name={page.icon} className="size-4 shrink-0 text-primary" />
+                  <span className="min-w-0">
+                    <span className="block text-sm font-semibold text-ink">{page.title}</span>
+                    <span className="block truncate text-xs text-ink-soft">{page.description}</span>
                   </span>
                 </Link>
               </li>

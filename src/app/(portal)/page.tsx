@@ -2,6 +2,7 @@ import Link from 'next/link';
 
 import { getData } from '@/data';
 import { getEventConfig } from '@/lib/config';
+import { isPlaceholderUrl } from '@/lib/placeholder';
 import { logoFor, resolveTheme } from '@/lib/theme';
 import { formatLongDate, formatShortDate, resolveEventNow } from '@/lib/time';
 import { AutoRefresh } from '@/components/AutoRefresh';
@@ -175,7 +176,7 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
             </section>
           ) : null}
 
-          {config.features.resources && config.resources.length > 0 ? (
+          {config.features.resources && config.resources.some((r) => !isPlaceholderUrl(r.url)) ? (
             <section className="rounded-xl border border-line bg-muted p-4">
               <h2 className="text-base font-bold text-ink">Take aways</h2>
               <p className="mt-1 text-sm text-ink-soft">

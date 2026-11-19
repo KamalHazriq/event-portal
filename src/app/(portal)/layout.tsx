@@ -2,6 +2,7 @@ import Link from 'next/link';
 
 import { SiteHeader } from '@/components/SiteHeader';
 import { getEventConfig } from '@/lib/config';
+import { isPlaceholderUrl } from '@/lib/placeholder';
 import { markFor, resolveTheme } from '@/lib/theme';
 
 /** The shell every attendee page sits in. */
@@ -12,7 +13,12 @@ export default function PortalLayout({ children }: { children: React.ReactNode }
 
   return (
     <div className="flex min-h-dvh w-full flex-col">
-      <SiteHeader event={config.event} features={config.features} mark={markFor(branding, theme)} />
+      <SiteHeader
+        event={config.event}
+        features={config.features}
+        mark={markFor(branding, theme)}
+        hasResources={config.resources.some((r) => !isPlaceholderUrl(r.url))}
+      />
 
       <main
         id="main"
