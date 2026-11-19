@@ -15,6 +15,8 @@ import { formatClock, formatShortDate, resolveEventNow } from '@/lib/time';
 import { readBackupMode } from '@/modules/backup/server';
 import { arrivalRate, resolveCheckInDay } from '@/modules/check-in/logic';
 import { buildAgenda, findNowAndNext } from '@/modules/schedule/logic';
+import { loadInsightsInput } from '@/modules/insights/load';
+import { buildAlerts } from '@/modules/insights/logic';
 
 export const dynamic = 'force-dynamic';
 
@@ -122,6 +124,8 @@ export default async function AdminHomePage() {
         : Promise.resolve([]),
       data.attendees.count().catch(() => 0),
     ]);
+  // The "to do" lines from Insights, so nothing urgent hides under More.
+  const toDo = buildAlerts(await loadInsightsInput(config, now)).filter((a) => a.tone === 'act');
 
   // What is still a placeholder, so the secretariat sees what is left before
   // the event. Disappears once everything is filled in.
@@ -257,6 +261,37 @@ export default async function AdminHomePage() {
           <StatTile key={stat.label} stat={stat} />
         ))}
       </section>
+
+      {toDo.length > 0 ? (
+        <section
+          aria-labelledby="attention"
+          className="rounded-xl border border-warning bg-surface p-5"
+        >
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 id="attention" className="font-bold text-ink">
+              Needs attention ({toDo.length})
+            </h2>
+            <Link href="/admin/insights" className="text-sm font-semibold text-primary">
+              All insights
+            </Link>
+          </div>
+          <ul className="mt-2 space-y-2">
+            {toDo.slice(0, 3).map((alert) => (
+              <li key={alert.text} className="flex flex-wrap items-center justify-between gap-2">
+                <span className="text-ink">{alert.text}</span>
+                {alert.href ? (
+                  <Link
+                    href={alert.href}
+                    className="min-h-11 rounded-lg border border-line px-3 py-2.5 text-sm font-semibold text-ink no-underline"
+                  >
+                    {alert.action ?? 'Open'}
+                  </Link>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       {todo.length > 0 ? (
         <section

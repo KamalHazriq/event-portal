@@ -76,7 +76,7 @@ export const ADMIN_GROUPS: AdminGroup[] = [
         href: '/admin/photos',
         label: 'Photos',
         title: 'Photo wall',
-        description: 'Approve photos before they reach the big screen slideshow.',
+        description: 'Approve photos, or let them straight up, and choose the big screen layout.',
         icon: 'image',
       },
       {
@@ -118,6 +118,13 @@ export const ADMIN_GROUPS: AdminGroup[] = [
     name: 'More',
     folded: true,
     pages: [
+      {
+        href: '/admin/insights',
+        label: 'Insights',
+        title: 'Insights',
+        description: 'What needs attention, peak arrival times, and the liveliest sessions.',
+        icon: 'chart',
+      },
       {
         href: '/admin/feedback',
         label: 'Feedback',
