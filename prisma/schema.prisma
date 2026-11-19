@@ -276,3 +276,16 @@ model AdminPresence {
   page       String   @default("")
   lastSeenAt DateTime @default(now())
 }
+
+/// A phone that turned on event alerts (web push). Holds only what the
+/// browser hands over so the server can reach it, and the phone's device
+/// id (so a lucky draw winner's own phone can be told). No name.
+model PushSubscription {
+  endpoint  String   @id
+  p256dh    String
+  auth      String
+  deviceId  String   @default("")
+  createdAt DateTime @default(now())
+
+  @@index([deviceId])
+}

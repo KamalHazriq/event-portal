@@ -27,6 +27,7 @@ const PATHS = {
   external: 'M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5',
   sparkle: 'M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M6 18l2.5-2.5M15.5 8.5 18 6',
   calendar: 'M4 6h16v14H4zM4 10h16M8 3v4M16 3v4',
+  megaphone: 'M3 10v4h3l8 5V5L6 10zM17 9a4 4 0 0 1 0 6M6 14l1.5 5h2.5l-1-4',
 } as const;
 
 export type IconName = keyof typeof PATHS;

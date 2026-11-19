@@ -24,6 +24,7 @@ import type {
   CommentRepository,
   PlayerRepository,
   PollRepository,
+  PushRepository,
   ReactionRepository,
   QuestionRepository,
   SettingsRepository,
@@ -1222,6 +1223,41 @@ export function createPrismaAdapter(
     },
   };
 
+  const push: PushRepository = {
+    async save(input) {
+      const data = {
+        p256dh: input.p256dh,
+        auth: input.auth,
+        deviceId: input.deviceId,
+      };
+      await prisma.pushSubscription.upsert({
+        where: { endpoint: input.endpoint },
+        create: { endpoint: input.endpoint, ...data },
+        update: data,
+      });
+    },
+
+    async remove(endpoint) {
+      const { count } = await prisma.pushSubscription.deleteMany({ where: { endpoint } });
+      return count > 0;
+    },
+
+    async list() {
+      const rows = await prisma.pushSubscription.findMany({ orderBy: { createdAt: 'asc' } });
+      return rows.map((row) => ({
+        endpoint: row.endpoint,
+        p256dh: row.p256dh,
+        auth: row.auth,
+        deviceId: row.deviceId,
+        createdAt: row.createdAt.toISOString(),
+      }));
+    },
+
+    async count() {
+      return prisma.pushSubscription.count();
+    },
+  };
+
   const players: PlayerRepository = {
     async link(deviceId, attendeeId) {
       await prisma.deviceLink.upsert({
@@ -1274,6 +1310,7 @@ export function createPrismaAdapter(
     async reset() {
       // Child rows first, so foreign keys stay happy.
       await prisma.deviceLink.deleteMany();
+      await prisma.pushSubscription.deleteMany();
       await prisma.commentLike.deleteMany();
       await prisma.comment.deleteMany();
       await prisma.reaction.deleteMany();
@@ -1307,6 +1344,7 @@ export function createPrismaAdapter(
     polls,
     activity,
     players,
+    push,
     reactions,
     comments,
   };

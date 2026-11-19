@@ -27,6 +27,7 @@ import type {
   Comment,
   CommentStatus,
   DeviceLink,
+  PushSubscriptionRecord,
   FeedbackEntry,
   FeedbackSummary,
   Headcount,
@@ -290,6 +291,15 @@ export interface CommentRepository {
   likedIds(sessionId: string, deviceId: string): Promise<string[]>;
 }
 
+/** Phones that turned on event alerts (web push). */
+export interface PushRepository {
+  /** Adds or refreshes a phone. The endpoint is its address. */
+  save(input: Omit<PushSubscriptionRecord, 'createdAt'>): Promise<void>;
+  remove(endpoint: string): Promise<boolean>;
+  list(): Promise<PushSubscriptionRecord[]>;
+  count(): Promise<number>;
+}
+
 /** Phones signed in as people, for points and the leaderboard. */
 export interface PlayerRepository {
   /** Signs this phone in as this person, replacing any earlier link. */
@@ -321,6 +331,7 @@ export interface DataAdapter {
   readonly polls: PollRepository;
   readonly activity: ActivityRepository;
   readonly players: PlayerRepository;
+  readonly push: PushRepository;
   readonly reactions: ReactionRepository;
   readonly comments: CommentRepository;
 }

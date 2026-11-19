@@ -80,6 +80,14 @@ export const ADMIN_GROUPS: AdminGroup[] = [
         icon: 'image',
       },
       {
+        href: '/admin/announcements',
+        label: 'Announce',
+        title: 'Announcements',
+        description:
+          'A message at the top of every phone, and a notification to phones with alerts on.',
+        icon: 'megaphone',
+      },
+      {
         href: '/admin/lucky-draw',
         label: 'Lucky draw',
         title: 'Lucky draw',

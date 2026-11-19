@@ -32,6 +32,7 @@ import {
   type ResolvedSession,
 } from '@/modules/schedule/logic';
 import { REACTIONS } from '@/modules/talk/logic';
+import { AlertsOptIn } from '@/modules/announce/components/AlertsOptIn';
 
 const SECTION = 'pt-16 pb-12 lg:pt-24 lg:pb-16';
 const H2 = 'font-display text-[1.75rem] font-medium leading-[1.1] text-ink sm:text-[2.5rem]';
@@ -348,6 +349,10 @@ export async function RuledHome({
           </div>
         </div>
       </section>
+
+      <div className="mt-6 max-w-xl">
+        <AlertsOptIn />
+      </div>
 
       {notice ? <div className="mt-6">{notice}</div> : null}
 

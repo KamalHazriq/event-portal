@@ -7,6 +7,7 @@ import { shortDepartment } from '@/lib/departments';
 import { joinLeaderboard, leaveLeaderboard } from '@/modules/points/actions';
 import { CAPS, POINT_LABELS, POINTS, type PointKind } from '@/modules/points/logic';
 import { currentPlayer, loadScoreboard } from '@/modules/points/server';
+import { AlertsOptIn } from '@/modules/announce/components/AlertsOptIn';
 
 export const dynamic = 'force-dynamic';
 
@@ -197,6 +198,8 @@ export default async function MyPointsPage({
           what you wrote.
         </p>
       </section>
+
+      <AlertsOptIn />
     </div>
   );
 }

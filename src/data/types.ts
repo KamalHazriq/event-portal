@@ -263,3 +263,12 @@ export type ActivityEntry = { id: string; operator: string; action: string; at: 
 
 /** When a desk was last seen, and on which page. */
 export type OperatorPresence = { operator: string; page: string; lastSeenAt: string };
+
+/** A phone that turned on event alerts. */
+export type PushSubscriptionRecord = {
+  endpoint: string;
+  p256dh: string;
+  auth: string;
+  deviceId: string;
+  createdAt: string;
+};

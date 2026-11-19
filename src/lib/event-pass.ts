@@ -28,7 +28,9 @@ export function isOpenPath(pathname: string): boolean {
     // Holds the event name and icons only, so a phone can add it to its
     // home screen from the page that asks for the code.
     pathname === '/manifest.webmanifest' ||
-    pathname === '/robots.txt'
+    pathname === '/robots.txt' ||
+    // The alerts service worker: fixed code, no event data in it.
+    pathname === '/sw.js'
   );
 }
 

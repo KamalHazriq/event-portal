@@ -2,6 +2,7 @@ import Link from 'next/link';
 
 import { SiteHeader } from '@/components/SiteHeader';
 import { RULED_CONTAINER, RuledFooter, RuledHeader } from '@/components/ruled/RuledChrome';
+import { AnnouncementBanner } from '@/modules/announce/components/AnnouncementBanner';
 import { LuckyWinBanner } from '@/modules/lucky-draw/components/LuckyWinBanner';
 import { readStyle } from '@/modules/look/server';
 import { getEventConfig } from '@/lib/config';
@@ -25,6 +26,7 @@ export default async function PortalLayout({ children }: { children: React.React
           // Reading pages keep a comfortable width; the home page opts out.
           className={`${RULED_CONTAINER} flex-1 pb-8 pt-8 lg:pt-12 [&>*]:mx-auto [&>*]:w-full [&>*]:max-w-3xl`}
         >
+          <AnnouncementBanner />
           <LuckyWinBanner />
           {children}
         </main>
@@ -48,6 +50,7 @@ export default async function PortalLayout({ children }: { children: React.React
         // opt out to use a wide screen. See their root class names.
         className="mx-auto w-full max-w-[96rem] flex-1 px-4 pb-16 pt-6 sm:px-6 lg:px-10 lg:pt-10 [&>*]:mx-auto [&>*]:w-full [&>*]:max-w-3xl"
       >
+        <AnnouncementBanner />
         <LuckyWinBanner />
         {children}
       </main>

@@ -21,6 +21,7 @@ import {
   readNowParam,
   sessionStatus,
 } from '@/modules/schedule/logic';
+import { AlertsOptIn } from '@/modules/announce/components/AlertsOptIn';
 
 // What this page shows depends on the current time, so it is never cached.
 export const dynamic = 'force-dynamic';
@@ -213,6 +214,8 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
               </Link>
             </section>
           ) : null}
+
+          <AlertsOptIn />
 
           {config.info ? (
             <section className="rounded-xl border border-line bg-muted p-4">

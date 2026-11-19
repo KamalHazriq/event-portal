@@ -1,5 +1,7 @@
 'use server';
 
+import { after } from 'next/server';
+
 import { randomInt } from 'node:crypto';
 
 import { revalidatePath } from 'next/cache';
@@ -20,9 +22,11 @@ import {
   MAX_PRIZE,
   parseDrawCount,
   resolveExclusions,
+  SPIN_DURATION_MS,
   type DrawEntrant,
 } from './logic';
 import { recordActivity } from '@/modules/admins/record';
+import { pushToPeople } from '@/modules/announce/push';
 
 /**
  * The lucky draw buttons. Each checks the session itself: a Server Action is
@@ -100,6 +104,21 @@ export async function drawLucky(formData: FormData): Promise<void> {
         operator,
       );
       if (showOnScreen) await data.settings.set(SCREEN_KEYS.view, 'lucky-draw');
+      // The winner's own phone, if it has alerts on. After the big screen
+      // has finished spinning, so the room hears it first.
+      const winnerIds = picked.map((p) => p.id);
+      const shortName = config.event.shortName;
+      after(async () => {
+        if (showOnScreen) await new Promise((r) => setTimeout(r, SPIN_DURATION_MS + 3000));
+        await pushToPeople(winnerIds, {
+          title: `${shortName}: you won the lucky draw!`,
+          body: prize
+            ? `${prize}. Collect it at the registration desk.`
+            : 'Collect your prize at the registration desk.',
+          url: '/',
+          tag: 'lucky-draw',
+        }).catch(() => undefined);
+      });
       done();
       return;
     }
