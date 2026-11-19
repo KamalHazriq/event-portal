@@ -27,13 +27,18 @@ test('the lucky draw needs the PIN', async ({ page }) => {
   await expect(page).toHaveURL(/\/admin\/sign-in/);
 });
 
-test('draws winners from people checked in, and nobody wins twice', async ({ page }, testInfo) => {
+test('draws winners from people checked in, and nobody wins twice', async ({
+  page,
+  browser,
+}, testInfo) => {
   test.skip(testInfo.project.name !== 'desktop', 'Changes shared state, so runs once.');
   await signIn(page);
 
   // Check five guests in for Day 1, which is "today" before the event starts.
   const search = await page.request.get('/api/attendees/search?q=an&dayId=day-1');
-  const { results } = (await search.json()) as { results: { id: string; remark: string }[] };
+  const { results } = (await search.json()) as {
+    results: { id: string; remark: string; name: string; staffNo: string }[];
+  };
   const guests = results.filter((r) => !/secretariat/i.test(r.remark)).slice(0, 5);
   expect(guests).toHaveLength(5);
   for (const g of guests) {
@@ -64,6 +69,36 @@ test('draws winners from people checked in, and nobody wins twice', async ({ pag
   await expect(winners).toHaveCount(2);
   const names = await winners.allTextContents();
   expect(new Set(names).size).toBe(2);
+
+  // A winner whose phone is linked for points is told on that phone.
+  const winnerName = await winners.first().evaluate((li) =>
+    [...li.childNodes]
+      .filter((n) => n.nodeType === Node.TEXT_NODE)
+      .map((n) => n.textContent ?? '')
+      .join('')
+      .replace(/^\d+\.\s*/, '')
+      .trim(),
+  );
+  const found = await page.request.get(
+    `/api/attendees/search?q=${encodeURIComponent(winnerName)}&dayId=day-1`,
+  );
+  const winner = (
+    (await found.json()) as { results: { name: string; staffNo: string }[] }
+  ).results.find((r) => r.name === winnerName);
+  expect(winner).toBeDefined();
+  const phone = await browser.newPage({ viewport: { width: 375, height: 812 } });
+  await phone.goto('/me');
+  await phone.getByLabel('Staff number').fill(winner!.staffNo);
+  await phone.getByLabel('Your first name').fill(winner!.name.split(' ')[0] ?? '');
+  await phone.getByRole('button', { name: 'Join' }).click();
+  await expect(phone.getByText(/^You are in./)).toBeVisible();
+  await phone.goto('/');
+  await expect(phone.getByRole('status', { name: 'Lucky draw' })).toContainText(
+    'You won the lucky draw: Test prize!',
+  );
+  await phone.goto('/me');
+  await phone.getByRole('button', { name: 'Not you? Sign out' }).click();
+  await phone.close();
 
   // The projector view shows the same draw.
   await page.goto('/screen/lucky-draw');

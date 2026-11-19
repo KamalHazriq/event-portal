@@ -125,6 +125,9 @@ export default async function MyPointsPage({
           <h2 className="text-lg font-bold text-ink">Join the leaderboard</h2>
           <p className="mt-1 text-ink-soft">
             Once, on your own phone. Then taking part earns points for you and your department.
+            {config.features.luckyDraw
+              ? ' If you win the lucky draw, this phone tells you too.'
+              : ''}
           </p>
           <form action={joinLeaderboard} className="mt-4 space-y-3">
             <div>
