@@ -9,7 +9,9 @@ runConfig:
   # 0 costs nothing when idle, but the first visitor after a quiet spell
   # waits a few seconds. Set it to 1 for the three event days, then back.
   minInstances: 0
-  maxInstances: 2
+  # Room for 100 phones scanning the welcome QR at once. Extra copies only
+  # start (and cost) when the load needs them.
+  maxInstances: 4
   concurrency: 80
   cpu: 1
   memoryMiB: 512

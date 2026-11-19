@@ -35,7 +35,8 @@ export const ADMIN_GROUPS: { name: string; pages: AdminPage[] }[] = [
         href: '/admin/desk',
         label: 'Desk',
         title: 'Registration desk',
-        description: 'Scan name tags or search by name to check people in.',
+        description:
+          'Scan the business card in the TNB app, or search by name, to check people in.',
         icon: 'scan',
       },
       {
