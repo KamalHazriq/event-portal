@@ -123,3 +123,26 @@ export function dueFeedbackNudges<
     return now.minutes >= end && now.minutes < end + NUDGE_WINDOW_MINUTES && !alreadySent(s.id);
   });
 }
+
+/**
+ * Push addresses come from the phone's browser, so the server only sends to
+ * the browser makers' push services, never to an address someone typed in.
+ * Hosts ending in ".invalid" can never resolve, so tests may use them.
+ */
+const PUSH_HOSTS = [
+  /^fcm\.googleapis\.com$/,
+  /^android\.googleapis\.com$/,
+  /(^|\.)push\.services\.mozilla\.com$/,
+  /(^|\.)notify\.windows\.com$/,
+  /(^|\.)push\.apple\.com$/,
+  /\.invalid$/,
+];
+
+export function isPushServiceUrl(value: string): boolean {
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:' && PUSH_HOSTS.some((re) => re.test(url.hostname));
+  } catch {
+    return false;
+  }
+}

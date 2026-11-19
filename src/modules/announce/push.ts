@@ -13,6 +13,8 @@ import { getData } from '@/data';
 import type { PushSubscriptionRecord } from '@/data/types';
 import { getEventConfig } from '@/lib/config';
 
+import { isPushServiceUrl } from './logic';
+
 const KEYS_SETTING = 'push.vapid';
 
 export type PushMessage = {
@@ -58,7 +60,9 @@ function subject(): string {
 
 export type SendResult = { sent: number; failed: number; removed: number };
 
-async function sendTo(subs: PushSubscriptionRecord[], message: PushMessage): Promise<SendResult> {
+async function sendTo(all: PushSubscriptionRecord[], message: PushMessage): Promise<SendResult> {
+  // Belt and braces: only ever send to a browser push service.
+  const subs = all.filter((s) => isPushServiceUrl(s.endpoint));
   if (subs.length === 0) return { sent: 0, failed: 0, removed: 0 };
   const keys = await vapidKeys();
   const payload = JSON.stringify({ icon: getEventConfig().branding.iconPath, ...message });

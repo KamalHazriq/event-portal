@@ -12,14 +12,11 @@ import { z } from 'zod';
 import { getData } from '@/data';
 import { DEVICE_COOKIE, deviceCookieOptions, newDeviceId, readDeviceId } from '@/lib/device';
 import { LIMITS, rateLimit } from '@/lib/rate-limit';
+import { isPushServiceUrl } from '@/modules/announce/logic';
 import { vapidKeys } from '@/modules/announce/push';
 
 const Subscription = z.object({
-  endpoint: z
-    .string()
-    .url()
-    .max(1000)
-    .refine((u) => u.startsWith('https://'), 'push addresses are https'),
+  endpoint: z.string().url().max(1000).refine(isPushServiceUrl, 'not a browser push service'),
   keys: z.object({ p256dh: z.string().min(10).max(200), auth: z.string().min(4).max(100) }),
 });
 

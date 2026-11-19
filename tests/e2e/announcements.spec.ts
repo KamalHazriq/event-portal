@@ -25,6 +25,16 @@ test('the alerts API hands out a key, and checks what it is sent', async ({ requ
   ).toBe(400);
 });
 
+test('the alerts API only takes browser push services', async ({ request }) => {
+  const outside = await request.post('/api/push', {
+    data: {
+      endpoint: 'https://collector.example/steal',
+      keys: { p256dh: 'B'.repeat(87), auth: 'A'.repeat(22) },
+    },
+  });
+  expect(outside.status()).toBe(400);
+});
+
 test('post an announcement, see it on a phone, take it down', async ({ browser, request }) => {
   // A phone that turned alerts on (a made-up push address: sending to it
   // fails quietly, which is what a phone that went away looks like).

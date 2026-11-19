@@ -4,6 +4,7 @@ import {
   alertSupport,
   cleanAnnouncementText,
   dueFeedbackNudges,
+  isPushServiceUrl,
   isLive,
   parseAnnouncement,
   parseHistory,
@@ -90,5 +91,18 @@ describe('dueFeedbackNudges', () => {
     expect(
       dueFeedbackNudges(days, { date: '2026-12-15', minutes: 605 }, () => false, toMin),
     ).toEqual([]);
+  });
+});
+
+describe('isPushServiceUrl', () => {
+  it('accepts the browser push services only', () => {
+    expect(isPushServiceUrl('https://fcm.googleapis.com/fcm/send/abc')).toBe(true);
+    expect(isPushServiceUrl('https://updates.push.services.mozilla.com/wpush/v2/x')).toBe(true);
+    expect(isPushServiceUrl('https://web.push.apple.com/abc')).toBe(true);
+    expect(isPushServiceUrl('https://wns2-par02p.notify.windows.com/w/?token=x')).toBe(true);
+    expect(isPushServiceUrl('https://evil.example/collect')).toBe(false);
+    expect(isPushServiceUrl('https://fcm.googleapis.com.evil.example/x')).toBe(false);
+    expect(isPushServiceUrl('http://fcm.googleapis.com/x')).toBe(false);
+    expect(isPushServiceUrl('not a url')).toBe(false);
   });
 });
