@@ -181,3 +181,11 @@ function parseAttendeeRecords(records: Record<string, string>[], offset = 0): At
 
   return { rows, problems };
 }
+
+/**
+ * Which tab of a workbook holds the list: one named "Master" (any case),
+ * else the first. So a cleaned Master tab can sit beside the raw HR tabs.
+ */
+export function pickAttendeeSheet<T extends { name: string }>(sheets: T[]): T | undefined {
+  return sheets.find((s) => s.name.trim().toLowerCase() === 'master') ?? sheets[0];
+}

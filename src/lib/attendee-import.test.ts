@@ -3,7 +3,12 @@ import { join } from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 
-import { parseAttendeeCsv, standInStaffNo } from './attendee-import';
+import {
+  parseAttendeeCsv,
+  standInStaffNo,
+  parseAttendeeTable,
+  pickAttendeeSheet,
+} from './attendee-import';
 import { parseCsv, parseCsvRecords } from './csv';
 
 describe('parseCsv', () => {
@@ -270,5 +275,27 @@ describe('the participant list as an Excel file', () => {
       ['A1', 'Duplicate'],
     ]);
     expect(result.problems[0]?.row).toBe(4);
+  });
+});
+
+describe('pickAttendeeSheet', () => {
+  it('uses a tab named Master, else the first', () => {
+    const tabs = [{ name: 'All (Filter)' }, { name: 'Head' }, { name: ' master ' }];
+    expect(pickAttendeeSheet(tabs)?.name).toBe(' master ');
+    expect(pickAttendeeSheet(tabs.slice(0, 2))?.name).toBe('All (Filter)');
+    expect(pickAttendeeSheet([])).toBeUndefined();
+  });
+
+  it('reads a Master tab with a Department column and ignores Grade', () => {
+    const { rows } = parseAttendeeTable([
+      ['No', 'Staff ID', 'Complete Name', 'Position', 'Grade', 'Department', 'Remarks'],
+      ['1', '10000001', 'Test Person', 'Lead', 'E16', 'Enterprise Cloud Services', ''],
+    ]);
+    expect(rows[0]).toMatchObject({
+      staffNo: '10000001',
+      name: 'Test Person',
+      title: 'Lead',
+      department: 'Enterprise Cloud Services',
+    });
   });
 });

@@ -13,7 +13,7 @@ import { NextResponse } from 'next/server';
 
 import { getData } from '@/data';
 import { requireAdminApi } from '@/lib/admin-guard';
-import { parseAttendeeCsv, parseAttendeeTable } from '@/lib/attendee-import';
+import { parseAttendeeCsv, parseAttendeeTable, pickAttendeeSheet } from '@/lib/attendee-import';
 import { getEventConfig } from '@/lib/config';
 import { LIMITS, rateLimit } from '@/lib/rate-limit';
 import { readXlsx, XlsxError } from '@/lib/xlsx/read';
@@ -70,8 +70,8 @@ export async function POST(request: Request): Promise<Response> {
   let parsed;
   if (/\.xlsx$/i.test(file.name)) {
     try {
-      const [first] = readXlsx(bytes, { maxRows: 2000 });
-      parsed = parseAttendeeTable(first?.rows ?? []);
+      const sheet = pickAttendeeSheet(readXlsx(bytes, { maxRows: 2000 }));
+      parsed = parseAttendeeTable(sheet?.rows ?? []);
     } catch (error) {
       if (error instanceof XlsxError) return back({ result: 'unreadable' });
       throw error;
