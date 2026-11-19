@@ -3,7 +3,6 @@ import { AutoRefresh } from '@/components/AutoRefresh';
 import { SCREEN_POLL_MS } from '../logic';
 import type { ScreenPayload } from '../load';
 import { ReactionOverlay } from './ReactionOverlay';
-import { TechBackdrop } from './TechBackdrop';
 import {
   ArrivalsView,
   CommentsView,
@@ -25,6 +24,7 @@ export function ScreenFrame({
   payload,
   reactions = [],
   shortName,
+  orgLogo = null,
   clock,
   testMode,
 }: {
@@ -32,6 +32,8 @@ export function ScreenFrame({
   /** Recent taps from phones, floating up over the view. */
   reactions?: { id: string; emoji: string }[];
   shortName: string;
+  /** The organiser's logo (Digital & Information), top left on every view. */
+  orgLogo?: { src: string; alt: string } | null;
   clock: string;
   testMode: boolean;
 }) {
@@ -41,11 +43,25 @@ export function ScreenFrame({
       className="screen-glow relative flex h-dvh w-full flex-col overflow-hidden px-[5vw] pb-[5vh] pt-[7vh]"
     >
       <AutoRefresh intervalMs={SCREEN_POLL_MS} />
-      {/* The technology look, on the arrivals view for now. */}
-      {payload.view === 'arrivals' ? <TechBackdrop /> : null}
+      {payload.view === 'arrivals' ? (
+        <div aria-hidden="true" className="arrivals-bg pointer-events-none absolute inset-0" />
+      ) : null}
 
       <div className="absolute inset-x-[5vw] top-[2.5vh] z-20 flex items-center justify-between text-[clamp(0.8rem,1.2vw,1.6rem)] text-ink-soft">
-        <span className="font-semibold">{shortName}</span>
+        <span className="flex items-center gap-[1vw]">
+          {orgLogo ? (
+            // On a white tile: the logo is blue, made for white.
+            <span className="inline-flex rounded-[0.5vw] bg-white px-[0.7vw] py-[0.5vh]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={orgLogo.src}
+                alt={orgLogo.alt}
+                className="block h-[clamp(1.4rem,2.6vh,3rem)] w-auto"
+              />
+            </span>
+          ) : null}
+          <span className="font-semibold">{shortName}</span>
+        </span>
         <span className="tabular-nums">
           {testMode ? 'Test time ' : ''}
           {clock}

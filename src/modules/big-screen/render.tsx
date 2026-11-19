@@ -43,6 +43,14 @@ export async function renderScreen(options: {
       payload={payload}
       reactions={reactions}
       shortName={config.event.shortName}
+      orgLogo={
+        config.branding.organisationLogoPath
+          ? {
+              src: config.branding.organisationLogoPath,
+              alt: config.branding.organisationName || 'Organiser logo',
+            }
+          : null
+      }
       clock={clockFromMinutes(now.minutes)}
       testMode={now.isOverride}
     />

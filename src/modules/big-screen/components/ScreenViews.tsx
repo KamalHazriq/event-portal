@@ -227,31 +227,23 @@ export function ArrivalsView({
     <div className={`relative ${hideNames ? 'text-center' : ''}`}>
       <p className={LABEL}>Guests arrived, {dayLabel}</p>
       <p className="relative mt-[2vh] font-bold leading-none tabular-nums">
-        <span className="relative inline-block text-[clamp(5rem,15vw,20rem)]">
-          {/* A slowly turning ring around the number. */}
-          <span aria-hidden="true" className="tech-ring" />
-          <span className="tech-digits relative">
-            <RollingNumber value={arrived} />
-          </span>
-          {arrived > 0 ? (
-            <span key={arrived} aria-hidden="true" className="burst">
-              {Array.from({ length: 12 }, (_, i) => (
-                <span key={i} className="burst-dot" style={{ ['--a' as string]: `${i * 30}deg` }} />
-              ))}
-            </span>
-          ) : null}
+        <span className="inline-block text-[clamp(5rem,15vw,20rem)] text-ink">
+          <RollingNumber value={arrived} />
         </span>
         <span className="text-[clamp(2rem,5vw,7rem)] text-ink-soft"> / {expected}</span>
       </p>
       <div
-        className="tech-bar-track mt-[3vh] h-[1.6vh] w-full overflow-hidden rounded-full"
+        className="mt-[3vh] h-[1.2vh] w-full overflow-hidden rounded-full bg-muted"
         role="progressbar"
         aria-valuenow={percent}
         aria-valuemin={0}
         aria-valuemax={100}
         aria-label="Arrivals so far"
       >
-        <div className="screen-bar tech-bar h-full rounded-full" style={{ width: `${percent}%` }} />
+        <div
+          className="screen-bar arrivals-bar h-full rounded-full"
+          style={{ width: `${percent}%` }}
+        />
       </div>
       <p className="mt-[1.2vh] flex justify-between gap-[2vw] text-[clamp(0.9rem,1.4vw,2rem)] text-ink-soft">
         <span>{percent}% here</span>
@@ -287,12 +279,12 @@ export function ArrivalsView({
   const feedCard = (card: ArrivalCard, copy: string) => (
     <li
       key={`${copy}-${card.key}`}
-      className="tech-card flex items-baseline justify-between gap-[1.5vw] rounded-[0.8vw] px-[1.6vw] py-[1.4vh]"
+      className="arrivals-row flex items-baseline justify-between gap-[1.5vw] px-[0.4vw] py-[1.6vh]"
     >
       <span className="min-w-0 truncate text-[clamp(1rem,1.8vw,2.6rem)] font-semibold text-ink">
         {card.name}
       </span>
-      <span className="shrink-0 font-mono text-[clamp(0.8rem,1.2vw,1.7rem)] font-semibold tracking-wider text-accent">
+      <span className="shrink-0 text-[clamp(0.8rem,1.2vw,1.7rem)] font-semibold tracking-wider text-ink-soft">
         {card.department}
       </span>
     </li>
@@ -305,14 +297,14 @@ export function ArrivalsView({
           {counter}
           {newest ? (
             // Keyed by the newest check in, so each arrival pops in.
-            <div key={newest.key} className="tech-spotlight rounded-[1.2vw] px-[2vw] py-[2.2vh]">
+            <div key={newest.key} className="arrivals-spotlight rounded-[1vw] px-[2vw] py-[2.2vh]">
               <p className="text-[clamp(0.8rem,1.2vw,1.7rem)] font-semibold tracking-[0.2em] text-accent uppercase">
                 Just arrived
               </p>
               <p className="mt-[0.6vh] text-[clamp(1.6rem,3.2vw,4.6rem)] font-bold leading-tight text-ink [text-wrap:balance]">
                 Welcome, {newest.name}
               </p>
-              <p className="mt-[0.4vh] font-mono text-[clamp(1rem,1.6vw,2.3rem)] font-semibold tracking-wider text-accent">
+              <p className="mt-[0.4vh] text-[clamp(1rem,1.6vw,2.3rem)] font-semibold tracking-wider text-ink-soft">
                 {newest.department}
               </p>
             </div>
@@ -324,22 +316,18 @@ export function ArrivalsView({
         </div>
 
         <div
-          className="tech-feed relative h-full min-h-0 self-stretch overflow-hidden"
+          className="arrivals-feed relative h-full min-h-0 self-stretch overflow-hidden"
           aria-label="Arrived earlier"
         >
           {earlier.length > 0 ? (
             <div
               key={newest?.key}
-              className={scroll ? 'tech-feed-roll' : ''}
+              className={scroll ? 'arrivals-roll' : ''}
               style={scroll ? { animationDuration: `${loop.length * 3}s` } : undefined}
             >
-              <ul className="space-y-[1.4vh] pb-[1.4vh]">
-                {loop.map((c, i) => feedCard(c, `a${i}`))}
-              </ul>
+              <ul>{loop.map((c, i) => feedCard(c, `a${i}`))}</ul>
               {scroll ? (
-                <ul aria-hidden="true" className="space-y-[1.4vh] pb-[1.4vh]">
-                  {loop.map((c, i) => feedCard(c, `b${i}`))}
-                </ul>
+                <ul aria-hidden="true">{loop.map((c, i) => feedCard(c, `b${i}`))}</ul>
               ) : null}
             </div>
           ) : null}

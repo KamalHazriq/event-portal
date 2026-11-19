@@ -21,7 +21,17 @@ export default async function KioskPage() {
   const day = resolveCheckInDay(checkInDays(config), now);
   if (!day) return <p className="p-6 text-ink">This event has no days set up yet.</p>;
   return (
-    <main id="main" className="bg-canvas">
+    <main id="main" className="relative bg-canvas">
+      {config.branding.organisationLogoPath ? (
+        <span className="absolute top-4 left-4 inline-flex rounded-lg bg-white px-3 py-2">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={config.branding.organisationLogoPath}
+            alt={config.branding.organisationName || 'Organiser logo'}
+            className="block h-8 w-auto"
+          />
+        </span>
+      ) : null}
       <KioskConsole dayId={day.id} dayLabel={day.label} eventName={config.event.shortName} />
     </main>
   );

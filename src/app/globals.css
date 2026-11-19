@@ -510,98 +510,6 @@
   animation: count-pop 900ms ease-out;
 }
 
-/* A ring of dots flying out from the number on each arrival. */
-.burst {
-  pointer-events: none;
-  position: absolute;
-  inset: 0;
-}
-
-@keyframes burst-dot {
-  from {
-    opacity: 1;
-    transform: rotate(var(--a)) translateY(0) scale(1);
-  }
-  to {
-    opacity: 0;
-    transform: rotate(var(--a)) translateY(-16vh) scale(0.3);
-  }
-}
-
-.burst-dot {
-  position: absolute;
-  left: calc(50% - 0.5vw);
-  top: calc(50% - 0.5vw);
-  width: 1vw;
-  height: 1vw;
-  border-radius: 9999px;
-  background: var(--color-accent);
-  animation: burst-dot 1.1s cubic-bezier(0.2, 0.7, 0.2, 1) both;
-}
-
-.burst-dot:nth-child(even) {
-  background: var(--color-primary);
-}
-
-/* A light sweeping across the progress bar. */
-@keyframes bar-shine {
-  from {
-    background-position: -40vw 0;
-  }
-  to {
-    background-position: 80vw 0;
-  }
-}
-
-.bar-shine {
-  background-image: linear-gradient(
-    100deg,
-    transparent 0,
-    color-mix(in srgb, white 35%, transparent) 50%,
-    transparent 100%
-  );
-  background-size: 30vw 100%;
-  background-repeat: no-repeat;
-  animation: bar-shine 3.5s ease-in-out infinite;
-}
-
-/* A new welcome card slides in from the right with a glowing edge. */
-@keyframes arrival-in {
-  from {
-    opacity: 0;
-    transform: translateX(6vw) scale(0.96);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-@keyframes arrival-glow {
-  0% {
-    border-color: var(--color-accent);
-    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-accent) 60%, transparent);
-  }
-  60% {
-    border-color: var(--color-accent);
-    box-shadow: 0 0 0 1vw transparent;
-  }
-  100% {
-    box-shadow: 0 0 0 0 transparent;
-  }
-}
-
-.arrival-card {
-  transition: opacity 600ms ease;
-  animation: arrival-in 700ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
-}
-
-.arrival-new {
-  animation:
-    arrival-in 700ms cubic-bezier(0.2, 0.7, 0.2, 1) both,
-    arrival-glow 2.4s ease-out 300ms;
-}
-
 /* A milestone (halfway, everyone) shows for a few seconds. */
 @keyframes milestone {
   0% {
@@ -635,7 +543,7 @@
 }
 
 .draw-drum {
-  animation: draw-drum 900ms ease-in-out infinite;
+  box-shadow: 0 0 3vw 0 color-mix(in srgb, var(--color-accent) 35%, transparent);
 }
 
 @keyframes draw-tick {
@@ -696,7 +604,8 @@
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  animation: winner-shimmer 3s linear infinite;
+  /* Twice, then still: an endless shimmer repaints every frame. */
+  animation: winner-shimmer 3s linear 2;
 }
 
 @keyframes confetti-fall {
@@ -759,7 +668,6 @@
 .rank-bronze {
   color: #1a1300;
   background-size: 250% 100%;
-  animation: winner-shimmer 4s linear infinite;
 }
 
 .rank-gold {
@@ -1279,319 +1187,82 @@ label.bg-primary:hover::after {
 }
 
 /* ------------------------------------------------------------------------
- * Projector "technology" look (the arrivals view first). Event colours: the
- * navy and logo blue from the brand, the teal accent. Pure CSS.
+ * Arrivals: a calm, minimal look. Only transforms and opacity move, which
+ * the projector's graphics chip handles without effort.
  * ---------------------------------------------------------------------- */
 
-.tech-backdrop {
+.arrivals-bg {
   z-index: 0;
-  overflow: hidden;
   background:
     radial-gradient(
-      70vw 60vh at 15% 45%,
-      color-mix(in srgb, #042c75 70%, transparent),
+      60vw 55vh at 20% 45%,
+      color-mix(in srgb, #042c75 55%, transparent),
       transparent 70%
     ),
-    radial-gradient(
-      50vw 50vh at 90% 20%,
-      color-mix(in srgb, var(--c-accent) 18%, transparent),
-      transparent 70%
-    ),
-    linear-gradient(180deg, #020a18 0%, var(--c-background) 55%, #02121a 100%);
+    var(--c-background);
 }
 
-/* Faint stars of light drifting very slowly. */
-.tech-sky {
-  position: absolute;
-  inset: 0;
-  background-image:
-    radial-gradient(
-      1px 1px at 12% 18%,
-      color-mix(in srgb, var(--c-accent) 80%, transparent),
-      transparent
-    ),
-    radial-gradient(
-      1px 1px at 68% 12%,
-      color-mix(in srgb, var(--c-text) 60%, transparent),
-      transparent
-    ),
-    radial-gradient(
-      1.5px 1.5px at 82% 38%,
-      color-mix(in srgb, var(--c-accent) 70%, transparent),
-      transparent
-    ),
-    radial-gradient(
-      1px 1px at 34% 30%,
-      color-mix(in srgb, var(--c-text) 50%, transparent),
-      transparent
-    ),
-    radial-gradient(
-      1.5px 1.5px at 52% 8%,
-      color-mix(in srgb, var(--c-primary) 90%, transparent),
-      transparent
-    );
-  animation: tech-sky 40s linear infinite alternate;
+.arrivals-bar {
+  background: var(--c-accent);
 }
 
-@keyframes tech-sky {
-  to {
-    transform: translateY(-3vh);
-  }
-}
-
-/* A perspective grid floor along the bottom, moving towards the room. */
-.tech-floor {
-  position: absolute;
-  left: -50%;
-  right: -50%;
-  bottom: -10vh;
-  height: 55vh;
-  transform: perspective(60vh) rotateX(62deg);
-  transform-origin: center bottom;
-  background-image:
-    linear-gradient(color-mix(in srgb, var(--c-accent) 32%, transparent) 1px, transparent 1px),
-    linear-gradient(
-      90deg,
-      color-mix(in srgb, var(--c-accent) 32%, transparent) 1px,
-      transparent 1px
-    );
-  background-size: 8vh 8vh;
-  mask-image: linear-gradient(to top, black 10%, transparent 90%);
-  animation: tech-floor 6s linear infinite;
-}
-
-@keyframes tech-floor {
-  from {
-    background-position: 0 0;
-  }
-  to {
-    background-position: 0 8vh;
-  }
-}
-
-.tech-traces {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-}
-
-.tech-trace {
-  fill: none;
-  stroke: color-mix(in srgb, var(--c-accent) 28%, transparent);
-  stroke-width: 1.5;
-}
-
-.tech-pulse {
-  fill: none;
-  stroke: var(--c-accent);
-  stroke-width: 3;
-  stroke-linecap: round;
-  stroke-dasharray: 60 1400;
-  filter: drop-shadow(0 0 6px var(--c-accent));
-  animation: tech-pulse 6s linear infinite;
-}
-
-@keyframes tech-pulse {
-  from {
-    stroke-dashoffset: 1460;
-  }
-  to {
-    stroke-dashoffset: 0;
-  }
-}
-
-.tech-node {
-  fill: var(--c-accent);
-  filter: drop-shadow(0 0 6px var(--c-accent));
-  animation: tech-node 2.4s ease-in-out infinite;
-}
-
-@keyframes tech-node {
-  0%,
-  100% {
-    opacity: 0.35;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-
-/* A soft scan line passing down the screen now and then. */
-.tech-scan {
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 18vh;
-  top: -20vh;
-  background: linear-gradient(
-    to bottom,
-    transparent,
-    color-mix(in srgb, var(--c-accent) 10%, transparent) 70%,
-    color-mix(in srgb, var(--c-accent) 35%, transparent) 99%,
-    transparent
-  );
-  animation: tech-scan 9s ease-in-out infinite;
-}
-
-@keyframes tech-scan {
-  0%,
-  15% {
-    transform: translateY(0);
-    opacity: 0;
-  }
-  20% {
-    opacity: 1;
-  }
-  70% {
-    opacity: 1;
-  }
-  80%,
-  100% {
-    transform: translateY(140vh);
-    opacity: 0;
-  }
-}
-
-/* The count: gradient digits inside a slowly turning ring. */
-.tech-digits {
-  background: linear-gradient(180deg, var(--c-text) 30%, var(--c-accent) 75%, var(--c-primary));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  filter: drop-shadow(0 0 2.5vw color-mix(in srgb, var(--c-accent) 35%, transparent));
-}
-
-.tech-ring {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 1.45em;
-  height: 1.45em;
-  margin: -0.725em 0 0 -0.725em;
-  border-radius: 9999px;
-  background: conic-gradient(
-    from 0deg,
-    transparent 0 55%,
-    color-mix(in srgb, var(--c-accent) 70%, transparent) 75%,
-    var(--c-primary) 85%,
-    transparent 86%
-  );
-  mask: radial-gradient(closest-side, transparent 93%, black 94%, black 99%, transparent 100%);
-  animation: tech-ring 8s linear infinite;
-}
-
-.tech-ring::after {
-  content: '';
-  position: absolute;
-  inset: 1.2vw;
-  border-radius: 9999px;
-  border: 1px dashed color-mix(in srgb, var(--c-accent) 35%, transparent);
-  animation: tech-ring 30s linear infinite reverse;
-}
-
-@keyframes tech-ring {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.tech-bar-track {
-  background: color-mix(in srgb, var(--c-accent) 12%, transparent);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c-accent) 30%, transparent);
-}
-
-.tech-bar {
-  background: linear-gradient(90deg, var(--c-primary), var(--c-accent));
-  box-shadow: 0 0 1.5vw color-mix(in srgb, var(--c-accent) 60%, transparent);
-}
-
-/* The newest arrival, popped in with a glowing frame and corner brackets. */
-.tech-spotlight {
-  position: relative;
-  background: linear-gradient(
-    120deg,
-    color-mix(in srgb, #042c75 75%, transparent),
-    color-mix(in srgb, var(--c-surface) 85%, transparent)
-  );
-  border: 1px solid color-mix(in srgb, var(--c-accent) 55%, transparent);
-  box-shadow:
-    0 0 3vw color-mix(in srgb, var(--c-accent) 25%, transparent),
-    inset 0 0 2vw color-mix(in srgb, var(--c-accent) 10%, transparent);
-  animation:
-    spotlight-in 800ms cubic-bezier(0.2, 0.9, 0.3, 1.15) both,
-    spotlight-glow 2.6s ease-out 300ms;
-}
-
-.tech-spotlight::before,
-.tech-spotlight::after {
-  content: '';
-  position: absolute;
-  width: 2vw;
-  height: 2vw;
-  border-color: var(--c-accent);
-  border-style: solid;
-}
-
-.tech-spotlight::before {
-  top: -0.5vh;
-  left: -0.4vw;
-  border-width: 3px 0 0 3px;
-}
-
-.tech-spotlight::after {
-  bottom: -0.5vh;
-  right: -0.4vw;
-  border-width: 0 3px 3px 0;
+.arrivals-spotlight {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-left: 0.4vw solid var(--c-accent);
+  animation: spotlight-in 700ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
 @keyframes spotlight-in {
   from {
     opacity: 0;
-    transform: translateY(3vh) scale(0.92);
-    filter: blur(0.4vw);
+    transform: translateY(2.5vh);
   }
   to {
     opacity: 1;
     transform: none;
-    filter: none;
   }
 }
 
-@keyframes spotlight-glow {
-  0% {
-    box-shadow: 0 0 0 0 color-mix(in srgb, var(--c-accent) 70%, transparent);
-  }
-  100% {
-    box-shadow:
-      0 0 0 2vw transparent,
-      0 0 3vw color-mix(in srgb, var(--c-accent) 25%, transparent);
-  }
+/* The feed of earlier arrivals rolls downwards; plain overlays fade the
+   ends (cheaper than a mask on a moving layer). */
+.arrivals-feed::before,
+.arrivals-feed::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 10vh;
+  z-index: 1;
+  pointer-events: none;
 }
 
-/* The feed of earlier arrivals: fades at both ends and rolls downwards. */
-.tech-feed {
-  mask-image: linear-gradient(to bottom, transparent, black 12%, black 88%, transparent);
+.arrivals-feed::before {
+  top: 0;
+  background: linear-gradient(var(--c-background), transparent);
 }
 
-.tech-feed-roll {
-  animation-name: tech-feed-roll;
+.arrivals-feed::after {
+  bottom: 0;
+  background: linear-gradient(transparent, var(--c-background));
+}
+
+.arrivals-roll {
+  will-change: transform;
+  animation-name: arrivals-roll;
   animation-timing-function: linear;
   animation-iteration-count: infinite;
 }
 
-@keyframes tech-feed-roll {
+@keyframes arrivals-roll {
   from {
-    transform: translateY(-50%);
+    transform: translate3d(0, -50%, 0);
   }
   to {
-    transform: translateY(0);
+    transform: translate3d(0, 0, 0);
   }
 }
 
-.tech-card {
-  background: color-mix(in srgb, var(--c-surface) 75%, transparent);
-  border: 1px solid color-mix(in srgb, var(--c-accent) 22%, transparent);
-  border-left: 3px solid var(--c-accent);
-  backdrop-filter: blur(4px);
+.arrivals-row {
+  border-bottom: 1px solid var(--c-border);
 }
