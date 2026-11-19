@@ -91,7 +91,9 @@ export async function POST(request: Request): Promise<NextResponse> {
   const now = Date.now();
   const expiresAt = sessionExpiry(now, eventEnd);
   // Signing in with the PIN is how a kiosk tablet is unlocked.
-  response.cookies.delete(KIOSK_COOKIE);
+  if (new RegExp(`(^|;\\s*)${KIOSK_COOKIE}=`).test(request.headers.get('cookie') ?? '')) {
+    response.cookies.delete(KIOSK_COOKIE);
+  }
   response.cookies.set(ADMIN_COOKIE, createSessionValue(operator, pin, now, expiresAt), {
     ...cookieOptions,
     maxAge: Math.floor((expiresAt - now) / 1000),
