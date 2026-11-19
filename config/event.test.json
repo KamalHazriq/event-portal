@@ -676,5 +676,20 @@
     "enabled": true,
     "label": "Something special starts in",
     "targetAt": "2026-12-15T20:30"
+  },
+  "info": {
+    "title": "Know before you go",
+    "intro": "Practical details for the summit.",
+    "sections": [
+      {
+        "id": "getting-there",
+        "heading": "Getting there",
+        "items": [
+          { "label": "Venue", "text": "Grand Ballroom, Level 2" },
+          { "label": "Parking", "text": "To confirm" }
+        ]
+      },
+      { "id": "bring", "heading": "What to bring", "body": "Your phone, charged." }
+    ]
   }
 }

@@ -69,6 +69,13 @@ export default async function PortalLayout({ children }: { children: React.React
               {config.event.city ? `, ${config.event.city}` : ''}
             </p>
             {config.event.helpText ? <p className="mt-2">{config.event.helpText}</p> : null}
+            {config.info ? (
+              <p className="mt-2">
+                <Link href="/info" className="text-ink-soft">
+                  {config.info.title}
+                </Link>
+              </p>
+            ) : null}
             <p className="mt-2">
               <Link href="/guide" className="text-ink-soft">
                 How this portal works

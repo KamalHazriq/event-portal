@@ -152,6 +152,14 @@ export default async function AdminHomePage() {
       ? [`Speakers still to confirm: ${unconfirmed.map((s) => s.name).join(', ')}.`]
       : []),
     ...(isPlaceholderUrl(config.event.portalUrl) ? ['The portal address for the QR codes.'] : []),
+    ...(() => {
+      const open = (config.info?.sections ?? []).flatMap((s) =>
+        s.items.filter((i) => looksUnconfirmed(i.text)).map((i) => i.label),
+      );
+      return open.length > 0
+        ? [`${config.info?.title ?? 'Info page'}: ${open.join(', ')}. Shown as "coming soon".`]
+        : [];
+    })(),
   ];
 
   const style = await readStyle();

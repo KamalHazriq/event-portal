@@ -214,6 +214,21 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
             </section>
           ) : null}
 
+          {config.info ? (
+            <section className="rounded-xl border border-line bg-muted p-4">
+              <h2 className="text-base font-bold text-ink">{config.info.title}</h2>
+              <p className="mt-1 text-sm text-ink-soft">
+                Getting there, what to bring and other practical details.
+              </p>
+              <Link
+                href={`/info${linkSuffix}`}
+                className="mt-3 inline-flex min-h-11 items-center rounded-lg border border-line bg-surface px-4 py-2.5 font-bold text-ink no-underline"
+              >
+                Read the details
+              </Link>
+            </section>
+          ) : null}
+
           {config.features.resources && config.resources.some((r) => !isPlaceholderUrl(r.url)) ? (
             <section className="rounded-xl border border-line bg-muted p-4">
               <h2 className="text-base font-bold text-ink">Take aways</h2>

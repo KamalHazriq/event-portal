@@ -177,6 +177,13 @@ export function RuledFooter({ config }: { config: EventConfig }) {
         <nav aria-label="Help">
           <p className={group}>Help</p>
           <ul className="mt-3 space-y-2">
+            {config.info ? (
+              <li>
+                <Link href="/info" className={linkClass}>
+                  {config.info.title}
+                </Link>
+              </li>
+            ) : null}
             <li>
               <Link href="/guide" className={linkClass}>
                 How this portal works

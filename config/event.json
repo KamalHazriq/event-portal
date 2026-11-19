@@ -579,5 +579,78 @@
     "enabled": true,
     "label": "Synergy Night starts in",
     "targetAt": "2026-12-14T20:00"
+  },
+  "info": {
+    "_readme": "Know before you go, at /info. Write 'to confirm' in any line not settled yet: attendees see 'coming soon' and the secretariat home lists it.",
+    "title": "Know before you go",
+    "intro": "The practical details for the three days. This page is updated as plans are confirmed.",
+    "sections": [
+      {
+        "id": "getting-there",
+        "heading": "Getting there",
+        "items": [
+          {
+            "label": "Venue",
+            "text": "Wyndham Ion Majestic, Genting Highlands"
+          },
+          {
+            "label": "Dates",
+            "text": "Monday 14 to Wednesday 16 December 2026"
+          },
+          {
+            "label": "Transport",
+            "text": "To confirm"
+          },
+          {
+            "label": "Parking",
+            "text": "To confirm"
+          }
+        ]
+      },
+      {
+        "id": "arriving",
+        "heading": "Arriving and checking in",
+        "body": "Come to the registration desk when you arrive each day. The desk scans the digital business card in your TNB app, or finds you by name.",
+        "items": [
+          {
+            "label": "Hotel check in",
+            "text": "To confirm"
+          }
+        ]
+      },
+      {
+        "id": "bring",
+        "heading": "What to bring",
+        "items": [
+          {
+            "label": "Your phone",
+            "text": "Charged. This portal runs in the browser, so there is nothing to install."
+          },
+          {
+            "label": "Dress code",
+            "text": "To confirm"
+          }
+        ]
+      },
+      {
+        "id": "on-site",
+        "heading": "On site",
+        "items": [
+          {
+            "label": "Wi-Fi",
+            "text": "To confirm"
+          },
+          {
+            "label": "Help",
+            "text": "Ask anyone at the registration desk."
+          }
+        ]
+      },
+      {
+        "id": "photos",
+        "heading": "Photos",
+        "body": "Photos shared on the Photos page can appear on the big screen. The portal removes the location and camera details from each photo before it is sent."
+      }
+    ]
   }
 }

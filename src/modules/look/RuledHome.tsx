@@ -516,7 +516,11 @@ export async function RuledHome({
         <Opener
           id="faq"
           lines={['Good to', 'know']}
-          control={{ href: '/guide', label: 'Full guide' }}
+          control={
+            config.info
+              ? { href: '/info', label: config.info.title }
+              : { href: '/guide', label: 'Full guide' }
+          }
         />
         <dl className="mt-8 grid gap-x-12 gap-y-8 md:grid-cols-2">
           {faqs.map(([q, a]) => (

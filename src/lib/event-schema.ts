@@ -207,6 +207,28 @@ export const ResourceSchema = z.object({
   kind: z.enum(['link', 'file']).default('link'),
 });
 
+/**
+ * "Know before you go": a short page of practical details (getting there,
+ * what to bring, Wi-Fi). Write "to confirm" in a line that is not settled
+ * yet: attendees see "coming soon" and the secretariat home lists it.
+ */
+export const InfoSchema = z.object({
+  title: z.string().min(1).max(80).default('Know before you go'),
+  intro: z.string().max(600).default(''),
+  sections: z
+    .array(
+      z.object({
+        id,
+        heading: z.string().min(1).max(100),
+        body: z.string().max(2000).default(''),
+        items: z
+          .array(z.object({ label: z.string().min(1).max(80), text: z.string().min(1).max(400) }))
+          .default([]),
+      }),
+    )
+    .min(1),
+});
+
 export const SurpriseSchema = z.object({
   enabled: z.boolean().default(false),
   label: z.string().max(80).default('Starting soon'),
@@ -267,6 +289,7 @@ export const EventConfigSchema = z
     speakers: z.array(SpeakerSchema).default([]),
     resources: z.array(ResourceSchema).default([]),
     surprise: SurpriseSchema.optional(),
+    info: InfoSchema.optional(),
     /**
      * Name tags. With personalQr off (the default), each tag is one sided:
      * the name and the portal QR, and the desk checks people in by their
