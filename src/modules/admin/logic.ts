@@ -67,7 +67,7 @@ export function surpriseInstant(surprise: Surprise, timezone: string): Date | nu
 }
 
 /**
- * "2 hours 15 minutes", "45 seconds", "now".
+ * "3 days 4 hours", "2 hours 15 minutes", "45 seconds", "now".
  *
  * Seconds only appear under two minutes, because a number ticking every
  * second on a projector pulls the room's eyes away from whoever is speaking.
@@ -82,6 +82,12 @@ export function formatCountdown(millisecondsLeft: number): string {
 
   const part = (value: number, word: string) => `${value} ${word}${value === 1 ? '' : 's'}`;
 
+  // A day or more away: "25 days 18 hours", not "618 hours".
+  if (hours >= 24) {
+    const days = Math.floor(hours / 24);
+    const rest = hours % 24;
+    return rest > 0 ? `${part(days, 'day')} ${part(rest, 'hour')}` : part(days, 'day');
+  }
   if (hours > 0) {
     return minutes > 0 ? `${part(hours, 'hour')} ${part(minutes, 'minute')}` : part(hours, 'hour');
   }

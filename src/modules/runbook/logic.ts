@@ -80,7 +80,7 @@ export function planDay(
     } else if (s.type === 'meal' || s.type === 'break') {
       if (s.start >= EVENING && features.luckyDraw) {
         view = features.photoWall ? 'photos' : 'welcome';
-        actions.push('Photo slideshow; lucky draw when the MC calls it');
+        actions.push('Photo wall; lucky draw when the MC calls it');
       } else {
         view = features.photoWall ? 'photos' : 'now-next';
         actions.push('Approve photos as they come in');

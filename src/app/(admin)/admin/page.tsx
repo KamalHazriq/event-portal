@@ -384,7 +384,7 @@ export default async function AdminHomePage() {
                   <Icon name={page.icon} className="size-4 shrink-0 text-primary" />
                   <span className="min-w-0">
                     <span className="block text-sm font-semibold text-ink">{page.title}</span>
-                    <span className="block truncate text-xs text-ink-soft">{page.description}</span>
+                    <span className="block text-xs text-ink-soft">{page.description}</span>
                   </span>
                 </Link>
               </li>

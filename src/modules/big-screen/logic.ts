@@ -64,7 +64,8 @@ export const SCREEN_VIEW_INFO: Record<
   },
   arrivals: {
     title: 'Arrivals',
-    description: 'A live "42 / 78 arrived" counter, with a welcome card for each check in.',
+    description:
+      'A live "42 / 78" guest counter, the newest arrival in a spotlight, and a rolling list of who came in.',
     whenToUse: 'Registration each morning',
   },
   countdown: {
@@ -73,8 +74,9 @@ export const SCREEN_VIEW_INFO: Record<
     whenToUse: 'The build up to the surprise',
   },
   photos: {
-    title: 'Photo slideshow',
-    description: 'Approved photos from the photo wall, one every eight seconds.',
+    title: 'Photo wall',
+    description:
+      'Approved photos as a slideshow, grid or mosaic (choose on the Photos page). New ones pop up large.',
     whenToUse: 'Breaks and dinner',
   },
   qa: {

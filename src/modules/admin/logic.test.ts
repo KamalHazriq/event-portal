@@ -88,6 +88,13 @@ describe('surpriseInstant', () => {
 });
 
 describe('formatCountdown', () => {
+  it('counts in days and hours when it is a day or more away', () => {
+    const hour = 60 * 60 * 1000;
+    expect(formatCountdown((25 * 24 + 18) * hour + 49 * 60 * 1000)).toBe('25 days 18 hours');
+    expect(formatCountdown(24 * hour)).toBe('1 day');
+    expect(formatCountdown(23 * hour + 5 * 60 * 1000)).toBe('23 hours 5 minutes');
+  });
+
   it('counts down in hours and minutes when there is a while to go', () => {
     expect(formatCountdown(2 * 3600_000 + 15 * 60_000)).toBe('2 hours 15 minutes');
     expect(formatCountdown(1 * 3600_000)).toBe('1 hour');
