@@ -10,6 +10,7 @@ import {
   resolveCheckInDay,
   scanOutcomeMessage,
   sortByOutstanding,
+  kioskMessage,
 } from './logic';
 
 const at = (date: string): EventNow => ({ date, minutes: 600, isOverride: false });
@@ -176,5 +177,32 @@ describe('scanOutcomeMessage', () => {
       .map(scanOutcomeMessage)
       .join(' ');
     expect(all).not.toMatch(/[—–]/);
+  });
+});
+
+describe('kioskMessage', () => {
+  it('greets by first name only', () => {
+    expect(kioskMessage('checked-in', 'Nurul Aisyah Hashim', 'Day 1')).toEqual({
+      tone: 'good',
+      title: 'Welcome, Nurul!',
+      detail: 'You are checked in for Day 1.',
+    });
+    expect(kioskMessage('already-checked-in', 'Ali', 'Day 2').title).toBe('Welcome back, Ali');
+  });
+
+  it('sends anything unsure to the desk, without naming anyone', () => {
+    for (const outcome of ['choose', 'not-found', 'card-not-found', 'error'] as const) {
+      expect(kioskMessage(outcome, 'Someone Else', 'Day 1')).toMatchObject({
+        tone: 'desk',
+        title: 'Please see the registration desk',
+      });
+      expect(JSON.stringify(kioskMessage(outcome, 'Someone Else', 'Day 1'))).not.toContain(
+        'Someone',
+      );
+    }
+  });
+
+  it('asks to try again when the code did not read', () => {
+    expect(kioskMessage('unreadable', undefined, 'Day 1').tone).toBe('again');
   });
 });

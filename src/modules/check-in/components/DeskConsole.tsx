@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { looksLikeBusinessCard } from '../business-card';
 import { parseScanPayload, scanOutcomeMessage, type ScanOutcome } from '../logic';
+import { useQrScanner } from './useQrScanner';
 
 /**
  * The registration desk.
@@ -53,10 +54,6 @@ const REPEAT_WINDOW_MS = 4000;
 /** How often the counter catches up with other desks. */
 const POLL_MS = 5000;
 
-type BarcodeDetectorLike = {
-  detect: (source: CanvasImageSource) => Promise<{ rawValue: string }[]>;
-};
-
 export function DeskConsole({
   dayId,
   dayLabel,
@@ -68,16 +65,11 @@ export function DeskConsole({
 }) {
   const [headcount, setHeadcount] = useState<Rate>(initialHeadcount);
   const [result, setResult] = useState<Result | null>(null);
-  const [cameraOn, setCameraOn] = useState(false);
-  const [cameraError, setCameraError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [query, setQuery] = useState('');
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [searchMessage, setSearchMessage] = useState('');
 
-  const videoRef = useRef<HTMLVideoElement | null>(null);
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const streamRef = useRef<MediaStream | null>(null);
   const recentRef = useRef<Map<string, number>>(new Map());
   const manualRef = useRef<HTMLInputElement | null>(null);
 
@@ -189,108 +181,10 @@ export function DeskConsole({
 
   /* ------------------------------------------------------------ camera */
 
-  const stopCamera = useCallback(() => {
-    streamRef.current?.getTracks().forEach((track) => track.stop());
-    streamRef.current = null;
-    setCameraOn(false);
-  }, []);
-
-  const startCamera = useCallback(async () => {
-    setCameraError(null);
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment' },
-        audio: false,
-      });
-      streamRef.current = stream;
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        await videoRef.current.play();
-      }
-      setCameraOn(true);
-    } catch {
-      setCameraError(
-        'The camera could not start. Check the browser has permission, or use the box below.',
-      );
-      setCameraOn(false);
-    }
-  }, []);
-
-  // Always let go of the camera when leaving the page.
-  useEffect(() => () => stopCamera(), [stopCamera]);
-
-  // The scanning loop.
-  useEffect(() => {
-    if (!cameraOn) return;
-
-    let stopped = false;
-    let frame = 0;
-    let detector: BarcodeDetectorLike | null = null;
-    let decodeFallback: typeof import('jsqr').default | null = null;
-
-    const setup = async () => {
-      const maybe = (
-        window as unknown as {
-          BarcodeDetector?: new (options: { formats: string[] }) => BarcodeDetectorLike;
-        }
-      ).BarcodeDetector;
-
-      if (maybe) {
-        try {
-          detector = new maybe({ formats: ['qr_code'] });
-          return;
-        } catch {
-          detector = null;
-        }
-      }
-      // Only downloaded when the browser cannot do it itself.
-      decodeFallback = (await import('jsqr')).default;
-    };
-
-    const tick = async () => {
-      if (stopped) return;
-      const video = videoRef.current;
-      const canvas = canvasRef.current;
-
-      if (video && canvas && video.readyState === video.HAVE_ENOUGH_DATA) {
-        const width = video.videoWidth;
-        const height = video.videoHeight;
-
-        if (width > 0 && height > 0) {
-          try {
-            if (detector) {
-              const found = await detector.detect(video);
-              const value = found[0]?.rawValue;
-              if (value) handleScanned(value);
-            } else if (decodeFallback) {
-              canvas.width = width;
-              canvas.height = height;
-              const context = canvas.getContext('2d', { willReadFrequently: true });
-              if (context) {
-                context.drawImage(video, 0, 0, width, height);
-                const image = context.getImageData(0, 0, width, height);
-                const found = decodeFallback(image.data, width, height);
-                if (found?.data) handleScanned(found.data);
-              }
-            }
-          } catch {
-            // A single bad frame is not worth stopping the scanner for.
-          }
-        }
-      }
-
-      if (!stopped) frame = window.setTimeout(tick, 220) as unknown as number;
-    };
-
-    void setup().then(() => {
-      if (!stopped) void tick();
-    });
-
-    return () => {
-      stopped = true;
-      window.clearTimeout(frame);
-    };
-  }, [cameraOn, handleScanned]);
+  const { videoRef, canvasRef, cameraOn, cameraError, startCamera, stopCamera } = useQrScanner(
+    handleScanned,
+    'environment',
+  );
 
   /* ------------------------------------------------- counter and search */
 

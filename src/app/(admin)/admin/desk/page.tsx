@@ -45,6 +45,29 @@ export default async function DeskPage({ searchParams }: { searchParams: SearchP
         </p>
       </header>
 
+      <details className="rounded-xl border border-line bg-surface p-4">
+        <summary className="cursor-pointer font-semibold text-ink">
+          Long queue? Add a self check in kiosk
+        </summary>
+        <div className="mt-2 space-y-2 text-ink">
+          <p>
+            On a spare tablet, sign in here with the PIN, then open the kiosk. People hold up the
+            business card in their TNB app to the front camera and see a big welcome. Anyone it
+            cannot match is sent to this desk; it never shows other people&apos;s names.
+          </p>
+          <p className="text-sm text-ink-soft">
+            The tablet is signed in as the secretariat, so lock it to the page: screen pinning on
+            Android, Guided Access on an iPad.
+          </p>
+          <Link
+            href="/kiosk"
+            className="inline-flex min-h-11 items-center rounded-lg bg-primary px-4 font-bold text-on-primary no-underline"
+          >
+            Open the kiosk
+          </Link>
+        </div>
+      </details>
+
       {days.length > 1 ? (
         <nav aria-label="Choose a day">
           <ul className="flex flex-wrap gap-2">

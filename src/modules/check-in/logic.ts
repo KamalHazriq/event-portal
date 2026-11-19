@@ -153,3 +153,56 @@ export function sortByOutstanding<T extends { expected: number; arrived: number 
     return b.expected - a.expected;
   });
 }
+
+/** How long the self check in kiosk shows a result before it is ready again. */
+export const KIOSK_RESET_MS = 5_000;
+
+/**
+ * What the self check in kiosk says. The person reading it is the attendee,
+ * so it greets them by first name only and never lists anyone else: anything
+ * unsure (two people with the same name, a card not on the list) sends them
+ * to the desk.
+ */
+export function kioskMessage(
+  outcome: ScanOutcome,
+  fullName: string | undefined,
+  dayLabel: string,
+): { tone: 'good' | 'again' | 'desk'; title: string; detail: string } {
+  const first = (fullName ?? '').trim().split(/\s+/)[0] ?? '';
+  const hello = first ? `, ${first}` : '';
+  switch (outcome) {
+    case 'checked-in':
+      return {
+        tone: 'good',
+        title: `Welcome${hello}!`,
+        detail: `You are checked in for ${dayLabel}.`,
+      };
+    case 'already-checked-in':
+      return {
+        tone: 'good',
+        title: `Welcome back${hello}`,
+        detail: `You were already checked in for ${dayLabel}.`,
+      };
+    case 'unreadable':
+      return {
+        tone: 'again',
+        title: 'Could not read that',
+        detail: 'Turn your screen brightness up and hold the card a little further away.',
+      };
+    case 'rate-limited':
+      return { tone: 'again', title: 'One moment', detail: 'Try again in a few seconds.' };
+    case 'choose':
+    case 'not-found':
+    case 'card-not-found':
+    case 'error':
+      return {
+        tone: 'desk',
+        title: 'Please see the registration desk',
+        detail: 'They will check you in by name.',
+      };
+    default: {
+      const unreachable: never = outcome;
+      return { tone: 'desk', title: String(unreachable), detail: '' };
+    }
+  }
+}
