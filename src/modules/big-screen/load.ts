@@ -177,7 +177,7 @@ export async function loadScreenView(
           expected: rate.expected,
           percent: rate.percent,
           dayLabel: day?.label ?? 'today',
-          cards: arrivalCards(recent, hideNames).map((c) => ({
+          cards: arrivalCards(recent, hideNames, 20).map((c) => ({
             ...c,
             department: shortDepartment(config, c.department),
           })),

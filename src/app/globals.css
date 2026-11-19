@@ -1277,3 +1277,321 @@ label.bg-primary:hover::after {
   bottom: 3vh;
   background: var(--c-border);
 }
+
+/* ------------------------------------------------------------------------
+ * Projector "technology" look (the arrivals view first). Event colours: the
+ * navy and logo blue from the brand, the teal accent. Pure CSS.
+ * ---------------------------------------------------------------------- */
+
+.tech-backdrop {
+  z-index: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(
+      70vw 60vh at 15% 45%,
+      color-mix(in srgb, #042c75 70%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      50vw 50vh at 90% 20%,
+      color-mix(in srgb, var(--c-accent) 18%, transparent),
+      transparent 70%
+    ),
+    linear-gradient(180deg, #020a18 0%, var(--c-background) 55%, #02121a 100%);
+}
+
+/* Faint stars of light drifting very slowly. */
+.tech-sky {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(
+      1px 1px at 12% 18%,
+      color-mix(in srgb, var(--c-accent) 80%, transparent),
+      transparent
+    ),
+    radial-gradient(
+      1px 1px at 68% 12%,
+      color-mix(in srgb, var(--c-text) 60%, transparent),
+      transparent
+    ),
+    radial-gradient(
+      1.5px 1.5px at 82% 38%,
+      color-mix(in srgb, var(--c-accent) 70%, transparent),
+      transparent
+    ),
+    radial-gradient(
+      1px 1px at 34% 30%,
+      color-mix(in srgb, var(--c-text) 50%, transparent),
+      transparent
+    ),
+    radial-gradient(
+      1.5px 1.5px at 52% 8%,
+      color-mix(in srgb, var(--c-primary) 90%, transparent),
+      transparent
+    );
+  animation: tech-sky 40s linear infinite alternate;
+}
+
+@keyframes tech-sky {
+  to {
+    transform: translateY(-3vh);
+  }
+}
+
+/* A perspective grid floor along the bottom, moving towards the room. */
+.tech-floor {
+  position: absolute;
+  left: -50%;
+  right: -50%;
+  bottom: -10vh;
+  height: 55vh;
+  transform: perspective(60vh) rotateX(62deg);
+  transform-origin: center bottom;
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--c-accent) 32%, transparent) 1px, transparent 1px),
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--c-accent) 32%, transparent) 1px,
+      transparent 1px
+    );
+  background-size: 8vh 8vh;
+  mask-image: linear-gradient(to top, black 10%, transparent 90%);
+  animation: tech-floor 6s linear infinite;
+}
+
+@keyframes tech-floor {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 0 8vh;
+  }
+}
+
+.tech-traces {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.tech-trace {
+  fill: none;
+  stroke: color-mix(in srgb, var(--c-accent) 28%, transparent);
+  stroke-width: 1.5;
+}
+
+.tech-pulse {
+  fill: none;
+  stroke: var(--c-accent);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 60 1400;
+  filter: drop-shadow(0 0 6px var(--c-accent));
+  animation: tech-pulse 6s linear infinite;
+}
+
+@keyframes tech-pulse {
+  from {
+    stroke-dashoffset: 1460;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.tech-node {
+  fill: var(--c-accent);
+  filter: drop-shadow(0 0 6px var(--c-accent));
+  animation: tech-node 2.4s ease-in-out infinite;
+}
+
+@keyframes tech-node {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* A soft scan line passing down the screen now and then. */
+.tech-scan {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 18vh;
+  top: -20vh;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    color-mix(in srgb, var(--c-accent) 10%, transparent) 70%,
+    color-mix(in srgb, var(--c-accent) 35%, transparent) 99%,
+    transparent
+  );
+  animation: tech-scan 9s ease-in-out infinite;
+}
+
+@keyframes tech-scan {
+  0%,
+  15% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  70% {
+    opacity: 1;
+  }
+  80%,
+  100% {
+    transform: translateY(140vh);
+    opacity: 0;
+  }
+}
+
+/* The count: gradient digits inside a slowly turning ring. */
+.tech-digits {
+  background: linear-gradient(180deg, var(--c-text) 30%, var(--c-accent) 75%, var(--c-primary));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 2.5vw color-mix(in srgb, var(--c-accent) 35%, transparent));
+}
+
+.tech-ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 1.45em;
+  height: 1.45em;
+  margin: -0.725em 0 0 -0.725em;
+  border-radius: 9999px;
+  background: conic-gradient(
+    from 0deg,
+    transparent 0 55%,
+    color-mix(in srgb, var(--c-accent) 70%, transparent) 75%,
+    var(--c-primary) 85%,
+    transparent 86%
+  );
+  mask: radial-gradient(closest-side, transparent 93%, black 94%, black 99%, transparent 100%);
+  animation: tech-ring 8s linear infinite;
+}
+
+.tech-ring::after {
+  content: '';
+  position: absolute;
+  inset: 1.2vw;
+  border-radius: 9999px;
+  border: 1px dashed color-mix(in srgb, var(--c-accent) 35%, transparent);
+  animation: tech-ring 30s linear infinite reverse;
+}
+
+@keyframes tech-ring {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.tech-bar-track {
+  background: color-mix(in srgb, var(--c-accent) 12%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c-accent) 30%, transparent);
+}
+
+.tech-bar {
+  background: linear-gradient(90deg, var(--c-primary), var(--c-accent));
+  box-shadow: 0 0 1.5vw color-mix(in srgb, var(--c-accent) 60%, transparent);
+}
+
+/* The newest arrival, popped in with a glowing frame and corner brackets. */
+.tech-spotlight {
+  position: relative;
+  background: linear-gradient(
+    120deg,
+    color-mix(in srgb, #042c75 75%, transparent),
+    color-mix(in srgb, var(--c-surface) 85%, transparent)
+  );
+  border: 1px solid color-mix(in srgb, var(--c-accent) 55%, transparent);
+  box-shadow:
+    0 0 3vw color-mix(in srgb, var(--c-accent) 25%, transparent),
+    inset 0 0 2vw color-mix(in srgb, var(--c-accent) 10%, transparent);
+  animation:
+    spotlight-in 800ms cubic-bezier(0.2, 0.9, 0.3, 1.15) both,
+    spotlight-glow 2.6s ease-out 300ms;
+}
+
+.tech-spotlight::before,
+.tech-spotlight::after {
+  content: '';
+  position: absolute;
+  width: 2vw;
+  height: 2vw;
+  border-color: var(--c-accent);
+  border-style: solid;
+}
+
+.tech-spotlight::before {
+  top: -0.5vh;
+  left: -0.4vw;
+  border-width: 3px 0 0 3px;
+}
+
+.tech-spotlight::after {
+  bottom: -0.5vh;
+  right: -0.4vw;
+  border-width: 0 3px 3px 0;
+}
+
+@keyframes spotlight-in {
+  from {
+    opacity: 0;
+    transform: translateY(3vh) scale(0.92);
+    filter: blur(0.4vw);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+@keyframes spotlight-glow {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--c-accent) 70%, transparent);
+  }
+  100% {
+    box-shadow:
+      0 0 0 2vw transparent,
+      0 0 3vw color-mix(in srgb, var(--c-accent) 25%, transparent);
+  }
+}
+
+/* The feed of earlier arrivals: fades at both ends and rolls downwards. */
+.tech-feed {
+  mask-image: linear-gradient(to bottom, transparent, black 12%, black 88%, transparent);
+}
+
+.tech-feed-roll {
+  animation-name: tech-feed-roll;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@keyframes tech-feed-roll {
+  from {
+    transform: translateY(-50%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.tech-card {
+  background: color-mix(in srgb, var(--c-surface) 75%, transparent);
+  border: 1px solid color-mix(in srgb, var(--c-accent) 22%, transparent);
+  border-left: 3px solid var(--c-accent);
+  backdrop-filter: blur(4px);
+}

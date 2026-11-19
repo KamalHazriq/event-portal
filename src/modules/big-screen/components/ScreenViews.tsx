@@ -221,13 +221,18 @@ export function ArrivalsView({
   secretariat?: number;
 }) {
   const milestone = arrivalMilestone(percent);
+  const [newest, ...earlier] = cards;
+
   const counter = (
     <div className={`relative ${hideNames ? 'text-center' : ''}`}>
       <p className={LABEL}>Guests arrived, {dayLabel}</p>
-      <p className="relative mt-[1vh] font-bold leading-none tabular-nums text-ink">
-        <span className="relative inline-block text-[clamp(5rem,16vw,22rem)]">
-          <RollingNumber value={arrived} />
-          {/* A burst of dots each time the count goes up. */}
+      <p className="relative mt-[2vh] font-bold leading-none tabular-nums">
+        <span className="relative inline-block text-[clamp(5rem,15vw,20rem)]">
+          {/* A slowly turning ring around the number. */}
+          <span aria-hidden="true" className="tech-ring" />
+          <span className="tech-digits relative">
+            <RollingNumber value={arrived} />
+          </span>
           {arrived > 0 ? (
             <span key={arrived} aria-hidden="true" className="burst">
               {Array.from({ length: 12 }, (_, i) => (
@@ -236,28 +241,23 @@ export function ArrivalsView({
             </span>
           ) : null}
         </span>
-        <span className="text-[clamp(2rem,6vw,8rem)] text-ink-soft"> / {expected}</span>
+        <span className="text-[clamp(2rem,5vw,7rem)] text-ink-soft"> / {expected}</span>
       </p>
       <div
-        className="mt-[3vh] h-[2vh] w-full overflow-hidden rounded-full bg-muted"
+        className="tech-bar-track mt-[3vh] h-[1.6vh] w-full overflow-hidden rounded-full"
         role="progressbar"
         aria-valuenow={percent}
         aria-valuemin={0}
         aria-valuemax={100}
         aria-label="Arrivals so far"
       >
-        <div
-          className="screen-bar bar-shine h-full rounded-full bg-accent"
-          style={{ width: `${percent}%` }}
-        />
+        <div className="screen-bar tech-bar h-full rounded-full" style={{ width: `${percent}%` }} />
       </div>
-      {secretariat > 0 ? (
-        <p className="mt-[1.5vh] text-[clamp(0.9rem,1.4vw,2rem)] text-ink-soft">
-          plus {secretariat} secretariat
-        </p>
-      ) : null}
+      <p className="mt-[1.2vh] flex justify-between gap-[2vw] text-[clamp(0.9rem,1.4vw,2rem)] text-ink-soft">
+        <span>{percent}% here</span>
+        {secretariat > 0 ? <span>plus {secretariat} secretariat</span> : null}
+      </p>
       {milestone ? (
-        // Keyed by the milestone, so it shows once when it is reached.
         <p
           key={milestone.at}
           className="milestone mt-[2vh] inline-block rounded-full bg-accent px-[1.6vw] py-[0.8vh] text-[clamp(1rem,2vw,2.8rem)] font-bold text-canvas"
@@ -269,35 +269,82 @@ export function ArrivalsView({
   );
 
   if (hideNames) {
-    return <div className="mx-auto flex h-full w-[70vw] flex-col justify-center">{counter}</div>;
+    return (
+      <div className="relative h-full">
+        <div className="relative mx-auto flex h-full w-[70vw] flex-col justify-center">
+          {counter}
+        </div>
+      </div>
+    );
   }
 
+  // The feed rolls once there are a few names. Each half of the loop is
+  // padded to at least twelve rows, so the column never shows a gap.
+  const scroll = earlier.length >= 5;
+  const loop = scroll
+    ? Array.from({ length: Math.ceil(12 / earlier.length) }, () => earlier).flat()
+    : earlier;
+  const feedCard = (card: ArrivalCard, copy: string) => (
+    <li
+      key={`${copy}-${card.key}`}
+      className="tech-card flex items-baseline justify-between gap-[1.5vw] rounded-[0.8vw] px-[1.6vw] py-[1.4vh]"
+    >
+      <span className="min-w-0 truncate text-[clamp(1rem,1.8vw,2.6rem)] font-semibold text-ink">
+        {card.name}
+      </span>
+      <span className="shrink-0 font-mono text-[clamp(0.8rem,1.2vw,1.7rem)] font-semibold tracking-wider text-accent">
+        {card.department}
+      </span>
+    </li>
+  );
+
   return (
-    <div className="grid h-full grid-cols-[1fr_1.1fr] items-center gap-[5vw]">
-      {counter}
-      <ul className="space-y-[1.6vh]" aria-label="Latest arrivals">
-        {cards.length === 0 ? (
-          <li className="text-[clamp(1.2rem,2.2vw,3rem)] text-ink-soft">
-            Welcome cards appear here as people check in.
-          </li>
-        ) : (
-          cards.map((card, i) => (
-            // Keyed by check in, so only a new arrival animates in.
-            <li
-              key={card.key}
-              className={`arrival-card rounded-[1vw] border border-line bg-surface px-[2vw] py-[1.6vh] ${
-                i === 0 ? 'arrival-new' : ''
-              }`}
-              style={{ opacity: i === 0 ? 1 : Math.max(0.45, 1 - i * 0.12) }}
-            >
-              <p className="text-[clamp(1.2rem,2.4vw,3.2rem)] font-bold leading-tight text-ink">
-                Welcome, {card.name}
+    <div className="relative h-full">
+      <div className="relative grid h-full grid-cols-[1fr_1fr] grid-rows-[minmax(0,1fr)] items-center gap-[5vw]">
+        <div className="flex flex-col gap-[4vh]">
+          {counter}
+          {newest ? (
+            // Keyed by the newest check in, so each arrival pops in.
+            <div key={newest.key} className="tech-spotlight rounded-[1.2vw] px-[2vw] py-[2.2vh]">
+              <p className="text-[clamp(0.8rem,1.2vw,1.7rem)] font-semibold tracking-[0.2em] text-accent uppercase">
+                Just arrived
               </p>
-              <p className="text-[clamp(0.9rem,1.5vw,2rem)] text-ink-soft">{card.department}</p>
-            </li>
-          ))
-        )}
-      </ul>
+              <p className="mt-[0.6vh] text-[clamp(1.6rem,3.2vw,4.6rem)] font-bold leading-tight text-ink [text-wrap:balance]">
+                Welcome, {newest.name}
+              </p>
+              <p className="mt-[0.4vh] font-mono text-[clamp(1rem,1.6vw,2.3rem)] font-semibold tracking-wider text-accent">
+                {newest.department}
+              </p>
+            </div>
+          ) : (
+            <p className="text-[clamp(1.2rem,2.2vw,3rem)] text-ink-soft">
+              Welcome cards appear here as people check in.
+            </p>
+          )}
+        </div>
+
+        <div
+          className="tech-feed relative h-full min-h-0 self-stretch overflow-hidden"
+          aria-label="Arrived earlier"
+        >
+          {earlier.length > 0 ? (
+            <div
+              key={newest?.key}
+              className={scroll ? 'tech-feed-roll' : ''}
+              style={scroll ? { animationDuration: `${loop.length * 3}s` } : undefined}
+            >
+              <ul className="space-y-[1.4vh] pb-[1.4vh]">
+                {loop.map((c, i) => feedCard(c, `a${i}`))}
+              </ul>
+              {scroll ? (
+                <ul aria-hidden="true" className="space-y-[1.4vh] pb-[1.4vh]">
+                  {loop.map((c, i) => feedCard(c, `b${i}`))}
+                </ul>
+              ) : null}
+            </div>
+          ) : null}
+        </div>
+      </div>
     </div>
   );
 }

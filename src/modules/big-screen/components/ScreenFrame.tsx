@@ -3,6 +3,7 @@ import { AutoRefresh } from '@/components/AutoRefresh';
 import { SCREEN_POLL_MS } from '../logic';
 import type { ScreenPayload } from '../load';
 import { ReactionOverlay } from './ReactionOverlay';
+import { TechBackdrop } from './TechBackdrop';
 import {
   ArrivalsView,
   CommentsView,
@@ -40,8 +41,10 @@ export function ScreenFrame({
       className="screen-glow relative flex h-dvh w-full flex-col overflow-hidden px-[5vw] pb-[5vh] pt-[7vh]"
     >
       <AutoRefresh intervalMs={SCREEN_POLL_MS} />
+      {/* The technology look, on the arrivals view for now. */}
+      {payload.view === 'arrivals' ? <TechBackdrop /> : null}
 
-      <div className="absolute inset-x-[5vw] top-[2.5vh] flex items-center justify-between text-[clamp(0.8rem,1.2vw,1.6rem)] text-ink-soft">
+      <div className="absolute inset-x-[5vw] top-[2.5vh] z-20 flex items-center justify-between text-[clamp(0.8rem,1.2vw,1.6rem)] text-ink-soft">
         <span className="font-semibold">{shortName}</span>
         <span className="tabular-nums">
           {testMode ? 'Test time ' : ''}
@@ -50,7 +53,7 @@ export function ScreenFrame({
       </div>
 
       {/* Keyed by view, so switching views fades the new one in. */}
-      <div key={payload.view} className="min-h-0 flex-1">
+      <div key={payload.view} className="relative min-h-0 flex-1">
         {payload.view === 'welcome' ? <WelcomeView {...payload.props} /> : null}
         {payload.view === 'now-next' ? <NowNextView {...payload.props} /> : null}
         {payload.view === 'arrivals' ? <ArrivalsView {...payload.props} /> : null}
