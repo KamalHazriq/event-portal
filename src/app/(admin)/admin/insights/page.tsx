@@ -67,6 +67,7 @@ export default async function InsightsPage({ searchParams }: { searchParams: Sea
     { label: 'Came at least one day', value: cameAny },
     { label: 'Phones taking part', value: phonesTakingPart(input) },
     { label: 'Linked for points', value: input.links.length },
+    { label: 'Alerts on', value: input.alertPhones ?? 0 },
     { label: 'Photos shared', value: input.photos.length },
     { label: 'Comments', value: input.comments.length },
     { label: 'Feedback answers', value: input.feedback.length },
@@ -126,7 +127,7 @@ export default async function InsightsPage({ searchParams }: { searchParams: Sea
       </section>
 
       <section aria-label="The numbers">
-        <ul className="grid grid-cols-2 gap-2 sm:grid-cols-4 xl:grid-cols-7">
+        <ul className="grid grid-cols-2 gap-2 sm:grid-cols-4 xl:grid-cols-8">
           {stats.map((s) => (
             <li key={s.label} className="rounded-xl border border-line bg-surface p-3">
               <p className="text-3xl font-bold tabular-nums leading-none text-ink">{s.value}</p>

@@ -126,6 +126,19 @@ describe('alerts', () => {
     expect(alerts.some((a) => a.text.startsWith('Busiest arrivals today: 12 people'))).toBe(true);
   });
 
+  it('says when few phones have alerts on', () => {
+    const attendees = Array.from({ length: 30 }, (_, i) => person(`g${i}`, 'Ops'));
+    const checkIns = attendees.map((a) => arrival(a.id, 'day-1', '2026-12-14T04:30:00Z'));
+    const few = buildAlerts(
+      input({ attendees, checkIns, alertPhones: 3, now: at('2026-12-14', '14:00') }),
+    );
+    expect(few.some((a) => a.text.startsWith('Only 3 phones have event alerts on'))).toBe(true);
+    const plenty = buildAlerts(
+      input({ attendees, checkIns, alertPhones: 20, now: at('2026-12-14', '14:00') }),
+    );
+    expect(plenty.some((a) => a.text.includes('event alerts on'))).toBe(false);
+  });
+
   it('suggests turning approval off when many photos wait', () => {
     const photos = Array.from({ length: 10 }, (_, i): Photo => ({
       id: `ph${i}`,

@@ -26,6 +26,8 @@ export type InsightsInput = {
   links: DeviceLink[];
   /** Whether photos wait for approval. */
   photosModerated: boolean;
+  /** Phones that turned on event alerts. */
+  alertPhones?: number;
   now: EventNow;
 };
 
@@ -248,6 +250,17 @@ export function buildAlerts(input: InsightsInput): Alert[] {
           });
         }
       }
+    }
+
+    // Alerts only reach phones that opted in, so say when few have.
+    const alertPhones = input.alertPhones ?? 0;
+    if (guestsToday >= 20 && alertPhones / guestsToday < 0.2) {
+      alerts.push({
+        tone: 'note',
+        text: `Only ${alertPhones} phones have event alerts on. Ask the MC to mention "Turn on alerts" on the portal home, or put it on the welcome slide.`,
+        href: '/admin/announcements',
+        action: 'Announce',
+      });
     }
 
     // Phones that have reacted, commented or shared, against people in the room.

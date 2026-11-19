@@ -12,17 +12,27 @@ export async function loadInsightsInput(
 ): Promise<InsightsInput> {
   const data = getData();
   const sessions = config.days.flatMap((d) => d.sessions);
-  const [attendees, perDay, feedback, photos, reactions, commentLists, links, moderation] =
-    await Promise.all([
-      data.attendees.list(),
-      Promise.all(config.days.map((day) => data.checkIns.listByDay(day.id))),
-      data.feedback.listAll(),
-      data.photos.list(),
-      data.reactions.participation(),
-      Promise.all(sessions.map((s) => data.comments.listBySession(s.id))),
-      data.players.links(),
-      data.settings.get(PHOTO_KEYS.moderation),
-    ]);
+  const [
+    attendees,
+    perDay,
+    feedback,
+    photos,
+    reactions,
+    commentLists,
+    links,
+    moderation,
+    alertPhones,
+  ] = await Promise.all([
+    data.attendees.list(),
+    Promise.all(config.days.map((day) => data.checkIns.listByDay(day.id))),
+    data.feedback.listAll(),
+    data.photos.list(),
+    data.reactions.participation(),
+    Promise.all(sessions.map((s) => data.comments.listBySession(s.id))),
+    data.players.links(),
+    data.settings.get(PHOTO_KEYS.moderation),
+    data.push.count().catch(() => 0),
+  ]);
   return {
     config,
     attendees,
@@ -33,6 +43,7 @@ export async function loadInsightsInput(
     comments: commentLists.flat(),
     links,
     photosModerated: moderationOn(moderation),
+    alertPhones,
     now,
   };
 }
