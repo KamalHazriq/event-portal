@@ -6,6 +6,7 @@
  * machine learning, and the page says so.
  */
 import type { Attendee, CheckIn, Comment, DeviceLink, FeedbackEntry, Photo } from '@/data/types';
+import { shortDepartment } from '@/lib/departments';
 import type { EventConfig } from '@/lib/event-schema';
 import { compareMoments, fromMinutes, toMinutes, type EventNow } from '@/lib/time';
 import { EVENT_FORM_ID } from '@/modules/feedback/logic';
@@ -218,7 +219,10 @@ export function buildAlerts(input: InsightsInput): Alert[] {
         (dept) => !guests.some((g) => g.department === dept && todayIds.has(g.id)),
       );
       if (missingDepts.length > 0) {
-        const named = missingDepts.slice(0, 3).join(', ');
+        const named = missingDepts
+          .slice(0, 3)
+          .map((d) => shortDepartment(config, d))
+          .join(', ');
         const more = missingDepts.length > 3 ? ` and ${missingDepts.length - 3} more` : '';
         alerts.push({
           tone: 'note',

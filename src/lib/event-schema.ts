@@ -291,6 +291,13 @@ export const EventConfigSchema = z
     surprise: SurpriseSchema.optional(),
     info: InfoSchema.optional(),
     /**
+     * Department short names, such as CORES. Shown on screens and phones;
+     * name tags and reports carry both. See src/lib/departments.ts.
+     */
+    departments: z
+      .array(z.object({ name: z.string().min(1).max(120), short: z.string().min(1).max(16) }))
+      .default([]),
+    /**
      * Name tags. With personalQr off (the default), each tag is one sided:
      * the name and the portal QR, and the desk checks people in by their
      * digital business card or by name. On adds a personal check in QR on

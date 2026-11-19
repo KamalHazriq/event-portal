@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { getData } from '@/data';
 import { getAdminSession } from '@/lib/admin-guard';
 import { getEventConfig } from '@/lib/config';
+import { shortDepartment } from '@/lib/departments';
 import { formatShortDate, resolveEventNow } from '@/lib/time';
 import { parseScanPayload, resolveCheckInDay } from '@/modules/check-in/logic';
 
@@ -91,7 +92,9 @@ export default async function CheckInLandingPage({
       <div>
         <p className="text-3xl font-bold leading-tight text-ink">{attendee.name}</p>
         <p className="text-ink-soft">
-          {[attendee.title, attendee.department].filter(Boolean).join(', ')}
+          {[attendee.title, shortDepartment(config, attendee.department)]
+            .filter(Boolean)
+            .join(', ')}
         </p>
         {attendee.remark ? (
           <p className="mt-2 inline-block rounded bg-warning/20 px-2 py-1 font-semibold text-ink">

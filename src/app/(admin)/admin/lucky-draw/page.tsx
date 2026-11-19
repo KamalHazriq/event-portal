@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import { getData } from '@/data';
 import { requireAdmin } from '@/lib/admin-guard';
 import { getEventConfig } from '@/lib/config';
+import { shortDepartment } from '@/lib/departments';
 import { resolveEventNow } from '@/lib/time';
 import { resolveCheckInDay } from '@/modules/check-in/logic';
 import {
@@ -50,7 +51,7 @@ export default async function LuckyDrawPage() {
   const pool = checkedIn.map((c) => ({
     id: c.attendee.id,
     name: c.attendee.name,
-    department: c.attendee.department,
+    department: shortDepartment(config, c.attendee.department),
   }));
   const inHat = eligibleEntrants(pool, excluded, wonIds);
   const excludedHere = pool.filter((p) => excluded.has(p.id)).length;
@@ -83,7 +84,7 @@ export default async function LuckyDrawPage() {
                 {latest.winners.length > 1 ? `${w.position}. ` : ''}
                 {w.attendee.name}
                 <span className="block text-sm font-normal text-ink-soft">
-                  {w.attendee.department}
+                  {shortDepartment(config, w.attendee.department)}
                 </span>
               </li>
             ))}
@@ -167,7 +168,9 @@ export default async function LuckyDrawPage() {
                     <li key={w.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 py-2">
                       <span className="min-w-0 flex-1">
                         <span className="font-semibold text-ink">{w.attendee.name}</span>{' '}
-                        <span className="text-sm text-ink-soft">{w.attendee.department}</span>
+                        <span className="text-sm text-ink-soft">
+                          {shortDepartment(config, w.attendee.department)}
+                        </span>
                       </span>
                       <form action={removeWinner}>
                         <input type="hidden" name="winnerId" value={w.id} />
@@ -212,7 +215,9 @@ export default async function LuckyDrawPage() {
                   <span className={wonIds.has(p.id) ? 'text-ink-soft line-through' : 'text-ink'}>
                     {p.name}
                   </span>
-                  <span className="ml-auto truncate text-sm text-ink-soft">{p.department}</span>
+                  <span className="ml-auto truncate text-sm text-ink-soft">
+                    {shortDepartment(config, p.department)}
+                  </span>
                 </label>
               </li>
             ))}

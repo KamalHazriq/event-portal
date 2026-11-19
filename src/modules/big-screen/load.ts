@@ -6,6 +6,7 @@
  */
 import { getData } from '@/data';
 import { getEventConfig } from '@/lib/config';
+import { shortDepartment } from '@/lib/departments';
 import { passLink } from '@/lib/event-pass-server';
 import { shortName } from '@/modules/points/logic';
 import { LAYOUT_COUNT, PHOTO_KEYS, resolvePhotoLayout } from '@/modules/photos/logic';
@@ -173,7 +174,10 @@ export async function loadScreenView(
           expected: rate.expected,
           percent: rate.percent,
           dayLabel: day?.label ?? 'today',
-          cards: arrivalCards(recent, hideNames),
+          cards: arrivalCards(recent, hideNames).map((c) => ({
+            ...c,
+            department: shortDepartment(config, c.department),
+          })),
           hideNames,
         },
       };
@@ -230,7 +234,7 @@ export async function loadScreenView(
                 winners: latest.winners.map((w) => ({
                   key: w.id,
                   name: w.attendee.name,
-                  department: w.attendee.department,
+                  department: shortDepartment(config, w.attendee.department),
                 })),
               }
             : null,
@@ -355,11 +359,11 @@ export async function loadScreenView(
               id: row.attendeeId,
               rank: row.rank,
               name: name(row.name),
-              department: row.department,
+              department: shortDepartment(config, row.department),
               points: row.points,
             })),
           departments: board.departments.slice(0, 8).map((row) => ({
-            department: row.department,
+            department: shortDepartment(config, row.department),
             rank: row.rank,
             average: row.average,
           })),

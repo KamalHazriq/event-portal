@@ -16,6 +16,7 @@ import { matchBusinessCard, parseBusinessCard } from '@/modules/check-in/busines
 import { arrivalRate, parseScanPayload, scanOutcomeMessage } from '@/modules/check-in/logic';
 import type { ScanOutcome } from '@/modules/check-in/logic';
 import { getEventConfig } from '@/lib/config';
+import { shortDepartment } from '@/lib/departments';
 import { recordActivity } from '@/modules/admins/record';
 
 const BodySchema = z.object({
@@ -41,7 +42,7 @@ function deskFields(attendee: Attendee) {
     id: attendee.id,
     name: attendee.name,
     title: attendee.title,
-    department: attendee.department,
+    department: shortDepartment(getEventConfig(), attendee.department),
     remark: attendee.remark,
     isSecretariat: attendee.isSecretariat,
   };

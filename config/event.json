@@ -652,5 +652,21 @@
         "body": "Photos shared on the Photos page can appear on the big screen. The portal removes the location and camera details from each photo before it is sent."
       }
     ]
-  }
+  },
+  "departments": [
+    { "name": "Digital & Information Division", "short": "D&I" },
+    { "name": "Chief Cybersecurity Operations Office", "short": "CS" },
+    { "name": "Chief Information Security Office", "short": "CISO" },
+    { "name": "Digital, Data & AI", "short": "DDAI" },
+    { "name": "Intelligent Operation", "short": "IO" },
+    { "name": "Telco & Network Services", "short": "TNS" },
+    { "name": "Enterprise Cloud Services", "short": "ECS" },
+    { "name": "Corporate & Engineering Services", "short": "CORES" },
+    { "name": "Enterprise Resource Planning", "short": "ERP" },
+    { "name": "Center of Delivery & Operation Services", "short": "CDOS" },
+    { "name": "Customer Service Management", "short": "CSM" },
+    { "name": "Governance, Risk & Compliance", "short": "GRC" },
+    { "name": "Technology & Architecture", "short": "TA" },
+    { "name": "Strategy, Partnership & Transformation", "short": "SPTX" }
+  ]
 }

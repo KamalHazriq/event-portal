@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import { getEventConfig } from '@/lib/config';
+import { shortDepartment } from '@/lib/departments';
 import { joinLeaderboard, leaveLeaderboard } from '@/modules/points/actions';
 import { CAPS, POINT_LABELS, POINTS, type PointKind } from '@/modules/points/logic';
 import { currentPlayer, loadScoreboard } from '@/modules/points/server';
@@ -87,7 +88,7 @@ export default async function MyPointsPage({
             <div className="min-w-0">
               <p className="text-sm text-ink-soft">Signed in as</p>
               <p className="text-xl font-bold text-ink">{me.name}</p>
-              <p className="text-sm text-ink-soft">{me.department}</p>
+              <p className="text-sm text-ink-soft">{shortDepartment(config, me.department)}</p>
             </div>
             <div className="text-right">
               <p className="text-5xl font-bold tabular-nums leading-none text-gradient">

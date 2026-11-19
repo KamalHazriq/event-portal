@@ -162,6 +162,8 @@ describe('report workbook', () => {
       'Person a',
       'Manager',
       'Finance',
+      // No short name for Finance in the test config.
+      '',
       'No',
       '13:05 (QR)',
       '08:50 (QR)',

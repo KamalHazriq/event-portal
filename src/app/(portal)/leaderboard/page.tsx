@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 
 import { AutoRefresh } from '@/components/AutoRefresh';
 import { getEventConfig } from '@/lib/config';
+import { shortDepartment } from '@/lib/departments';
 import { MIN_DEPARTMENT_SIZE } from '@/modules/points/logic';
 import { currentPlayer, loadScoreboard } from '@/modules/points/server';
 
@@ -73,7 +74,9 @@ export default async function LeaderboardPage() {
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="block truncate font-bold text-ink">{row.name}</span>
-                  <span className="block text-sm text-ink-soft">{row.department}</span>
+                  <span className="block text-sm text-ink-soft">
+                    {shortDepartment(config, row.department)}
+                  </span>
                 </span>
                 <span className="shrink-0 text-lg font-bold tabular-nums text-ink">
                   {row.points}
@@ -106,7 +109,7 @@ export default async function LeaderboardPage() {
                 <li key={row.department} className="rounded-xl border border-line bg-surface p-3">
                   <div className="flex items-center justify-between gap-3">
                     <span className="font-bold text-ink">
-                      {row.rank}. {row.department}
+                      {row.rank}. {shortDepartment(config, row.department)}
                     </span>
                     <span className="text-sm text-ink-soft">
                       <span className="font-bold tabular-nums text-ink">{row.average}</span> per

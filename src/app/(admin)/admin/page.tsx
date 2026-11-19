@@ -10,6 +10,7 @@ import { getEventConfig } from '@/lib/config';
 import { STYLE_INFO, STYLES } from '@/lib/look';
 import { setStyle } from '@/modules/look/actions';
 import { readStyle } from '@/modules/look/server';
+import { departmentsWithoutShortName } from '@/lib/departments';
 import { isPlaceholderUrl, looksUnconfirmed } from '@/lib/placeholder';
 import { formatClock, formatShortDate, resolveEventNow } from '@/lib/time';
 import { readBackupMode } from '@/modules/backup/server';
@@ -124,6 +125,10 @@ export default async function AdminHomePage() {
         : Promise.resolve([]),
       data.attendees.count().catch(() => 0),
     ]);
+  const missingShort =
+    config.departments.length > 0
+      ? departmentsWithoutShortName(config, await data.attendees.departments().catch(() => []))
+      : [];
   // The "to do" lines from Insights, so nothing urgent hides under More.
   const toDo = buildAlerts(await loadInsightsInput(config, now)).filter((a) => a.tone === 'act');
 
@@ -152,6 +157,11 @@ export default async function AdminHomePage() {
       ? [`Speakers still to confirm: ${unconfirmed.map((s) => s.name).join(', ')}.`]
       : []),
     ...(isPlaceholderUrl(config.event.portalUrl) ? ['The portal address for the QR codes.'] : []),
+    ...(missingShort.length > 0
+      ? [
+          `A short name for ${missingShort.length === 1 ? 'this department' : 'these departments'} (like CORES): ${missingShort.join(', ')}. Shown in full until then.`,
+        ]
+      : []),
     ...(() => {
       const open = (config.info?.sections ?? []).flatMap((s) =>
         s.items.filter((i) => looksUnconfirmed(i.text)).map((i) => i.label),

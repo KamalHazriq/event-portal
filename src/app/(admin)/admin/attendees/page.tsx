@@ -1,4 +1,6 @@
 import type { Metadata } from 'next';
+import { getEventConfig } from '@/lib/config';
+import { shortDepartment } from '@/lib/departments';
 
 import { getData } from '@/data';
 import { requireAdmin } from '@/lib/admin-guard';
@@ -33,6 +35,7 @@ const MESSAGES: Record<string, { text: string; good: boolean }> = {
  * corrected list never duplicates anyone and check ins survive.
  */
 export default async function AttendeesPage({ searchParams }: { searchParams: SearchParams }) {
+  const config = getEventConfig();
   await requireAdmin('/admin/attendees');
   const params = await searchParams;
   const result = one(params.result);
@@ -199,7 +202,9 @@ export default async function AttendeesPage({ searchParams }: { searchParams: Se
                     </td>
                     <td className="px-3 py-2 font-mono text-ink">{p.staffNo}</td>
                     <td className="px-3 py-2 text-ink">{p.title}</td>
-                    <td className="px-3 py-2 text-ink">{p.department}</td>
+                    <td className="px-3 py-2 text-ink" title={p.department}>
+                      {shortDepartment(config, p.department)}
+                    </td>
                     <td className="px-3 py-2 text-ink-soft">{p.remark}</td>
                   </tr>
                 ))}

@@ -113,6 +113,15 @@ test('draws winners from people checked in, and nobody wins twice', async ({
   // The winners land in the report.
   const report = await page.request.get('/api/reports/excel');
   const sheet = readXlsx(Buffer.from(await report.body())).find((s) => s.name === 'Lucky draw');
-  expect(sheet?.rows[0]).toEqual(['Draw', 'Prize', 'Order', 'Name', 'Department', 'Drawn', 'By']);
+  expect(sheet?.rows[0]).toEqual([
+    'Draw',
+    'Prize',
+    'Order',
+    'Name',
+    'Department',
+    'Department (short)',
+    'Drawn',
+    'By',
+  ]);
   expect(sheet?.rows.some((r) => r[1] === 'Test prize')).toBe(true);
 });

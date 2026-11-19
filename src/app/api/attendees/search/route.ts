@@ -3,6 +3,8 @@
  * will not scan or someone has lost their tag.
  */
 import { getData } from '@/data';
+import { shortDepartment } from '@/lib/departments';
+import { getEventConfig } from '@/lib/config';
 import { requireAdminApi } from '@/lib/admin-guard';
 import { LIMITS, rateLimit } from '@/lib/rate-limit';
 import { plainText } from '@/lib/text';
@@ -38,7 +40,7 @@ export async function GET(request: Request): Promise<Response> {
         id: person.id,
         name: person.name,
         title: person.title,
-        department: person.department,
+        department: shortDepartment(getEventConfig(), person.department),
         remark: person.remark,
         staffNo: person.staffNo,
         checkedIn: existing !== null,

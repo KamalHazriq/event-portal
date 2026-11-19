@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { findShortName } from '@/lib/departments';
 import Link from 'next/link';
 
 import { requireAdmin } from '@/lib/admin-guard';
@@ -92,6 +93,7 @@ export default async function ReportSummaryPage() {
           <thead>
             <tr>
               <th className={th}>Department</th>
+              <th className={th}>Short</th>
               <th className={`${th} text-right`}>Guests</th>
               {s.days.map((d) => (
                 <th key={d.dayId} className={`${th} text-right`}>
@@ -104,6 +106,7 @@ export default async function ReportSummaryPage() {
             {s.byDepartment.map((d) => (
               <tr key={d.department} className="break-inside-avoid">
                 <td className={td}>{d.department}</td>
+                <td className={td}>{findShortName(config, d.department) ?? ''}</td>
                 <td className={num}>{d.people}</td>
                 {d.perDay.map((n, i) => (
                   <td key={i} className={num}>

@@ -17,6 +17,7 @@ import type {
   Question,
 } from '@/data/types';
 import type { EventConfig } from '@/lib/event-schema';
+import { findShortName } from '@/lib/departments';
 import { formatShortDate } from '@/lib/time';
 import type { CellValue, SheetInput } from '@/lib/xlsx/write';
 import { EVENT_FORM_ID, feedbackForms, tallyBestSessions } from '@/modules/feedback/logic';
@@ -283,6 +284,7 @@ export function buildReportWorkbook(input: ReportInput): SheetInput[] {
       'Name',
       'Title',
       'Department',
+      'Department (short)',
       'Secretariat',
       ...days.map((d) => `${d.label} arrived`),
       'Days attended',
@@ -298,6 +300,7 @@ export function buildReportWorkbook(input: ReportInput): SheetInput[] {
         a.name,
         a.title,
         a.department,
+        findShortName(config, a.department) ?? '',
         a.isSecretariat ? 'Yes' : 'No',
         ...perDay,
         perDay.filter(Boolean).length,
@@ -307,8 +310,13 @@ export function buildReportWorkbook(input: ReportInput): SheetInput[] {
 
   /* By department */
   const departmentRows: CellValue[][] = [
-    ['Department', 'Guests', ...days.map((d) => `${d.label} arrived`)],
-    ...summary.byDepartment.map((d): CellValue[] => [d.department, d.people, ...d.perDay]),
+    ['Department', 'Department (short)', 'Guests', ...days.map((d) => `${d.label} arrived`)],
+    ...summary.byDepartment.map((d): CellValue[] => [
+      d.department,
+      findShortName(config, d.department) ?? '',
+      d.people,
+      ...d.perDay,
+    ]),
   ];
 
   /* Feedback, every answer */
@@ -388,13 +396,14 @@ export function buildReportWorkbook(input: ReportInput): SheetInput[] {
     sheets.push({
       name: 'Lucky draw',
       rows: [
-        ['Draw', 'Prize', 'Order', 'Name', 'Department', 'Drawn', 'By'],
+        ['Draw', 'Prize', 'Order', 'Name', 'Department', 'Department (short)', 'Drawn', 'By'],
         ...input.luckyDraw.map((w): CellValue[] => [
           drawNumbers.get(w.drawId) ?? null,
           w.prize,
           w.position,
           w.attendee.name,
           w.attendee.department,
+          findShortName(config, w.attendee.department) ?? '',
           localDateTime(w.drawnAt, tz),
           w.byOperator,
         ]),

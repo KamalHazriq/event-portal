@@ -5,6 +5,7 @@ import { AutoRefresh } from '@/components/AutoRefresh';
 import { getData } from '@/data';
 import { requireAdmin } from '@/lib/admin-guard';
 import { getEventConfig } from '@/lib/config';
+import { shortDepartment } from '@/lib/departments';
 import { formatShortDate, resolveEventNow } from '@/lib/time';
 import { UndoCheckInButton } from '@/modules/check-in/components/UndoCheckInButton';
 import {
@@ -122,7 +123,9 @@ export default async function HeadcountPage({ searchParams }: { searchParams: Se
             return (
               <li key={row.department} className="rounded-lg border border-line bg-surface p-3">
                 <div className="flex items-baseline justify-between gap-3">
-                  <span className="font-semibold text-ink">{row.department}</span>
+                  <span className="font-semibold text-ink" title={row.department}>
+                    {shortDepartment(config, row.department)}
+                  </span>
                   <span className="shrink-0 tabular-nums text-ink-soft">
                     {row.arrived} / {row.expected}
                   </span>
@@ -133,7 +136,7 @@ export default async function HeadcountPage({ searchParams }: { searchParams: Se
                   aria-valuenow={departmentRate.percent}
                   aria-valuemin={0}
                   aria-valuemax={100}
-                  aria-label={`${row.department} arrivals`}
+                  aria-label={`${shortDepartment(config, row.department)} arrivals`}
                 >
                   <div
                     className="h-full rounded-full bg-primary"
@@ -164,7 +167,8 @@ export default async function HeadcountPage({ searchParams }: { searchParams: Se
                 <div className="min-w-0">
                   <p className="font-semibold text-ink">{row.attendee.name}</p>
                   <p className="text-sm text-ink-soft">
-                    {row.attendee.department} / {arrivalClock(row.at, config.event.timezone)} /{' '}
+                    {shortDepartment(config, row.attendee.department)} /{' '}
+                    {arrivalClock(row.at, config.event.timezone)} /{' '}
                     {row.method === 'manual' ? 'by name' : 'scanned'} at {row.byOperator || 'desk'}
                   </p>
                 </div>
@@ -195,7 +199,9 @@ export default async function HeadcountPage({ searchParams }: { searchParams: Se
                 className="flex flex-wrap items-baseline justify-between gap-2 rounded border border-line bg-surface px-3 py-2"
               >
                 <span className="font-semibold text-ink">{person.name}</span>
-                <span className="text-sm text-ink-soft">{person.department}</span>
+                <span className="text-sm text-ink-soft">
+                  {shortDepartment(config, person.department)}
+                </span>
               </li>
             ))}
           </ul>

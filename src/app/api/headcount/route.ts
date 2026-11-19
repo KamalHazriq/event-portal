@@ -7,6 +7,7 @@
 import { getData } from '@/data';
 import { requireAdminApi } from '@/lib/admin-guard';
 import { getEventConfig } from '@/lib/config';
+import { shortDepartment } from '@/lib/departments';
 import { plainText } from '@/lib/text';
 import { arrivalRate, sortByOutstanding } from '@/modules/check-in/logic';
 
@@ -34,7 +35,7 @@ export async function GET(request: Request): Promise<Response> {
       recent: recent.map((row) => ({
         attendeeId: row.attendeeId,
         name: row.attendee.name,
-        department: row.attendee.department,
+        department: shortDepartment(getEventConfig(), row.attendee.department),
         at: row.at,
       })),
     },

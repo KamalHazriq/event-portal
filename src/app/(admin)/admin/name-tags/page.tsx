@@ -5,6 +5,7 @@ import { QrCode } from '@/components/QrCode';
 import { getData } from '@/data';
 import { requireAdmin } from '@/lib/admin-guard';
 import { getEventConfig } from '@/lib/config';
+import { departmentWithShort } from '@/lib/departments';
 import { passLink } from '@/lib/event-pass-server';
 import { buildCheckInUrl } from '@/modules/check-in/logic';
 
@@ -142,7 +143,9 @@ export default async function NameTagsPage({ searchParams }: { searchParams: Sea
                   {personalQr ? null : <p className="tag-event">{config.event.shortName}</p>}
                   <p className="tag-name">{person.name}</p>
                   {person.title ? <p className="tag-title">{person.title}</p> : null}
-                  {person.department ? <p className="tag-dept">{person.department}</p> : null}
+                  {person.department ? (
+                    <p className="tag-dept">{departmentWithShort(config, person.department)}</p>
+                  ) : null}
                   {personalQr ? null : <p className="tag-scan">Scan for the agenda</p>}
                 </div>
                 {personalQr ? (
