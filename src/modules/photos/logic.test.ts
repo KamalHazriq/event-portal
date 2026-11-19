@@ -1,6 +1,14 @@
 import { describe, expect, it } from 'vitest';
 
-import { checkUpload, fitWithin, jpegSize, PHOTO_LIMITS, uploadMessage, zipName } from './logic';
+import {
+  checkUpload,
+  fitWithin,
+  jpegSize,
+  PHOTO_LIMITS,
+  uploadMessage,
+  zipName,
+  gridShape,
+} from './logic';
 
 /** The smallest valid looking JPEG header: SOI, an APP0, then a baseline SOF0. */
 function fakeJpeg(width: number, height: number, padTo = 0): Uint8Array {
@@ -43,29 +51,24 @@ describe('checking an upload', () => {
   const thumb = fakeJpeg(480, 360);
 
   it('accepts a shrunk photo', () => {
-    expect(checkUpload({ image: fakeJpeg(1600, 1200), thumbnail: thumb, alreadySent: 3 })).toEqual({
+    expect(checkUpload({ image: fakeJpeg(1600, 1200), thumbnail: thumb })).toEqual({
       ok: true,
       width: 1600,
       height: 1200,
     });
   });
 
-  it('stops a phone at its allowance', () => {
-    const result = checkUpload({
-      image: fakeJpeg(1600, 1200),
-      thumbnail: thumb,
-      alreadySent: PHOTO_LIMITS.perDevice,
-    });
-    expect(result).toEqual({ ok: false, problem: 'too-many' });
+  it('has no limit per phone', () => {
+    expect(checkUpload({ image: fakeJpeg(1600, 1200), thumbnail: thumb }).ok).toBe(true);
   });
 
   it('refuses a photo that was not shrunk, or is too heavy', () => {
-    expect(checkUpload({ image: fakeJpeg(4000, 3000), thumbnail: thumb, alreadySent: 0 })).toEqual({
+    expect(checkUpload({ image: fakeJpeg(4000, 3000), thumbnail: thumb })).toEqual({
       ok: false,
       problem: 'too-big',
     });
     const heavy = fakeJpeg(1600, 1200, PHOTO_LIMITS.maxImageBytes + 1);
-    expect(checkUpload({ image: heavy, thumbnail: thumb, alreadySent: 0 })).toEqual({
+    expect(checkUpload({ image: heavy, thumbnail: thumb })).toEqual({
       ok: false,
       problem: 'too-big',
     });
@@ -73,7 +76,7 @@ describe('checking an upload', () => {
 
   it('refuses a file pretending to be a photo', () => {
     const fake = new TextEncoder().encode('<html>not a photo</html>');
-    expect(checkUpload({ image: fake, thumbnail: thumb, alreadySent: 0 })).toEqual({
+    expect(checkUpload({ image: fake, thumbnail: thumb })).toEqual({
       ok: false,
       problem: 'not-a-photo',
     });
@@ -102,5 +105,34 @@ describe('sizes and names', () => {
 
   it('numbers the zip files', () => {
     expect([zipName(0), zipName(41)]).toEqual(['photo-001.jpg', 'photo-042.jpg']);
+  });
+});
+
+describe('the wall settings', () => {
+  it('asks for approval unless switched off', async () => {
+    const { moderationOn } = await import('./logic');
+    expect(moderationOn(null)).toBe(true);
+    expect(moderationOn('on')).toBe(true);
+    expect(moderationOn('off')).toBe(false);
+  });
+
+  it('falls back to the slideshow for an unknown layout', async () => {
+    const { resolvePhotoLayout } = await import('./logic');
+    expect(resolvePhotoLayout('grid')).toBe('grid');
+    expect(resolvePhotoLayout('mosaic')).toBe('mosaic');
+    expect(resolvePhotoLayout('nonsense')).toBe('slideshow');
+    expect(resolvePhotoLayout(null)).toBe('slideshow');
+  });
+});
+
+describe('gridShape', () => {
+  it('fills the screen with however many photos there are', () => {
+    expect(gridShape(1)).toEqual({ columns: 1, rows: 1 });
+    expect(gridShape(2)).toEqual({ columns: 2, rows: 1 });
+    expect(gridShape(3)).toEqual({ columns: 2, rows: 2 });
+    expect(gridShape(6)).toEqual({ columns: 3, rows: 2 });
+    expect(gridShape(9)).toEqual({ columns: 3, rows: 3 });
+    expect(gridShape(12)).toEqual({ columns: 4, rows: 3 });
+    expect(gridShape(40)).toEqual({ columns: 4, rows: 3 });
   });
 });

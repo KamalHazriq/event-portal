@@ -3,11 +3,11 @@
  *
  * Attendees' phones shrink each photo before it is sent (see compress.ts),
  * so the server only has to check what arrives: that it really is a JPEG,
- * of a sensible size, and that the phone has not passed its allowance.
+ * and of a sensible size. There is no limit per phone: share as many as you
+ * like (a rate limit in the upload route still stops a runaway script).
  */
 
 export const PHOTO_LIMITS = {
-  perDevice: 10,
   /** Longest side after shrinking in the browser. */
   longestSide: 1600,
   thumbLongestSide: 480,
@@ -67,9 +67,7 @@ export type UploadProblem =
 export function checkUpload(input: {
   image: Uint8Array;
   thumbnail: Uint8Array;
-  alreadySent: number;
 }): { ok: true; width: number; height: number } | { ok: false; problem: UploadProblem } {
-  if (input.alreadySent >= PHOTO_LIMITS.perDevice) return { ok: false, problem: 'too-many' };
   if (
     input.image.byteLength > PHOTO_LIMITS.maxImageBytes ||
     input.thumbnail.byteLength > PHOTO_LIMITS.maxThumbBytes
@@ -91,7 +89,7 @@ export function uploadMessage(problem: UploadProblem): string {
     case 'too-big':
       return 'That photo is too large, even after shrinking. Try another one.';
     case 'too-many':
-      return `You have shared ${PHOTO_LIMITS.perDevice} photos, which is the most one phone can send. Thank you!`;
+      return 'You have shared a lot of photos in a short time. Wait a moment, then try again.';
     case 'switched-off':
       return 'The photo wall is not open right now.';
     case 'rate-limited':
@@ -122,3 +120,53 @@ export function fitWithin(
 export function zipName(index: number): string {
   return `photo-${String(index + 1).padStart(3, '0')}.jpg`;
 }
+
+/* ---------------------------------------------------- the wall's settings */
+
+export const PHOTO_KEYS = {
+  /** "off" puts new photos straight on the wall, without approval. */
+  moderation: 'photos.moderation',
+  /** How the big screen lays the photos out. */
+  layout: 'photos.layout',
+} as const;
+
+export function moderationOn(stored: string | null): boolean {
+  return stored !== 'off';
+}
+
+export const PHOTO_LAYOUTS = ['slideshow', 'grid', 'mosaic'] as const;
+export type PhotoLayout = (typeof PHOTO_LAYOUTS)[number];
+
+export const PHOTO_LAYOUT_INFO: Record<PhotoLayout, { title: string; description: string }> = {
+  slideshow: { title: 'Slideshow', description: 'One photo at a time, full screen.' },
+  grid: { title: 'Grid', description: 'The newest twelve in even tiles.' },
+  mosaic: { title: 'Mosaic', description: 'The newest large, the rest around it.' },
+};
+
+export function resolvePhotoLayout(stored: string | null): PhotoLayout {
+  return (PHOTO_LAYOUTS as readonly string[]).includes(stored ?? '')
+    ? (stored as PhotoLayout)
+    : 'slideshow';
+}
+
+/** How many photos each layout shows at once. */
+export const LAYOUT_COUNT: Record<PhotoLayout, number> = { slideshow: 80, grid: 12, mosaic: 9 };
+
+/** How long a newly arrived photo stays up large before it joins the wall. */
+export const NEW_PHOTO_MS = 6_000;
+
+/**
+ * Columns and rows for the projector grid, so a few photos fill the screen
+ * instead of sitting small in one corner. Up to twelve, four across.
+ */
+export function gridShape(count: number): { columns: number; rows: number } {
+  if (count <= 1) return { columns: 1, rows: 1 };
+  if (count === 2) return { columns: 2, rows: 1 };
+  if (count <= 4) return { columns: 2, rows: 2 };
+  if (count <= 6) return { columns: 3, rows: 2 };
+  if (count <= 9) return { columns: 3, rows: 3 };
+  return { columns: 4, rows: 3 };
+}
+
+/** Mosaic needs a few photos around the big one; below this it shows the grid. */
+export const MOSAIC_MIN = 5;

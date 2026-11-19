@@ -191,6 +191,8 @@ export interface PhotoRepository {
     thumbnail: Uint8Array;
     /** Only the demo seed passes this. See checkIns.create. */
     at?: string;
+    /** "approved" when the secretariat has switched approval off. */
+    status?: PhotoStatus;
   }): Promise<Photo>;
   /** Newest first. Never includes the image bytes. */
   list(status?: PhotoStatus): Promise<Photo[]>;

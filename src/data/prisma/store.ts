@@ -758,6 +758,7 @@ export function createPrismaAdapter(
             image: storageKey ? EMPTY : Buffer.from(input.image),
             thumbnail: storageKey ? EMPTY : Buffer.from(input.thumbnail),
             storageKey,
+            status: input.status ?? 'pending',
             createdAt: input.at ? new Date(input.at) : new Date(),
           },
           select: PHOTO_FIELDS,

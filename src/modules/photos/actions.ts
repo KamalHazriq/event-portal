@@ -7,6 +7,7 @@ import { requireAdminApi } from '@/lib/admin-guard';
 import { getEventConfig } from '@/lib/config';
 import { plainText } from '@/lib/text';
 import { SCREEN_KEYS } from '@/modules/big-screen/logic';
+import { PHOTO_KEYS, PHOTO_LAYOUT_INFO, resolvePhotoLayout } from '@/modules/photos/logic';
 import { recordActivity } from '@/modules/admins/record';
 
 /**
@@ -58,7 +59,29 @@ export async function approveAllWaiting(): Promise<void> {
 export async function showSlideshow(): Promise<void> {
   await assertAdmin();
   await getData().settings.set(SCREEN_KEYS.view, 'photos');
-  await recordActivity('Put the photo slideshow on the big screen');
+  await recordActivity('Put the photo wall on the big screen');
+  revalidatePath('/admin/big-screen');
+  done();
+}
+
+/** Approval first, or straight onto the wall. */
+export async function setPhotoModeration(formData: FormData): Promise<void> {
+  const operator = await assertAdmin();
+  const on = formData.get('mode') === 'on';
+  await getData().settings.set(PHOTO_KEYS.moderation, on ? 'on' : 'off');
+  await recordActivity(
+    on ? 'Turned photo approval on' : 'Turned photo approval off: photos go straight up',
+    operator,
+  );
+  done();
+}
+
+/** How the big screen lays the photos out: slideshow, grid or mosaic. */
+export async function setPhotoLayout(formData: FormData): Promise<void> {
+  const operator = await assertAdmin();
+  const layout = resolvePhotoLayout(String(formData.get('layout') ?? ''));
+  await getData().settings.set(PHOTO_KEYS.layout, layout);
+  await recordActivity(`Set the photo wall to ${PHOTO_LAYOUT_INFO[layout].title}`, operator);
   revalidatePath('/admin/big-screen');
   done();
 }

@@ -15,14 +15,22 @@ type Item = {
  * Picks photos, shrinks each one on the phone, and sends them one at a time,
  * so a slow connection only ever has one photo in flight.
  */
-export function PhotoUploader({ alreadySent }: { alreadySent: number }) {
+export function PhotoUploader({
+  alreadySent,
+  moderated = true,
+}: {
+  alreadySent: number;
+  /** False when the secretariat has switched approval off. */
+  moderated?: boolean;
+}) {
   const [sent, setSent] = useState(alreadySent);
   const [items, setItems] = useState<Item[]>([]);
   const [busy, setBusy] = useState(false);
   const [caption, setCaption] = useState('');
   const input = useRef<HTMLInputElement>(null);
 
-  const left = Math.max(0, PHOTO_LIMITS.perDevice - sent);
+  // No limit per phone any more; the count is just a thank you.
+  const left = Number.POSITIVE_INFINITY;
 
   const update = (i: number, patch: Partial<Item>) =>
     setItems((prev) => prev.map((item, j) => (j === i ? { ...item, ...patch } : item)));
@@ -70,16 +78,18 @@ export function PhotoUploader({ alreadySent }: { alreadySent: number }) {
     waiting: 'Waiting',
     shrinking: 'Shrinking',
     sending: 'Sending',
-    sent: 'Sent, waiting for approval',
+    sent: moderated ? 'Sent, waiting for approval' : 'On the wall',
     failed: 'Not sent',
   };
 
   return (
     <div className="space-y-4">
-      <p className="text-ink">
-        <span className="text-2xl font-bold tabular-nums">{left}</span>{' '}
-        {left === 1 ? 'photo' : 'photos'} left to share from this phone
-      </p>
+      {sent > 0 ? (
+        <p className="text-ink">
+          <span className="text-2xl font-bold tabular-nums">{sent}</span>{' '}
+          {sent === 1 ? 'photo' : 'photos'} shared from this phone. Thank you, keep them coming.
+        </p>
+      ) : null}
 
       {left > 0 ? (
         <div className="space-y-3 rounded-xl border border-line bg-surface p-4">
@@ -114,7 +124,10 @@ export function PhotoUploader({ alreadySent }: { alreadySent: number }) {
           </label>
           <p className="text-sm text-ink-soft">
             Each photo is shrunk on your phone before it is sent, and the location and camera
-            details are removed. An organiser checks every photo before it goes on the big screen.
+            details are removed.{' '}
+            {moderated
+              ? 'An organiser checks every photo before it goes on the big screen.'
+              : 'It goes straight onto the big screen, so keep it friendly.'}
           </p>
         </div>
       ) : (

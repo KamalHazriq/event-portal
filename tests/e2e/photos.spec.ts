@@ -49,11 +49,10 @@ test('a shared photo waits for approval, then reaches the slideshow', async ({
   const caption = `E2E photo ${Math.random().toString(36).slice(2, 8)}`;
   const phone = await browser.newPage({ viewport: { width: 375, height: 812 } });
   await phone.goto('/photos');
-  await expect(phone.getByText('10 photos left to share from this phone')).toBeVisible();
   await phone.getByLabel(/A caption/).fill(caption);
   await phone.locator('input[type=file]').setInputFiles(PHOTO);
   await expect(phone.getByText('Sent, waiting for approval')).toBeVisible({ timeout: 20_000 });
-  await expect(phone.getByText('9 photos left to share from this phone')).toBeVisible();
+  await expect(phone.getByText(/1 photo shared from this phone/)).toBeVisible();
 
   const admin = await browser.newPage();
   await signIn(admin);

@@ -8,6 +8,7 @@ import { getData } from '@/data';
 import { getEventConfig } from '@/lib/config';
 import { passLink } from '@/lib/event-pass-server';
 import { shortName } from '@/modules/points/logic';
+import { LAYOUT_COUNT, PHOTO_KEYS, resolvePhotoLayout } from '@/modules/photos/logic';
 import {
   COMMENT_KEYS,
   publicComments,
@@ -241,11 +242,18 @@ export async function loadScreenView(
 
     case 'photos': {
       if (!config.features.photoWall) return loadScreenView('welcome', now, settings);
-      const approved = await data.photos.list('approved');
+      const [approved, layoutSetting] = await Promise.all([
+        data.photos.list('approved'),
+        data.settings.get(PHOTO_KEYS.layout),
+      ]);
+      const layout = resolvePhotoLayout(layoutSetting);
       return {
         view,
         props: {
-          slides: approved.slice(0, 80).map((p) => ({ id: p.id, caption: p.caption })),
+          layout,
+          slides: approved
+            .slice(0, LAYOUT_COUNT[layout])
+            .map((p) => ({ id: p.id, caption: p.caption })),
           shareUrl: passLink(`${config.event.portalUrl.replace(/\/$/, '')}/photos`),
         },
       };

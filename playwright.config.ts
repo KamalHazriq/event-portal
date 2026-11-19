@@ -20,7 +20,7 @@ import { defineConfig, devices } from '@playwright/test';
 const PORT = Number(process.env.PLAYWRIGHT_PORT ?? 3200);
 
 /** Spec files that change state the whole portal shares. See projects below. */
-const SHARED_SWITCHES = /(backup-qa-polls|look)\.spec\.ts$/;
+const SHARED_SWITCHES = /(backup-qa-polls|look|photo-wall)\.spec\.ts$/;
 const useDevServer = process.env.PLAYWRIGHT_DEV === '1';
 const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? `http://127.0.0.1:${PORT}`;
 
@@ -47,7 +47,16 @@ export default defineConfig({
       name: 'shared-switches',
       use: { ...devices['Desktop Chrome'] },
       testMatch: SHARED_SWITCHES,
+      testIgnore: /photo-wall\.spec\.ts$/,
       dependencies: ['phone', 'desktop'],
+    },
+    {
+      // The photo wall test drives the big screen, which the backup restore
+      // above also resets, so it runs after the other switches.
+      name: 'photo-wall',
+      use: { ...devices['Desktop Chrome'] },
+      testMatch: /photo-wall\.spec\.ts$/,
+      dependencies: ['shared-switches'],
     },
   ],
 

@@ -11,9 +11,11 @@ import { LIMITS, rateLimit } from '@/lib/rate-limit';
 import { plainText } from '@/lib/text';
 import {
   checkUpload,
+  moderationOn,
+  PHOTO_KEYS,
   PHOTO_LIMITS,
-  uploadMessage,
   type UploadProblem,
+  uploadMessage,
 } from '@/modules/photos/logic';
 
 function refuse(problem: UploadProblem, status: number): Response {
@@ -56,13 +58,16 @@ export async function POST(request: Request): Promise<Response> {
   const thumbBytes = new Uint8Array(await thumbnail.arrayBuffer());
   const alreadySent = await data.photos.countByDevice(deviceId);
 
-  const checked = checkUpload({ image: imageBytes, thumbnail: thumbBytes, alreadySent });
+  const checked = checkUpload({ image: imageBytes, thumbnail: thumbBytes });
   if (!checked.ok) {
     return refuse(checked.problem, checked.problem === 'too-many' ? 403 : 400);
   }
 
+  // Straight onto the wall when the secretariat has switched approval off.
+  const approved = !moderationOn(await data.settings.get(PHOTO_KEYS.moderation));
   await data.photos.add({
     deviceId,
+    status: approved ? 'approved' : 'pending',
     caption: plainText(form.get('caption'), PHOTO_LIMITS.maxCaption),
     width: checked.width,
     height: checked.height,
@@ -71,5 +76,5 @@ export async function POST(request: Request): Promise<Response> {
   });
 
   if (!existing) store.set(DEVICE_COOKIE, deviceId, deviceCookieOptions);
-  return Response.json({ ok: true, sent: alreadySent + 1 });
+  return Response.json({ ok: true, sent: alreadySent + 1, approved });
 }

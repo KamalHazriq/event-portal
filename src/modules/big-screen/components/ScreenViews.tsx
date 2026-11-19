@@ -11,7 +11,8 @@ import { displayUrl } from '@/lib/event-pass';
 
 import { LuckyDrawSpinner } from '@/modules/lucky-draw/components/LuckyDrawSpinner';
 import type { PollKind } from '@/data/types';
-import { PhotoSlideshow } from '@/modules/photos/components/PhotoSlideshow';
+import { PhotoWall } from '@/modules/photos/components/PhotoWall';
+import type { PhotoLayout } from '@/modules/photos/logic';
 import { PollResultsView } from '@/modules/polls/components/PollResultsView';
 import type { PollResults } from '@/modules/polls/logic';
 
@@ -331,32 +332,32 @@ export function LuckyDrawView({
 export function PhotosView({
   slides,
   shareUrl,
+  layout,
 }: {
   slides: { id: string; caption: string }[];
   shareUrl: string;
+  layout: PhotoLayout;
 }) {
-  if (slides.length === 0) {
-    return (
-      <div className="screen-fade grid h-full items-center gap-[4vw] md:grid-cols-[1fr_auto]">
-        <div>
-          <p className="text-[clamp(2.5rem,6vw,9rem)] font-bold leading-[1.05] text-ink">
-            Share your photos
-          </p>
-          <p className="mt-[2vh] text-[clamp(1.2rem,2.4vw,3.2rem)] text-ink-soft">
-            Scan, pick a photo, and it appears here once an organiser has checked it.
-          </p>
-        </div>
-        <div className="rounded-[1.5vw] bg-white p-[1.2vw]">
-          <QrCode
-            value={shareUrl}
-            label="QR code that opens the photo sharing page"
-            className="block size-[clamp(9rem,22vw,28rem)]"
-          />
-        </div>
+  const empty = (
+    <div className="screen-fade grid h-full items-center gap-[4vw] md:grid-cols-[1fr_auto]">
+      <div>
+        <p className="text-[clamp(2.5rem,6vw,9rem)] font-bold leading-[1.05] text-ink">
+          Share your photos
+        </p>
+        <p className="mt-[2vh] text-[clamp(1.2rem,2.4vw,3.2rem)] text-ink-soft">
+          Scan, pick a photo, and it appears here.
+        </p>
       </div>
-    );
-  }
-  return <PhotoSlideshow slides={slides} />;
+      <div className="rounded-[1.5vw] bg-white p-[1.2vw]">
+        <QrCode
+          value={shareUrl}
+          label="QR code that opens the photo sharing page"
+          className="block size-[clamp(9rem,22vw,28rem)]"
+        />
+      </div>
+    </div>
+  );
+  return <PhotoWall slides={slides} layout={layout} empty={empty} />;
 }
 
 /* -------------------------------------------------------------- questions */
