@@ -11,6 +11,7 @@ import {
   SCREEN_POLL_MS,
   SCREEN_VIEW_INFO,
   SCREEN_VIEWS,
+  arrivalMilestone,
 } from './logic';
 
 describe('screen settings', () => {
@@ -99,5 +100,15 @@ describe('guest count', () => {
       { id: 's', isSecretariat: true },
     ];
     expect(guestCount(people, ['a', 's', 'a'])).toEqual({ arrived: 1, expected: 2 });
+  });
+});
+
+describe('arrivalMilestone', () => {
+  it('celebrates each quarter, and everyone', () => {
+    expect(arrivalMilestone(24)).toBeNull();
+    expect(arrivalMilestone(25)?.at).toBe(25);
+    expect(arrivalMilestone(64)?.text).toBe('Halfway there!');
+    expect(arrivalMilestone(99)?.at).toBe(75);
+    expect(arrivalMilestone(100)?.text).toContain('Everyone');
   });
 });

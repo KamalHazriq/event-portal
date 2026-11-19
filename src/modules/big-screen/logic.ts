@@ -187,3 +187,15 @@ export function clockFromMinutes(minutes: number): string {
   const m = ((Math.round(minutes) % 1440) + 1440) % 1440;
   return `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
 }
+
+/**
+ * The arrivals milestone reached so far, for a short celebration on the
+ * screen: a quarter, half, three quarters, everyone. Null below a quarter.
+ */
+export function arrivalMilestone(percent: number): { at: number; text: string } | null {
+  if (percent >= 100) return { at: 100, text: 'Everyone is here! 🎉' };
+  if (percent >= 75) return { at: 75, text: 'Three quarters of us are here' };
+  if (percent >= 50) return { at: 50, text: 'Halfway there!' };
+  if (percent >= 25) return { at: 25, text: 'A quarter of us are here' };
+  return null;
+}

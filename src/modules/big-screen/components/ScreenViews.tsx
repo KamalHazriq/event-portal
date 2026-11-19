@@ -12,11 +12,12 @@ import { displayUrl } from '@/lib/event-pass';
 import { LuckyDrawSpinner } from '@/modules/lucky-draw/components/LuckyDrawSpinner';
 import type { PollKind } from '@/data/types';
 import { PhotoWall } from '@/modules/photos/components/PhotoWall';
+import { RollingNumber } from './RollingNumber';
 import type { PhotoLayout } from '@/modules/photos/logic';
 import { PollResultsView } from '@/modules/polls/components/PollResultsView';
 import type { PollResults } from '@/modules/polls/logic';
 
-import type { ArrivalCard } from '../logic';
+import { arrivalMilestone, type ArrivalCard } from '../logic';
 import { CountdownDigits } from './CountdownDigits';
 
 const LABEL =
@@ -207,6 +208,7 @@ export function ArrivalsView({
   dayLabel,
   cards,
   hideNames,
+  secretariat = 0,
 }: {
   arrived: number;
   expected: number;
@@ -214,12 +216,25 @@ export function ArrivalsView({
   dayLabel: string;
   cards: ArrivalCard[];
   hideNames: boolean;
+  /** Secretariat checked in: not counted as guests, mentioned so the sum adds up. */
+  secretariat?: number;
 }) {
+  const milestone = arrivalMilestone(percent);
   const counter = (
-    <div className={hideNames ? 'text-center' : ''}>
-      <p className={LABEL}>Arrived, {dayLabel}</p>
-      <p className="mt-[1vh] font-bold leading-none tabular-nums text-ink">
-        <span className="text-[clamp(5rem,16vw,22rem)]">{arrived}</span>
+    <div className={`relative ${hideNames ? 'text-center' : ''}`}>
+      <p className={LABEL}>Guests arrived, {dayLabel}</p>
+      <p className="relative mt-[1vh] font-bold leading-none tabular-nums text-ink">
+        <span className="relative inline-block text-[clamp(5rem,16vw,22rem)]">
+          <RollingNumber value={arrived} />
+          {/* A burst of dots each time the count goes up. */}
+          {arrived > 0 ? (
+            <span key={arrived} aria-hidden="true" className="burst">
+              {Array.from({ length: 12 }, (_, i) => (
+                <span key={i} className="burst-dot" style={{ ['--a' as string]: `${i * 30}deg` }} />
+              ))}
+            </span>
+          ) : null}
+        </span>
         <span className="text-[clamp(2rem,6vw,8rem)] text-ink-soft"> / {expected}</span>
       </p>
       <div
@@ -231,10 +246,24 @@ export function ArrivalsView({
         aria-label="Arrivals so far"
       >
         <div
-          className="screen-bar h-full rounded-full bg-accent"
+          className="screen-bar bar-shine h-full rounded-full bg-accent"
           style={{ width: `${percent}%` }}
         />
       </div>
+      {secretariat > 0 ? (
+        <p className="mt-[1.5vh] text-[clamp(0.9rem,1.4vw,2rem)] text-ink-soft">
+          plus {secretariat} secretariat
+        </p>
+      ) : null}
+      {milestone ? (
+        // Keyed by the milestone, so it shows once when it is reached.
+        <p
+          key={milestone.at}
+          className="milestone mt-[2vh] inline-block rounded-full bg-accent px-[1.6vw] py-[0.8vh] text-[clamp(1rem,2vw,2.8rem)] font-bold text-canvas"
+        >
+          {milestone.text}
+        </p>
+      ) : null}
     </div>
   );
 
@@ -255,7 +284,9 @@ export function ArrivalsView({
             // Keyed by check in, so only a new arrival animates in.
             <li
               key={card.key}
-              className="screen-arrive rounded-[1vw] border border-line bg-surface px-[2vw] py-[1.6vh]"
+              className={`arrival-card rounded-[1vw] border border-line bg-surface px-[2vw] py-[1.6vh] ${
+                i === 0 ? 'arrival-new' : ''
+              }`}
               style={{ opacity: i === 0 ? 1 : Math.max(0.45, 1 - i * 0.12) }}
             >
               <p className="text-[clamp(1.2rem,2.4vw,3.2rem)] font-bold leading-tight text-ink">

@@ -48,7 +48,7 @@ test.describe('the views', () => {
   test('arrivals counts guests, not the secretariat', async ({ page }) => {
     await signIn(page);
     await page.goto('/screen/arrivals?now=2026-12-14T13:00');
-    await expect(page.getByText(/^Arrived,/)).toBeVisible();
+    await expect(page.getByText(/^Guests arrived,/)).toBeVisible();
     await expect(page.getByText('/ 78')).toBeVisible();
   });
 
@@ -110,11 +110,11 @@ test('the MC switches the projector from a phone', async ({ browser }, testInfo)
   );
 
   await projector.goto('/screen?now=2026-12-14T13:00');
-  await expect(projector.getByText(/^Arrived,/)).toBeVisible();
+  await expect(projector.getByText(/^Guests arrived,/)).toBeVisible();
 
   // Switch while the projector page stays open: it follows on its next poll.
   await phone.getByRole('button', { name: /^Now and next/ }).click();
-  await expect(projector.getByText(/^Arrived,/)).toHaveCount(0, { timeout: 10_000 });
+  await expect(projector.getByText(/^Guests arrived,/)).toHaveCount(0, { timeout: 10_000 });
 
   // Hide names, check, and put it back for whoever runs next.
   await phone.getByRole('button', { name: 'Hide names, counter only' }).click();
