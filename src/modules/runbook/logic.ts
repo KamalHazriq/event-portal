@@ -63,7 +63,10 @@ export function planDay(
       view = null;
       actions.push("Speaker's slides on the main screen");
       if (features.reactions) actions.push('Reactions are open while it runs');
-      if (s.qaEnabled) actions.push('Q&A on Slido');
+      if (s.qaEnabled)
+        actions.push(
+          "Q&A on Slido: moderator approves and tags each question with this talk's label",
+        );
       if (features.comments && s.qaEnabled) {
         actions.push('Afterwards: approve comments, show the Comments view in the changeover');
       }

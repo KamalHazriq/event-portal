@@ -38,10 +38,13 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
   const nowAndNext = findNowAndNext(agenda, now);
   const linkSuffix = nowLinkSuffix(now);
 
-  // Only offer the event form while it is actually taking answers.
-  const eventFeedbackOpen = config.features.feedback
-    ? (await readFormSettings(EVENT_FORM_ID)).open
-    : false;
+  // The whole-summit form is offered from the last day on, while it takes
+  // answers. Before that, feedback is per session, on each session's page.
+  const lastDay = config.days[config.days.length - 1]?.date ?? config.event.endDate;
+  const eventFeedbackOpen =
+    config.features.feedback && now.date >= lastDay
+      ? (await readFormSettings(EVENT_FORM_ID)).open
+      : false;
   // Backup mode only: offer the open poll. Skipped entirely when polls are
   // off, so the static schedule preview never needs a database.
   const pollOpen =
@@ -50,6 +53,14 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
       : false;
   const focusDay = nowAndNext.focusDay;
   const isToday = nowAndNext.today !== null;
+  // The home page shows what is coming, not the whole day: on the day,
+  // finished sessions drop off; at most six, then a link to the full agenda.
+  const HOME_SESSIONS = 6;
+  const shownSessions = (
+    isToday
+      ? (focusDay?.sessions ?? []).filter((s) => sessionStatus(s, now) !== 'past')
+      : (focusDay?.sessions ?? [])
+  ).slice(0, HOME_SESSIONS);
 
   return (
     <div className="space-y-6 lg:!max-w-none">
@@ -124,10 +135,18 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
               ) : null}
 
               <SessionList
-                sessions={focusDay.sessions}
+                sessions={shownSessions}
                 statusOf={(session) => sessionStatus(session, now)}
                 linkSuffix={linkSuffix}
               />
+              {focusDay.sessions.length > shownSessions.length ? (
+                <Link
+                  href={`/agenda?day=${focusDay.id}${nowLinkSuffix(now, '&')}`}
+                  className="mt-3 inline-flex min-h-11 items-center font-semibold text-primary"
+                >
+                  See all {focusDay.sessions.length} sessions for {focusDay.label}
+                </Link>
+              ) : null}
             </section>
           ) : null}
         </div>

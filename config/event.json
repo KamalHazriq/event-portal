@@ -137,10 +137,10 @@
   ],
   "integrations": {
     "slido": {
-      "_readme": "Live polls and Q&A run on Slido under the company licence. Replace the link and code with the real event before 14 Dec.",
+      "_readme": "Live polls and Q&A run on Slido under the company licence. Event Power Summit 2027, one Q&A with a label per talk, moderation on.",
       "enabled": true,
-      "eventUrl": "https://app.sli.do/event/REPLACE-WITH-REAL-SLIDO-EVENT",
-      "eventCode": "#POWER2026",
+      "eventUrl": "https://app.sli.do/event/cc2aPfvwYGG3TAiZ3XpA1h",
+      "eventCode": "#1521990",
       "label": "Join Slido"
     }
   },

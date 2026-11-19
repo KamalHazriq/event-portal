@@ -68,6 +68,41 @@ export default async function SessionPage({ params, searchParams }: PageProps) {
   const previous = position > 0 ? sameDay[position - 1] : undefined;
   const following = position >= 0 ? sameDay[position + 1] : undefined;
 
+  const isLive = status === 'live';
+  // Slido (or the backup Q&A) and the reaction buttons, kept together.
+  const takePart = (
+    <>
+      {backupOn && session.qaEnabled ? (
+        // Backup mode: the portal's own Q&A stands in for the Slido button.
+        <Link
+          href={`/qa/${session.id}`}
+          className="inline-flex min-h-11 items-center rounded-lg bg-primary px-4 py-2.5 font-bold text-on-primary no-underline"
+        >
+          Ask a question
+        </Link>
+      ) : (session.qaEnabled || session.type === 'activity') && session.slidoLink ? (
+        <SlidoButton slido={session.slidoLink} />
+      ) : session.qaEnabled && config.integrations.slido?.enabled ? (
+        // The Slido link is not set yet (still a placeholder in the config).
+        <section className="rounded-xl border border-line bg-surface p-4">
+          <h2 className="text-base font-bold text-ink">Polls and questions</h2>
+          <p className="mt-1 text-ink-soft">
+            This session uses Slido. The link appears here on the day.
+          </p>
+        </section>
+      ) : null}
+
+      {reactionTotals ? (
+        <ReactionBar
+          sessionId={session.id}
+          open={reactionsOpen(session, now)}
+          initialTotals={reactionTotals}
+          nowParam={nowParam}
+        />
+      ) : null}
+    </>
+  );
+
   return (
     <article className="space-y-5">
       <AutoRefresh enabled={!now.isOverride} />
@@ -107,6 +142,9 @@ export default async function SessionPage({ params, searchParams }: PageProps) {
         </dl>
       </header>
 
+      {/* While the talk is on, what people want is at the top. */}
+      {isLive ? takePart : null}
+
       {session.description ? (
         <section>
           <h2 className="sr-only">About this session</h2>
@@ -139,34 +177,7 @@ export default async function SessionPage({ params, searchParams }: PageProps) {
         The portal's own Q&A and feedback appear here instead once those
         modules are built and switched on in config.
       */}
-      {backupOn && session.qaEnabled ? (
-        // Backup mode: the portal's own Q&A stands in for the Slido button.
-        <Link
-          href={`/qa/${session.id}`}
-          className="inline-flex min-h-11 items-center rounded-lg bg-primary px-4 py-2.5 font-bold text-on-primary no-underline"
-        >
-          Ask a question
-        </Link>
-      ) : (session.qaEnabled || session.type === 'activity') && session.slidoLink ? (
-        <SlidoButton slido={session.slidoLink} />
-      ) : session.qaEnabled && config.integrations.slido?.enabled ? (
-        // The Slido link is not set yet (still a placeholder in the config).
-        <section className="rounded-xl border border-line bg-surface p-4">
-          <h2 className="text-base font-bold text-ink">Polls and questions</h2>
-          <p className="mt-1 text-ink-soft">
-            This session uses Slido. The link appears here on the day.
-          </p>
-        </section>
-      ) : null}
-
-      {reactionTotals ? (
-        <ReactionBar
-          sessionId={session.id}
-          open={reactionsOpen(session, now)}
-          initialTotals={reactionTotals}
-          nowParam={nowParam}
-        />
-      ) : null}
+      {isLive ? null : takePart}
 
       {config.features.feedback && session.feedbackEnabled ? (
         <section className="rounded-lg border border-line bg-surface p-4">
