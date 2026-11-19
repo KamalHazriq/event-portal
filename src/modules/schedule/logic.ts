@@ -6,6 +6,7 @@
  * (midnight, a day that is not an event day, two breakouts at once) can be
  * tested directly. See logic.test.ts.
  */
+import { isPlaceholderUrl } from '@/lib/placeholder';
 import type { Day, EventConfig, Session, SlidoRef, Speaker } from '@/lib/event-schema';
 import { toMinutes, type EventNow } from '@/lib/time';
 
@@ -50,6 +51,12 @@ function compareSessions(a: ResolvedSession, b: ResolvedSession): number {
  * Hidden sessions are left out of the day lists and the flat list, but stay
  * in byId, so a link can be shared before a session is announced.
  */
+/** A Slido whose link is still a placeholder counts as none (a code alone is kept). */
+function realSlido(ref: SlidoRef | null): SlidoRef | null {
+  if (!ref) return null;
+  return ref.eventUrl && isPlaceholderUrl(ref.eventUrl) ? null : ref;
+}
+
 export function buildAgenda(config: EventConfig): Agenda {
   const speakersById = new Map(config.speakers.map((speaker) => [speaker.id, speaker]));
   const globalSlido = config.integrations.slido;
@@ -68,8 +75,11 @@ export function buildAgenda(config: EventConfig): Agenda {
           speakers: session.speakerIds
             .map((speakerId) => speakersById.get(speakerId))
             .filter((speaker): speaker is Speaker => speaker !== undefined),
-          slidoLink:
+          // A link still a placeholder in the config is treated as no link,
+          // so nobody is sent to a dead page; the session says it is coming.
+          slidoLink: realSlido(
             session.slido ?? (globalSlido?.enabled === true ? toSlidoRef(globalSlido) : null),
+          ),
         };
         byId.set(resolved.id, resolved);
         return resolved;

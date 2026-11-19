@@ -135,7 +135,7 @@
     "slido": {
       "_readme": "Live polls and Q&A run on Slido under the company licence. Replace the link and code with the real event before 14 Dec.",
       "enabled": true,
-      "eventUrl": "https://app.sli.do/event/REPLACE-WITH-REAL-SLIDO-EVENT",
+      "eventUrl": "https://app.sli.do/event/test-power-summit",
       "eventCode": "#POWER2026",
       "label": "Join Slido"
     }
@@ -637,35 +637,35 @@
     {
       "id": "res-slides",
       "title": "Summit slide pack",
-      "url": "https://example.com/power-summit/slides",
+      "url": "https://files.portal.test/power-summit/slides",
       "description": "All plenary slides in one PDF. Published after Day 3.",
       "kind": "file"
     },
     {
       "id": "res-strategy",
       "title": "Strategy briefing one pager",
-      "url": "https://example.com/power-summit/strategy-one-pager",
+      "url": "https://files.portal.test/power-summit/strategy-one-pager",
       "description": "The three bets for 2027 on a single page, for cascading to your team.",
       "kind": "file"
     },
     {
       "id": "res-breakout-outputs",
       "title": "Breakout outputs",
-      "url": "https://example.com/power-summit/breakout-outputs",
+      "url": "https://files.portal.test/power-summit/breakout-outputs",
       "description": "What each group agreed, with owners and dates.",
       "kind": "file"
     },
     {
       "id": "res-feedback-habit",
       "title": "Feedback conversation guide",
-      "url": "https://example.com/power-summit/feedback-guide",
+      "url": "https://files.portal.test/power-summit/feedback-guide",
       "description": "A short script for the conversation you have been putting off.",
       "kind": "link"
     },
     {
       "id": "res-photos",
       "title": "Event photos",
-      "url": "https://example.com/power-summit/photos",
+      "url": "https://files.portal.test/power-summit/photos",
       "description": "Official photographs. Available one week after the event.",
       "kind": "link"
     }

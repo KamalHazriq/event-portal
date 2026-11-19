@@ -177,3 +177,12 @@ test('the phone layout does not scroll sideways at 375 px', async ({ page }) => 
   );
   expect(overflow).toBeLessThanOrEqual(0);
 });
+
+test('the portal can be added to a home screen', async ({ request }) => {
+  const response = await request.get('/manifest.webmanifest');
+  expect(response.ok()).toBe(true);
+  const manifest = await response.json();
+  expect(manifest.display).toBe('standalone');
+  expect(manifest.start_url).toBe('/');
+  expect(manifest.icons.length).toBeGreaterThan(0);
+});

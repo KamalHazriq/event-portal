@@ -7,6 +7,7 @@ import { Icon, type IconName } from '@/components/icons';
 import { getData } from '@/data';
 import { requireAdmin } from '@/lib/admin-guard';
 import { getEventConfig } from '@/lib/config';
+import { isPlaceholderUrl, looksUnconfirmed } from '@/lib/placeholder';
 import { formatClock, formatShortDate, resolveEventNow } from '@/lib/time';
 import { readBackupMode } from '@/modules/backup/server';
 import { arrivalRate, resolveCheckInDay } from '@/modules/check-in/logic';
@@ -106,16 +107,45 @@ export default async function AdminHomePage() {
 
   const data = getData();
   const qaSessions = config.days.flatMap((d) => d.sessions).filter((s) => s.qaEnabled);
-  const [health, headcount, summaries, waitingPhotos, backupOn, questionLists] = await Promise.all([
-    data.healthCheck(),
-    day ? data.checkIns.headcount(day.id) : Promise.resolve(null),
-    data.feedback.summaries(),
-    config.features.photoWall ? data.photos.list('pending') : Promise.resolve([]),
-    config.features.qa ? readBackupMode() : Promise.resolve(false),
-    config.features.qa
-      ? Promise.all(qaSessions.map((s) => data.questions.listBySession(s.id)))
-      : Promise.resolve([]),
-  ]);
+  const [health, headcount, summaries, waitingPhotos, backupOn, questionLists, people] =
+    await Promise.all([
+      data.healthCheck(),
+      day ? data.checkIns.headcount(day.id) : Promise.resolve(null),
+      data.feedback.summaries(),
+      config.features.photoWall ? data.photos.list('pending') : Promise.resolve([]),
+      config.features.qa ? readBackupMode() : Promise.resolve(false),
+      config.features.qa
+        ? Promise.all(qaSessions.map((s) => data.questions.listBySession(s.id)))
+        : Promise.resolve([]),
+      data.attendees.count().catch(() => 0),
+    ]);
+
+  // What is still a placeholder, so the secretariat sees what is left before
+  // the event. Disappears once everything is filled in.
+  const slido = config.integrations.slido;
+  const unpublished = config.resources.filter((r) => isPlaceholderUrl(r.url));
+  const unconfirmed = config.speakers.filter((s) =>
+    looksUnconfirmed(`${s.name} ${s.title ?? ''} ${s.bio ?? ''}`),
+  );
+  const todo: string[] = [
+    ...(people === 0 ? ['Upload the participant list (Attendees page).'] : []),
+    ...(slido?.enabled && slido.eventUrl && isPlaceholderUrl(slido.eventUrl)
+      ? [
+          'The Slido link and code. Session pages say "the link appears here on the day" until then.',
+        ]
+      : []),
+    ...(unpublished.length > 0
+      ? [
+          `${unpublished.length} resource link${unpublished.length === 1 ? '' : 's'} (${unpublished
+            .map((r) => r.title)
+            .join(', ')}). Shown as "coming soon" until set.`,
+        ]
+      : []),
+    ...(unconfirmed.length > 0
+      ? [`Speakers still to confirm: ${unconfirmed.map((s) => s.name).join(', ')}.`]
+      : []),
+    ...(isPlaceholderUrl(config.event.portalUrl) ? ['The portal address for the QR codes.'] : []),
+  ];
 
   const rate = headcount ? arrivalRate(headcount.arrived, headcount.expected) : null;
   const answers = summaries.reduce((sum, s) => sum + s.responses, 0);
@@ -223,6 +253,26 @@ export default async function AdminHomePage() {
           <StatTile key={stat.label} stat={stat} />
         ))}
       </section>
+
+      {todo.length > 0 ? (
+        <section
+          aria-labelledby="todo"
+          className="rounded-xl border border-warning/60 bg-warning/10 p-5"
+        >
+          <h2 id="todo" className="font-bold text-ink">
+            Still to fill in before the event
+          </h2>
+          <ul className="mt-2 list-disc space-y-1 pl-5 text-ink">
+            {todo.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
+          <p className="mt-2 text-sm text-ink-soft">
+            Links, speakers and the agenda live in the event config: send the details to whoever
+            maintains the portal.
+          </p>
+        </section>
+      ) : null}
 
       {ADMIN_GROUPS.map((group) => (
         <section key={group.name} aria-labelledby={`g-${group.name}`}>

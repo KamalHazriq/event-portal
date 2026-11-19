@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
 import { getEventConfig } from '@/lib/config';
+import { isPlaceholderUrl } from '@/lib/placeholder';
 
 export const metadata: Metadata = { title: 'Resources' };
 
@@ -35,26 +36,45 @@ export default function ResourcesPage() {
         </p>
       ) : (
         <ul className="space-y-2">
-          {config.resources.map((resource) => (
-            <li key={resource.id}>
-              <a
-                href={resource.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block rounded-lg border border-line bg-surface p-4 no-underline hover:border-primary focus-visible:border-primary"
+          {config.resources.map((resource) =>
+            isPlaceholderUrl(resource.url) ? (
+              // Not published yet: shown, so people know it is coming, but
+              // not a link to a page that does not exist.
+              <li
+                key={resource.id}
+                className="block rounded-lg border border-dashed border-line bg-surface p-4"
               >
                 <span className="flex items-baseline justify-between gap-3">
                   <span className="font-bold text-ink">{resource.title}</span>
                   <span className="shrink-0 text-xs font-semibold uppercase text-ink-soft">
-                    {resource.kind === 'file' ? 'Download' : 'Link'}
+                    Coming soon
                   </span>
                 </span>
                 {resource.description ? (
                   <span className="mt-1 block text-sm text-ink-soft">{resource.description}</span>
                 ) : null}
-              </a>
-            </li>
-          ))}
+              </li>
+            ) : (
+              <li key={resource.id}>
+                <a
+                  href={resource.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block rounded-lg border border-line bg-surface p-4 no-underline hover:border-primary focus-visible:border-primary"
+                >
+                  <span className="flex items-baseline justify-between gap-3">
+                    <span className="font-bold text-ink">{resource.title}</span>
+                    <span className="shrink-0 text-xs font-semibold uppercase text-ink-soft">
+                      {resource.kind === 'file' ? 'Download' : 'Link'}
+                    </span>
+                  </span>
+                  {resource.description ? (
+                    <span className="mt-1 block text-sm text-ink-soft">{resource.description}</span>
+                  ) : null}
+                </a>
+              </li>
+            ),
+          )}
         </ul>
       )}
     </div>

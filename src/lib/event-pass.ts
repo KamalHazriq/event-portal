@@ -25,6 +25,9 @@ export function isOpenPath(pathname: string): boolean {
     pathname.startsWith('/_next/') ||
     pathname.startsWith('/branding/') ||
     pathname === '/favicon.ico' ||
+    // Holds the event name and icons only, so a phone can add it to its
+    // home screen from the page that asks for the code.
+    pathname === '/manifest.webmanifest' ||
     pathname === '/robots.txt'
   );
 }

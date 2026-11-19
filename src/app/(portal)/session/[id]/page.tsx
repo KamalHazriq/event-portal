@@ -149,6 +149,14 @@ export default async function SessionPage({ params, searchParams }: PageProps) {
         </Link>
       ) : (session.qaEnabled || session.type === 'activity') && session.slidoLink ? (
         <SlidoButton slido={session.slidoLink} />
+      ) : session.qaEnabled && config.integrations.slido?.enabled ? (
+        // The Slido link is not set yet (still a placeholder in the config).
+        <section className="rounded-xl border border-line bg-surface p-4">
+          <h2 className="text-base font-bold text-ink">Polls and questions</h2>
+          <p className="mt-1 text-ink-soft">
+            This session uses Slido. The link appears here on the day.
+          </p>
+        </section>
       ) : null}
 
       {reactionTotals ? (
