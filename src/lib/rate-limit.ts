@@ -115,6 +115,8 @@ export const LIMITS = {
   pollVote: { limit: 60, windowMs: 10 * 60 * 1000 },
   /** Signing in for points from one phone. Stops someone trying staff numbers. */
   join: { limit: 10, windowMs: 10 * 60 * 1000 },
+  /** Uploading the participant list. */
+  attendeeUpload: { limit: 20, windowMs: 10 * 60 * 1000 },
   /** Reaction taps from one phone. Lets real enthusiasm through, stops a script. */
   react: { limit: 90, windowMs: 60 * 1000 },
   /** Comments from one phone. The real limit is five per talk. */

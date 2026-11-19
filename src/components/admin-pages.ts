@@ -125,6 +125,13 @@ export const ADMIN_GROUPS: { name: string; pages: AdminPage[] }[] = [
     name: 'Set up',
     pages: [
       {
+        href: '/admin/attendees',
+        label: 'Attendees',
+        title: 'Attendees',
+        description: 'Upload the participant list from Excel or CSV, and see who is on it.',
+        icon: 'users',
+      },
+      {
         href: '/admin/name-tags',
         label: 'Name tags',
         title: 'Name tags',

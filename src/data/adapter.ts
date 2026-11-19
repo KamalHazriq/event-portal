@@ -70,6 +70,11 @@ export interface AttendeeRepository {
    * check in tokens survive (printed name tags keep working).
    */
   importRows(rows: AttendeeImportRow[]): Promise<AttendeeImportResult>;
+  /**
+   * Removes everyone, to start again after a wrong upload. Their check ins,
+   * phone links and lucky draw wins go with them. Returns how many.
+   */
+  removeAll(): Promise<number>;
 }
 
 export interface CheckInRepository {

@@ -70,11 +70,21 @@ export function parseCsv(text: string): string[][] {
  * and "staff_no" both work. People edit these files by hand.
  */
 export function parseCsvRecords(text: string): Record<string, string>[] {
-  const rows = parseCsv(text).filter((row) => row.some((cell) => cell.trim().length > 0));
+  return rowsToRecords(parseCsv(text));
+}
+
+/** A header name as the importers compare it: "Staff No" becomes "staff_no". */
+export function normaliseHeader(name: string): string {
+  return name.trim().toLowerCase().replace(/\s+/g, '_');
+}
+
+/** Rows (from CSV or a spreadsheet) with a header row first, into records. */
+export function rowsToRecords(allRows: string[][]): Record<string, string>[] {
+  const rows = allRows.filter((row) => row.some((cell) => cell.trim().length > 0));
   const headerRow = rows[0];
   if (!headerRow) return [];
 
-  const headers = headerRow.map((name) => name.trim().toLowerCase().replace(/\s+/g, '_'));
+  const headers = headerRow.map(normaliseHeader);
 
   return rows.slice(1).map((row) => {
     const record: Record<string, string> = {};

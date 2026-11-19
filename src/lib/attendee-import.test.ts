@@ -235,3 +235,40 @@ describe('the HR list export', () => {
     expect(problems[0]?.reason).toContain('name (or Complete Name)');
   });
 });
+
+describe('the participant list as an Excel file', () => {
+  it('finds the header under a title row, and reads the list layout', async () => {
+    const { writeXlsx } = await import('./xlsx/write');
+    const { readXlsx } = await import('./xlsx/read');
+    const { parseAttendeeTable } = await import('./attendee-import');
+    const file = writeXlsx([
+      {
+        name: 'Participants',
+        rows: [
+          ['Power Summit participants (draft)'],
+          [],
+          ['No', 'Staff No', 'Name', 'Role', 'Grade', 'Dept', 'Remarks'],
+          [1, 'X1', 'Person One', 'Lead', 'E16', 'TNS', ''],
+          [2, '', 'Pilot Two', 'Pilot', '', 'Secretariat', 'External'],
+        ],
+      },
+    ]);
+    const [sheet] = readXlsx(file);
+    const result = parseAttendeeTable(sheet?.rows ?? []);
+    expect(result.problems).toEqual([]);
+    expect(result.rows).toHaveLength(2);
+    expect(result.rows[0]).toMatchObject({ staffNo: 'X1', title: 'Lead', department: 'TNS' });
+    expect(result.rows[1]).toMatchObject({ staffNo: 'EXT-PILOT-TWO', isSecretariat: true });
+  });
+
+  it('reports the real line of a bad row', async () => {
+    const { parseAttendeeTable } = await import('./attendee-import');
+    const result = parseAttendeeTable([
+      ['Title'],
+      ['Staff No', 'Name'],
+      ['A1', 'One'],
+      ['A1', 'Duplicate'],
+    ]);
+    expect(result.problems[0]?.row).toBe(4);
+  });
+});

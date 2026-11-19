@@ -13,7 +13,7 @@
  */
 import type { AttendeeImportRow } from '@/data/types';
 
-import { parseCsvRecords } from './csv';
+import { normaliseHeader, parseCsvRecords, rowsToRecords } from './csv';
 import { plainText } from './text';
 
 export type AttendeeCsvProblem = { row: number; reason: string };
@@ -87,13 +87,32 @@ export function standInStaffNo(name: string): string {
 }
 
 export function parseAttendeeCsv(text: string): AttendeeCsvResult {
-  const records = parseCsvRecords(text);
+  return parseAttendeeRecords(parseCsvRecords(text));
+}
+
+/**
+ * The first sheet of an Excel file, or any table of rows. The header row
+ * does not have to be the first: a title or a blank line above it is
+ * skipped, as long as the header is within the first 15 rows.
+ */
+export function parseAttendeeTable(rows: string[][]): AttendeeCsvResult {
+  const headerAt = rows
+    .slice(0, 15)
+    .findIndex((row) =>
+      row.some((cell) => (COLUMNS.name as readonly string[]).includes(normaliseHeader(cell))),
+    );
+  const start = Math.max(headerAt, 0);
+  return parseAttendeeRecords(rowsToRecords(rows.slice(start)), start);
+}
+
+/** `offset` is how many rows sat above the header, so problems name the right line. */
+function parseAttendeeRecords(records: Record<string, string>[], offset = 0): AttendeeCsvResult {
   const problems: AttendeeCsvProblem[] = [];
 
   if (records.length === 0) {
     return {
       rows: [],
-      problems: [{ row: 1, reason: 'the file has no rows under the header' }],
+      problems: [{ row: 1 + offset, reason: 'the file has no rows under the header' }],
     };
   }
 
@@ -107,7 +126,7 @@ export function parseAttendeeCsv(text: string): AttendeeCsvResult {
       rows: [],
       problems: [
         {
-          row: 1,
+          row: 1 + offset,
           reason: `the header row is missing: ${missing.join(', ')}. Expected columns are no, staff_no, name, title, department, remark.`,
         },
       ],
@@ -119,7 +138,7 @@ export function parseAttendeeCsv(text: string): AttendeeCsvResult {
 
   records.forEach((record, index) => {
     // Header is line 1, so the first data row is line 2.
-    const line = index + 2;
+    const line = index + 2 + offset;
 
     const name = plainText(field(record, ...COLUMNS.name), 120);
     const givenStaffNo = plainText(field(record, ...COLUMNS.staffNo), 40);

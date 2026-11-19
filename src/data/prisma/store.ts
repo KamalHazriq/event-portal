@@ -294,6 +294,22 @@ export function createPrismaAdapter(
       return rows.map((row) => row.department).filter((name) => name.length > 0);
     },
 
+    async removeAll() {
+      // Children first, explicitly: not every SQLite connection enforces the
+      // schema's cascades. Feedback stays, without the name link.
+      const [, , , , deleted] = await prisma.$transaction([
+        prisma.deviceLink.deleteMany(),
+        prisma.luckyDrawWinner.deleteMany(),
+        prisma.checkIn.deleteMany(),
+        prisma.feedback.updateMany({
+          where: { attendeeId: { not: null } },
+          data: { attendeeId: null },
+        }),
+        prisma.attendee.deleteMany(),
+      ]);
+      return deleted.count;
+    },
+
     async importRows(rows) {
       const result: AttendeeImportResult = {
         created: 0,
