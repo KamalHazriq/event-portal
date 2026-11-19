@@ -3,7 +3,12 @@ import type { Metadata } from 'next';
 import { getData } from '@/data';
 import { requireAdmin } from '@/lib/admin-guard';
 import { getEventConfig } from '@/lib/config';
-import { clearAnnouncement, postAnnouncement, setFeedbackNudges } from '@/modules/announce/actions';
+import {
+  clearAnnouncement,
+  postAnnouncement,
+  sendTestAlert,
+  setFeedbackNudges,
+} from '@/modules/announce/actions';
 import {
   ANNOUNCE_HOURS,
   ANNOUNCE_KEYS,
@@ -29,7 +34,23 @@ const EXAMPLES = [
   'Tell us how it went: the summit feedback form is open.',
 ];
 
-export default async function AnnouncementsPage() {
+type SearchParams = Promise<Record<string, string | string[] | undefined>>;
+
+const TEST_RESULT: Record<string, { text: string; good: boolean }> = {
+  sent: { text: 'Test sent. It should arrive on this phone within a few seconds.', good: true },
+  failed: {
+    text: 'The push service did not take the test. Try again in a minute.',
+    good: false,
+  },
+  none: {
+    text: 'This phone has not turned on alerts yet. Open the portal home on this phone, tap Turn on alerts, then try again.',
+    good: false,
+  },
+};
+
+export default async function AnnouncementsPage({ searchParams }: { searchParams: SearchParams }) {
+  const params = await searchParams;
+  const test = typeof params.test === 'string' ? TEST_RESULT[params.test] : undefined;
   await requireAdmin('/admin/announcements');
   const config = getEventConfig();
   const tz = config.event.timezone;
@@ -144,6 +165,33 @@ export default async function AnnouncementsPage() {
         >
           Post announcement
         </button>
+      </form>
+
+      <form
+        action={sendTestAlert}
+        className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line bg-surface p-4"
+      >
+        <p className="min-w-0 flex-1 text-ink">
+          <span className="font-bold">Check alerts on your own phone.</span>{' '}
+          <span className="text-ink-soft">
+            Turn on alerts on the portal home first, in this same browser. Only this phone gets the
+            test.
+          </span>
+        </p>
+        <button
+          type="submit"
+          className="min-h-11 rounded-lg border border-line px-4 font-semibold text-ink"
+        >
+          Send a test to this phone
+        </button>
+        {test ? (
+          <p
+            role="status"
+            className={`w-full text-sm font-semibold ${test.good ? 'text-success' : 'text-warning'}`}
+          >
+            {test.text}
+          </p>
+        ) : null}
       </form>
 
       {config.features.feedback ? (

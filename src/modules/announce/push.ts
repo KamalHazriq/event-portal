@@ -118,3 +118,9 @@ export async function pushToPeople(
   const subs = (await data.push.list()).filter((s) => s.deviceId && devices.has(s.deviceId));
   return sendTo(subs, message);
 }
+
+/** Only this phone (by its device id), for a test from the Announce page. */
+export async function pushToDevice(deviceId: string, message: PushMessage): Promise<SendResult> {
+  const subs = (await getData().push.list()).filter((s) => s.deviceId === deviceId);
+  return sendTo(subs, message);
+}

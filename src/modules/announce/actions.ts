@@ -1,10 +1,13 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 
 import { getData } from '@/data';
 import { requireAdminApi } from '@/lib/admin-guard';
 import { getEventConfig } from '@/lib/config';
+import { DEVICE_COOKIE, readDeviceId } from '@/lib/device';
 import { newId } from '@/lib/ids';
 import { recordActivity } from '@/modules/admins/record';
 
@@ -17,7 +20,7 @@ import {
   safeHref,
   type Announcement,
 } from './logic';
-import { pushToAll } from './push';
+import { pushToAll, pushToDevice } from './push';
 
 async function assertAdmin(): Promise<string> {
   const auth = await requireAdminApi();
@@ -88,4 +91,21 @@ export async function setFeedbackNudges(formData: FormData): Promise<void> {
     operator,
   );
   done();
+}
+
+/** Sends a test alert to this phone only, so nobody else is disturbed. */
+export async function sendTestAlert(): Promise<void> {
+  await assertAdmin();
+  const deviceId = readDeviceId((await cookies()).get(DEVICE_COOKIE)?.value);
+  const result = deviceId
+    ? await pushToDevice(deviceId, {
+        title: `${getEventConfig().event.shortName}: test alert`,
+        body: 'Alerts work on this phone.',
+        url: '/',
+        tag: 'test',
+      })
+    : { sent: 0, failed: 0, removed: 0 };
+  redirect(
+    `/admin/announcements?test=${result.sent > 0 ? 'sent' : result.failed > 0 ? 'failed' : 'none'}`,
+  );
 }
