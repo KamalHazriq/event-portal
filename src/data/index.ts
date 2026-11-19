@@ -11,6 +11,7 @@
  */
 import { DATA_ADAPTERS, type DataAdapter, type DataAdapterName } from './adapter';
 import { createPostgresAdapter } from './postgres';
+import { withReadCache } from './read-cache';
 import { createSqliteAdapter } from './sqlite';
 
 export type { DataAdapter } from './adapter';
@@ -32,10 +33,10 @@ export function getData(): DataAdapter {
   const name = resolveAdapterName();
   switch (name) {
     case 'sqlite':
-      instance = createSqliteAdapter();
+      instance = withReadCache(createSqliteAdapter());
       return instance;
     case 'postgres':
-      instance = createPostgresAdapter();
+      instance = withReadCache(createPostgresAdapter());
       return instance;
     default: {
       // Makes TypeScript complain here if a new adapter name is added to
