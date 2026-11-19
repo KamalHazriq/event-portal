@@ -141,7 +141,9 @@ export default async function NameTagsPage({ searchParams }: { searchParams: Sea
               <>
                 <div className="tag-text">
                   {personalQr ? null : <p className="tag-event">{config.event.shortName}</p>}
-                  <p className="tag-name">{person.name}</p>
+                  <p className={`tag-name ${person.name.length > 28 ? 'tag-name-long' : ''}`}>
+                    {person.name}
+                  </p>
                   {person.title ? <p className="tag-title">{person.title}</p> : null}
                   {person.department ? (
                     <p className="tag-dept">{departmentWithShort(config, person.department)}</p>

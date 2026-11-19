@@ -232,6 +232,11 @@
   overflow-wrap: anywhere;
 }
 
+/* Long names (over 28 letters) a size down, so they keep to three lines. */
+.tag-name-long {
+  font-size: 4.4mm;
+}
+
 .tag-title {
   font-size: 3.2mm;
   line-height: 1.25;
