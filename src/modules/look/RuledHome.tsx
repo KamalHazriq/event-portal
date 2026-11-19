@@ -33,6 +33,7 @@ import {
 } from '@/modules/schedule/logic';
 import { REACTIONS } from '@/modules/talk/logic';
 import { AlertsOptIn } from '@/modules/announce/components/AlertsOptIn';
+import { shortDepartment } from '@/lib/departments';
 
 const SECTION = 'pt-16 pb-12 lg:pt-24 lg:pb-16';
 const H2 = 'font-display text-[1.75rem] font-medium leading-[1.1] text-ink sm:text-[2.5rem]';
@@ -126,6 +127,9 @@ export async function RuledHome({
       : Promise.resolve(null),
   ]);
 
+  // One tile per department, by short name ("Cores" and "Corporate &
+  // Engineering Services" are the same team).
+  const teams = [...new Set(departments.map((d) => shortDepartment(config, d)))];
   const sessionCount = config.days.reduce(
     (n, d) => n + d.sessions.filter((s) => !s.hidden).length,
     0,
@@ -361,11 +365,11 @@ export async function RuledHome({
         <section aria-labelledby="teams" className={SECTION}>
           <Opener
             id="teams"
-            lines={[`${departments.length} departments,`, 'one room']}
+            lines={[`${teams.length} departments,`, 'one room']}
             control={features.leaderboard ? { href: '/leaderboard', label: 'Leaderboard' } : null}
           />
           <ul className="mt-8 grid grid-cols-2 border-l border-t border-line sm:grid-cols-4 lg:grid-cols-7">
-            {departments.map((d) => (
+            {teams.map((d) => (
               <li
                 key={d}
                 className="flex min-h-20 items-center justify-center border-b border-r border-line px-3 text-center font-display text-lg font-medium text-ink"

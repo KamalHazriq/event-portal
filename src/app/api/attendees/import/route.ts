@@ -18,6 +18,7 @@ import { getEventConfig } from '@/lib/config';
 import { LIMITS, rateLimit } from '@/lib/rate-limit';
 import { readXlsx, XlsxError } from '@/lib/xlsx/read';
 import { recordActivity } from '@/modules/admins/record';
+import { canonicalDepartment } from '@/lib/departments';
 
 const MAX_BYTES = 2 * 1024 * 1024;
 
@@ -92,7 +93,13 @@ export async function POST(request: Request): Promise<Response> {
     });
   }
 
-  const result = await data.attendees.importRows(parsed.rows);
+  // One spelling per department, so "Cores" and the full name count as one.
+  const config = getEventConfig();
+  const rows = parsed.rows.map((row) => ({
+    ...row,
+    department: canonicalDepartment(config, row.department ?? ''),
+  }));
+  const result = await data.attendees.importRows(rows);
   await recordActivity(
     `Uploaded the participant list: ${result.created} added, ${result.updated} updated`,
     operator,

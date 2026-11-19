@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  canonicalDepartment,
   departmentWithShort,
   departmentsWithoutShortName,
   findShortName,
@@ -51,5 +52,15 @@ describe('department short names', () => {
         'Another',
       ]),
     ).toEqual(['Another', 'New Unit']);
+  });
+});
+
+describe('canonicalDepartment', () => {
+  it('saves one spelling per department', () => {
+    expect(canonicalDepartment(config, 'Cores')).toBe('Corporate & Engineering Services');
+    expect(canonicalDepartment(config, 'corporate and engineering services')).toBe(
+      'Corporate & Engineering Services',
+    );
+    expect(canonicalDepartment(config, ' New Unit ')).toBe('New Unit');
   });
 });

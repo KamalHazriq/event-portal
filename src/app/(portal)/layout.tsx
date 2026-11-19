@@ -28,8 +28,11 @@ export default async function PortalLayout({ children }: { children: React.React
           // Reading pages keep a comfortable width; the home page opts out.
           className={`${RULED_CONTAINER} flex-1 pb-8 pt-8 lg:pt-12 [&>*]:mx-auto [&>*]:w-full [&>*]:max-w-3xl`}
         >
-          <AnnouncementBanner />
-          <LuckyWinBanner />
+          {/* Room below a banner: the home page hero tucks up under the header. */}
+          <div className="mb-8 empty:hidden lg:mb-12">
+            <AnnouncementBanner />
+            <LuckyWinBanner />
+          </div>
           {children}
         </main>
         <RuledFooter config={config} />

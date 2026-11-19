@@ -68,3 +68,13 @@ export function departmentsWithoutShortName(config: WithDepartments, names: stri
   }
   return out.sort();
 }
+
+/**
+ * The standard spelling for a department, used when the list is uploaded:
+ * "Cores", "corporate and engineering services" and the full name all
+ * become "Corporate & Engineering Services", so the headcount and the
+ * leaderboard count them as one team. Unknown names are kept as written.
+ */
+export function canonicalDepartment(config: WithDepartments, name: string): string {
+  return findEntry(config, name)?.name ?? name.trim();
+}
