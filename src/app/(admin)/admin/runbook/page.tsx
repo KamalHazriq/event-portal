@@ -65,6 +65,11 @@ export default async function RunbookPage() {
             <strong>MC phone:</strong> sign in as <code>mc</code>, keep Live and Big screen open.
           </li>
           <li>
+            A sign in lasts until the end of the event, so each device signs in once. If a phone
+            with the console is lost, change the admin PIN (the portal-admin-pin secret): every
+            device is signed out at once.
+          </li>
+          <li>
             <strong>Event code</strong> for anyone whose camera will not scan:{' '}
             {code ? (
               <strong className="font-mono tracking-widest">{code}</strong>

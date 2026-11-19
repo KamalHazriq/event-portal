@@ -4,6 +4,8 @@ import {
   createSessionValue,
   normaliseOperator,
   readSessionValue,
+  MAX_SESSION_DAYS,
+  sessionExpiry,
   SESSION_HOURS,
 } from './admin-session';
 import { isRateLimited, LIMITS, rateLimit, resetRateLimits } from './rate-limit';
@@ -134,5 +136,37 @@ describe('the PIN limiter counts failures only', () => {
       rateLimit('pin:guesser', LIMITS.adminPin);
     }
     expect(isRateLimited('pin:guesser', LIMITS.adminPin).allowed).toBe(false);
+  });
+});
+
+describe('how long a sign in lasts', () => {
+  const hour = 60 * 60 * 1000;
+  const day = 24 * hour;
+  const now = Date.UTC(2026, 10, 19, 2, 0);
+  const eventEnds = Date.UTC(2026, 11, 16, 15, 59); // 23:59 on 16 Dec in Malaysia
+
+  it('lasts until the end of the event when signing in before or during it', () => {
+    expect(sessionExpiry(now, eventEnds)).toBe(eventEnds);
+    expect(sessionExpiry(eventEnds - 30 * hour, eventEnds)).toBe(eventEnds);
+  });
+
+  it('lasts at least a full day, even late on the last day or after the event', () => {
+    expect(sessionExpiry(eventEnds - hour, eventEnds)).toBe(
+      eventEnds - hour + SESSION_HOURS * hour,
+    );
+    expect(sessionExpiry(eventEnds + 5 * day, eventEnds)).toBe(
+      eventEnds + 5 * day + SESSION_HOURS * hour,
+    );
+  });
+
+  it('never lasts more than a month, and falls back without event dates', () => {
+    expect(sessionExpiry(now, now + 90 * day)).toBe(now + MAX_SESSION_DAYS * day);
+    expect(sessionExpiry(now, null)).toBe(now + SESSION_HOURS * hour);
+  });
+
+  it('a cookie made to last to the end of the event reads until then', () => {
+    const value = createSessionValue('desk-1', PIN, now, eventEnds);
+    expect(readSessionValue(value, eventEnds - hour)?.operator).toBe('desk-1');
+    expect(readSessionValue(value, eventEnds + 1)).toBeNull();
   });
 });

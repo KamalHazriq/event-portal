@@ -12,7 +12,10 @@ import {
   cookieOptions,
   createSessionValue,
   normaliseOperator,
+  sessionExpiry,
 } from '@/lib/admin-session';
+import { tryLoadEventConfig } from '@/lib/config';
+import { localDateTimeToInstant } from '@/lib/time';
 import { getAdminPin, pinMatches } from '@/lib/auth';
 import { isRateLimited, LIMITS, rateLimit } from '@/lib/rate-limit';
 import { plainText } from '@/lib/text';
@@ -75,7 +78,21 @@ export async function POST(request: Request): Promise<NextResponse> {
 
   const operator = normaliseOperator(String(form.get('operator') ?? 'desk'));
   const response = redirectTo(next);
-  response.cookies.set(ADMIN_COOKIE, createSessionValue(operator, pin), cookieOptions);
+  // One sign in per device for the whole event: it lasts until 23:59 on the
+  // last day (at least 14 hours, at most 31 days).
+  const config = tryLoadEventConfig();
+  const eventEnd = config.ok
+    ? (localDateTimeToInstant(
+        `${config.config.event.endDate}T23:59`,
+        config.config.event.timezone,
+      )?.getTime() ?? null)
+    : null;
+  const now = Date.now();
+  const expiresAt = sessionExpiry(now, eventEnd);
+  response.cookies.set(ADMIN_COOKIE, createSessionValue(operator, pin, now, expiresAt), {
+    ...cookieOptions,
+    maxAge: Math.floor((expiresAt - now) / 1000),
+  });
   await recordActivity('Signed in', operator);
   return response;
 }

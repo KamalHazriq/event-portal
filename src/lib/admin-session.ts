@@ -16,8 +16,27 @@ import { plainText } from './text';
 
 export const ADMIN_COOKIE = 'ep_desk';
 
-/** Long enough for a full event day, short enough that a lost phone expires. */
+/**
+ * The shortest a sign in lasts: a full event day. During the run up and
+ * the event itself it lasts longer, until the night of the last day (see
+ * sessionExpiry), so each phone signs in once for the whole event. Changing
+ * the PIN signs every device out at once, for a lost phone.
+ */
 export const SESSION_HOURS = 14;
+
+/** The longest a sign in can ever last, whatever the event dates. */
+export const MAX_SESSION_DAYS = 31;
+
+/**
+ * When a sign in made now should end: at the end of the event if that is
+ * later than 14 hours from now, but never more than 31 days away.
+ */
+export function sessionExpiry(now: number, eventEndsAt: number | null): number {
+  const minimum = now + SESSION_HOURS * 60 * 60 * 1000;
+  const maximum = now + MAX_SESSION_DAYS * 24 * 60 * 60 * 1000;
+  if (eventEndsAt === null || !Number.isFinite(eventEndsAt)) return minimum;
+  return Math.min(Math.max(minimum, eventEndsAt), maximum);
+}
 
 export type AdminSession = {
   /** A desk or operator label such as "desk-1". Never a person's name. */
@@ -37,9 +56,13 @@ function safeEqual(a: string, b: string): boolean {
 }
 
 /** Builds the cookie value for a signed in operator. */
-export function createSessionValue(operator: string, pin: string, now = Date.now()): string {
+export function createSessionValue(
+  operator: string,
+  pin: string,
+  now = Date.now(),
+  expiresAt = now + SESSION_HOURS * 60 * 60 * 1000,
+): string {
   const label = normaliseOperator(operator);
-  const expiresAt = now + SESSION_HOURS * 60 * 60 * 1000;
   const payload = `${label}:${expiresAt}`;
   const encoded = Buffer.from(payload, 'utf8').toString('base64url');
   return `${encoded}.${sign(payload, pin)}`;
