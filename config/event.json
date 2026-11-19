@@ -613,6 +613,10 @@
         "body": "Come to the registration desk when you arrive each day. The desk scans the digital business card in your TNB app, or finds you by name.",
         "items": [
           {
+            "label": "Registration",
+            "text": "Day 1 from 10:00 am in the Classroom hall."
+          },
+          {
             "label": "Hotel check in",
             "text": "To confirm"
           }
@@ -628,7 +632,7 @@
           },
           {
             "label": "Dress code",
-            "text": "To confirm"
+            "text": "Day 1: formal, full suit and tie. Day 2: smart casual. Day 3: Baju F1."
           }
         ]
       },

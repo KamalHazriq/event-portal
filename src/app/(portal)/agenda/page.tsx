@@ -35,6 +35,13 @@ export default async function AgendaPage({ searchParams }: { searchParams: Searc
   const mine = requestedDay === 'mine';
   const selectedDay = mine ? null : resolveSelectedDay(agenda, requestedDay, now);
   const tz = config.event.timezone;
+  // Only when it is that day: two or more finished sessions fold away.
+  const finished =
+    selectedDay && selectedDay.date === now.date
+      ? selectedDay.sessions.filter((s) => sessionStatus(s, now) === 'past')
+      : [];
+  const earlier = finished.length >= 2 ? finished : [];
+  const upcoming = selectedDay ? selectedDay.sessions.filter((s) => !earlier.includes(s)) : [];
   const linkSuffix = nowLinkSuffix(now);
 
   return (
@@ -79,12 +86,31 @@ export default async function AgendaPage({ searchParams }: { searchParams: Searc
             <div className="mb-3" />
           )}
 
+          {/* Today: finished sessions fold away, so what is on now is first. */}
+          {earlier.length > 0 ? (
+            <details className="mb-2 rounded-lg border border-line bg-surface">
+              <summary className="cursor-pointer px-3 py-2.5 text-sm font-semibold text-ink-soft">
+                Earlier today ({earlier.length} finished)
+              </summary>
+              <div className="px-2 pb-2">
+                <SessionList
+                  columns={2}
+                  sessions={earlier}
+                  statusOf={(session) => sessionStatus(session, now)}
+                  linkSuffix={linkSuffix}
+                />
+              </div>
+            </details>
+          ) : null}
+
           <SessionList
             columns={2}
-            sessions={selectedDay.sessions}
+            sessions={upcoming}
             statusOf={(session) => sessionStatus(session, now)}
             linkSuffix={linkSuffix}
-            emptyMessage="No sessions on this day yet."
+            emptyMessage={
+              earlier.length > 0 ? 'That is everything for today.' : 'No sessions on this day yet.'
+            }
           />
         </section>
       ) : (

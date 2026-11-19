@@ -27,7 +27,7 @@ export function DayTabs({
   const mineSelected = selectedDayId === 'mine';
   return (
     <nav aria-label="Choose a day">
-      <ul className="flex gap-2 overflow-x-auto pb-1">
+      <ul className="flex gap-1.5 overflow-x-auto pb-1">
         {days.map((day) => {
           const selected = day.id === selectedDayId;
           return (
@@ -36,7 +36,7 @@ export function DayTabs({
                 href={`/agenda?day=${day.id}${extraParams}`}
                 aria-current={selected ? 'page' : undefined}
                 className={[
-                  'block rounded-lg border px-3 py-2 text-sm no-underline',
+                  'block rounded-lg border px-2.5 py-2 text-sm no-underline',
                   selected
                     ? 'border-primary bg-primary font-bold text-on-primary'
                     : 'border-line bg-surface font-semibold text-ink hover:border-primary',
@@ -46,7 +46,7 @@ export function DayTabs({
                 <span
                   className={['block text-xs', selected ? 'opacity-90' : 'text-ink-soft'].join(' ')}
                 >
-                  {formatShortDate(day.date, timezone)}
+                  {formatShortDate(day.date, timezone).replace(/^\w+\s/, '')}
                 </span>
               </Link>
             </li>
@@ -58,7 +58,7 @@ export function DayTabs({
               href={`/agenda?day=mine${extraParams}`}
               aria-current={mineSelected ? 'page' : undefined}
               className={[
-                'block rounded-lg border px-3 py-2 text-sm no-underline',
+                'block rounded-lg border px-2.5 py-2 text-sm no-underline',
                 mineSelected
                   ? 'border-primary bg-primary font-bold text-on-primary'
                   : 'border-line bg-surface font-semibold text-ink hover:border-primary',
