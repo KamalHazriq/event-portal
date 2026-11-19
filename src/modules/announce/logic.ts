@@ -91,3 +91,35 @@ export function alertSupport(env: {
   if (env.permission === 'denied') return 'blocked';
   return 'ready';
 }
+
+/* ------------------------------------------------- feedback reminders */
+
+export const NUDGE_KEYS = {
+  enabled: 'announce.feedbackNudges',
+  sentFor: (sessionId: string) => `announce.nudged.${sessionId}`,
+} as const;
+
+/** How long after a talk ends the reminder can still go out. */
+export const NUDGE_WINDOW_MINUTES = 15;
+
+/**
+ * Talks whose feedback reminder is due now: feedback on, ended within the
+ * last NUDGE_WINDOW_MINUTES today, and not reminded yet. A projector or
+ * admin page that was closed for a while does not send old reminders.
+ */
+export function dueFeedbackNudges<
+  S extends { id: string; feedbackEnabled: boolean; hidden?: boolean; end: string },
+>(
+  days: { date: string; sessions: S[] }[],
+  now: { date: string; minutes: number },
+  alreadySent: (sessionId: string) => boolean,
+  toMinutes: (clock: string) => number,
+): S[] {
+  const today = days.find((d) => d.date === now.date);
+  if (!today) return [];
+  return today.sessions.filter((s) => {
+    if (!s.feedbackEnabled || s.hidden) return false;
+    const end = toMinutes(s.end);
+    return now.minutes >= end && now.minutes < end + NUDGE_WINDOW_MINUTES && !alreadySent(s.id);
+  });
+}

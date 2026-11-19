@@ -11,6 +11,7 @@ import { recordActivity } from '@/modules/admins/record';
 import {
   ANNOUNCE_KEYS,
   HISTORY_SIZE,
+  NUDGE_KEYS,
   cleanAnnouncementText,
   parseHistory,
   safeHref,
@@ -74,5 +75,17 @@ export async function clearAnnouncement(): Promise<void> {
   const operator = await assertAdmin();
   await getData().settings.remove(ANNOUNCE_KEYS.current);
   await recordActivity('Took the announcement down', operator);
+  done();
+}
+
+/** Turns the automatic 'How was the talk?' reminders on or off. */
+export async function setFeedbackNudges(formData: FormData): Promise<void> {
+  const operator = await assertAdmin();
+  const on = formData.get('mode') === 'on';
+  await getData().settings.set(NUDGE_KEYS.enabled, on ? 'on' : 'off');
+  await recordActivity(
+    on ? 'Turned automatic feedback reminders on' : 'Turned automatic feedback reminders off',
+    operator,
+  );
   done();
 }

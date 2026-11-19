@@ -67,5 +67,11 @@ test('post an announcement, see it on a phone, take it down', async ({ browser, 
   await phone.goto('/');
   await expect(phone.getByRole('status', { name: 'Announcement' })).toHaveCount(0);
 
+  // The automatic feedback reminders switch, on and back off.
+  await admin.getByRole('button', { name: 'Turn on' }).click();
+  await expect(admin.getByText('Automatic feedback reminders: on.')).toBeVisible();
+  await admin.getByRole('button', { name: 'Turn off' }).click();
+  await expect(admin.getByText('Automatic feedback reminders: off.')).toBeVisible();
+
   await request.delete('/api/push', { data: { endpoint } });
 });

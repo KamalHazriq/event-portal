@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   alertSupport,
   cleanAnnouncementText,
+  dueFeedbackNudges,
   isLive,
   parseAnnouncement,
   parseHistory,
@@ -64,5 +65,30 @@ describe('alertSupport', () => {
   it('says when the browser blocked it, or cannot do it', () => {
     expect(alertSupport({ ...base, permission: 'denied' })).toBe('blocked');
     expect(alertSupport({ ...base, pushManager: false })).toBe('unsupported');
+  });
+});
+
+describe('dueFeedbackNudges', () => {
+  const toMin = (c: string) => Number(c.slice(0, 2)) * 60 + Number(c.slice(3));
+  const days = [
+    {
+      date: '2026-12-14',
+      sessions: [
+        { id: 'talk', feedbackEnabled: true, end: '10:00' },
+        { id: 'break', feedbackEnabled: false, end: '10:00' },
+        { id: 'hidden', feedbackEnabled: true, hidden: true, end: '10:00' },
+      ],
+    },
+  ];
+  it('reminds once, in the quarter hour after a talk with feedback', () => {
+    const at = (minutes: number) => ({ date: '2026-12-14', minutes });
+    expect(dueFeedbackNudges(days, at(599), () => false, toMin)).toEqual([]);
+    expect(dueFeedbackNudges(days, at(600), () => false, toMin).map((s) => s.id)).toEqual(['talk']);
+    expect(dueFeedbackNudges(days, at(614), () => false, toMin)).toHaveLength(1);
+    expect(dueFeedbackNudges(days, at(615), () => false, toMin)).toEqual([]);
+    expect(dueFeedbackNudges(days, at(605), () => true, toMin)).toEqual([]);
+    expect(
+      dueFeedbackNudges(days, { date: '2026-12-15', minutes: 605 }, () => false, toMin),
+    ).toEqual([]);
   });
 });

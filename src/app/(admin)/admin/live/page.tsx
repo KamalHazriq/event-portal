@@ -20,6 +20,8 @@ import {
 } from '@/modules/admin/logic';
 import { arrivalRate, resolveCheckInDay } from '@/modules/check-in/logic';
 import { buildAgenda, findNowAndNext } from '@/modules/schedule/logic';
+import { after } from 'next/server';
+import { runFeedbackNudges } from '@/modules/announce/nudges';
 
 export const dynamic = 'force-dynamic';
 
@@ -37,6 +39,8 @@ export default async function LiveControlPage() {
 
   const config = getEventConfig();
   const now = resolveEventNow({ timezone: config.event.timezone });
+  // Also sends any due feedback reminders, after the page has answered.
+  after(() => runFeedbackNudges(now).catch(() => 0));
   const agenda = buildAgenda(config);
   const nowAndNext = findNowAndNext(agenda, now);
 

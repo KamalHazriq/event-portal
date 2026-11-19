@@ -3,12 +3,14 @@ import type { Metadata } from 'next';
 import { getData } from '@/data';
 import { requireAdmin } from '@/lib/admin-guard';
 import { getEventConfig } from '@/lib/config';
-import { clearAnnouncement, postAnnouncement } from '@/modules/announce/actions';
+import { clearAnnouncement, postAnnouncement, setFeedbackNudges } from '@/modules/announce/actions';
 import {
   ANNOUNCE_HOURS,
   ANNOUNCE_KEYS,
   ANNOUNCE_MAX_CHARS,
   isLive,
+  NUDGE_KEYS,
+  NUDGE_WINDOW_MINUTES,
   parseAnnouncement,
   parseHistory,
 } from '@/modules/announce/logic';
@@ -32,11 +34,13 @@ export default async function AnnouncementsPage() {
   const config = getEventConfig();
   const tz = config.event.timezone;
   const data = getData();
-  const [currentRaw, historyRaw, phones] = await Promise.all([
+  const [currentRaw, historyRaw, phones, nudgeSetting] = await Promise.all([
     data.settings.get(ANNOUNCE_KEYS.current),
     data.settings.get(ANNOUNCE_KEYS.history),
     data.push.count(),
+    data.settings.get(NUDGE_KEYS.enabled),
   ]);
+  const nudging = nudgeSetting === 'on';
   const current = parseAnnouncement(currentRaw);
   const live = isLive(current, new Date()) ? current : null;
   const history = parseHistory(historyRaw);
@@ -141,6 +145,31 @@ export default async function AnnouncementsPage() {
           Post announcement
         </button>
       </form>
+
+      {config.features.feedback ? (
+        <form
+          action={setFeedbackNudges}
+          className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line bg-surface p-4"
+        >
+          <input type="hidden" name="mode" value={nudging ? 'off' : 'on'} />
+          <p className="min-w-0 flex-1 text-ink">
+            <span className="font-bold">
+              Automatic feedback reminders: {nudging ? 'on' : 'off'}.
+            </span>{' '}
+            <span className="text-ink-soft">
+              Within {NUDGE_WINDOW_MINUTES} minutes after each talk with a feedback form, phones
+              with alerts on get &quot;How was it? Rate it in under a minute&quot;. Sent while the
+              big screen is open.
+            </span>
+          </p>
+          <button
+            type="submit"
+            className="min-h-11 rounded-lg border border-line px-4 font-semibold text-ink"
+          >
+            {nudging ? 'Turn off' : 'Turn on'}
+          </button>
+        </form>
+      ) : null}
 
       <section aria-labelledby="examples">
         <h2 id="examples" className="font-bold text-ink">

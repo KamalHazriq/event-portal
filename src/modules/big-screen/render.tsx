@@ -3,10 +3,12 @@
  * /screen/<view> cannot drift apart.
  */
 import { notFound } from 'next/navigation';
+import { after } from 'next/server';
 
 import { requireAdmin } from '@/lib/admin-guard';
 import { getEventConfig } from '@/lib/config';
 import { resolveEventNow } from '@/lib/time';
+import { runFeedbackNudges } from '@/modules/announce/nudges';
 import { readNowParam } from '@/modules/schedule/logic';
 
 import { ScreenFrame } from './components/ScreenFrame';
@@ -32,6 +34,8 @@ export async function renderScreen(options: {
     timezone: config.event.timezone,
     overrideParam: readNowParam(options.nowParam),
   });
+  // Automatic feedback reminders ride on the projector's regular refresh.
+  after(() => runFeedbackNudges(now).catch(() => 0));
   const settings = await readScreenSettings();
   const [payload, reactions] = await Promise.all([
     loadScreenView(options.view ?? settings.view, now, settings),
