@@ -274,6 +274,7 @@ async function buildDemo(days: string[]): Promise<number> {
     'qa',
     'polls',
     'comments',
+    'runbook',
     'admins',
   ];
 

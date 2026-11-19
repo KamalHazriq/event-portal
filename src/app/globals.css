@@ -262,6 +262,15 @@
   text-align: center;
 }
 
+.tag-event {
+  margin: 0 0 2mm;
+  font-size: 7pt;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #0b5fe0;
+}
+
 .tag-scan {
   margin-top: 2mm;
   font-size: 7pt;
@@ -287,26 +296,52 @@
   margin: 0.5mm 0 0;
 }
 
-/* Table tents: A5 landscape, folded down the middle, readable from a seat. */
+/*
+ * Table tents: one per A4 page, folded across the middle. The same face is
+ * printed on both halves, the top one upside down, so the folded tent reads
+ * the same from both sides of the table. Sized to fit inside the default
+ * 8 mm print margins (194 x 281 mm).
+ */
 .tent-sheet {
   display: grid;
   gap: 0;
 }
 
 .tent {
-  width: 210mm;
-  height: 148mm;
+  width: 194mm;
+  height: 280mm;
   box-sizing: border-box;
-  padding: 12mm;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10mm;
+  flex-direction: column;
   background: #ffffff;
   color: #0b1b33;
   border: 0.2mm dashed #9aa7b8;
   break-inside: avoid;
   break-after: page;
+}
+
+/* No blank page after the last one. */
+.tent:last-child {
+  break-after: auto;
+}
+
+.tent-face {
+  flex: 1 1 0;
+  box-sizing: border-box;
+  padding: 10mm 12mm;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10mm;
+}
+
+/* The fold line. */
+.tent-face + .tent-face {
+  border-top: 0.2mm dashed #9aa7b8;
+}
+
+.tent-face-flipped {
+  transform: rotate(180deg);
 }
 
 .tent-qr {

@@ -18,6 +18,13 @@ export const ADMIN_GROUPS: { name: string; pages: AdminPage[] }[] = [
     name: 'On the day',
     pages: [
       {
+        href: '/admin/runbook',
+        label: 'Runbook',
+        title: 'Event-day runbook',
+        description: 'The morning checklist, who does what, and the plan for each day. Printable.',
+        icon: 'book',
+      },
+      {
         href: '/admin/live',
         label: 'Live',
         title: 'Live control',

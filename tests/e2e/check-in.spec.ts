@@ -207,6 +207,21 @@ test.describe('printable assets', () => {
     await expect(page.getByRole('link', { name: 'Backs' })).toHaveCount(0);
   });
 
+  test('the runbook has the morning checklist and a plan for every day', async ({ page }) => {
+    await page.goto('/admin/runbook');
+    await expect(page).toHaveURL(/\/admin\/sign-in/);
+
+    await signIn(page);
+    await page.goto('/admin/runbook');
+    await expect(page.getByRole('heading', { name: 'Event-day runbook', level: 1 })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Every morning/ })).toBeVisible();
+    for (const day of ['Day 1', 'Day 2', 'Day 3']) {
+      await expect(page.getByRole('heading', { name: new RegExp(`^${day},`) })).toBeVisible();
+    }
+    await expect(page.getByText('Screen: Arrivals').first()).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'If something goes wrong' })).toBeVisible();
+  });
+
   test('the QR assets page offers a slide ready file and table tents', async ({ page }) => {
     await signIn(page);
     await page.goto('/admin/qr-assets');

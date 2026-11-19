@@ -83,8 +83,9 @@ export default async function QrAssetsPage() {
         <section className="rounded-xl border border-line bg-surface p-4">
           <h2 className="font-bold text-ink">Table tents</h2>
           <p className="mt-1 text-sm text-ink-soft">
-            {tentCount} tents below, one per page, A5 landscape. Print on A4 and fold, or print
-            straight onto A5 card. Set margins to None in the print dialog.
+            {tentCount} tents below, one per A4 page. Fold each page across the middle, on the
+            dashed line: the top half is printed upside down, so the tent stands up and reads the
+            same from both sides of the table. Leave the print margins on Default.
           </p>
           <p className="mt-3 rounded-lg border border-line bg-muted p-3 text-sm text-ink">
             Press <span className="font-mono font-bold">Ctrl</span> and{' '}
@@ -97,17 +98,26 @@ export default async function QrAssetsPage() {
       <div className="tent-sheet">
         {Array.from({ length: tentCount }, (_, index) => (
           <div key={index} className="tent">
-            <div>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={config.branding.logoPath}
-                alt={config.event.shortName}
-                className="tent-logo"
-              />
-              <p className="tent-line">Scan for the agenda, speakers and resources</p>
-              <p className="tent-url">{displayUrl(portalUrl)}</p>
-            </div>
-            <QrCode value={qrUrl} label="Event portal" className="tent-qr" />
+            {/* The same face twice; the top one upside down, for the fold. */}
+            {(['tent-face tent-face-flipped', 'tent-face'] as const).map((faceClass) => (
+              <div key={faceClass} className={faceClass}>
+                <div>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={config.branding.logoPath}
+                    alt={faceClass === 'tent-face' ? config.event.shortName : ''}
+                    className="tent-logo"
+                  />
+                  <p className="tent-line">Scan for the agenda, speakers and resources</p>
+                  <p className="tent-url">{displayUrl(portalUrl)}</p>
+                </div>
+                <QrCode
+                  value={qrUrl}
+                  label={faceClass === 'tent-face' ? 'Event portal' : 'Event portal, folded side'}
+                  className="tent-qr"
+                />
+              </div>
+            ))}
           </div>
         ))}
       </div>

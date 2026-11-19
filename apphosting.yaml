@@ -2,8 +2,8 @@
 # Step by step setup: docs/DEPLOYING.md.
 #
 # Nothing secret is written here. The secrets are stored in Google Cloud
-# Secret Manager and only their names appear below. Their values come from
-# Neon: run `neon env pull` on your computer (see docs/DEPLOYING.md).
+# Secret Manager and only their names appear below. docs/DEPLOYING.md says
+# where each value comes from.
 
 runConfig:
   # 0 costs nothing when idle, but the first visitor after a quiet spell
@@ -33,21 +33,23 @@ env:
     secret: portal-database-url-unpooled
     availability: [RUNTIME]
 
-  # Neon Object Storage, for the photo wall. The bucket ("assets") is
-  # declared in neon.ts. The endpoint is kept as a secret only because it
-  # names the branch; the region is the project's (Singapore).
-  - variable: AWS_ACCESS_KEY_ID
-    secret: portal-s3-access-key-id
-    availability: [RUNTIME]
-  - variable: AWS_SECRET_ACCESS_KEY
-    secret: portal-s3-secret-access-key
-    availability: [RUNTIME]
-  - variable: AWS_ENDPOINT_URL_S3
-    secret: portal-s3-endpoint
-    availability: [RUNTIME]
-  - variable: AWS_REGION
-    value: ap-southeast-1
-    availability: [RUNTIME]
+  # Neon Object Storage for the photo wall: OFF for now, so photos are kept
+  # in Postgres (a few MB for the whole event, well inside Neon's free
+  # storage). To move new photos to the "assets" bucket from neon.ts, save
+  # the three secrets (docs/DEPLOYING.md, "Optional: the photo bucket") and
+  # remove the # in front of these lines.
+  # - variable: AWS_ACCESS_KEY_ID
+  #   secret: portal-s3-access-key-id
+  #   availability: [RUNTIME]
+  # - variable: AWS_SECRET_ACCESS_KEY
+  #   secret: portal-s3-secret-access-key
+  #   availability: [RUNTIME]
+  # - variable: AWS_ENDPOINT_URL_S3
+  #   secret: portal-s3-endpoint
+  #   availability: [RUNTIME]
+  # - variable: AWS_REGION
+  #   value: ap-southeast-1
+  #   availability: [RUNTIME]
 
   # The secretariat PIN for /admin.
   - variable: ADMIN_PIN

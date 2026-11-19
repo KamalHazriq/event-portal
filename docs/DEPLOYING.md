@@ -3,107 +3,101 @@
 The portal is hosted on **Firebase App Hosting**, with its data in a free
 **Neon** Postgres database. Only people with the event code can open it.
 
-Check with IT/GRC before loading real names: the data sits with Google
-(Firebase) and Neon, outside TNB systems.
+The data sits with Google (Firebase) and Neon, outside TNB systems; the
+organisers confirmed no IT/GRC clearance is needed for this event.
 
 ## What you need
 
-- A Google account, and a Firebase project on the **Blaze** plan (pay as you
-  go). App Hosting needs Blaze, so a card must be attached. At this size
-  (about 100 people, 3 days) usage should stay within the free allowance.
-  **Set a budget alert** (Google Cloud console, Billing, Budgets and alerts)
-  at a small amount such as RM20. An alert emails you; it does not stop
-  charges.
-- A free Neon account (neon.tech).
-- Access to this GitHub repository.
+- The Neon project (done): `power-summit`, ID `royal-bird-22499570`, in
+  Singapore. The portal creates its own tables on first start.
+- The Firebase project (done): `powersummit-7d255`. It must be on the
+  **Blaze** plan, because App Hosting runs the portal's server on Google
+  Cloud (Cloud Run, Cloud Build, Secret Manager), which needs billing. The
+  free allowances should cover an event this size; set a budget alert
+  (Google Cloud console, Billing, Budgets and alerts) at about RM20. An
+  alert emails you; it does not stop charges.
+- Nothing installed on your computer. Everything below is in a browser.
 
 ## One time setup
 
-### 1. Create the database (Neon)
+### 1. Upgrade Firebase to Blaze
 
-1. Create a project. Pick the region nearest Malaysia (Singapore).
-2. Copy the connection string. Turn **connection pooling off** to get the
-   direct one. It looks like
-   `postgresql://user:password@ep-....aws.neon.tech/neondb?sslmode=require`.
+Firebase console, project powersummit-7d255, bottom left: **Upgrade**,
+choose Blaze, add a card. Then add the budget alert.
 
-The portal creates its own tables the first time it starts. There is no
-migration to run.
+### 2. Copy the two database strings (Neon console)
 
-### 2. Create the Firebase project
+Open the Neon project, click **Connect**, keep branch `production`,
+database `neondb`, role `neondb_owner`.
 
-1. In the Firebase console, create a project, then upgrade it to Blaze.
-2. Add the budget alert.
+- With **Connection pooling ON**, copy the string. This is the
+  **pooled** one (its host has `-pooler` in it).
+- Turn **Connection pooling OFF**, copy again. This is the **direct** one.
 
-### 3. Save the secrets
+Keep them somewhere private for a few minutes. They contain the password;
+never paste them into chat or email.
 
-The app uses Neon for two things: Postgres, and Object Storage for the photo
-wall (the `assets` bucket in `neon.ts`). Get every value at once on your own
-computer, in the repository folder:
+### 3. Save the four secrets (Google Cloud Shell)
 
-```sh
-npm i -g neon@latest
-neon login                 # signs in with your browser
-neon env pull              # writes the values into .env.local
-```
-
-Then save each one as a Firebase secret (each command asks for the value):
-
-| Secret                         | Value from .env.local   |
-| ------------------------------ | ----------------------- |
-| `portal-database-url`          | `DATABASE_URL`          |
-| `portal-database-url-unpooled` | `DATABASE_URL_UNPOOLED` |
-| `portal-s3-access-key-id`      | `AWS_ACCESS_KEY_ID`     |
-| `portal-s3-secret-access-key`  | `AWS_SECRET_ACCESS_KEY` |
-| `portal-s3-endpoint`           | `AWS_ENDPOINT_URL_S3`   |
-
-plus the two of your own: `portal-admin-pin` and `portal-event-pass`.
-
-Open **Google Cloud Shell** (the `>_` button at the top of
-console.cloud.google.com). It already has the Firebase tools. Run these one
-at a time. Each asks you to paste the value:
+Open console.cloud.google.com with project powersummit-7d255 selected and
+click the `>_` button (top right). Run these one at a time; each asks for
+the value:
 
 ```sh
-firebase use YOUR-PROJECT-ID
-firebase apphosting:secrets:set portal-database-url
-firebase apphosting:secrets:set portal-database-url-unpooled
-firebase apphosting:secrets:set portal-s3-access-key-id
-firebase apphosting:secrets:set portal-s3-secret-access-key
-firebase apphosting:secrets:set portal-s3-endpoint
-firebase apphosting:secrets:set portal-admin-pin      # the secretariat PIN
-firebase apphosting:secrets:set portal-event-pass     # the event code
+firebase use powersummit-7d255
+firebase apphosting:secrets:set portal-database-url           # the pooled string
+firebase apphosting:secrets:set portal-database-url-unpooled  # the direct string
+firebase apphosting:secrets:set portal-admin-pin              # the secretariat PIN
+firebase apphosting:secrets:set portal-event-pass             # the event code
 ```
 
-**Event code:** 8 or more letters and numbers, easy to read out (no O/0 or
-I/1), for example `PSUMMIT27X`. It is printed inside every QR code and shown
-to the secretariat on the QR assets page, for anyone whose camera will not
-scan.
+If it asks whether to grant a backend access, say no for now (step 4
+covers it). **PIN:** 6 or more digits, not 123456. **Event code:** 8 or
+more letters and numbers, easy to read out (no O/0 or I/1), for example
+`PSUMMIT27X`. Write both down for the secretariat.
 
 ### 4. Create the App Hosting backend
 
 1. Firebase console, **Build, App Hosting, Get started**.
-2. Connect GitHub and pick `kamalhazriq/event-portal`, branch `main`, root
-   directory `/`.
-3. Pick a region near Malaysia, name the backend (for example `portal`), and
-   finish.
-4. If it says the backend cannot read the secrets, run in Cloud Shell:
+2. Region: **asia-southeast1** (Singapore) if offered, else the nearest.
+3. Connect GitHub and pick `kamalhazriq/event-portal`, branch `main`,
+   root directory `/`, automatic rollouts on.
+4. Backend name `portal`, then finish. The first build takes about 10
+   minutes.
+5. If it fails because it cannot read the secrets, run in Cloud Shell:
 
    ```sh
-   firebase apphosting:secrets:grantaccess portal-database-url,portal-database-url-unpooled,portal-s3-access-key-id,portal-s3-secret-access-key,portal-s3-endpoint,portal-admin-pin,portal-event-pass --backend portal
+   firebase apphosting:secrets:grantaccess portal-database-url,portal-database-url-unpooled,portal-admin-pin,portal-event-pass --backend portal
    ```
 
    then start a new rollout from the App Hosting page.
 
-### 5. Set the address
+### 5. Check it, and set the address
 
-Firebase shows the backend's address, ending in `hosted.app`. In
-`apphosting.yaml`, uncomment `PORTAL_URL` and set it to that address. Every QR
-code uses it, so do this **before printing anything**.
+1. Open `https://<the address>/?pass=<event code>` on a phone: the agenda
+   shows.
+2. Open `/admin`, sign in with the PIN: the Storage card on the dashboard
+   says Postgres is ready.
+3. The address ends in `hosted.app`. Every QR code uses it, so it goes in
+   `apphosting.yaml` as `PORTAL_URL` (uncomment the lines at the bottom)
+   **before printing anything**.
 
 ### 6. Load the people
 
-Open the address with the event code (`https://...hosted.app/?pass=CODE`),
-sign in at `/admin` with the PIN, and upload the participant list on the
-Attendees page.
+Sign in at `/admin` and upload the participant list on the Attendees
+page.
+
+### Optional: the photo bucket
+
+Photos are kept in Postgres, which is plenty for one event. To use the
+Neon bucket instead (`assets`, declared in `neon.ts`), get its values on a
+computer with Node.js: `npm i -g neon@latest`, `neon login`, then
+`neon env pull --project-id royal-bird-22499570 --branch production`. Save
+`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` and `AWS_ENDPOINT_URL_S3` as
+`portal-s3-access-key-id`, `portal-s3-secret-access-key` and
+`portal-s3-endpoint`, grant the backend access, and uncomment the bucket
+lines in `apphosting.yaml`. New photos then go to the bucket; earlier ones
+stay readable from Postgres.
 
 ## Dress rehearsal
 
@@ -141,7 +135,6 @@ with `minInstances: 1` set.
 
 ## Before the event
 
-- [ ] GRC clearance for where attendee data sits.
 - [ ] Budget alert set.
 - [ ] `ADMIN_PIN` is not the example value.
 - [ ] `ALLOW_TIME_OVERRIDE` is not set.
