@@ -66,9 +66,10 @@ export default function GuidePage() {
     {
       when: 'Arrival',
       title: 'Scan people in',
-      text: 'The desk scans the digital business card in the TNB app, or searches by name if it will not scan. The projector can show a live "arrived" counter with a welcome card for each person.',
+      text: 'The desk scans the digital business card in the TNB app, or searches by name if it will not scan. A spare tablet can be a self check in kiosk for the queue. The projector shows a live guest counter, the newest arrival in a spotlight and a rolling list of who came in.',
       links: [
         { href: '/admin/desk', label: 'Registration desk', on: features.checkIn },
+        { href: '/kiosk', label: 'Self check in kiosk', on: features.checkIn },
         { href: '/admin/headcount', label: 'Headcount', on: features.checkIn },
         { href: '/screen/arrivals', label: 'Arrivals on the projector', on: features.bigScreen },
       ],
@@ -76,9 +77,11 @@ export default function GuidePage() {
     {
       when: 'During sessions',
       title: 'Keep the room on time',
-      text: 'The MC keeps live control open: what is on, minutes left, what is next and how full the room is. Polls and questions run on Slido, and every session page has the Slido button.',
+      text: 'The MC keeps live control open: what is on, minutes left, what is next and how full the room is. Polls and questions run on Slido, and every session page has the Slido button. For a bus time or a room change, post an announcement: it shows at the top of every phone, and can buzz the phones that turned on alerts.',
       links: [
         { href: '/admin/live', label: 'Live control', on: true },
+        { href: '/admin/announcements', label: 'Announcements', on: true },
+        { href: '/admin/insights', label: 'Insights', on: true },
         { href: '/admin/qa', label: 'Backup Q&A', on: features.qa },
         { href: '/admin/polls', label: 'Backup polls', on: features.polls },
         { href: '/agenda', label: 'Agenda', on: features.schedule },
@@ -92,7 +95,7 @@ export default function GuidePage() {
     {
       when: 'Breaks and evenings',
       title: 'Put on a show',
-      text: 'Switch the projector from a phone. Start the surprise countdown, run the lucky draw (it spins through the names of people who checked in, and nobody can win twice), or play the photo slideshow from the photos attendees shared.',
+      text: 'Switch the projector from a phone. Start the surprise countdown, run the lucky draw (it spins through the names of people who checked in, and nobody can win twice), or put up the photo wall (a slideshow, grid or mosaic; each new photo pops up large).',
       links: [
         { href: '/admin/big-screen', label: 'Big screen control', on: features.bigScreen },
         { href: '/admin/lucky-draw', label: 'Lucky draw', on: features.luckyDraw },
@@ -103,7 +106,7 @@ export default function GuidePage() {
     {
       when: 'After each session, and at the end',
       title: 'Collect feedback',
-      text: 'Each session has a one minute form: stars and an optional comment. The final form asks about the whole event. An admin decides per form whether names are collected.',
+      text: 'Each session has a one minute form: stars and an optional comment. The final form asks about the whole event. An admin decides per form whether names are collected, and can switch on automatic "How was it?" reminders after each talk.',
       links: [
         { href: '/admin/feedback', label: 'Feedback results', on: features.feedback },
         { href: '/feedback/event', label: 'The final form', on: features.feedback },
@@ -133,6 +136,11 @@ export default function GuidePage() {
       does: 'Signs in as mc. Watches live control, switches the projector, runs the countdown and the lucky draw.',
     },
     {
+      role: 'Self check in kiosk (optional)',
+      device: 'Spare tablet on a stand',
+      does: 'Signed in once at the desk, then opens /kiosk and stays locked to it. People hold up their business card; anyone it cannot match goes to the desk.',
+    },
+    {
       role: 'Projector laptop',
       device: 'Laptop on the projector',
       does: 'Signs in once as screen, opens /screen, presses F11 and is left alone all day.',
@@ -142,7 +150,7 @@ export default function GuidePage() {
   const rules = [
     [
       'No AI and no trackers',
-      'Nothing on the portal calls an outside service. Session content stays inside it.',
+      "Session content stays inside the portal. The one outside service is the phone makers' own push service, used only for alerts people choose to turn on.",
     ],
     [
       'One config file',
@@ -154,15 +162,15 @@ export default function GuidePage() {
     ],
     [
       'Works on hotel Wi-Fi',
-      'Pages are light and refresh themselves every few seconds. No app to install.',
+      'Pages are light and refresh themselves every few seconds. No app to install. If the Wi-Fi drops, a phone shows the last copy of the agenda and the pages it has opened.',
     ],
     [
       'Only invented data in the code',
       'The real attendee list is loaded separately and never stored with the code.',
     ],
     [
-      'Photos are checked first',
-      'Every shared photo waits for an organiser. Phones shrink photos and strip the location before sending.',
+      'Photos checked first, if you want',
+      'Shared photos wait for an organiser unless approval is switched off (at dinner, say). Phones shrink photos and strip the location before sending.',
     ],
     [
       'Names only where needed',
@@ -186,6 +194,14 @@ export default function GuidePage() {
     [
       'How do the points and the leaderboard work?',
       'People join once on their phone with their staff number and first name. After that, arriving (a bonus for being early), sending feedback, answering polls, a photo on the wall and asking a question all earn points. Departments are ranked by average points per person, so a big team does not win by size. The secretariat are not ranked. Feedback stays anonymous: only the fact a form was sent counts. The projector has a Leaderboard view.',
+    ],
+    [
+      'How do we tell everyone something quickly?',
+      'Admin, Announce: type a short message (a bus time, a room change). It shows at the top of every attendee page for twelve hours, and with the box ticked it also arrives as a notification on phones that turned on event alerts on the home page. iPhones need the portal added to the home screen first. No email addresses are needed.',
+    ],
+    [
+      'Can people keep their own agenda?',
+      'Yes. The star on a session adds it to My agenda, a tab on the agenda page. It is kept on that phone only, with no sign in.',
     ],
     [
       'What if a business card will not scan?',
