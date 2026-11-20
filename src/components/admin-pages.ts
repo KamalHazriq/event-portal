@@ -100,6 +100,21 @@ export const ADMIN_GROUPS: AdminGroup[] = [
     name: 'Set up',
     pages: [
       {
+        href: '/admin/agenda',
+        label: 'Agenda',
+        title: 'Agenda',
+        description: 'Change a session or its time, room and speakers, hide one, or add one.',
+        icon: 'calendar',
+      },
+      {
+        href: '/admin/event',
+        label: 'Event info',
+        title: 'Event info',
+        description:
+          'Event name and venue, the Know before you go page, resource links, Slido and department short names.',
+        icon: 'book',
+      },
+      {
         href: '/admin/attendees',
         label: 'Attendees',
         title: 'Attendees',

@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 
 import { ConfigErrorScreen } from '@/components/ConfigErrorScreen';
 import { tryLoadEventConfig } from '@/lib/config';
+import { refreshConfigOverlay } from '@/lib/config-sync';
 import { buildThemeCss, resolveTheme } from '@/lib/theme';
 
 // The Ruled style's typefaces, bundled with the site (nothing loads from an
@@ -55,6 +56,9 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  // Pick up edits saved on the secretariat pages (at most one quick read
+  // every two seconds), before anything below reads the config.
+  await refreshConfigOverlay();
   const result = tryLoadEventConfig();
 
   // A broken config file must not produce a stack trace on a phone in a

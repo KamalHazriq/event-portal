@@ -10,6 +10,7 @@ import { readFileSync, statSync } from 'node:fs';
 import { isAbsolute, join } from 'node:path';
 import { ZodError } from 'zod';
 
+import { mergeConfig, overlayRaw } from './config-overlay';
 import { EventConfigSchema, type EventConfig } from './event-schema';
 
 export const DEFAULT_CONFIG_PATH = 'config/event.json';
@@ -56,7 +57,7 @@ let cache: CacheEntry | null = null;
  * In development the file is re-read when it changes on disk, so you can edit
  * the agenda and refresh the browser. In production it is read once.
  */
-export function loadEventConfig(): EventConfig {
+function loadBaseConfig(): EventConfig {
   const filePath = resolveConfigPath();
   const isProduction = process.env.NODE_ENV === 'production';
 
@@ -103,6 +104,35 @@ export function loadEventConfig(): EventConfig {
   return config;
 }
 
+type OverlayMemo = { base: EventConfig; raw: string; merged: EventConfig };
+let overlayMemo: OverlayMemo | null = null;
+
+/**
+ * The file's config with the secretariat's saved edits laid over it (see
+ * config-overlay.ts). Worked out once per change, not on every call.
+ */
+export function loadEventConfig(): EventConfig {
+  const base = loadBaseConfig();
+  const raw = overlayRaw();
+  if (raw === null) return base;
+  if (overlayMemo && overlayMemo.base === base && overlayMemo.raw === raw) {
+    return overlayMemo.merged;
+  }
+  const { config, problems } = mergeConfig(base, raw);
+  if (problems.length > 0) {
+    console.warn(
+      `Saved edits do not fit the event file, so they are ignored: ${problems.join('; ')}`,
+    );
+  }
+  overlayMemo = { base, raw, merged: config };
+  return config;
+}
+
+/** The file's config alone, without any saved edits. For "reset" and for comparing. */
+export function loadFileConfig(): EventConfig {
+  return loadBaseConfig();
+}
+
 /**
  * PORTAL_URL, when set, replaces event.portalUrl. The hosted address is only
  * known once Firebase gives it out, and this way it is set next to the other
@@ -138,4 +168,5 @@ export function getEventConfig(): EventConfig {
 /** Only for tests, so one test file does not see another file's cache. */
 export function clearConfigCache(): void {
   cache = null;
+  overlayMemo = null;
 }

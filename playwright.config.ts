@@ -20,7 +20,7 @@ import { defineConfig, devices } from '@playwright/test';
 const PORT = Number(process.env.PLAYWRIGHT_PORT ?? 3200);
 
 /** Spec files that change state the whole portal shares. See projects below. */
-const SHARED_SWITCHES = /(backup-qa-polls|look|photo-wall|announcements|desk-browse)\.spec\.ts$/;
+const SHARED_SWITCHES = /(backup-qa-polls|look|photo-wall|announcements|desk-browse|content-editor)\.spec\.ts$/;
 const useDevServer = process.env.PLAYWRIGHT_DEV === '1';
 const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? `http://127.0.0.1:${PORT}`;
 
