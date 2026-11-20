@@ -1,7 +1,12 @@
+import type { Metadata } from 'next';
+
 import { AdminHeader, AdminSidebar } from '@/components/AdminHeader';
 import { getAdminSession } from '@/lib/admin-guard';
 import { getEventConfig } from '@/lib/config';
 import { markFor, resolveTheme } from '@/lib/theme';
+
+/** The secretariat installs as its own app, opening at /admin. */
+export const metadata: Metadata = { manifest: '/admin/app.webmanifest' };
 
 /**
  * The shell for the secretariat.

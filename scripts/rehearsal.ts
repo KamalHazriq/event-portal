@@ -9,7 +9,7 @@
  *   1. The event pass: no code is refused, a wrong code is refused, the
  *      right code lets you in and is remembered.
  *   2. Every attendee page loads with the pass: home, the agenda for each
- *      day, every session, resources, photos, leaderboard, guide.
+ *      day, every session, resources, photos, leaderboard, my points.
  *   3. 100 phones at once (PHONES to change), each getting the pass and
  *      opening the pages a person opens in the first minute. Errors and
  *      response times are reported.
@@ -78,7 +78,7 @@ function percentile(sorted: number[], p: number): number {
 }
 
 function pagesFor(config: Config): string[] {
-  const pages = ['/', '/agenda', '/guide'];
+  const pages = ['/', '/agenda'];
   for (const day of config.days) pages.push(`/agenda?day=${day.id}`);
   for (const day of config.days) for (const s of day.sessions) pages.push(`/session/${s.id}`);
   if (config.features.resources) pages.push('/resources');
@@ -136,7 +136,7 @@ async function main(): Promise<void> {
     '/',
     '/agenda',
     pages.find((p) => p.startsWith('/session/')) ?? '/agenda',
-    config.features.leaderboard ? '/leaderboard' : '/guide',
+    config.features.leaderboard ? '/leaderboard' : '/me',
   ];
   const times: number[] = [];
   const errors: string[] = [];

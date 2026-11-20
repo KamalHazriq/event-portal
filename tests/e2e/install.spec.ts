@@ -32,3 +32,22 @@ test('desktop Chrome shows no install card until the browser offers one', async 
   await page.goto('/');
   await expect(page.getByRole('region', { name: 'Add to home screen' })).toHaveCount(0);
 });
+
+test('the secretariat installs as its own app, opening at /admin', async ({ page, request }) => {
+  const manifest = await (await request.get('/admin/app.webmanifest')).json();
+  expect(manifest.start_url).toBe('/admin');
+  expect(manifest.scope).toBe('/admin');
+  expect(manifest.short_name).toBe('Secretariat');
+
+  await page.goto('/admin/sign-in');
+  await expect(page.locator('link[rel="manifest"]')).toHaveAttribute(
+    'href',
+    '/admin/app.webmanifest',
+  );
+  // Attendee pages keep the attendee app.
+  await page.goto('/');
+  await expect(page.locator('link[rel="manifest"]')).toHaveAttribute(
+    'href',
+    '/manifest.webmanifest',
+  );
+});

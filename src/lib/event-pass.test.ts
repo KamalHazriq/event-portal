@@ -73,7 +73,12 @@ describe('the event pass gate', () => {
 
   it('never blocks the logo and the page scripts', () => {
     vi.stubEnv('EVENT_PASS', PASS);
-    for (const path of ['/branding/d-logo.webp', '/_next/static/chunk.js', '/favicon.ico']) {
+    for (const path of [
+      '/branding/d-logo.webp',
+      '/_next/static/chunk.js',
+      '/favicon.ico',
+      '/admin/app.webmanifest',
+    ]) {
       expect(isOpenPath(path)).toBe(true);
       expect(proxy(request(path)).headers.get('x-middleware-next')).toBe('1');
     }

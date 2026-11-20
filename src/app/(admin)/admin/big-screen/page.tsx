@@ -111,6 +111,13 @@ export default async function BigScreenControlPage() {
           <li>Sign in with the PIN, using the label screen.</li>
           <li>Press F11 for full screen. Leave it open all day.</li>
         </ol>
+        <p className="mt-3 text-ink">
+          <span className="font-bold">Using the same laptop for the secretariat?</span> Plug in the
+          projector, set the display to Extend (Windows key and P), open /screen in a new window,
+          drag that window onto the projector, then press F11. Keep this admin window on the laptop.
+          Signing in on /screen replaces this browser&apos;s desk name, so use a separate browser
+          (or a private window) for the projector if you want the names kept apart.
+        </p>
         <p className="mt-3 text-ink-soft">
           A second screen that should always show one thing, such as a monitor by the registration
           desk, can open one view directly:{' '}
