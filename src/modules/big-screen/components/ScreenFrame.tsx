@@ -3,6 +3,7 @@ import { AutoRefresh } from '@/components/AutoRefresh';
 import { SCREEN_POLL_MS } from '../logic';
 import type { ScreenPayload } from '../load';
 import { ReactionOverlay } from './ReactionOverlay';
+import { ViewTransition } from './ViewTransition';
 import {
   ArrivalsView,
   CommentsView,
@@ -47,7 +48,10 @@ export function ScreenFrame({
     >
       <AutoRefresh intervalMs={SCREEN_POLL_MS} />
       {/* The same calm navy backdrop behind every view. */}
-      <div aria-hidden="true" className="screen-bg pointer-events-none absolute inset-0">
+      <div
+        aria-hidden="true"
+        className="screen-bg keep-motion pointer-events-none absolute inset-0"
+      >
         <span className="screen-blob screen-blob-a" />
         <span className="screen-blob screen-blob-b" />
         <span className="screen-blob screen-blob-c" />
@@ -80,19 +84,21 @@ export function ScreenFrame({
         </span>
       </div>
 
-      {/* Keyed by view, so switching views fades the new one in. */}
-      <div key={payload.view} className="relative min-h-0 flex-1">
-        {payload.view === 'welcome' ? <WelcomeView {...payload.props} /> : null}
-        {payload.view === 'now-next' ? <NowNextView {...payload.props} /> : null}
-        {payload.view === 'arrivals' ? <ArrivalsView {...payload.props} /> : null}
-        {payload.view === 'countdown' ? <CountdownView {...payload.props} /> : null}
-        {payload.view === 'lucky-draw' ? <LuckyDrawView {...payload.props} /> : null}
-        {payload.view === 'photos' ? <PhotosView {...payload.props} /> : null}
-        {payload.view === 'qa' ? <QuestionsView {...payload.props} /> : null}
-        {payload.view === 'poll' ? <PollView {...payload.props} /> : null}
-        {payload.view === 'leaderboard' ? <LeaderboardView {...payload.props} /> : null}
-        {payload.view === 'comments' ? <CommentsView {...payload.props} /> : null}
-      </div>
+      {/* A hexagon wipe covers the change when the MC picks another view. */}
+      <ViewTransition viewKey={payload.view}>
+        <div key={payload.view} className="relative min-h-0 flex-1">
+          {payload.view === 'welcome' ? <WelcomeView {...payload.props} /> : null}
+          {payload.view === 'now-next' ? <NowNextView {...payload.props} /> : null}
+          {payload.view === 'arrivals' ? <ArrivalsView {...payload.props} /> : null}
+          {payload.view === 'countdown' ? <CountdownView {...payload.props} /> : null}
+          {payload.view === 'lucky-draw' ? <LuckyDrawView {...payload.props} /> : null}
+          {payload.view === 'photos' ? <PhotosView {...payload.props} /> : null}
+          {payload.view === 'qa' ? <QuestionsView {...payload.props} /> : null}
+          {payload.view === 'poll' ? <PollView {...payload.props} /> : null}
+          {payload.view === 'leaderboard' ? <LeaderboardView {...payload.props} /> : null}
+          {payload.view === 'comments' ? <CommentsView {...payload.props} /> : null}
+        </div>
+      </ViewTransition>
       {banner ? (
         // Keyed by the text, so a new announcement slides up again.
         <p

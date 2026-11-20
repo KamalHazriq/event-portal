@@ -46,7 +46,7 @@ test('search finds a whole department, and the whole list checks people in', asy
 test('undo all clears the day, behind a typed word', async ({ page, request }) => {
   await signIn(page);
   await page.goto('/admin/headcount');
-  await page.getByText('Testing tools').click();
+  await page.getByText('Undo all attendance').click();
 
   // The button stays off until the word is typed.
   const undoAll = page.getByRole('button', { name: 'Undo all check ins' });

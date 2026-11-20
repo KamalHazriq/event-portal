@@ -114,7 +114,10 @@ test('the MC switches the projector from a phone', async ({ browser }, testInfo)
 
   // Switch while the projector page stays open: it follows on its next poll.
   await phone.getByRole('button', { name: /^Now and next/ }).click();
+  // A hexagon wipe covers the change, then clears.
+  await expect(projector.locator('.hex-wipe')).toBeAttached({ timeout: 10_000 });
   await expect(projector.getByText(/^Guests arrived,/)).toHaveCount(0, { timeout: 10_000 });
+  await expect(projector.locator('.hex-wipe')).toHaveCount(0, { timeout: 5_000 });
 
   // Hide names, check, and put it back for whoever runs next.
   await phone.getByRole('button', { name: 'Hide names, counter only' }).click();

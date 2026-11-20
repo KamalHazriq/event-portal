@@ -9,6 +9,8 @@ import { getEventConfig } from '@/lib/config';
 import { eventPass } from '@/lib/event-pass-server';
 import { REMINDERS_KEY, REMINDERS_PING_KEY, parseReminders } from '@/modules/reminders/logic';
 import { hostOf, readyItems } from '@/modules/readiness/logic';
+import { checkInDays } from '@/modules/check-in/logic';
+import { UndoAllButton } from '@/modules/check-in/components/UndoAllButton';
 import { clearTestData } from '@/modules/checklist/actions';
 import { TestPlan } from '@/modules/checklist/components/TestPlan';
 import { TEST_PLAN } from '@/modules/checklist/steps';
@@ -38,7 +40,8 @@ export default async function ChecklistPage({ searchParams }: { searchParams: Se
     teamPhones: subs.filter((p) => p.team).length,
     eventPhones: subs.length,
     remindersWaiting: parseReminders(remindersRaw).filter((r) => !r.sentAt).length,
-    schedulerRecent: !!pingRaw && new Date().getTime() - new Date(pingRaw).getTime() < 3 * 60 * 1000,
+    schedulerRecent:
+      !!pingRaw && new Date().getTime() - new Date(pingRaw).getTime() < 3 * 60 * 1000,
   });
 
   return (
@@ -102,6 +105,13 @@ export default async function ChecklistPage({ searchParams }: { searchParams: Se
             Type CLEAR to confirm.
           </p>
         ) : null}
+
+        <div className="mt-3">
+          <UndoAllButton
+            days={checkInDays(getEventConfig()).map((d) => ({ id: d.id, label: d.label }))}
+            currentDayId={checkInDays(getEventConfig())[0]?.id ?? ''}
+          />
+        </div>
 
         <form
           action={clearTestData}

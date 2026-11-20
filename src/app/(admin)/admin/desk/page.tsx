@@ -6,6 +6,7 @@ import { requireAdmin } from '@/lib/admin-guard';
 import { getEventConfig } from '@/lib/config';
 import { formatShortDate, resolveEventNow } from '@/lib/time';
 import { DeskConsole } from '@/modules/check-in/components/DeskConsole';
+import { UndoAllButton } from '@/modules/check-in/components/UndoAllButton';
 import { arrivalRate, checkInDays, resolveCheckInDay } from '@/modules/check-in/logic';
 
 export const dynamic = 'force-dynamic';
@@ -119,6 +120,8 @@ export default async function DeskPage({ searchParams }: { searchParams: SearchP
         </Link>
         .
       </p>
+
+      <UndoAllButton days={days.map((d) => ({ id: d.id, label: d.label }))} currentDayId={day.id} />
     </div>
   );
 }

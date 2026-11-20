@@ -43,8 +43,10 @@ export function UndoAllButton({
   }
 
   return (
-    <details className="rounded-xl border border-line bg-surface p-4">
-      <summary className="cursor-pointer font-semibold text-ink">Testing tools</summary>
+    <details className="rounded-xl border border-line bg-surface p-3">
+      <summary className="inline-flex min-h-11 cursor-pointer items-center rounded-lg border-2 border-live px-4 font-bold text-ink">
+        Undo all attendance (for testing)
+      </summary>
       <div className="mt-3 space-y-3">
         <p className="text-sm text-ink-soft">
           Undo every check in, so the counters start from zero again. For testing before the event
