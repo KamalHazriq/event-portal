@@ -20,6 +20,7 @@ import { getAdminPin, pinMatches } from '@/lib/auth';
 import { isRateLimited, LIMITS, rateLimit } from '@/lib/rate-limit';
 import { plainText } from '@/lib/text';
 import { recordActivity } from '@/modules/admins/record';
+import { currentGeneration } from '@/lib/admin-guard';
 import { KIOSK_COOKIE } from '@/lib/kiosk';
 
 /** Only ever used to send someone back inside this portal. */
@@ -94,10 +95,14 @@ export async function POST(request: Request): Promise<NextResponse> {
   if (new RegExp(`(^|;\\s*)${KIOSK_COOKIE}=`).test(request.headers.get('cookie') ?? '')) {
     response.cookies.delete(KIOSK_COOKIE);
   }
-  response.cookies.set(ADMIN_COOKIE, createSessionValue(operator, pin, now, expiresAt), {
-    ...cookieOptions,
-    maxAge: Math.floor((expiresAt - now) / 1000),
-  });
+  response.cookies.set(
+    ADMIN_COOKIE,
+    createSessionValue(operator, pin, now, expiresAt, await currentGeneration()),
+    {
+      ...cookieOptions,
+      maxAge: Math.floor((expiresAt - now) / 1000),
+    },
+  );
   await recordActivity('Signed in', operator);
   return response;
 }

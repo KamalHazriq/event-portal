@@ -19,6 +19,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: event.name,
     short_name: event.shortName,
     description: event.tagline || `${event.name}, ${event.venue}`,
+    id: '/',
     start_url: '/',
     scope: '/',
     display: 'standalone',

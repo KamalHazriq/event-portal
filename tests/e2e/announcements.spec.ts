@@ -82,10 +82,55 @@ test('post an announcement, see it on a phone, take it down', async ({ browser, 
   await expect(admin.getByText(/has not turned on alerts yet/)).toBeVisible();
 
   // The automatic feedback reminders switch, on and back off.
-  await admin.getByRole('button', { name: 'Turn on' }).click();
+  const reminders = admin.locator('form', { hasText: 'Automatic feedback reminders' });
+  await reminders.getByRole('button', { name: 'Turn on' }).click();
   await expect(admin.getByText('Automatic feedback reminders: on.')).toBeVisible();
-  await admin.getByRole('button', { name: 'Turn off' }).click();
+  await admin
+    .locator('form', { hasText: 'Automatic feedback reminders' })
+    .getByRole('button', { name: 'Turn off' })
+    .click();
   await expect(admin.getByText('Automatic feedback reminders: off.')).toBeVisible();
 
+  // Team alerts: no team phone yet, so a team test says so plainly.
+  await admin.getByRole('button', { name: /Send a test to the team/ }).click();
+  await expect(admin.getByText(/No phone has team alerts on yet/)).toBeVisible();
+  await expect(admin.getByText('team alerts off')).toBeVisible();
+
   await request.delete('/api/push', { data: { endpoint } });
+});
+
+test('team alerts can only be switched on by a signed in desk', async ({ browser, request }) => {
+  const endpoint = `https://push.invalid/team-${Date.now()}`;
+  const body = { endpoint, keys: { p256dh: 'B'.repeat(87), auth: 'A'.repeat(22) } };
+
+  // An attendee phone cannot make itself a team phone.
+  expect((await request.post('/api/push', { data: { ...body, team: true } })).status()).toBe(403);
+  expect((await request.post('/api/push', { data: body })).ok()).toBe(true);
+  const plain = await (
+    await request.get(`/api/push?endpoint=${encodeURIComponent(endpoint)}`)
+  ).json();
+  expect(plain).toMatchObject({ on: true, team: false });
+
+  // A signed in desk can.
+  const desk = await (await browser.newContext()).newPage();
+  await desk.goto('/admin/sign-in');
+  await desk.getByLabel('Which desk is this?').fill('desk-team');
+  await desk.getByLabel('Admin PIN').fill(PIN);
+  await desk.getByRole('button', { name: 'Sign in' }).click();
+  await expect(
+    desk.getByRole('heading', { name: /^Good (morning|afternoon|evening)/, level: 1 }),
+  ).toBeVisible();
+  expect((await desk.request.post('/api/push', { data: { ...body, team: true } })).ok()).toBe(true);
+  const team = await (
+    await desk.request.get(`/api/push?endpoint=${encodeURIComponent(endpoint)}`)
+  ).json();
+  expect(team).toMatchObject({ on: true, team: true });
+
+  // Turning team alerts off keeps the phone's ordinary alerts.
+  await desk.request.delete('/api/push', { data: { endpoint, team: true } });
+  const after = await (
+    await desk.request.get(`/api/push?endpoint=${encodeURIComponent(endpoint)}`)
+  ).json();
+  expect(after).toMatchObject({ on: true, team: false });
+  await desk.request.delete('/api/push', { data: { endpoint } });
 });

@@ -34,6 +34,7 @@ import {
 import { REACTIONS } from '@/modules/talk/logic';
 import { AlertsOptIn } from '@/modules/announce/components/AlertsOptIn';
 import { shortDepartment } from '@/lib/departments';
+import { InstallApp } from '@/components/InstallApp';
 
 const SECTION = 'pt-16 pb-12 lg:pt-24 lg:pb-16';
 const H2 = 'font-display text-[1.75rem] font-medium leading-[1.1] text-ink sm:text-[2.5rem]';
@@ -354,7 +355,8 @@ export async function RuledHome({
         </div>
       </section>
 
-      <div className="mt-6 max-w-xl">
+      <div className="mt-6 max-w-xl space-y-3">
+        <InstallApp />
         <AlertsOptIn />
       </div>
 

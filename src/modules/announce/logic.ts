@@ -18,6 +18,8 @@ export type Announcement = {
   at: string;
   /** How many phones it was sent to as a notification, or null if not sent. */
   pushed: number | null;
+  /** "team": sent to the secretariat phones only, and never shown to attendees. */
+  audience?: 'team';
 };
 
 /** Only paths inside the portal, never another site. */

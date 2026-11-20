@@ -1,12 +1,17 @@
 import type { Metadata } from 'next';
+import { cookies } from 'next/headers';
 
+import { InstallApp } from '@/components/InstallApp';
 import { getData } from '@/data';
 import { requireAdmin } from '@/lib/admin-guard';
 import { getEventConfig } from '@/lib/config';
+import { DEVICE_COOKIE, readDeviceId } from '@/lib/device';
 import {
   clearAnnouncement,
   postAnnouncement,
   sendTestAlert,
+  sendTestToTeam,
+  setTeamAuto,
   setFeedbackNudges,
 } from '@/modules/announce/actions';
 import {
@@ -19,6 +24,8 @@ import {
   parseAnnouncement,
   parseHistory,
 } from '@/modules/announce/logic';
+import { AlertsOptIn } from '@/modules/announce/components/AlertsOptIn';
+import { TEAM_AUTO_KEY, teamAutoOn } from '@/modules/announce/team';
 import { EVENT_FORM_SLUG } from '@/modules/feedback/logic';
 import { localDateTime } from '@/modules/reports/logic';
 
@@ -50,17 +57,38 @@ const TEST_RESULT: Record<string, { text: string; good: boolean }> = {
 
 export default async function AnnouncementsPage({ searchParams }: { searchParams: SearchParams }) {
   const params = await searchParams;
-  const test = typeof params.test === 'string' ? TEST_RESULT[params.test] : undefined;
+  const testKey = typeof params.test === 'string' ? params.test : '';
+  const teamSent = /^team-sent-(\d+)$/.exec(testKey);
+  const test = teamSent
+    ? {
+        text: `Test sent to ${teamSent[1]} team ${teamSent[1] === '1' ? 'phone' : 'phones'}. It should arrive within a few seconds.`,
+        good: true,
+      }
+    : testKey === 'team-none'
+      ? {
+          text: 'No phone has team alerts on yet. On each secretariat phone, tap Turn on team alerts below.',
+          good: false,
+        }
+      : TEST_RESULT[testKey];
   await requireAdmin('/admin/announcements');
   const config = getEventConfig();
   const tz = config.event.timezone;
   const data = getData();
-  const [currentRaw, historyRaw, phones, nudgeSetting] = await Promise.all([
-    data.settings.get(ANNOUNCE_KEYS.current),
-    data.settings.get(ANNOUNCE_KEYS.history),
-    data.push.count(),
-    data.settings.get(NUDGE_KEYS.enabled),
-  ]);
+  const deviceId = readDeviceId((await cookies()).get(DEVICE_COOKIE)?.value);
+  const [currentRaw, historyRaw, phones, nudgeSetting, teamAutoSetting, allSubs] =
+    await Promise.all([
+      data.settings.get(ANNOUNCE_KEYS.current),
+      data.settings.get(ANNOUNCE_KEYS.history),
+      data.push.count(),
+      data.settings.get(NUDGE_KEYS.enabled),
+      data.settings.get(TEAM_AUTO_KEY),
+      data.push.list(),
+    ]);
+  const teamAuto = teamAutoOn(teamAutoSetting);
+  const teamPhones = allSubs.filter((p) => p.team).length;
+  const mine = deviceId ? allSubs.filter((p) => p.deviceId === deviceId) : [];
+  const thisPhoneAlerts = mine.length > 0;
+  const thisPhoneTeam = mine.some((p) => p.team);
   const nudging = nudgeSetting === 'on';
   const current = parseAnnouncement(currentRaw);
   const live = isLive(current, new Date()) ? current : null;
@@ -134,6 +162,25 @@ export default async function AnnouncementsPage({ searchParams }: { searchParams
             Up to {ANNOUNCE_MAX_CHARS} characters. It replaces the one showing now.
           </p>
         </div>
+        <fieldset>
+          <legend className="font-semibold text-ink">Send it to</legend>
+          <div className="mt-1 flex flex-wrap gap-x-6 gap-y-1">
+            <label className="flex min-h-11 items-center gap-2 text-ink">
+              <input
+                type="radio"
+                name="audience"
+                value="everyone"
+                defaultChecked
+                className="size-5"
+              />
+              Everyone (a banner on every page)
+            </label>
+            <label className="flex min-h-11 items-center gap-2 text-ink">
+              <input type="radio" name="audience" value="team" className="size-5" />
+              The team only ({teamPhones} {teamPhones === 1 ? 'phone' : 'phones'}, no banner)
+            </label>
+          </div>
+        </fieldset>
         <div>
           <label htmlFor="announce-link" className="block font-semibold text-ink">
             Tapping it opens
@@ -167,32 +214,93 @@ export default async function AnnouncementsPage({ searchParams }: { searchParams
         </button>
       </form>
 
-      <form
-        action={sendTestAlert}
-        className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line bg-surface p-4"
+      <section
+        aria-labelledby="test-alerts"
+        className="space-y-4 rounded-xl border border-line bg-surface p-4"
       >
-        <p className="min-w-0 flex-1 text-ink">
-          <span className="font-bold">Check alerts on your own phone.</span>{' '}
-          <span className="text-ink-soft">
-            Turn on alerts on the portal home first, in this same browser. Only this phone gets the
-            test.
-          </span>
-        </p>
-        <button
-          type="submit"
-          className="min-h-11 rounded-lg border border-line px-4 font-semibold text-ink"
-        >
-          Send a test to this phone
-        </button>
+        <div>
+          <h2 id="test-alerts" className="text-lg font-bold text-ink">
+            Test your alerts
+          </h2>
+          <p className="mt-1 text-ink-soft">
+            This phone right now:{' '}
+            <strong className={thisPhoneAlerts ? 'text-success' : 'text-warning'}>
+              event alerts {thisPhoneAlerts ? 'on' : 'off'}
+            </strong>
+            ,{' '}
+            <strong className={thisPhoneTeam ? 'text-success' : 'text-warning'}>
+              team alerts {thisPhoneTeam ? 'on' : 'off'}
+            </strong>
+            .
+          </p>
+        </div>
+
+        <ol className="list-decimal space-y-1 pl-5 text-ink">
+          <li>
+            On this phone, tap <strong>Turn on team alerts</strong> below and allow it. (iPhone: add
+            the app to the home screen first, then open it from the icon.)
+          </li>
+          <li>
+            Tap <strong>Send a test to the team</strong>. A notification should arrive within a few
+            seconds, and tapping it opens this console.
+          </li>
+          <li>
+            To test what attendees get, open the portal in a <strong>private tab</strong>, tap{' '}
+            <strong>Turn on alerts</strong> there, then post an announcement here.
+          </li>
+        </ol>
+
+        <InstallApp />
+        <AlertsOptIn team />
+
+        <div className="flex flex-wrap gap-3">
+          <form action={sendTestToTeam}>
+            <button
+              type="submit"
+              className="min-h-11 rounded-lg bg-primary px-4 font-bold text-on-primary"
+            >
+              Send a test to the team ({teamPhones})
+            </button>
+          </form>
+          <form action={sendTestAlert}>
+            <button
+              type="submit"
+              className="min-h-11 rounded-lg border border-line px-4 font-semibold text-ink"
+            >
+              Send a test to this phone only
+            </button>
+          </form>
+        </div>
         {test ? (
           <p
             role="status"
-            className={`w-full text-sm font-semibold ${test.good ? 'text-success' : 'text-warning'}`}
+            className={`text-sm font-semibold ${test.good ? 'text-success' : 'text-warning'}`}
           >
             {test.text}
           </p>
         ) : null}
-      </form>
+
+        <form
+          action={setTeamAuto}
+          className="flex flex-wrap items-center justify-between gap-3 border-t border-line pt-4"
+        >
+          <input type="hidden" name="mode" value={teamAuto ? 'off' : 'on'} />
+          <p className="min-w-0 flex-1 text-ink">
+            <span className="font-bold">
+              Alert the team when photos or comments wait: {teamAuto ? 'on' : 'off'}.
+            </span>{' '}
+            <span className="text-ink-soft">
+              One alert at most every five minutes for each, only to phones with team alerts on.
+            </span>
+          </p>
+          <button
+            type="submit"
+            className="min-h-11 rounded-lg border border-line px-4 font-semibold text-ink"
+          >
+            {teamAuto ? 'Turn off' : 'Turn on'}
+          </button>
+        </form>
+      </section>
 
       {config.features.feedback ? (
         <form
@@ -241,6 +349,7 @@ export default async function AnnouncementsPage({ searchParams }: { searchParams
                 <p className="text-ink">{a.text}</p>
                 <p className="text-sm text-ink-soft">
                   {localDateTime(a.at, tz)}
+                  {a.audience === 'team' ? ', team only' : ''}
                   {a.pushed === null ? ', page only' : `, sent to ${a.pushed} phones`}
                 </p>
               </li>

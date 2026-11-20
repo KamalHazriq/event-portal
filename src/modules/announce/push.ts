@@ -104,6 +104,14 @@ export async function pushToAll(message: PushMessage): Promise<SendResult> {
   return sendTo(await getData().push.list(), message);
 }
 
+/** Only the secretariat phones that turned on team alerts. */
+export async function pushToTeam(message: PushMessage): Promise<SendResult> {
+  return sendTo(
+    (await getData().push.list()).filter((s) => s.team),
+    message,
+  );
+}
+
 /** Only the phones linked (for points) to these people. */
 export async function pushToPeople(
   attendeeIds: string[],

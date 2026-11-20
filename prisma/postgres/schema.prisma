@@ -288,6 +288,9 @@ model PushSubscription {
   p256dh    String
   auth      String
   deviceId  String   @default("")
+  /// A secretariat phone that also gets team alerts (set-up reminders,
+  /// photos and comments waiting). Set from the admin pages only.
+  team      Boolean  @default(false)
   createdAt DateTime @default(now())
 
   @@index([deviceId])

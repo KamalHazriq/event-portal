@@ -22,6 +22,7 @@ import {
   sessionStatus,
 } from '@/modules/schedule/logic';
 import { AlertsOptIn } from '@/modules/announce/components/AlertsOptIn';
+import { InstallApp } from '@/components/InstallApp';
 
 // What this page shows depends on the current time, so it is never cached.
 export const dynamic = 'force-dynamic';
@@ -215,6 +216,7 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
             </section>
           ) : null}
 
+          <InstallApp />
           <AlertsOptIn />
 
           {config.info ? (

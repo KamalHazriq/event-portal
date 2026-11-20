@@ -49,6 +49,11 @@ export default async function SignInPage({ searchParams }: { searchParams: Searc
             This device is locked to the self check in kiosk. Sign in with the PIN to unlock it.
           </p>
         ) : null}
+        {first(params.out) === 'all' ? (
+          <p role="status" className="mt-1 font-semibold text-ink">
+            Every desk was signed out. Enter the PIN to sign in again.
+          </p>
+        ) : null}
         <p className="mt-1 text-ink-soft">
           For the registration desk and the admin screens. Attendees do not need this.
         </p>

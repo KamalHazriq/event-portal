@@ -45,6 +45,11 @@ export const TEST_PLAN: Part[] = [
               'A "participants only" page. A wrong code is refused; the right event code lets you in.',
           },
           {
+            id: 'a-in-install',
+            do: 'On the home page tap Install (Android and Chrome). On an iPhone, tap Share, then Add to Home Screen.',
+            expect: 'An icon appears on the home screen, and it opens full screen like an app.',
+          },
+          {
             id: 'a-in-admin',
             do: 'Type /admin after the address.',
             expect:
@@ -217,6 +222,19 @@ export const TEST_PLAN: Part[] = [
             href: '/admin/admins',
           },
           {
+            id: 's-login-team',
+            do: 'On every secretariat phone, tap Install, then Turn on team alerts (on the dashboard). iPhone: add to the home screen first and open from the icon.',
+            expect: 'It says team alerts are on for this phone.',
+            href: '/admin',
+          },
+          {
+            id: 's-login-out',
+            do: 'On Admins, under Resets, tick the box and press Sign everyone out. Then sign in again.',
+            expect:
+              'Every desk, this one included, has to enter the PIN again. The PIN itself is unchanged.',
+            href: '/admin/admins',
+          },
+          {
             id: 's-login-dash',
             do: 'Read the dashboard.',
             expect:
@@ -371,6 +389,13 @@ export const TEST_PLAN: Part[] = [
             href: '/admin/announcements',
           },
           {
+            id: 's-room-team',
+            do: 'On Announce, under Test your alerts, press "Send a test to the team". Then send a message with "The team only" chosen. Then, from another phone, share a photo that needs approval.',
+            expect:
+              'Each team phone gets the test and the team message, attendees see no banner, and a "Photo waiting" alert arrives (at most one every five minutes).',
+            href: '/admin/announcements',
+          },
+          {
             id: 's-room-moderate',
             do: 'Approve and hide a comment, and approve and reject a photo. Try the approval switch and each photo layout.',
             expect: 'Each change shows on phones and the big screen.',
@@ -425,6 +450,13 @@ export const TEST_PLAN: Part[] = [
             do: 'When all testing is done, use "Clear test data" at the bottom of this page.',
             expect:
               'Headcount shows nobody arrived, the leaderboard and lucky draw are empty, and no test comments or photos remain. The participant list, your agenda edits and the settings stay.',
+          },
+          {
+            id: 's-clean-board',
+            do: 'On Admins, under Resets, press Reset the leaderboard sign ins.',
+            expect:
+              'Every attendee phone is signed out of the leaderboard, so testers pick their name again.',
+            href: '/admin/admins',
           },
           {
             id: 's-clean-final',

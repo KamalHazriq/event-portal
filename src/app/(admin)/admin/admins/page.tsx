@@ -11,6 +11,7 @@ import {
   presenceRows,
   SHOWN_MS,
 } from '@/modules/admins/logic';
+import { resetLeaderboardSignIns, signEveryoneOut } from '@/modules/admins/actions';
 import { localClock } from '@/modules/reports/logic';
 
 export const dynamic = 'force-dynamic';
@@ -37,7 +38,10 @@ async function loadAdmins(operator: string) {
  * admins at once). Desk labels only, never a person's name, and the log
  * never names an attendee.
  */
-export default async function AdminsPage() {
+type SearchParams = Promise<Record<string, string | string[] | undefined>>;
+
+export default async function AdminsPage({ searchParams }: { searchParams: SearchParams }) {
+  const params = await searchParams;
   const session = await requireAdmin('/admin/admins');
   const config = getEventConfig();
   const { desks, log, now } = await loadAdmins(session.operator);
@@ -81,6 +85,67 @@ export default async function AdminsPage() {
         <p className="mt-2 text-sm text-ink-soft">
           A desk shows as here while it has a page open, and for half an hour after it goes quiet.
         </p>
+      </section>
+
+      <section id="resets" aria-labelledby="resets-h" className="scroll-mt-24 space-y-3">
+        <h2 id="resets-h" className="text-lg font-bold text-ink">
+          Resets
+        </h2>
+        {params.reset !== undefined ? (
+          <p
+            role="status"
+            className="rounded-lg border border-success bg-success/10 p-3 font-semibold text-ink"
+          >
+            Done. {String(params.reset)} {params.reset === '1' ? 'phone was' : 'phones were'} signed
+            out of the leaderboard.
+          </p>
+        ) : null}
+        {params.error ? (
+          <p
+            role="alert"
+            className="rounded-lg border-2 border-warning bg-warning/10 p-3 font-semibold text-ink"
+          >
+            Tick the box to confirm.
+          </p>
+        ) : null}
+
+        <form
+          action={signEveryoneOut}
+          className="space-y-3 rounded-xl border border-line bg-surface p-4"
+        >
+          <p className="font-bold text-ink">Sign every desk out</p>
+          <p className="text-ink-soft">
+            Everyone on the secretariat side, you included, has to enter the PIN again. Use it for a
+            lost phone or a clean start. The PIN itself does not change.
+          </p>
+          <label className="flex min-h-11 items-center gap-3 text-ink">
+            <input type="checkbox" name="confirm" value="yes" className="size-5" />
+            Yes, sign every desk out
+          </label>
+          <button type="submit" className="min-h-11 rounded-lg bg-live px-5 font-bold text-white">
+            Sign everyone out
+          </button>
+        </form>
+
+        {config.features.leaderboard ? (
+          <form
+            action={resetLeaderboardSignIns}
+            className="space-y-3 rounded-xl border border-line bg-surface p-4"
+          >
+            <p className="font-bold text-ink">Reset the leaderboard sign ins</p>
+            <p className="text-ink-soft">
+              Every attendee phone that joined the leaderboard is signed out, so people pick their
+              name again. Their points come back when they join. Use it after testing.
+            </p>
+            <label className="flex min-h-11 items-center gap-3 text-ink">
+              <input type="checkbox" name="confirm" value="yes" className="size-5" />
+              Yes, sign every phone out of the leaderboard
+            </label>
+            <button type="submit" className="min-h-11 rounded-lg bg-live px-5 font-bold text-white">
+              Reset the leaderboard sign ins
+            </button>
+          </form>
+        ) : null}
       </section>
 
       <section className="rounded-xl border border-line bg-surface p-4">

@@ -42,7 +42,7 @@ async function currentSubscription(): Promise<PushSubscription | null> {
  * when tapped, and says plainly when a phone cannot (or must be added to
  * the home screen first, on iPhone).
  */
-export function AlertsOptIn() {
+export function AlertsOptIn({ team = false }: { team?: boolean }) {
   const support = useSyncExternalStore(noop, detect, () => 'unknown' as AlertSupport);
   const [on, setOn] = useState<boolean | null>(null);
   const [busy, setBusy] = useState(false);
@@ -51,9 +51,17 @@ export function AlertsOptIn() {
   useEffect(() => {
     if (support !== 'ready') return;
     currentSubscription()
-      .then((sub) => setOn(Boolean(sub)))
+      .then(async (sub) => {
+        if (!sub) return setOn(false);
+        if (!team) return setOn(true);
+        // Team alerts: the server knows whether this phone is a team phone.
+        const status = (await (
+          await fetch(`/api/push?endpoint=${encodeURIComponent(sub.endpoint)}`)
+        ).json()) as { team?: boolean };
+        setOn(status.team === true);
+      })
       .catch(() => setOn(false));
-  }, [support]);
+  }, [support, team]);
 
   async function turnOn() {
     setBusy(true);
@@ -76,7 +84,7 @@ export function AlertsOptIn() {
       const response = await fetch('/api/push', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(sub.toJSON()),
+        body: JSON.stringify({ ...sub.toJSON(), ...(team ? { team: true } : {}) }),
       });
       if (!response.ok) throw new Error('save failed');
       setOn(true);
@@ -95,9 +103,10 @@ export function AlertsOptIn() {
         await fetch('/api/push', {
           method: 'DELETE',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ endpoint: sub.endpoint }),
+          body: JSON.stringify({ endpoint: sub.endpoint, ...(team ? { team: true } : {}) }),
         });
-        await sub.unsubscribe();
+        // Turning team alerts off leaves the phone's ordinary alerts alone.
+        if (!team) await sub.unsubscribe();
       }
       setOn(false);
     } finally {
@@ -130,7 +139,8 @@ export function AlertsOptIn() {
   if (on) {
     return (
       <p className="flex flex-wrap items-center gap-2 text-sm text-ink-soft" role="status">
-        <span aria-hidden="true">🔔</span> Event alerts are on for this phone.
+        <span aria-hidden="true">🔔</span>{' '}
+        {team ? 'Team alerts are on for this phone.' : 'Event alerts are on for this phone.'}
         <button
           type="button"
           onClick={() => void turnOff()}
@@ -146,11 +156,13 @@ export function AlertsOptIn() {
   return (
     <section aria-label="Event alerts" className="rounded-xl border border-line bg-surface p-4">
       <p className="font-bold text-ink">
-        <span aria-hidden="true">🔔 </span>Get event alerts on this phone
+        <span aria-hidden="true">🔔 </span>
+        {team ? 'Get team alerts on this phone' : 'Get event alerts on this phone'}
       </p>
       <p className="mt-1 text-sm text-ink-soft">
-        Bus times, room changes and the lucky draw, as a notification. No sign up, and you can turn
-        them off any time.
+        {team
+          ? 'For the secretariat: set-up reminders, photos and comments waiting, and messages sent to the team only. Attendees never get these.'
+          : 'Bus times, room changes and the lucky draw, as a notification. No sign up, and you can turn them off any time.'}
       </p>
       <button
         type="button"
@@ -158,7 +170,7 @@ export function AlertsOptIn() {
         disabled={busy || on === null}
         className="mt-3 inline-flex min-h-11 items-center rounded-lg bg-primary px-4 font-bold text-on-primary disabled:opacity-60"
       >
-        {busy ? 'Turning on…' : 'Turn on alerts'}
+        {busy ? 'Turning on…' : team ? 'Turn on team alerts' : 'Turn on alerts'}
       </button>
       {problem ? (
         <p role="alert" className="mt-2 text-sm font-semibold text-warning">

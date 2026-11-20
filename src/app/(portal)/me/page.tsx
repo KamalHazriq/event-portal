@@ -10,6 +10,7 @@ import { findByName } from '@/modules/points/logic';
 import { CAPS, POINT_LABELS, POINTS, type PointKind } from '@/modules/points/logic';
 import { currentPlayer, loadScoreboard } from '@/modules/points/server';
 import { AlertsOptIn } from '@/modules/announce/components/AlertsOptIn';
+import { InstallApp } from '@/components/InstallApp';
 
 export const dynamic = 'force-dynamic';
 
@@ -309,6 +310,7 @@ export default async function MyPointsPage({
         </p>
       </section>
 
+      <InstallApp />
       <AlertsOptIn />
     </div>
   );

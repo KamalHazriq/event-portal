@@ -57,3 +57,49 @@ test('tick the plan, and clear test data behind a typed word', async ({ page }) 
   ).json()) as { results: unknown[] };
   expect(after.results.length).toBe(everyone.results.length);
 });
+
+test('reset the leaderboard sign ins, then sign every desk out', async ({ page, browser }) => {
+  // A phone joins the leaderboard by picking its name.
+  const phone = await browser.newPage();
+  await phone.goto('/me?find=shanti+fernandez');
+  await phone.getByRole('button', { name: /Shanti Fernandez/ }).click();
+  await expect(phone.getByText(/^You are in./)).toBeVisible();
+
+  // Desk one signs in; a second desk is signed in too.
+  const signIn = async (p: typeof page, desk: string) => {
+    await p.goto('/admin/sign-in');
+    await p.getByLabel('Which desk is this?').fill(desk);
+    await p.getByLabel('Admin PIN').fill(PIN);
+    await p.getByRole('button', { name: 'Sign in' }).click();
+    await expect(
+      p.getByRole('heading', { name: /^Good (morning|afternoon|evening)/, level: 1 }),
+    ).toBeVisible();
+  };
+  await signIn(page, 'desk-reset-1');
+  const other = await (await browser.newContext()).newPage();
+  await signIn(other, 'desk-reset-2');
+
+  // Not without the box ticked.
+  await page.goto('/admin/admins');
+  await page.getByRole('button', { name: 'Reset the leaderboard sign ins' }).click();
+  await expect(page.getByRole('alert').filter({ hasText: 'Tick the box' })).toBeVisible();
+
+  // Reset the leaderboard: the phone has to pick its name again.
+  await page.getByLabel('Yes, sign every phone out of the leaderboard').check();
+  await page.getByRole('button', { name: 'Reset the leaderboard sign ins' }).click();
+  await expect(page.getByText(/phones? (was|were) signed out of the leaderboard/)).toBeVisible();
+  await phone.goto('/me');
+  await expect(phone.getByLabel('Type your name')).toBeVisible();
+
+  // Sign every desk out: both desks need the PIN again.
+  await page.getByLabel('Yes, sign every desk out').check();
+  await page.getByRole('button', { name: 'Sign everyone out' }).click();
+  await expect(page).toHaveURL(/\/admin\/sign-in\?out=all/);
+  await expect(page.getByText('Every desk was signed out.')).toBeVisible();
+  await other.goto('/admin');
+  await expect(other).toHaveURL(/\/admin\/sign-in/);
+
+  // The PIN itself still works.
+  await signIn(page, 'desk-reset-1');
+  await signIn(other, 'desk-reset-2');
+});

@@ -270,5 +270,7 @@ export type PushSubscriptionRecord = {
   p256dh: string;
   auth: string;
   deviceId: string;
+  /** A secretariat phone that also gets team alerts. */
+  team: boolean;
   createdAt: string;
 };

@@ -3,11 +3,13 @@
  * Every photo waits for an organiser's approval before it is shown anywhere.
  */
 import { cookies } from 'next/headers';
+import { after } from 'next/server';
 
 import { getData } from '@/data';
 import { getEventConfig } from '@/lib/config';
 import { DEVICE_COOKIE, deviceCookieOptions, newDeviceId, readDeviceId } from '@/lib/device';
 import { LIMITS, rateLimit } from '@/lib/rate-limit';
+import { notifyTeamWaiting } from '@/modules/announce/team';
 import { plainText } from '@/lib/text';
 import {
   checkUpload,
@@ -76,5 +78,7 @@ export async function POST(request: Request): Promise<Response> {
   });
 
   if (!existing) store.set(DEVICE_COOKIE, deviceId, deviceCookieOptions);
+  // Tell the team's phones something is waiting (after this answer is sent).
+  if (!approved) after(() => notifyTeamWaiting('photo').catch(() => undefined));
   return Response.json({ ok: true, sent: alreadySent + 1, approved });
 }

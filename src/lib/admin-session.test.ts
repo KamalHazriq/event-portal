@@ -170,3 +170,21 @@ describe('how long a sign in lasts', () => {
     expect(readSessionValue(value, eventEnds + 1)).toBeNull();
   });
 });
+
+describe('sign in rounds', () => {
+  it('keeps round 0 in the original shape, so older cookies still read', () => {
+    const value = createSessionValue('desk-1', PIN);
+    expect(readSessionValue(value)).toMatchObject({ operator: 'desk-1', generation: 0 });
+  });
+
+  it('carries a later round, and cannot be moved to another', () => {
+    const value = createSessionValue('desk-1', PIN, Date.now(), Date.now() + 3_600_000, 3);
+    expect(readSessionValue(value)).toMatchObject({ operator: 'desk-1', generation: 3 });
+    // Editing the round in the cookie breaks the signature.
+    const [encoded, signature] = value.split('.');
+    const edited = Buffer.from(
+      Buffer.from(encoded!, 'base64url').toString().replace(/:3$/, ':0'),
+    ).toString('base64url');
+    expect(readSessionValue(`${edited}.${signature}`)).toBeNull();
+  });
+});

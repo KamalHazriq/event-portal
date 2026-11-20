@@ -6,6 +6,8 @@ import { multilineText, plainText } from '@/lib/text';
 import { deviceIdOrNew } from '@/modules/backup/server';
 import { MAX_COMMENT, MAX_COMMENT_NAME, validateComment } from '@/modules/talk/logic';
 import { backToComments, findSession } from '@/modules/talk/server';
+import { after } from 'next/server';
+import { notifyTeamWaiting } from '@/modules/announce/team';
 
 export async function POST(request: Request): Promise<Response> {
   const config = getEventConfig();
@@ -38,5 +40,6 @@ export async function POST(request: Request): Promise<Response> {
     name: plainText(form.get('name'), MAX_COMMENT_NAME),
     deviceId,
   });
+  after(() => notifyTeamWaiting('comment').catch(() => undefined));
   return backToComments(sessionId, 'posted', now);
 }

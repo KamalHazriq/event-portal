@@ -20,7 +20,8 @@ import {
   safeHref,
   type Announcement,
 } from './logic';
-import { pushToAll, pushToDevice } from './push';
+import { pushToAll, pushToDevice, pushToTeam } from './push';
+import { TEAM_AUTO_KEY } from './team';
 
 async function assertAdmin(): Promise<string> {
   const auth = await requireAdminApi();
@@ -40,17 +41,21 @@ export async function postAnnouncement(formData: FormData): Promise<void> {
   const text = cleanAnnouncementText(String(formData.get('text') ?? ''));
   if (!text) return;
   const href = safeHref(String(formData.get('href') ?? ''));
-  const send = formData.get('push') === 'on';
+  const teamOnly = formData.get('audience') === 'team';
+  // A team message is only ever a notification, so it always goes out.
+  const send = teamOnly || formData.get('push') === 'on';
 
   let pushed: number | null = null;
   if (send) {
-    const result = await pushToAll({
-      title: getEventConfig().event.shortName,
+    const message = {
+      title: teamOnly
+        ? `Team: ${getEventConfig().event.shortName}`
+        : getEventConfig().event.shortName,
       body: text,
-      url: href || '/',
-      tag: 'announcement',
-    });
-    pushed = result.sent;
+      url: href || (teamOnly ? '/admin' : '/'),
+      tag: teamOnly ? 'team-message' : 'announcement',
+    };
+    pushed = (teamOnly ? await pushToTeam(message) : await pushToAll(message)).sent;
   }
 
   const announcement: Announcement = {
@@ -59,16 +64,44 @@ export async function postAnnouncement(formData: FormData): Promise<void> {
     href,
     at: new Date().toISOString(),
     pushed,
+    ...(teamOnly ? { audience: 'team' as const } : {}),
   };
   const data = getData();
   const history = parseHistory(await data.settings.get(ANNOUNCE_KEYS.history));
-  await data.settings.set(ANNOUNCE_KEYS.current, JSON.stringify(announcement));
+  // Attendees only ever see the banner for a message meant for them.
+  if (!teamOnly) await data.settings.set(ANNOUNCE_KEYS.current, JSON.stringify(announcement));
   await data.settings.set(
     ANNOUNCE_KEYS.history,
     JSON.stringify([announcement, ...history].slice(0, HISTORY_SIZE)),
   );
   await recordActivity(
-    `Posted an announcement${pushed === null ? '' : ` and sent it to ${pushed} phones`}: ${text}`,
+    `${teamOnly ? 'Sent a team message' : 'Posted an announcement'}${pushed === null ? '' : ` to ${pushed} phones`}: ${text}`,
+    operator,
+  );
+  done();
+}
+
+/** Sends a test to every secretariat phone with team alerts on. */
+export async function sendTestToTeam(): Promise<void> {
+  const operator = await assertAdmin();
+  const result = await pushToTeam({
+    title: `Team: ${getEventConfig().event.shortName}`,
+    body: `Test from ${operator}. Team alerts work on this phone.`,
+    url: '/admin',
+    tag: 'test-team',
+  });
+  redirect(
+    `/admin/announcements?test=${result.sent > 0 ? `team-sent-${result.sent}` : 'team-none'}`,
+  );
+}
+
+/** Switches "tell the team when photos or comments are waiting" on or off. */
+export async function setTeamAuto(formData: FormData): Promise<void> {
+  const operator = await assertAdmin();
+  const on = formData.get('mode') === 'on';
+  await getData().settings.set(TEAM_AUTO_KEY, on ? 'on' : 'off');
+  await recordActivity(
+    on ? 'Turned automatic team alerts on' : 'Turned automatic team alerts off',
     operator,
   );
   done();

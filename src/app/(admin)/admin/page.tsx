@@ -18,6 +18,8 @@ import { arrivalRate, resolveCheckInDay } from '@/modules/check-in/logic';
 import { buildAgenda, findNowAndNext } from '@/modules/schedule/logic';
 import { loadInsightsInput } from '@/modules/insights/load';
 import { buildAlerts } from '@/modules/insights/logic';
+import { InstallApp } from '@/components/InstallApp';
+import { AlertsOptIn } from '@/modules/announce/components/AlertsOptIn';
 
 export const dynamic = 'force-dynamic';
 
@@ -280,6 +282,22 @@ export default async function AdminHomePage() {
           <span className="font-mono text-sm font-semibold opacity-80">{clock}</span>
         </Link>
       </section>
+
+      {/* This phone: install it, and get team alerts (set-up reminders, things waiting). */}
+      <div className="grid gap-3 md:grid-cols-2 empty:hidden">
+        <InstallApp />
+        <AlertsOptIn team />
+      </div>
+
+      <Link
+        href="/admin/checklist"
+        className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-line bg-surface px-4 py-3 no-underline hover:border-primary"
+      >
+        <span className="font-bold text-ink">Before the event: the test plan</span>
+        <span className="text-sm text-ink-soft">
+          Every step to check, as an attendee and as the secretariat
+        </span>
+      </Link>
 
       <section
         aria-label="At a glance"

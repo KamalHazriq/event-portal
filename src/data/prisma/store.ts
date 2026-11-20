@@ -1228,18 +1228,48 @@ export function createPrismaAdapter(
     },
   };
 
+  const toPush = (row: {
+    endpoint: string;
+    p256dh: string;
+    auth: string;
+    deviceId: string;
+    team: boolean;
+    createdAt: Date;
+  }) => ({
+    endpoint: row.endpoint,
+    p256dh: row.p256dh,
+    auth: row.auth,
+    deviceId: row.deviceId,
+    team: row.team,
+    createdAt: row.createdAt.toISOString(),
+  });
+
   const push: PushRepository = {
     async save(input) {
       const data = {
         p256dh: input.p256dh,
         auth: input.auth,
         deviceId: input.deviceId,
+        ...(input.team === undefined ? {} : { team: input.team }),
       };
       await prisma.pushSubscription.upsert({
         where: { endpoint: input.endpoint },
         create: { endpoint: input.endpoint, ...data },
         update: data,
       });
+    },
+
+    async setTeam(endpoint, team) {
+      const { count } = await prisma.pushSubscription.updateMany({
+        where: { endpoint },
+        data: { team },
+      });
+      return count > 0;
+    },
+
+    async get(endpoint) {
+      const row = await prisma.pushSubscription.findUnique({ where: { endpoint } });
+      return row ? toPush(row) : null;
     },
 
     async remove(endpoint) {
@@ -1249,13 +1279,7 @@ export function createPrismaAdapter(
 
     async list() {
       const rows = await prisma.pushSubscription.findMany({ orderBy: { createdAt: 'asc' } });
-      return rows.map((row) => ({
-        endpoint: row.endpoint,
-        p256dh: row.p256dh,
-        auth: row.auth,
-        deviceId: row.deviceId,
-        createdAt: row.createdAt.toISOString(),
-      }));
+      return rows.map(toPush);
     },
 
     async count() {
@@ -1274,6 +1298,11 @@ export function createPrismaAdapter(
 
     async unlink(deviceId) {
       await prisma.deviceLink.deleteMany({ where: { deviceId } });
+    },
+
+    async unlinkAll() {
+      const { count } = await prisma.deviceLink.deleteMany();
+      return count;
     },
 
     async ownerOf(deviceId) {

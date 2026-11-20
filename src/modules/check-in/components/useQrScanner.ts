@@ -24,30 +24,53 @@ export function useQrScanner(
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
-  const stopCamera = useCallback(() => {
+  const releaseStream = useCallback(() => {
     streamRef.current?.getTracks().forEach((track) => track.stop());
     streamRef.current = null;
-    setCameraOn(false);
   }, []);
+
+  const stopCamera = useCallback(() => {
+    releaseStream();
+    setCameraOn(false);
+  }, [releaseStream]);
 
   const startCamera = useCallback(async () => {
     setCameraError(null);
+    // A second press must not leave the first camera running.
+    releaseStream();
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode },
         audio: false,
       });
       streamRef.current = stream;
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        await videoRef.current.play();
+      const video = videoRef.current;
+      if (video) {
+        video.muted = true;
+        video.srcObject = stream;
       }
+      // Show the picture first. The video is hidden until this is true, and a
+      // hidden video may never finish play(), so waiting for play() here
+      // would leave the camera running behind a page that never moves on.
       setCameraOn(true);
+      void video?.play().catch(() => undefined);
+
+      // If the camera is open but sends no picture (another app has it, or a
+      // privacy shutter), say so and offer the button again.
+      window.setTimeout(() => {
+        if (streamRef.current !== stream) return;
+        if (!video || video.readyState < 2) {
+          stopCamera();
+          setCameraError(
+            'The camera is on but sending no picture. Close anything else using it (a video call, another tab), then press Start the camera again.',
+          );
+        }
+      }, 8000);
     } catch {
       setCameraError('The camera could not start. Check the browser has permission to use it.');
       setCameraOn(false);
     }
-  }, [facingMode]);
+  }, [facingMode, releaseStream, stopCamera]);
 
   // Always let go of the camera when leaving the page.
   useEffect(() => () => stopCamera(), [stopCamera]);

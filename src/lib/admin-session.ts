@@ -42,7 +42,16 @@ export type AdminSession = {
   /** A desk or operator label such as "desk-1". Never a person's name. */
   operator: string;
   expiresAt: number;
+  /**
+   * Which "sign in round" this belongs to. "Sign everyone out" starts a new
+   * round, so every cookie from an earlier one stops working (see
+   * admin-guard.ts). Cookies from before this existed are round 0.
+   */
+  generation: number;
 };
+
+/** The settings key holding the current sign in round. */
+export const GENERATION_KEY = 'admin.generation';
 
 function sign(payload: string, pin: string): string {
   return createHmac('sha256', pin).update(payload).digest('base64url');
@@ -61,9 +70,11 @@ export function createSessionValue(
   pin: string,
   now = Date.now(),
   expiresAt = now + SESSION_HOURS * 60 * 60 * 1000,
+  generation = 0,
 ): string {
   const label = normaliseOperator(operator);
-  const payload = `${label}:${expiresAt}`;
+  // Round 0 keeps the original shape, so earlier cookies and this one agree.
+  const payload = generation > 0 ? `${label}:${expiresAt}:${generation}` : `${label}:${expiresAt}`;
   const encoded = Buffer.from(payload, 'utf8').toString('base64url');
   return `${encoded}.${sign(payload, pin)}`;
 }
@@ -94,14 +105,16 @@ export function readSessionValue(value: string | undefined, now = Date.now()): A
 
   if (!safeEqual(signature, sign(payload, pin))) return null;
 
-  const split = payload.lastIndexOf(':');
-  if (split <= 0) return null;
+  // "desk-1:1797436740000" or, from the second round on, "desk-1:1797436740000:2".
+  const parts = payload.split(':');
+  if (parts.length < 2 || parts.length > 3) return null;
+  const operator = parts[0] ?? '';
+  const expiresAt = Number(parts[1]);
+  const generation = parts.length === 3 ? Number(parts[2]) : 0;
+  if (!operator || !Number.isFinite(expiresAt) || expiresAt <= now) return null;
+  if (!Number.isInteger(generation) || generation < 0) return null;
 
-  const operator = payload.slice(0, split);
-  const expiresAt = Number(payload.slice(split + 1));
-  if (!Number.isFinite(expiresAt) || expiresAt <= now) return null;
-
-  return { operator, expiresAt };
+  return { operator, expiresAt, generation };
 }
 
 /** Desk labels are short, lower case and carry no personal data. */

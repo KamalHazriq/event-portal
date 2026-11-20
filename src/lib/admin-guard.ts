@@ -11,7 +11,7 @@ import { redirect } from 'next/navigation';
 
 import { getData } from '@/data';
 
-import { ADMIN_COOKIE, readSessionValue, type AdminSession } from './admin-session';
+import { ADMIN_COOKIE, GENERATION_KEY, readSessionValue, type AdminSession } from './admin-session';
 
 /**
  * Notes that a desk has a page open, for the "who is signed in" list. At most
@@ -33,10 +33,23 @@ async function notePresence(operator: string, page: string): Promise<void> {
   }
 }
 
+/** The current sign in round: 0 until someone presses "Sign everyone out". */
+export async function currentGeneration(): Promise<number> {
+  try {
+    const stored = Number(await getData().settings.get(GENERATION_KEY));
+    return Number.isInteger(stored) && stored > 0 ? stored : 0;
+  } catch {
+    return 0;
+  }
+}
+
 /** Returns the signed in operator, or null. Never throws. */
 export async function getAdminSession(): Promise<AdminSession | null> {
   const store = await cookies();
-  return readSessionValue(store.get(ADMIN_COOKIE)?.value);
+  const session = readSessionValue(store.get(ADMIN_COOKIE)?.value);
+  if (!session) return null;
+  // A cookie from before the last "Sign everyone out" is no longer good.
+  return session.generation === (await currentGeneration()) ? session : null;
 }
 
 /**

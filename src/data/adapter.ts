@@ -295,8 +295,15 @@ export interface CommentRepository {
 
 /** Phones that turned on event alerts (web push). */
 export interface PushRepository {
-  /** Adds or refreshes a phone. The endpoint is its address. */
-  save(input: Omit<PushSubscriptionRecord, 'createdAt'>): Promise<void>;
+  /**
+   * Adds or refreshes a phone. The endpoint is its address. `team` is only
+   * changed when it is given, so an attendee sign up does not switch a
+   * secretariat phone's team alerts off.
+   */
+  save(input: Omit<PushSubscriptionRecord, 'createdAt' | 'team'> & { team?: boolean }): Promise<void>;
+  /** Switches team alerts on or off for one phone. */
+  setTeam(endpoint: string, team: boolean): Promise<boolean>;
+  get(endpoint: string): Promise<PushSubscriptionRecord | null>;
   remove(endpoint: string): Promise<boolean>;
   list(): Promise<PushSubscriptionRecord[]>;
   count(): Promise<number>;
@@ -307,6 +314,8 @@ export interface PlayerRepository {
   /** Signs this phone in as this person, replacing any earlier link. */
   link(deviceId: string, attendeeId: string): Promise<void>;
   unlink(deviceId: string): Promise<void>;
+  /** Signs every phone out of the leaderboard. Returns how many were signed in. */
+  unlinkAll(): Promise<number>;
   /** Who this phone belongs to, or null. */
   ownerOf(deviceId: string): Promise<string | null>;
   links(): Promise<DeviceLink[]>;
