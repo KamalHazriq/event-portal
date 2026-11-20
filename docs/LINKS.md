@@ -33,7 +33,7 @@ Every address below is added after the portal address.
 | `/me` | My points: pick your name to join, and My agenda |
 | `/poll` | The live poll |
 | `/qa/<sessionId>` | Live Q&A for a session |
-| `/feedback/<form>` | Feedback forms, for example `/feedback/summit` |
+| `/feedback/<form>` | Feedback forms, for example `/feedback/event` |
 | `/committees` and `/c/<token>` | Committee summaries, only for those given access |
 | `/pass` | Where the event code is entered if someone has no QR |
 
