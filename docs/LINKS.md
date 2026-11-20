@@ -1,100 +1,132 @@
-# Power Summit portal: all the links
+# Power Summit portal: every link, in full
 
-Portal address: `https://portal--powersummit-7d255.asia-southeast1.hosted.app`
-Event code (for attendees, if they are asked): `summit-2027`
-The secretariat PIN is NOT written here. Share it only with the team.
+Event code (attendees only, if asked): summit-2027
+The secretariat PIN is not written here; give it only to the team.
 
-Every address below is added after the portal address.
+## 1. The important ones
 
-## The important ones
+- Attendee home (arrive by scanning the name tag QR): https://portal--powersummit-7d255.asia-southeast1.hosted.app/
+- Secretariat sign in and overview (install as app): https://portal--powersummit-7d255.asia-southeast1.hosted.app/admin
+- Registration desk (staff check in): https://portal--powersummit-7d255.asia-southeast1.hosted.app/admin/desk
+- Big screen for the projector laptop (F11, install as app): https://portal--powersummit-7d255.asia-southeast1.hosted.app/screen
+- Big screen remote (MC): https://portal--powersummit-7d255.asia-southeast1.hosted.app/admin/big-screen
+- Self check in kiosk (preview): https://portal--powersummit-7d255.asia-southeast1.hosted.app/kiosk
+- Self check in kiosk, locked tablet: https://portal--powersummit-7d255.asia-southeast1.hosted.app/kiosk?lock=1
+- Test plan and Ready check: https://portal--powersummit-7d255.asia-southeast1.hosted.app/admin/test-plan
+- Announcements, team alerts, reminders: https://portal--powersummit-7d255.asia-southeast1.hosted.app/admin/announce
 
-| Link | Who | What it is |
-|---|---|---|
-| `/` | Attendees | The home page. They arrive by scanning the QR on the name tag, which carries the event code. |
-| `/admin` | Secretariat | Sign in with the PIN. Install it as the Secretariat app. |
-| `/admin/desk` | Check in staff | Registration desk: scan the TNB business card or search by name. |
-| `/screen` | Projector laptop | The big screen, full screen with F11. Install it as the Big screen app. |
-| `/admin/big-screen` | MC / secretariat | The projector remote: pick what the screen shows. |
-| `/kiosk` | Self check in tablet | Guests scan their own card. `/kiosk?lock=1` locks the tablet to the kiosk. |
-| `/admin/test-plan` | You | Ready check and the end to end checklist. |
-| `/admin/announce` | Secretariat | Announcements, team alerts, scheduled reminders. |
+## 2. Attendees on a phone
 
-## Attendees (phone)
+- Home: https://portal--powersummit-7d255.asia-southeast1.hosted.app/
+- Agenda: https://portal--powersummit-7d255.asia-southeast1.hosted.app/agenda
+- Know before you go: https://portal--powersummit-7d255.asia-southeast1.hosted.app/info
+- Resources: https://portal--powersummit-7d255.asia-southeast1.hosted.app/resources
+- Photo wall: https://portal--powersummit-7d255.asia-southeast1.hosted.app/photos
+- Leaderboard: https://portal--powersummit-7d255.asia-southeast1.hosted.app/leaderboard
+- My points and my agenda: https://portal--powersummit-7d255.asia-southeast1.hosted.app/me
+- Live poll: https://portal--powersummit-7d255.asia-southeast1.hosted.app/poll
+- Whole event feedback form: https://portal--powersummit-7d255.asia-southeast1.hosted.app/feedback/event
+- Committees: https://portal--powersummit-7d255.asia-southeast1.hosted.app/committees
+- Event code page: https://portal--powersummit-7d255.asia-southeast1.hosted.app/pass
 
-| Link | What it is |
-|---|---|
-| `/` | Home: now and next, announcements, install button |
-| `/agenda` | The full agenda, a tab per day |
-| `/session/<id>` | One session, for example `/session/d1-welcome`: objectives, speakers, reactions, comments, Slido |
-| `/info` | Know before you go |
-| `/resources` | Take aways and links |
-| `/photos` | Photo wall: share a photo, see approved ones |
-| `/leaderboard` | Points leaderboard |
-| `/me` | My points: pick your name to join, and My agenda |
-| `/poll` | The live poll |
-| `/qa/<sessionId>` | Live Q&A for a session |
-| `/feedback/<form>` | Feedback forms, for example `/feedback/event` |
-| `/committees` and `/c/<token>` | Committee summaries, only for those given access |
-| `/pass` | Where the event code is entered if someone has no QR |
+## 3. Every session page
 
-## Projector views (sign in once on the laptop)
 
-`/screen` follows whatever the MC picks. A fixed view can be opened directly:
+Day 1 (2026-12-14)
+- 10:00 Arrival and registration: https://portal--powersummit-7d255.asia-southeast1.hosted.app/session/d1-registration
+- 11:00 Welcome and doa: https://portal--powersummit-7d255.asia-southeast1.hosted.app/session/d1-welcome
+- 11:10 Bingo ice breaker: https://portal--powersummit-7d255.asia-southeast1.hosted.app/session/d1-ice-breaker
+- 11:30 2026 reflection: setting the context: https://portal--powersummit-7d255.asia-southeast1.hosted.app/session/d1-reflection
+- 12:30 Lunch: https://portal--powersummit-7d255.asia-southeast1.hosted.app/session/d1-lunch
+- 14:00 Secretariat sharing: SVC: https://portal--powersummit-7d255.asia-southeast1.hosted.app/session/d1-svc
+- 14:10 Sharing 1: Value: https://portal--powersummit-7d255.asia-southeast1.hosted.app/session/d1-sharing-value
+- 14:40 Secretariat sharing: DLC: https://portal--powersummit-7d255.asia-southeast1.hosted.app/session/d1-dlc
+- 14:50 Sharing 2: Comms Network: https://portal--powersummit-7d255.asia-southeast1.hosted.app/session/d1-sharing-comms
+- 15:20 Tea break: https://portal--powersummit-7d255.asia-southeast1.hosted.app/session/d1-tea
+- 15:40 Secretariat sharing: ATC: https://portal--powersummit-7d255.asia-southeast1.hosted.app/session/d1-atc
+- 15:50 Sharing 3: Data Centre and Cloud: https://portal--powersummit-7d255.asia-southeast1.hosted.app/session/d1-sharing-dc
+- 16:20 Secretariat sharing: OTC: https://portal--powersummit-7d255.asia-southeast1.hosted.app/session/d1-otc
+- 16:30 Sharing 4: Procurement: https://portal--powersummit-7d255.asia-southeast1.hosted.app/session/d1-sharing-procurement
+- 17:00 Free and easy: https://portal--powersummit-7d255.asia-southeast1.hosted.app/session/d1-free
+- 19:00 Group dinner: https://portal--powersummit-7d255.asia-southeast1.hosted.app/session/d1-dinner
+- 20:00 Synergy Night: https://portal--powersummit-7d255.asia-southeast1.hosted.app/session/d1-synergy-night
 
-`/screen/welcome`, `/screen/now-next`, `/screen/arrivals`, `/screen/countdown`,
-`/screen/lucky-draw`, `/screen/photos`, `/screen/qa`, `/screen/poll`,
-`/screen/comments`, `/screen/leaderboard`
+Day 2 (2026-12-15)
+- 09:00 Setting the stage: our next S-curve: https://portal--powersummit-7d255.asia-southeast1.hosted.app/session/d2-setting-stage
+- 09:30 Breakout 1: Sustain, Strengthen and Step Up: https://portal--powersummit-7d255.asia-southeast1.hosted.app/session/d2-breakout-1
+- 09:30 M-level session (HODs): https://portal--powersummit-7d255.asia-southeast1.hosted.app/session/d2-m-level
+- 10:30 Tea break: https://portal--powersummit-7d255.asia-southeast1.hosted.app/session/d2-tea
+- 10:45 Breakout 2: From Issues to Interventions: https://portal--powersummit-7d255.asia-southeast1.hosted.app/session/d2-breakout-2
+- 12:30 Lunch: https://portal--powersummit-7d255.asia-southeast1.hosted.app/session/d2-lunch
+- 14:00 Shaping our next S-curve: group presentations: https://portal--powersummit-7d255.asia-southeast1.hosted.app/session/d2-presentations
+- 18:30 Group dinner: https://portal--powersummit-7d255.asia-southeast1.hosted.app/session/d2-dinner
 
-(The Big screen page lists the ones that are switched on.)
+Day 3 (2026-12-16)
+- 07:00 Morning wellness: Pound, Zumba or Yoga: https://portal--powersummit-7d255.asia-southeast1.hosted.app/session/d3-wellness
+- 09:00 External speaker: Datuk Suhaimi Sulaiman: https://portal--powersummit-7d255.asia-southeast1.hosted.app/session/d3-speaker
+- 11:00 Recap video: https://portal--powersummit-7d255.asia-southeast1.hosted.app/session/d3-recap
+- 11:30 CDIO closing remarks: https://portal--powersummit-7d255.asia-southeast1.hosted.app/session/d3-closing
+- 12:15 Adjourn: https://portal--powersummit-7d255.asia-southeast1.hosted.app/session/d3-adjourn
+- 12:30 Lunch: https://portal--powersummit-7d255.asia-southeast1.hosted.app/session/d3-lunch
 
-## Secretariat: On the day (`/admin/on-the-day`)
+## 4. Projector views
 
-| Link | What it is |
-|---|---|
-| `/admin/desk` | Registration desk |
-| `/admin/headcount` | Who has arrived, by department; undo a check in |
-| `/admin/live` | What is on now, minutes left, the room and the countdown |
-| `/admin/big-screen` | Choose what the projector shows |
-| `/admin/runbook` | Morning checklist and the plan for each day (printable) |
+- welcome: https://portal--powersummit-7d255.asia-southeast1.hosted.app/screen/welcome
+- now-next: https://portal--powersummit-7d255.asia-southeast1.hosted.app/screen/now-next
+- arrivals: https://portal--powersummit-7d255.asia-southeast1.hosted.app/screen/arrivals
+- countdown: https://portal--powersummit-7d255.asia-southeast1.hosted.app/screen/countdown
+- lucky-draw: https://portal--powersummit-7d255.asia-southeast1.hosted.app/screen/lucky-draw
+- photos: https://portal--powersummit-7d255.asia-southeast1.hosted.app/screen/photos
+- qa: https://portal--powersummit-7d255.asia-southeast1.hosted.app/screen/qa
+- poll: https://portal--powersummit-7d255.asia-southeast1.hosted.app/screen/poll
+- comments: https://portal--powersummit-7d255.asia-southeast1.hosted.app/screen/comments
+- leaderboard: https://portal--powersummit-7d255.asia-southeast1.hosted.app/screen/leaderboard
 
-## Secretariat: Engage the room (`/admin/engage-the-room`)
+## 5. Secretariat: On the day
 
-| Link | What it is |
-|---|---|
-| `/admin/comments` | Approve or hide comments |
-| `/admin/photos` | Approve photos, photo wall layout, download all |
-| `/admin/announce` | Announcements, team only messages, scheduled reminders, test alerts |
-| `/admin/lucky-draw` | Draw winners from people checked in |
+- Section page: https://portal--powersummit-7d255.asia-southeast1.hosted.app/admin/on-the-day
+- Registration desk: https://portal--powersummit-7d255.asia-southeast1.hosted.app/admin/desk
+- Headcount: https://portal--powersummit-7d255.asia-southeast1.hosted.app/admin/headcount
+- Live control: https://portal--powersummit-7d255.asia-southeast1.hosted.app/admin/live
+- Big screen remote: https://portal--powersummit-7d255.asia-southeast1.hosted.app/admin/big-screen
+- Runbook (printable): https://portal--powersummit-7d255.asia-southeast1.hosted.app/admin/runbook
 
-## Secretariat: Set up (`/admin/set-up`)
+## 6. Secretariat: Engage the room
 
-| Link | What it is |
-|---|---|
-| `/admin/agenda` | Edit sessions, times, rooms, speakers |
-| `/admin/event-info` | Event name, venue, Know before you go, resource links, Slido, department short names |
-| `/admin/attendees` | Upload the participant list |
-| `/admin/test-plan` | Ready check and the end to end checklist |
-| `/admin/device-check` | Test camera, alerts, speed and clock on each real device |
-| `/admin/name-tags` | Print name tags (white or blue card) |
-| `/admin/qr-assets` | Table tents and the portal QR for a slide |
+- Section page: https://portal--powersummit-7d255.asia-southeast1.hosted.app/admin/engage-the-room
+- Comments: https://portal--powersummit-7d255.asia-southeast1.hosted.app/admin/comments
+- Photos: https://portal--powersummit-7d255.asia-southeast1.hosted.app/admin/photos
+- Announce: https://portal--powersummit-7d255.asia-southeast1.hosted.app/admin/announce
+- Lucky draw: https://portal--powersummit-7d255.asia-southeast1.hosted.app/admin/lucky-draw
 
-## Secretariat: More (`/admin/more`)
+## 7. Secretariat: Set up
 
-| Link | What it is |
-|---|---|
-| `/admin/insights` | What needs attention, numbers, arrivals |
-| `/admin/feedback` | Feedback results per session |
-| `/admin/qa` | Questions: moderate, take over from Slido |
-| `/admin/polls` | Polls: open, reveal, take over from Slido |
-| `/admin/reports` | Download the Excel report; `/admin/reports/summary` is the printable summary |
-| `/admin/committees` | Committee summaries and who can see them |
-| `/admin/admins` | Which desks are signed in, the activity log, sign everyone out, reset sign ins |
-| `/guide` | How the portal works (secretariat only) |
+- Section page: https://portal--powersummit-7d255.asia-southeast1.hosted.app/admin/set-up
+- Agenda editor: https://portal--powersummit-7d255.asia-southeast1.hosted.app/admin/agenda
+- Event info editor: https://portal--powersummit-7d255.asia-southeast1.hosted.app/admin/event-info
+- Attendees upload: https://portal--powersummit-7d255.asia-southeast1.hosted.app/admin/attendees
+- Test plan: https://portal--powersummit-7d255.asia-southeast1.hosted.app/admin/test-plan
+- Device check: https://portal--powersummit-7d255.asia-southeast1.hosted.app/admin/device-check
+- Name tags: https://portal--powersummit-7d255.asia-southeast1.hosted.app/admin/name-tags
+- QR assets: https://portal--powersummit-7d255.asia-southeast1.hosted.app/admin/qr-assets
 
-## For the apps and monitoring
+## 8. Secretariat: More
 
-| Link | What it is |
-|---|---|
-| `/admin/app.webmanifest` | Makes the Secretariat installable (no need to open it) |
-| `/screen/app.webmanifest`, `/kiosk/app.webmanifest` | Same for the big screen and the kiosk |
-| `/api/health` | Answers 200 when the portal and database work. For the uptime alert. |
+- Section page: https://portal--powersummit-7d255.asia-southeast1.hosted.app/admin/more
+- Insights: https://portal--powersummit-7d255.asia-southeast1.hosted.app/admin/insights
+- Feedback results: https://portal--powersummit-7d255.asia-southeast1.hosted.app/admin/feedback
+- Q&A moderation: https://portal--powersummit-7d255.asia-southeast1.hosted.app/admin/qa
+- Polls: https://portal--powersummit-7d255.asia-southeast1.hosted.app/admin/polls
+- Reports (Excel): https://portal--powersummit-7d255.asia-southeast1.hosted.app/admin/reports
+- Printable summary: https://portal--powersummit-7d255.asia-southeast1.hosted.app/admin/reports/summary
+- Committees: https://portal--powersummit-7d255.asia-southeast1.hosted.app/admin/committees
+- Admins and activity log: https://portal--powersummit-7d255.asia-southeast1.hosted.app/admin/admins
+- How the portal works (secretariat only): https://portal--powersummit-7d255.asia-southeast1.hosted.app/guide
+- Sign in page: https://portal--powersummit-7d255.asia-southeast1.hosted.app/admin/sign-in
+
+## 9. Apps and monitoring
+
+- Secretariat app manifest: https://portal--powersummit-7d255.asia-southeast1.hosted.app/admin/app.webmanifest
+- Big screen app manifest: https://portal--powersummit-7d255.asia-southeast1.hosted.app/screen/app.webmanifest
+- Kiosk app manifest: https://portal--powersummit-7d255.asia-southeast1.hosted.app/kiosk/app.webmanifest
+- Health check: https://portal--powersummit-7d255.asia-southeast1.hosted.app/api/health
