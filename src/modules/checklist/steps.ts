@@ -42,7 +42,7 @@ export const TEST_PLAN: Part[] = [
             id: 'a-in-code',
             do: 'In a private window open the plain portal address, without the code.',
             expect:
-              'A "participants only" page. A wrong code is refused; the right event code lets you in.',
+              'A "participants only" page. A wrong code is refused; the right event code lets you in, with a short hexagon loading screen while it checks.',
           },
           {
             id: 'a-in-install',
@@ -53,7 +53,7 @@ export const TEST_PLAN: Part[] = [
             id: 'a-in-admin',
             do: 'Type /admin after the address.',
             expect:
-              'The Secretariat sign in page. A wrong PIN is refused. You cannot get past it. The same for /screen and /kiosk.',
+              'The Secretariat sign in page. A wrong PIN is refused. You cannot get past it. The same for /screen, /kiosk and /guide (the guide is for the secretariat only).',
           },
         ],
       },
@@ -197,8 +197,27 @@ export const TEST_PLAN: Part[] = [
     id: 'secretariat',
     title: 'As the secretariat, on a laptop and a phone',
     intro:
-      'Do these in order. Use your own desk name each time you sign in, such as desk-1, mc or screen.',
+      'Do these in order. Use your own desk name each time you sign in, such as desk-1, mc or screen. The menu has four sections: On the day, Engage the room, Set up and More. Tap a section to see everything in it.',
     groups: [
+      {
+        id: 's-ready',
+        title: 'S0. Is the portal ready?',
+        steps: [
+          {
+            id: 's-ready-check',
+            do: 'Look at the Ready check at the top of this page.',
+            expect:
+              'Every line has a tick: participant list, PIN, event code, QR address, team alerts and reminders. Anything marked ! says how to fix it.',
+            href: '/admin/test-plan',
+          },
+          {
+            id: 's-ready-health',
+            do: 'Open the portal address followed by /api/health.',
+            expect:
+              'It answers {"ok":true...}. If you set up the uptime alert, an email arrives when it does not.',
+          },
+        ],
+      },
       {
         id: 's-login',
         title: 'S1. Signing in',
@@ -213,7 +232,14 @@ export const TEST_PLAN: Part[] = [
             id: 's-login-right',
             do: 'Sign in with the real PIN and a desk name.',
             expect:
-              'The dashboard says "Good morning" with your desk name. A reload keeps you signed in.',
+              'A hexagon loading screen shows while it works (on a slow connection), then the dashboard says "Good morning" with your desk name. A reload keeps you signed in.',
+          },
+          {
+            id: 's-login-app',
+            do: 'On your laptop and phone, install the Secretariat app: the Install button on the dashboard (iPhone: Share, then Add to Home Screen).',
+            expect:
+              'An icon called Secretariat appears, and it opens straight to the secretariat, separate from the attendee app.',
+            href: '/admin',
           },
           {
             id: 's-login-admins',
@@ -338,6 +364,13 @@ export const TEST_PLAN: Part[] = [
             href: '/admin/headcount',
           },
           {
+            id: 's-desk-undoall',
+            do: 'On Desk (or Headcount), press "Undo all attendance (for testing)", choose a day, type UNDO and confirm.',
+            expect:
+              'Every check in for that day is removed and the counters go back to zero. It cannot be put back, so use it only for testing.',
+            href: '/admin/desk',
+          },
+          {
             id: 's-desk-kiosk',
             do: '(Optional) On the Desk page open the kiosk: "Preview" on your own laptop, and "Open and lock this device" on the tablet. On the locked tablet, hold up a card, then try typing /admin.',
             expect:
@@ -352,8 +385,9 @@ export const TEST_PLAN: Part[] = [
         steps: [
           {
             id: 's-screen-open',
-            do: 'On the laptop sign in as "screen", open /screen and press F11.',
-            expect: 'Full screen, with the D&I logo top left.',
+            do: 'On the laptop sign in as "screen", open /screen and press F11. Better: in Chrome or Edge install it as an app (menu, Save and share, Install this page as an app) and open the desktop icon. Using one laptop for both? Set the display to Extend, drag the screen window to the projector, then F11.',
+            expect:
+              'Full screen, with the D&I logo top left, a slowly moving blue glow, a faint honeycomb and a thin line that sweeps down now and then.',
             href: '/screen',
           },
           {
@@ -367,13 +401,14 @@ export const TEST_PLAN: Part[] = [
             id: 's-screen-views',
             do: 'From the Big screen page show each view in turn: Welcome, Now and next, Arrivals, Countdown, Lucky draw, Photo wall, Questions, Poll, Leaderboard, Comments.',
             expect:
-              'Each appears within a few seconds. The Welcome QR scans. Arrivals counts guests only.',
+              'A hexagon wipe covers each change, then the new view appears within a few seconds. The Welcome QR scans. Arrivals counts guests only.',
             href: '/admin/big-screen',
           },
           {
             id: 's-screen-long',
             do: 'Leave it running for ten minutes, then unplug the Wi-Fi for 30 seconds.',
-            expect: 'No stutter. It keeps its last view and catches up when the Wi-Fi is back.',
+            expect:
+              'No stutter, including during a wipe. It keeps its last view and catches up when the Wi-Fi is back. If it stutters, note the laptop and tell the developer.',
           },
         ],
       },
@@ -470,7 +505,7 @@ export const TEST_PLAN: Part[] = [
             id: 's-clean-clear',
             do: 'When all testing is done, use "Clear test data" at the bottom of this page.',
             expect:
-              'Headcount shows nobody arrived, the leaderboard and lucky draw are empty, and no test comments or photos remain. The participant list, your agenda edits and the settings stay.',
+              'Headcount shows nobody arrived, the leaderboard and lucky draw are empty, and no test comments or photos remain. The participant list, your agenda edits and the settings stay. The Undo all attendance button next to it clears only the check ins.',
           },
           {
             id: 's-clean-board',
