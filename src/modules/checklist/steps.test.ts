@@ -28,7 +28,7 @@ describe('the test plan', () => {
     const adminPages = new Set([
       '/admin',
       '/admin/runbook',
-      '/admin/checklist',
+      '/admin/test-plan',
       ...ADMIN_PAGES.map((p) => p.href),
     ]);
     const attendeePages = new Set(['/agenda', '/info', '/photos', '/me', '/screen', '/kiosk']);

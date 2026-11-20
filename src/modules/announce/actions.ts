@@ -30,7 +30,7 @@ async function assertAdmin(): Promise<string> {
 }
 
 function done(): void {
-  revalidatePath('/admin/announcements');
+  revalidatePath('/admin/announce');
   // Every attendee page shows the banner.
   revalidatePath('/', 'layout');
 }
@@ -92,7 +92,7 @@ export async function sendTestToTeam(): Promise<void> {
     tag: 'test-team',
   });
   redirect(
-    `/admin/announcements?test=${result.sent > 0 ? `team-sent-${result.sent}` : 'team-none'}`,
+    `/admin/announce?test=${result.sent > 0 ? `team-sent-${result.sent}` : 'team-none'}`,
   );
 }
 
@@ -140,6 +140,6 @@ export async function sendTestAlert(): Promise<void> {
       })
     : { sent: 0, failed: 0, removed: 0 };
   redirect(
-    `/admin/announcements?test=${result.sent > 0 ? 'sent' : result.failed > 0 ? 'failed' : 'none'}`,
+    `/admin/announce?test=${result.sent > 0 ? 'sent' : result.failed > 0 ? 'failed' : 'none'}`,
   );
 }

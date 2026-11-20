@@ -79,7 +79,7 @@ export default async function AnnouncementsPage({ searchParams }: { searchParams
           good: false,
         }
       : TEST_RESULT[testKey];
-  await requireAdmin('/admin/announcements');
+  await requireAdmin('/admin/announce');
   const config = getEventConfig();
   const tz = config.event.timezone;
   const data = getData();

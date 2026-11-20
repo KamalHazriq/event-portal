@@ -3,29 +3,41 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-import { ADMIN_GROUPS, ADMIN_PAGES, EVERYDAY_PAGES, type AdminPage } from './admin-pages';
+import { ADMIN_GROUPS, ADMIN_PAGES, groupHref, type AdminPage } from './admin-pages';
 import { Icon } from './icons';
 
 function isActive(pathname: string, href: string): boolean {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
+/** The group the current page belongs to, if any (its own page counts). */
+function activeGroup(pathname: string) {
+  return ADMIN_GROUPS.find(
+    (g) => isActive(pathname, groupHref(g)) || g.pages.some((p) => isActive(pathname, p.href)),
+  );
+}
+
 /**
- * The phone tab row: the everyday pages, the page you are on if it lives
- * under More, and More itself (the full list on the overview).
+ * The phone tab row: Overview, one tab per section (each opens a page that
+ * lists its pages), and the page you are on when it is inside a section.
  */
 function tabPages(pathname: string): AdminPage[] {
-  const current = ADMIN_PAGES.find(
-    (page) => isActive(pathname, page.href) && !EVERYDAY_PAGES.includes(page),
-  );
-  const more: AdminPage = {
-    href: '/admin#more',
-    label: 'More',
-    title: 'More',
+  const overview: AdminPage = {
+    href: '/admin',
+    label: 'Overview',
+    title: 'Overview',
     description: '',
-    icon: 'folder',
+    icon: 'home',
   };
-  return [...EVERYDAY_PAGES, ...(current ? [current] : []), more];
+  const sections: AdminPage[] = ADMIN_GROUPS.map((g) => ({
+    href: groupHref(g),
+    label: g.name,
+    title: g.name,
+    description: '',
+    icon: g.slug === 'more' ? 'folder' : g.pages[0]!.icon,
+  }));
+  const current = ADMIN_PAGES.find((page) => isActive(pathname, page.href));
+  return [overview, ...sections, ...(current ? [current] : [])];
 }
 
 /** Phones and tablets: one swipeable row of tabs under the header. */
@@ -35,7 +47,8 @@ export function AdminTabs() {
     <nav aria-label="Secretariat" className="px-2 lg:hidden">
       <ul className="no-scrollbar flex gap-1 overflow-x-auto">
         {tabPages(pathname).map((page) => {
-          const active = isActive(pathname, page.href);
+          const active =
+            page.href === '/admin' ? pathname === '/admin' : isActive(pathname, page.href);
           return (
             <li key={page.href} className="shrink-0">
               <Link
@@ -76,46 +89,46 @@ export function AdminSidebarNav() {
         Overview
       </Link>
       {ADMIN_GROUPS.map((group) => {
-        const links = (
-          <ul className="space-y-0.5">
-            {group.pages.map((page) => {
-              const active = isActive(pathname, page.href);
-              return (
-                <li key={page.href}>
-                  <Link
-                    href={page.href}
-                    aria-current={active ? 'page' : undefined}
-                    className={[
-                      'side-link flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-semibold no-underline',
-                      active ? 'is-active' : '',
-                    ].join(' ')}
-                  >
-                    <Icon name={page.icon} />
-                    {page.label}
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        );
-        return group.folded ? (
-          // Folded until needed; open by itself when you are on one of its pages.
-          <details
-            key={group.name}
-            className="group/more mt-4"
-            open={group.pages.some((page) => isActive(pathname, page.href))}
-          >
-            <summary className="cursor-pointer list-none px-3 pb-1.5 text-[0.68rem] font-bold uppercase tracking-[0.16em] text-ink-soft">
-              {group.name} <span aria-hidden="true">▾</span>
-            </summary>
-            {links}
-          </details>
-        ) : (
-          <div key={group.name} className="mt-4">
-            <p className="px-3 pb-1.5 text-[0.68rem] font-bold uppercase tracking-[0.16em] text-ink-soft">
+        const here = activeGroup(pathname)?.slug === group.slug;
+        const onHub = pathname === groupHref(group);
+        return (
+          <div key={group.slug} className="mt-2">
+            <Link
+              href={groupHref(group)}
+              aria-current={onHub ? 'page' : undefined}
+              aria-expanded={here}
+              className={[
+                'side-link flex items-center justify-between rounded-lg px-3 py-2 text-sm font-bold no-underline',
+                onHub ? 'is-active' : '',
+              ].join(' ')}
+            >
               {group.name}
-            </p>
-            {links}
+              <span aria-hidden="true" className="text-xs text-ink-soft">
+                {here ? '▾' : '▸'}
+              </span>
+            </Link>
+            {here ? (
+              <ul className="mt-0.5 space-y-0.5 border-l border-line pl-2 ml-3">
+                {group.pages.map((page) => {
+                  const active = isActive(pathname, page.href);
+                  return (
+                    <li key={page.href}>
+                      <Link
+                        href={page.href}
+                        aria-current={active ? 'page' : undefined}
+                        className={[
+                          'side-link flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-semibold no-underline',
+                          active ? 'is-active' : '',
+                        ].join(' ')}
+                      >
+                        <Icon name={page.icon} />
+                        {page.label}
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : null}
           </div>
         );
       })}

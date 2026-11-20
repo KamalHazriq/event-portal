@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 
 import { requireAdmin } from '@/lib/admin-guard';
 import { getEventConfig } from '@/lib/config';
@@ -34,12 +35,12 @@ export default async function KioskPage() {
       ) : null}
       <KioskConsole dayId={day.id} dayLabel={day.label} eventName={config.event.shortName} />
       {/* A quiet way out for staff: it asks for the PIN if the tablet is locked. */}
-      <a
+      <Link
         href="/admin"
         className="absolute right-4 bottom-4 text-xs text-ink-soft opacity-50 no-underline hover:opacity-100"
       >
         Secretariat
-      </a>
+      </Link>
     </main>
   );
 }

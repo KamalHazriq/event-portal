@@ -27,7 +27,7 @@ import { recordActivity } from '@/modules/admins/record';
  */
 
 const AGENDA_PATH = '/admin/agenda';
-const EVENT_PATH = '/admin/event';
+const EVENT_PATH = '/admin/event-info';
 
 async function begin(): Promise<{ operator: string; overlay: ConfigOverlay }> {
   const auth = await requireAdminApi();

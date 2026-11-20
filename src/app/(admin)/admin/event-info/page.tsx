@@ -54,7 +54,7 @@ export default async function EventInfoEditorPage({
 }: {
   searchParams: SearchParams;
 }) {
-  await requireAdmin('/admin/event');
+  await requireAdmin('/admin/event-info');
   await refreshConfigOverlay(true);
   const params = await searchParams;
   const config = getEventConfig();

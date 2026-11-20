@@ -53,7 +53,7 @@ test('post an announcement, see it on a phone, take it down', async ({ browser, 
     admin.getByRole('heading', { name: /^Good (morning|afternoon|evening)/, level: 1 }),
   ).toBeVisible();
 
-  await admin.goto('/admin/announcements');
+  await admin.goto('/admin/announce');
   await expect(admin.getByText(/Also send it as a notification to \d+ phones?/)).toBeVisible();
   const text = `Buses leave at 7:30 ${Math.random().toString(36).slice(2, 6)}`;
   await admin.getByLabel('Message', { exact: true }).fill(text);
@@ -158,7 +158,7 @@ test('scheduled reminders: the scheduler call needs its secret, and a due one is
   await page.getByLabel('Which desk is this?').fill('reminders');
   await page.getByLabel('Admin PIN').fill(PIN);
   await page.getByRole('button', { name: 'Sign in' }).click();
-  await page.goto('/admin/announcements');
+  await page.goto('/admin/announce');
 
   const text = `Projector on ${Date.now()}`;
   await page.getByLabel('Reminder time').fill('2020-01-01T07:00');

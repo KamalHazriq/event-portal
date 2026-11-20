@@ -20,7 +20,7 @@ export const metadata: Metadata = { title: 'Test plan' };
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
 export default async function ChecklistPage({ searchParams }: { searchParams: SearchParams }) {
-  await requireAdmin('/admin/checklist');
+  await requireAdmin('/admin/test-plan');
   const params = await searchParams;
   const data = getData();
   const [attendees, subs, remindersRaw, pingRaw] = await Promise.all([

@@ -8,7 +8,7 @@ import { expect, test } from '@playwright/test';
 const PIN = process.env.E2E_ADMIN_PIN ?? '246810';
 
 test('tick the plan, and clear test data behind a typed word', async ({ page }) => {
-  await page.goto('/admin/checklist');
+  await page.goto('/admin/test-plan');
   await expect(page).toHaveURL(/\/admin\/sign-in/);
   await page.getByLabel('Which desk is this?').fill('desk-plan');
   await page.getByLabel('Admin PIN').fill(PIN);

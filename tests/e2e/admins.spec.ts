@@ -45,12 +45,23 @@ test('two desks see each other, and the log records what was done', async ({ bro
 
 test('every page in the admin navigation opens', async ({ page }) => {
   await signIn(page, 'desk-test');
-  const links = await page
-    .getByRole('navigation', { name: 'Secretariat' })
-    .first()
+  const nav = page.getByRole('navigation', { name: 'Secretariat' }).first();
+  const sections = await nav
     .getByRole('link')
     .evaluateAll((as) => as.map((a) => a.getAttribute('href') ?? ''));
-  expect(links.length).toBeGreaterThan(10);
+  const links = new Set(sections);
+  // Each section's own page lists the pages inside it.
+  for (const section of sections.filter((h) =>
+    /^\/admin\/(on-the-day|engage-the-room|set-up|more)$/.test(h),
+  )) {
+    await page.goto(section);
+    const inside = await page
+      .locator('main')
+      .getByRole('link')
+      .evaluateAll((as) => as.map((a) => a.getAttribute('href') ?? ''));
+    inside.filter((h) => h.startsWith('/admin/')).forEach((h) => links.add(h));
+  }
+  expect(links.size).toBeGreaterThan(20);
   for (const href of links) {
     const response = await page.goto(href);
     expect(response?.status(), href).toBe(200);

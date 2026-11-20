@@ -21,7 +21,7 @@ export async function clearTestData(formData: FormData): Promise<void> {
       .trim()
       .toUpperCase() !== 'CLEAR'
   ) {
-    redirect('/admin/checklist?error=confirm#clean');
+    redirect('/admin/test-plan?error=confirm#clean');
   }
   await getData().clearActivity();
   await recordActivity(
@@ -29,5 +29,5 @@ export async function clearTestData(formData: FormData): Promise<void> {
     auth.session.operator,
   );
   revalidatePath('/', 'layout');
-  redirect('/admin/checklist?cleared=1#clean');
+  redirect('/admin/test-plan?cleared=1#clean');
 }

@@ -290,7 +290,7 @@ export default async function AdminHomePage() {
       </div>
 
       <Link
-        href="/admin/checklist"
+        href="/admin/test-plan"
         className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-line bg-surface px-4 py-3 no-underline hover:border-primary"
       >
         <span className="font-bold text-ink">Before the event: the test plan</span>
@@ -355,7 +355,7 @@ export default async function AdminHomePage() {
           <p className="mt-2 text-sm text-ink-soft">
             Fill these in yourself: speakers and the agenda are on the{' '}
             <Link href="/admin/agenda">Agenda page</Link>; the info page, resource links and Slido
-            are on the <Link href="/admin/event">Event info page</Link>.
+            are on the <Link href="/admin/event-info">Event info page</Link>.
           </p>
         </section>
       ) : null}

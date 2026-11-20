@@ -15,7 +15,7 @@ async function assertAdmin(): Promise<void> {
   if (!auth.ok) throw new Error('Not signed in.');
 }
 
-const BACK = '/admin/announcements';
+const BACK = '/admin/announce';
 
 export async function addReminder(formData: FormData): Promise<void> {
   await assertAdmin();

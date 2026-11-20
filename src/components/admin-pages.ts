@@ -18,11 +18,20 @@ export type AdminPage = {
  * only when something goes wrong (the Slido backups, reports, the log), so
  * the everyday menu stays short.
  */
-export type AdminGroup = { name: string; folded?: boolean; pages: AdminPage[] };
+export type AdminGroup = {
+  name: string;
+  /** The address of the group's own page, which lists all its pages: /admin/<slug>. */
+  slug: string;
+  folded?: boolean;
+  pages: AdminPage[];
+};
+
+export const groupHref = (group: AdminGroup): string => `/admin/${group.slug}`;
 
 export const ADMIN_GROUPS: AdminGroup[] = [
   {
     name: 'On the day',
+    slug: 'on-the-day',
     pages: [
       {
         href: '/admin/desk',
@@ -64,6 +73,7 @@ export const ADMIN_GROUPS: AdminGroup[] = [
   },
   {
     name: 'Engage the room',
+    slug: 'engage-the-room',
     pages: [
       {
         href: '/admin/comments',
@@ -80,7 +90,7 @@ export const ADMIN_GROUPS: AdminGroup[] = [
         icon: 'image',
       },
       {
-        href: '/admin/announcements',
+        href: '/admin/announce',
         label: 'Announce',
         title: 'Announcements',
         description:
@@ -98,6 +108,7 @@ export const ADMIN_GROUPS: AdminGroup[] = [
   },
   {
     name: 'Set up',
+    slug: 'set-up',
     pages: [
       {
         href: '/admin/agenda',
@@ -107,7 +118,7 @@ export const ADMIN_GROUPS: AdminGroup[] = [
         icon: 'calendar',
       },
       {
-        href: '/admin/event',
+        href: '/admin/event-info',
         label: 'Event info',
         title: 'Event info',
         description:
@@ -122,7 +133,7 @@ export const ADMIN_GROUPS: AdminGroup[] = [
         icon: 'users',
       },
       {
-        href: '/admin/checklist',
+        href: '/admin/test-plan',
         label: 'Test plan',
         title: 'Test plan',
         description:
@@ -155,6 +166,7 @@ export const ADMIN_GROUPS: AdminGroup[] = [
   },
   {
     name: 'More',
+    slug: 'more',
     folded: true,
     pages: [
       {
@@ -216,3 +228,7 @@ export const ADMIN_PAGES: AdminPage[] = ADMIN_GROUPS.flatMap((g) => g.pages);
 export const EVERYDAY_PAGES: AdminPage[] = ADMIN_GROUPS.filter((g) => !g.folded).flatMap(
   (g) => g.pages,
 );
+
+export function findGroup(slug: string): AdminGroup | undefined {
+  return ADMIN_GROUPS.find((g) => g.slug === slug);
+}

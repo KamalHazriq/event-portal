@@ -281,7 +281,7 @@ export const TEST_PLAN: Part[] = [
             do: 'On Event info, check the event name, venue, footer, Slido link and code, and fill in Transport, Parking, Hotel check in and Wi-Fi.',
             expect:
               'The Know before you go page has no "Coming soon" left. The Slido link opens Slido.',
-            href: '/admin/event',
+            href: '/admin/event-info',
           },
           {
             id: 's-content-resources',
@@ -393,28 +393,28 @@ export const TEST_PLAN: Part[] = [
             do: 'On Announce, post a message, then "Send a test to this phone", then Take it down.',
             expect:
               'The banner appears on attendee phones and goes away. The test arrives on a phone with alerts on.',
-            href: '/admin/announcements',
+            href: '/admin/announce',
           },
           {
             id: 's-room-team',
             do: 'On Announce, under Test your alerts, press "Send a test to the team". Then send a message with "The team only" chosen. Then, from another phone, share a photo that needs approval.',
             expect:
               'Each team phone gets the test and the team message, attendees see no banner, and a "Photo waiting" alert arrives (at most one every five minutes).',
-            href: '/admin/announcements',
+            href: '/admin/announce',
           },
           {
             id: 's-room-remind',
             do: 'On Announce, add a scheduled reminder for two minutes from now, to the team only. Wait.',
             expect:
               'The team phones get it on the minute and the list shows Sent. If it stays Waiting, the scheduler is not set up (see the deploy notes); it still goes out while a big screen page is open.',
-            href: '/admin/announcements',
+            href: '/admin/announce',
           },
           {
             id: 's-room-banner',
             do: 'Post an announcement with "Also show it as a banner on the big screen" ticked, then look at the projector. Then Take it down.',
             expect:
               'A banner shows along the bottom of every projector view, and goes when taken down.',
-            href: '/admin/announcements',
+            href: '/admin/announce',
           },
           {
             id: 's-room-moderate',

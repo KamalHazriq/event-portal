@@ -83,7 +83,7 @@ export default async function GuidePage() {
       text: 'The MC keeps live control open: what is on, minutes left, what is next and how full the room is. Polls and questions run on Slido, and every session page has the Slido button. For a bus time or a room change, post an announcement: it shows at the top of every phone, and can buzz the phones that turned on alerts.',
       links: [
         { href: '/admin/live', label: 'Live control', on: true },
-        { href: '/admin/announcements', label: 'Announcements', on: true },
+        { href: '/admin/announce', label: 'Announcements', on: true },
         { href: '/admin/insights', label: 'Insights', on: true },
         { href: '/admin/qa', label: 'Backup Q&A', on: features.qa },
         { href: '/admin/polls', label: 'Backup polls', on: features.polls },

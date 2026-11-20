@@ -76,9 +76,14 @@ test.describe('the registration desk', () => {
   test('signs in, finds someone by name, checks them in, then undoes it', async ({ page }) => {
     await signIn(page);
 
+    // Menu section first, then the page: that is how the menu works now.
     await page
       .getByRole('navigation', { name: 'Secretariat' })
-      .getByRole('link', { name: 'Desk', exact: true })
+      .getByRole('link', { name: 'On the day', exact: true })
+      .click();
+    await page
+      .locator('main')
+      .getByRole('link', { name: /Registration desk/ })
       .click();
     await expect(page.getByRole('heading', { name: 'Registration desk', level: 1 })).toBeVisible();
 
@@ -104,7 +109,11 @@ test.describe('the registration desk', () => {
     // The headcount page should now list that person, and let us undo it.
     await page
       .getByRole('navigation', { name: 'Secretariat' })
-      .getByRole('link', { name: 'Headcount' })
+      .getByRole('link', { name: 'On the day', exact: true })
+      .click();
+    await page
+      .locator('main')
+      .getByRole('link', { name: /^Headcount/ })
       .click();
     await expect(page.getByRole('heading', { name: 'Headcount', level: 1 })).toBeVisible();
     await expect(page.getByRole('heading', { name: /^Arrived/ })).toBeVisible();

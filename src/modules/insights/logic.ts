@@ -258,7 +258,7 @@ export function buildAlerts(input: InsightsInput): Alert[] {
       alerts.push({
         tone: 'note',
         text: `Only ${alertPhones} phones have event alerts on. Ask the MC to mention "Turn on alerts" on the portal home, or put it on the welcome slide.`,
-        href: '/admin/announcements',
+        href: '/admin/announce',
         action: 'Announce',
       });
     }

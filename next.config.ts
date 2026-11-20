@@ -27,6 +27,15 @@ const nextConfig: NextConfig = {
    * The logos and icons change rarely, so the browser may keep them for a day
    * and refresh them quietly in the background after that.
    */
+  /** The secretariat addresses now match the menu names. Old links still work. */
+  async redirects() {
+    return [
+      { source: '/admin/announcements', destination: '/admin/announce', permanent: false },
+      { source: '/admin/event', destination: '/admin/event-info', permanent: false },
+      { source: '/admin/checklist', destination: '/admin/test-plan', permanent: false },
+    ];
+  },
+
   async headers() {
     return [
       {
