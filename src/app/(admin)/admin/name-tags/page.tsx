@@ -45,6 +45,7 @@ export default async function NameTagsPage({ searchParams }: { searchParams: Sea
   const personalQr = config.nameTags.personalQr;
   const side = personalQr && first(params.side) === 'back' ? 'back' : 'front';
   const includeSecretariat = first(params.include) !== 'attendees';
+  const blue = first(params.design) === 'blue';
 
   const data = getData();
   const everyone = await data.attendees.list();
@@ -52,6 +53,23 @@ export default async function NameTagsPage({ searchParams }: { searchParams: Sea
 
   const portalUrl = config.event.portalUrl;
   const portalQr = passLink(portalUrl);
+
+  // The organiser's logo: the white version on the blue card, else the
+  // normal one. With no white version the blue card gets it on a white chip.
+  const { organisationLogoPath, organisationLogoDarkPath, organisationName } = config.branding;
+  const logo = blue ? (organisationLogoDarkPath ?? organisationLogoPath) : organisationLogoPath;
+  const logoNeedsChip = blue && !organisationLogoDarkPath;
+  const logoAlt = organisationName || 'Organiser logo';
+
+  /** A link to this page with some options changed and the rest kept. */
+  const href = (over: { side?: string; include?: string; design?: string }) => {
+    const query = new URLSearchParams({
+      side: over.side ?? side,
+      include: over.include ?? (includeSecretariat ? 'all' : 'attendees'),
+      design: over.design ?? (blue ? 'blue' : 'white'),
+    });
+    return `/admin/name-tags?${query.toString()}`;
+  };
 
   return (
     <div className="space-y-5">
@@ -81,6 +99,12 @@ export default async function NameTagsPage({ searchParams }: { searchParams: Sea
               will not line up.
             </li>
             <li>Check one page before printing all {people.length}.</li>
+            {blue ? (
+              <li>
+                The blue card prints a full colour background: tick &quot;Background graphics&quot;
+                in the print dialog, and expect it to use more ink than the white one.
+              </li>
+            ) : null}
             {personalQr ? (
               <li>
                 Each front carries that person&apos;s own code. Do not photocopy a sheet, or two
@@ -91,34 +115,50 @@ export default async function NameTagsPage({ searchParams }: { searchParams: Sea
         </section>
 
         <nav className="mt-3 flex flex-wrap gap-2" aria-label="Name tag options">
+          {(
+            [
+              ['white', 'White card'],
+              ['blue', 'Blue card'],
+            ] as const
+          ).map(([design, label]) => (
+            <Link
+              key={design}
+              href={href({ design })}
+              aria-current={(design === 'blue') === blue ? 'page' : undefined}
+              className={`rounded-lg border px-3 py-2 text-sm no-underline ${
+                (design === 'blue') === blue
+                  ? 'border-primary bg-primary font-bold text-on-primary'
+                  : 'border-line bg-surface font-semibold text-ink'
+              }`}
+            >
+              {label}
+            </Link>
+          ))}
           {personalQr ? (
             <>
-              <Link
-                href={`/admin/name-tags?side=front&include=${includeSecretariat ? 'all' : 'attendees'}`}
-                aria-current={side === 'front' ? 'page' : undefined}
-                className={`rounded-lg border px-3 py-2 text-sm no-underline ${
-                  side === 'front'
-                    ? 'border-primary bg-primary font-bold text-on-primary'
-                    : 'border-line bg-surface font-semibold text-ink'
-                }`}
-              >
-                Fronts
-              </Link>
-              <Link
-                href={`/admin/name-tags?side=back&include=${includeSecretariat ? 'all' : 'attendees'}`}
-                aria-current={side === 'back' ? 'page' : undefined}
-                className={`rounded-lg border px-3 py-2 text-sm no-underline ${
-                  side === 'back'
-                    ? 'border-primary bg-primary font-bold text-on-primary'
-                    : 'border-line bg-surface font-semibold text-ink'
-                }`}
-              >
-                Backs
-              </Link>
+              {(
+                [
+                  ['front', 'Fronts'],
+                  ['back', 'Backs'],
+                ] as const
+              ).map(([value, label]) => (
+                <Link
+                  key={value}
+                  href={href({ side: value })}
+                  aria-current={side === value ? 'page' : undefined}
+                  className={`rounded-lg border px-3 py-2 text-sm no-underline ${
+                    side === value
+                      ? 'border-primary bg-primary font-bold text-on-primary'
+                      : 'border-line bg-surface font-semibold text-ink'
+                  }`}
+                >
+                  {label}
+                </Link>
+              ))}
             </>
           ) : null}
           <Link
-            href={`/admin/name-tags?side=${side}&include=${includeSecretariat ? 'attendees' : 'all'}`}
+            href={href({ include: includeSecretariat ? 'attendees' : 'all' })}
             className="rounded-lg border border-line bg-surface px-3 py-2 text-sm font-semibold text-ink no-underline"
           >
             {includeSecretariat ? 'Leave out secretariat' : 'Include secretariat'}
@@ -136,7 +176,7 @@ export default async function NameTagsPage({ searchParams }: { searchParams: Sea
       {/* Only this part goes on paper. */}
       <div className="tag-sheet">
         {people.map((person) => (
-          <div key={person.id} className="tag">
+          <div key={person.id} className={`tag ${blue ? 'tag-blue' : ''}`}>
             {side === 'front' ? (
               <>
                 <div className="tag-text">
@@ -150,18 +190,36 @@ export default async function NameTagsPage({ searchParams }: { searchParams: Sea
                   ) : null}
                   {personalQr ? null : <p className="tag-scan">Scan for the agenda</p>}
                 </div>
-                {personalQr ? (
-                  <QrCode
-                    value={buildCheckInUrl(portalUrl, person.checkInToken)}
-                    label={`Check in code for ${person.name}`}
-                    className="tag-qr"
-                  />
-                ) : (
-                  <QrCode value={portalQr} label="Event portal" className="tag-qr" />
-                )}
+                <div className="tag-side">
+                  {logo ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={logo}
+                      alt={logoAlt}
+                      className={`tag-logo ${logoNeedsChip ? 'rounded bg-white p-1' : ''}`}
+                    />
+                  ) : null}
+                  {personalQr ? (
+                    <QrCode
+                      value={buildCheckInUrl(portalUrl, person.checkInToken)}
+                      label={`Check in code for ${person.name}`}
+                      className="tag-qr"
+                    />
+                  ) : (
+                    <QrCode value={portalQr} label="Event portal" className="tag-qr" />
+                  )}
+                </div>
               </>
             ) : (
               <div className="tag-back">
+                {logo ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={logo}
+                    alt={logoAlt}
+                    className={`tag-logo ${logoNeedsChip ? 'rounded bg-white p-1' : ''}`}
+                  />
+                ) : null}
                 <QrCode value={portalQr} label="Event portal" className="tag-qr-back" />
                 <p className="tag-back-label">Scan for the agenda</p>
                 <p className="tag-back-event">{config.event.shortName}</p>

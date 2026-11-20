@@ -97,6 +97,8 @@ export const BrandingSchema = z.object({
   markDarkPath: z.string().optional(),
   /** The organiser's full logo, shown in the page footer on a white tile. */
   organisationLogoPath: z.string().optional(),
+  /** A white version of the organiser's logo, for coloured backgrounds (the blue name tag). */
+  organisationLogoDarkPath: z.string().optional(),
   organisationName: z.string().max(120).default(''),
   /** Square PNG for the browser tab and the phone home screen. */
   iconPath: z.string().optional(),

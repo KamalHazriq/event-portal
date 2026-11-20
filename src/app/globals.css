@@ -223,6 +223,47 @@
   min-width: 0;
 }
 
+/* Right hand column: the organiser's logo above the QR code. */
+.tag-side {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2.5mm;
+}
+
+.tag-logo {
+  display: block;
+  width: 26mm;
+  height: auto;
+}
+
+/*
+ * The blue card: white text on the brand blue, QR on its own white tile.
+ * Colours are forced on, or a browser's "save ink" setting prints it white.
+ */
+.tag-blue {
+  background: var(--tag-blue, #0053a1);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.6);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.tag-blue .tag-event {
+  color: #bcd7ff;
+}
+
+.tag-blue .tag-scan,
+.tag-blue .tag-back-event {
+  color: #dbe8ff;
+}
+
+.tag-blue .tag-qr,
+.tag-blue .tag-qr-back {
+  border-radius: 1.5mm;
+}
+
 .tag-name {
   font-size: 5.2mm;
   font-weight: 700;
@@ -286,8 +327,13 @@
 }
 
 .tag-qr-back {
-  width: 30mm;
-  height: 30mm;
+  width: 26mm;
+  height: 26mm;
+}
+
+.tag-back .tag-logo {
+  width: 22mm;
+  margin-bottom: 2mm;
 }
 
 .tag-back-label {
