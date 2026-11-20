@@ -339,9 +339,9 @@ export const TEST_PLAN: Part[] = [
           },
           {
             id: 's-desk-kiosk',
-            do: '(Optional) On a tablet open /kiosk and hold up a card, then try typing /admin.',
+            do: '(Optional) On the Desk page open the kiosk: "Preview" on your own laptop, and "Open and lock this device" on the tablet. On the locked tablet, hold up a card, then try typing /admin.',
             expect:
-              'A big "Welcome" shows. Typing /admin sends the tablet back to the kiosk until the PIN is entered.',
+              'Preview never locks your laptop. The locked tablet shows a big "Welcome", and typing /admin shows a "locked to the kiosk" page that needs the PIN.',
             href: '/kiosk',
           },
         ],

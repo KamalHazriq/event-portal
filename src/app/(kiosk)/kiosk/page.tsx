@@ -33,6 +33,13 @@ export default async function KioskPage() {
         </span>
       ) : null}
       <KioskConsole dayId={day.id} dayLabel={day.label} eventName={config.event.shortName} />
+      {/* A quiet way out for staff: it asks for the PIN if the tablet is locked. */}
+      <a
+        href="/admin"
+        className="absolute right-4 bottom-4 text-xs text-ink-soft opacity-50 no-underline hover:opacity-100"
+      >
+        Secretariat
+      </a>
     </main>
   );
 }

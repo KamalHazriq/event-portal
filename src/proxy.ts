@@ -6,28 +6,30 @@
  * With no EVENT_PASS, as in local work and the tests, it lets everything
  * through. The admin PIN still guards the secretariat pages either way.
  *
- * It also keeps a tablet locked to the self check in kiosk on the kiosk
- * (src/lib/kiosk.ts).
+ * It also keeps a tablet locked to the self check in kiosk away from the
+ * secretariat pages unless the PIN is entered (src/lib/kiosk.ts).
  */
 import { NextResponse, type NextRequest } from 'next/server';
 
 import { isOpenPath, PASS_COOKIE, PASS_COOKIE_MAX_AGE, PASS_PARAM } from '@/lib/event-pass';
 import { digestMatches, eventPass, passDigest } from '@/lib/event-pass-server';
-import { KIOSK_COOKIE, kioskBlocks } from '@/lib/kiosk';
+import { KIOSK_COOKIE, kioskBlocks, kioskLockRequested } from '@/lib/kiosk';
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // A tablet locked to the self check in kiosk stays on it.
+  // A tablet locked to the self check in kiosk has to enter the PIN to reach
+  // the secretariat pages: the sign in page says why, and unlocks it.
   if (kioskBlocks(pathname, request.cookies.has(KIOSK_COOKIE))) {
     const url = request.nextUrl.clone();
-    url.pathname = '/kiosk';
+    url.pathname = '/admin/sign-in';
     url.search = '';
     return NextResponse.redirect(url);
   }
 
   const response = passGate(request);
-  if (pathname === '/kiosk') {
+  // Only /kiosk?lock=1 locks; plain /kiosk is a preview.
+  if (kioskLockRequested(pathname, request.nextUrl.searchParams)) {
     response.cookies.set(KIOSK_COOKIE, '1', {
       httpOnly: true,
       secure: request.nextUrl.protocol === 'https:',

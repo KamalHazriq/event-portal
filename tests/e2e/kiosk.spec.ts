@@ -17,13 +17,25 @@ test('the kiosk needs the PIN, then waits for a card', async ({ page }) => {
   // Nothing to wander off to.
   await expect(page.getByRole('navigation')).toHaveCount(0);
 
-  // The device is locked to the kiosk: admin pages send it back.
+  // Previewing the kiosk does NOT lock this device: the console still opens.
   await page.goto('/admin');
-  await expect(page).toHaveURL(/\/kiosk$/);
-  await page.goto('/admin/attendees');
-  await expect(page).toHaveURL(/\/kiosk$/);
+  await expect(
+    page.getByRole('heading', { name: /^Good (morning|afternoon|evening)/, level: 1 }),
+  ).toBeVisible({ timeout: 15_000 });
 
-  // Signing in again with the PIN unlocks it.
+  // Locking is a choice: /kiosk?lock=1. Admin addresses then ask for the PIN.
+  await page.goto('/kiosk?lock=1');
+  await expect(page.getByRole('heading', { name: 'Check yourself in' })).toBeVisible();
+  for (const path of ['/admin', '/admin/attendees']) {
+    await page.goto(path);
+    await expect(page).toHaveURL(/\/admin\/sign-in$/);
+    await expect(page.getByText(/locked to the self check in kiosk/)).toBeVisible();
+  }
+  // The kiosk itself still works while locked.
+  await page.goto('/kiosk');
+  await expect(page.getByRole('heading', { name: 'Check yourself in' })).toBeVisible();
+
+  // Entering the PIN unlocks it.
   await page.goto('/admin/sign-in');
   await page.getByLabel('Which desk is this?').fill('desk-1');
   await page.getByLabel('Admin PIN').fill(PIN);
@@ -31,6 +43,8 @@ test('the kiosk needs the PIN, then waits for a card', async ({ page }) => {
   await expect(
     page.getByRole('heading', { name: /^Good (morning|afternoon|evening)/, level: 1 }),
   ).toBeVisible({ timeout: 15_000 });
+  await page.goto('/admin/attendees');
+  await expect(page.getByRole('heading', { name: 'Attendees', level: 1 })).toBeVisible();
 });
 
 test('the kiosk moves on to the camera even when the browser never finishes play()', async ({

@@ -56,16 +56,27 @@ export default async function DeskPage({ searchParams }: { searchParams: SearchP
             cannot match is sent to this desk; it never shows other people&apos;s names.
           </p>
           <p className="text-sm text-ink-soft">
-            Opening the kiosk locks that device to it: admin pages send it back to the kiosk until
-            someone signs in again with the PIN. Pin the screen too (screen pinning on Android,
-            Guided Access on an iPad) so the browser stays open on it.
+            <strong className="text-ink">Preview</strong> opens it on this device and changes
+            nothing. <strong className="text-ink">Open and lock</strong> is for the tablet on the
+            stand: from then on, any admin address on that tablet asks for the PIN, so nobody can
+            wander into the console. The Secretariat link at the foot of the kiosk, or /admin,
+            unlocks it with the PIN. Pin the screen too (screen pinning on Android, Guided Access on
+            an iPad) so the browser stays open on it.
           </p>
-          <Link
-            href="/kiosk"
-            className="inline-flex min-h-11 items-center rounded-lg bg-primary px-4 font-bold text-on-primary no-underline"
-          >
-            Open the kiosk
-          </Link>
+          <div className="flex flex-wrap gap-3">
+            <Link
+              href="/kiosk"
+              className="inline-flex min-h-11 items-center rounded-lg border border-line px-4 font-semibold text-ink no-underline"
+            >
+              Preview the kiosk
+            </Link>
+            <Link
+              href="/kiosk?lock=1"
+              className="inline-flex min-h-11 items-center rounded-lg bg-primary px-4 font-bold text-on-primary no-underline"
+            >
+              Open and lock this device
+            </Link>
+          </div>
         </div>
       </details>
 
