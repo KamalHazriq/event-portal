@@ -83,16 +83,17 @@ export default async function PortalLayout({ children }: { children: React.React
             {config.event.helpText ? <p className="mt-2">{config.event.helpText}</p> : null}
             {config.info ? (
               <p className="mt-2">
-                <Link href="/info" className="text-ink-soft">
+                <Link href="/info" className="text-primary">
                   {config.info.title}
                 </Link>
               </p>
             ) : null}
             <p className="mt-2">
-              <Link href="/guide" className="text-ink-soft">
+              <Link href="/guide" className="text-primary">
                 How this portal works
               </Link>
             </p>
+            {branding.footerText ? <p className="mt-4 text-xs">{branding.footerText}</p> : null}
           </div>
         </div>
       </footer>

@@ -110,7 +110,7 @@ export function RuledFooter({ config }: { config: EventConfig }) {
   const slido = config.integrations.slido;
   const year = event.endDate.slice(0, 4);
   const group = 'text-xs font-semibold uppercase tracking-[0.14em] text-ink-soft';
-  const linkClass = 'text-ink no-underline hover:text-primary';
+  const linkClass = 'text-primary underline underline-offset-4';
 
   return (
     <footer className="mt-16 border-t border-line text-sm">
@@ -198,7 +198,7 @@ export function RuledFooter({ config }: { config: EventConfig }) {
           className={`${RULED_CONTAINER} flex flex-col gap-1 py-5 text-xs text-ink-soft sm:flex-row sm:justify-between`}
         >
           <span>
-            © {year} {branding.organisationName || event.shortName}
+            {branding.footerText || `© ${year} ${branding.organisationName || event.shortName}`}
           </span>
           <span>For summit participants only. Please keep the event code within the summit.</span>
         </p>

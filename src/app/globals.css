@@ -1317,3 +1317,26 @@ label.bg-primary:hover::after {
 .arrivals-row {
   border-bottom: 1px solid var(--c-border);
 }
+
+/* ------------------------------------------------------------------------
+ * Links look like links: coloured and underlined, on every page.
+ *
+ * Buttons, tabs and cards are left alone: anything with a background, a
+ * border or the no-underline class. A link with no classes at all (a plain
+ * one inside a paragraph) gets the link colour too.
+ * ---------------------------------------------------------------------- */
+:where(main, footer, article)
+  a:not(.no-underline):not([class*='bg-']):not([class*='border']):not([class*='sr-only']) {
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+:where(main, footer, article)
+  a:not(.no-underline):not([class*='bg-']):not([class*='border']):not([class*='sr-only']):hover {
+  text-decoration-thickness: 2px;
+}
+
+:where(main, footer, article) a:not([class]) {
+  color: var(--c-primary-ink);
+}

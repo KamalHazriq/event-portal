@@ -100,6 +100,8 @@ export const BrandingSchema = z.object({
   /** A white version of the organiser's logo, for coloured backgrounds (the blue name tag). */
   organisationLogoDarkPath: z.string().optional(),
   organisationName: z.string().max(120).default(''),
+  /** The credit line at the foot of every attendee page, such as "© 2026 Strategy, Partnership & Transformation". */
+  footerText: z.string().max(200).default(''),
   /** Square PNG for the browser tab and the phone home screen. */
   iconPath: z.string().optional(),
   appleIconPath: z.string().optional(),
