@@ -71,6 +71,7 @@ function Tile({ slide, large = false }: { slide: Slide; large?: boolean }) {
       <img
         src={`/api/photos/${slide.id}${large ? '' : '?size=thumb'}`}
         alt={slide.caption || 'A photo from the event'}
+        decoding="async"
         className="absolute inset-0 h-full w-full object-cover"
       />
       {slide.caption ? (

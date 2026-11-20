@@ -46,7 +46,7 @@ export function AdminHeader({ shortName, operator, mark = null }: Props) {
   return (
     <header
       className={[
-        'sticky top-0 z-40 border-b border-line bg-canvas/85 backdrop-blur-xl',
+        'sticky top-0 z-40 border-b border-line bg-canvas/95',
         operator ? 'lg:hidden' : '',
       ].join(' ')}
     >

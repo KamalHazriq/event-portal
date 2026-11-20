@@ -36,7 +36,7 @@ export function SiteHeader({
       : `${formatShortDate(event.startDate, event.timezone)} to ${formatShortDate(event.endDate, event.timezone)}`;
 
   return (
-    <header className="sticky top-0 z-40 border-b border-line bg-canvas/80 backdrop-blur-xl">
+    <header className="sticky top-0 z-40 border-b border-line bg-canvas/95">
       {/* One row from tablet width: the name on the left, the menu on the right. */}
       <div className="mx-auto flex max-w-[96rem] flex-col md:flex-row md:items-center md:justify-between md:gap-6 md:px-6 lg:px-10">
         <div className="flex items-baseline justify-between gap-3 px-4 pb-2 pt-4 sm:px-6 md:px-0 md:py-3">

@@ -859,7 +859,14 @@ body::before {
       color-mix(in srgb, var(--c-accent) 16%, transparent),
       transparent 65%
     );
-  animation: aurora 28s ease-in-out infinite alternate;
+}
+
+/* The glow only drifts on a laptop or tablet that can afford it. On a phone it
+ * stays still, which saves battery and keeps scrolling smooth. */
+@media (min-width: 1024px) and (prefers-reduced-motion: no-preference) {
+  body::before {
+    animation: aurora 28s ease-in-out infinite alternate;
+  }
 }
 
 body::after {

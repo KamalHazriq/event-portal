@@ -23,6 +23,24 @@ const nextConfig: NextConfig = {
    * they must be copied into a standalone build. src/lib/config.ts explains
    * why the path itself is not statically analysable.
    */
+  /**
+   * The logos and icons change rarely, so the browser may keep them for a day
+   * and refresh them quietly in the background after that.
+   */
+  async headers() {
+    return [
+      {
+        source: '/branding/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=86400, stale-while-revalidate=604800',
+          },
+        ],
+      },
+    ];
+  },
+
   outputFileTracingIncludes: {
     '/**': ['./config/**'],
   },
