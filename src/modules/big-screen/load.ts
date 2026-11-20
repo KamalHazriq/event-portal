@@ -164,9 +164,6 @@ export async function loadScreenView(
         checkIns.map((c) => c.attendeeId),
       );
       const rate = arrivalRate(count.arrived, count.expected);
-      const secretariatIn = new Set(
-        checkIns.filter((c) => c.attendee.isSecretariat).map((c) => c.attendeeId),
-      ).size;
       const recent = [...checkIns].sort((a, b) => (a.at < b.at ? 1 : -1));
       // features.arrivalWall off means the counter only, whatever the MC picks.
       const hideNames = settings.hideNames || !config.features.arrivalWall;
@@ -182,7 +179,6 @@ export async function loadScreenView(
             department: shortDepartment(config, c.department),
           })),
           hideNames,
-          secretariat: secretariatIn,
         },
       };
     }

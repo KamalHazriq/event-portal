@@ -88,6 +88,7 @@ test('draws winners from people checked in, and nobody wins twice', async ({
   expect(winner).toBeDefined();
   const phone = await browser.newPage({ viewport: { width: 375, height: 812 } });
   await phone.goto('/me');
+  await phone.getByText('Or sign in with your staff number').click();
   await phone.getByLabel('Staff number').fill(winner!.staffNo);
   await phone.getByLabel('Your first name').fill(winner!.name.split(' ')[0] ?? '');
   await phone.getByRole('button', { name: 'Join' }).click();

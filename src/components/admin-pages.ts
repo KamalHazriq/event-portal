@@ -122,6 +122,14 @@ export const ADMIN_GROUPS: AdminGroup[] = [
         icon: 'users',
       },
       {
+        href: '/admin/checklist',
+        label: 'Test plan',
+        title: 'Test plan',
+        description:
+          'Everything to check end to end, as an attendee and as the secretariat. Tick as you go.',
+        icon: 'shield',
+      },
+      {
         href: '/admin/name-tags',
         label: 'Name tags',
         title: 'Name tags',

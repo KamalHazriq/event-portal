@@ -212,7 +212,6 @@ export function ArrivalsView({
   dayLabel,
   cards,
   hideNames,
-  secretariat = 0,
 }: {
   arrived: number;
   expected: number;
@@ -220,8 +219,6 @@ export function ArrivalsView({
   dayLabel: string;
   cards: ArrivalCard[];
   hideNames: boolean;
-  /** Secretariat checked in: not counted as guests, mentioned so the sum adds up. */
-  secretariat?: number;
 }) {
   const milestone = arrivalMilestone(percent);
   const [newest, ...earlier] = cards;
@@ -250,7 +247,6 @@ export function ArrivalsView({
       </div>
       <p className="mt-[1.2vh] flex justify-between gap-[2vw] text-[clamp(0.9rem,1.4vw,2rem)] text-ink-soft">
         <span>{percent}% here</span>
-        {secretariat > 0 ? <span>plus {secretariat} secretariat</span> : null}
       </p>
       {milestone ? (
         <p

@@ -1,0 +1,33 @@
+'use server';
+
+import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
+
+import { getData } from '@/data';
+import { requireAdminApi } from '@/lib/admin-guard';
+import { recordActivity } from '@/modules/admins/record';
+
+/**
+ * Wipes what people did while testing (check ins, comments, reactions,
+ * photos, feedback, lucky draw winners, votes, questions, phone sign ins),
+ * and keeps what was set up (the participant list, the agenda edits, the
+ * settings and the polls). Needs the PIN session and the word CLEAR.
+ */
+export async function clearTestData(formData: FormData): Promise<void> {
+  const auth = await requireAdminApi();
+  if (!auth.ok) throw new Error('Not signed in.');
+  if (
+    String(formData.get('confirm') ?? '')
+      .trim()
+      .toUpperCase() !== 'CLEAR'
+  ) {
+    redirect('/admin/checklist?error=confirm#clean');
+  }
+  await getData().clearActivity();
+  await recordActivity(
+    'Cleared all test data (activity only; the list and settings kept)',
+    auth.session.operator,
+  );
+  revalidatePath('/', 'layout');
+  redirect('/admin/checklist?cleared=1#clean');
+}

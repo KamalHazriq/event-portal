@@ -38,6 +38,41 @@ export async function joinLeaderboard(formData: FormData): Promise<void> {
   redirect('/me?state=joined');
 }
 
+/**
+ * Signs this phone in by picking a name from the list, so no staff number
+ * needs typing: the person's record already has it. If someone has already
+ * joined as that person on another phone (or this phone's memory was
+ * cleared), the staff number is asked for as proof, so nobody can take
+ * over a colleague's name just by tapping it.
+ */
+export async function joinAsPerson(formData: FormData): Promise<void> {
+  const config = getEventConfig();
+  if (!config.features.leaderboard) redirect('/');
+
+  const deviceId = await deviceIdOrNew();
+  if (!rateLimit(`join:${deviceId}`, LIMITS.join).allowed) redirect('/me?state=too-many');
+
+  const attendeeId = plainText(String(formData.get('attendeeId') ?? ''), 64);
+  const typed = plainText(String(formData.get('staffNo') ?? ''), 40).replace(/\s+/g, '');
+
+  const data = getData();
+  const person = attendeeId ? await data.attendees.get(attendeeId) : null;
+  if (!person) redirect('/me?state=missing');
+
+  const takenElsewhere = (await data.players.links()).some(
+    (link) => link.attendeeId === person.id && link.deviceId !== deviceId,
+  );
+  if (takenElsewhere) {
+    if (!typed) redirect(`/me?state=taken&who=${encodeURIComponent(person.id)}`);
+    if (typed.toLowerCase() !== person.staffNo.replace(/\s+/g, '').toLowerCase()) {
+      redirect(`/me?state=taken&who=${encodeURIComponent(person.id)}&wrong=1`);
+    }
+  }
+
+  await data.players.link(deviceId, person.id);
+  redirect('/me?state=joined');
+}
+
 export async function leaveLeaderboard(): Promise<void> {
   const deviceId = await currentDeviceId();
   if (deviceId) await getData().players.unlink(deviceId);

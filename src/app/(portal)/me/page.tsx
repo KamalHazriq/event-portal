@@ -4,7 +4,9 @@ import { notFound } from 'next/navigation';
 
 import { getEventConfig } from '@/lib/config';
 import { shortDepartment } from '@/lib/departments';
-import { joinLeaderboard, leaveLeaderboard } from '@/modules/points/actions';
+import { getData } from '@/data';
+import { joinAsPerson, joinLeaderboard, leaveLeaderboard } from '@/modules/points/actions';
+import { findByName } from '@/modules/points/logic';
 import { CAPS, POINT_LABELS, POINTS, type PointKind } from '@/modules/points/logic';
 import { currentPlayer, loadScoreboard } from '@/modules/points/server';
 import { AlertsOptIn } from '@/modules/announce/components/AlertsOptIn';
@@ -18,6 +20,10 @@ const MESSAGES: Record<string, { text: string; good: boolean }> = {
   left: { text: 'Signed out. This phone no longer collects points for anyone.', good: true },
   'no-match': {
     text: 'That staff number and name do not go together. Check both, or ask the secretariat.',
+    good: false,
+  },
+  'taken-wrong': {
+    text: 'That staff number is not theirs. Try again, or ask the registration desk.',
     good: false,
   },
   missing: { text: 'Fill in both boxes.', good: false },
@@ -40,17 +46,25 @@ const EARN_ORDER: PointKind[] = [
 export default async function MyPointsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ state?: string }>;
+  searchParams: Promise<{ state?: string; find?: string; who?: string; wrong?: string }>;
 }) {
   const config = getEventConfig();
   if (!config.features.leaderboard) notFound();
 
-  const { state } = await searchParams;
-  const message = state ? MESSAGES[state] : undefined;
+  const { state, find, who, wrong } = await searchParams;
+  const message = wrong ? MESSAGES['taken-wrong'] : state ? MESSAGES[state] : undefined;
   const me = await currentPlayer();
   const board = me ? await loadScoreboard() : null;
   const score = me ? board?.scores.get(me.id) : undefined;
   const row = me ? board?.people.find((p) => p.attendeeId === me.id) : undefined;
+
+  // Not signed in yet: the names that match what was typed, and, when someone
+  // has already joined as the person picked, who it is.
+  const typed = (find ?? '').slice(0, 60);
+  const data = getData();
+  const choices =
+    !me && typed.trim().length >= 2 ? findByName(await data.attendees.list(), typed) : [];
+  const taken = !me && state === 'taken' && who ? await data.attendees.get(who.slice(0, 64)) : null;
 
   // Only what is switched on is worth offering.
   const offered = EARN_ORDER.filter(
@@ -131,39 +145,135 @@ export default async function MyPointsPage({
               ? ' If you win the lucky draw, this phone tells you too.'
               : ''}
           </p>
-          <form action={joinLeaderboard} className="mt-4 space-y-3">
-            <div>
-              <label htmlFor="staff-no" className="block text-sm font-semibold text-ink">
-                Staff number
-              </label>
-              <input
-                id="staff-no"
-                name="staffNo"
-                required
-                inputMode="numeric"
-                autoComplete="off"
-                className="mt-1 block min-h-12 w-full rounded-lg border border-line bg-background px-4 text-lg text-ink focus:border-primary focus:outline-none"
-              />
-            </div>
-            <div>
-              <label htmlFor="your-name" className="block text-sm font-semibold text-ink">
-                Your first name
-              </label>
-              <input
-                id="your-name"
-                name="name"
-                required
-                autoComplete="given-name"
-                className="mt-1 block min-h-12 w-full rounded-lg border border-line bg-background px-4 text-lg text-ink focus:border-primary focus:outline-none"
-              />
-            </div>
-            <button
-              type="submit"
-              className="btn-primary min-h-12 w-full rounded-lg bg-primary px-5 font-bold text-on-primary"
-            >
-              Join
-            </button>
-          </form>
+
+          {taken ? (
+            <form action={joinAsPerson} className="mt-4 space-y-3">
+              <input type="hidden" name="attendeeId" value={taken.id} />
+              <p className="font-semibold text-ink">
+                {taken.name} is already signed in on another phone.
+              </p>
+              <p className="text-ink-soft">
+                If that is you (a new phone, or you cleared your browser), type your staff number to
+                use this phone too.
+              </p>
+              <div>
+                <label htmlFor="proof-staff-no" className="block text-sm font-semibold text-ink">
+                  Your staff number
+                </label>
+                <input
+                  id="proof-staff-no"
+                  name="staffNo"
+                  required
+                  autoComplete="off"
+                  className="mt-1 block min-h-12 w-full rounded-lg border border-line bg-background px-4 text-lg text-ink focus:border-primary focus:outline-none"
+                />
+              </div>
+              <button
+                type="submit"
+                className="btn-primary min-h-12 w-full rounded-lg bg-primary px-5 font-bold text-on-primary"
+              >
+                This is me
+              </button>
+              <Link href="/me">Not you? Find your own name</Link>
+            </form>
+          ) : (
+            <>
+              {/* A plain form that reloads the page with matches, so it needs no JavaScript. */}
+              <form method="get" action="/me" className="mt-4 space-y-3">
+                <div>
+                  <label htmlFor="find-name" className="block text-sm font-semibold text-ink">
+                    Type your name
+                  </label>
+                  <input
+                    id="find-name"
+                    name="find"
+                    defaultValue={typed}
+                    autoComplete="off"
+                    placeholder="For example Aisyah"
+                    className="mt-1 block min-h-12 w-full rounded-lg border border-line bg-background px-4 text-lg text-ink focus:border-primary focus:outline-none"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="btn-primary min-h-12 w-full rounded-lg bg-primary px-5 font-bold text-on-primary"
+                >
+                  Find me
+                </button>
+              </form>
+
+              {typed.trim().length >= 2 ? (
+                choices.length === 0 ? (
+                  <p className="mt-4 text-ink-soft">
+                    Nobody on the list has that name. Try another part of it, or ask the
+                    registration desk.
+                  </p>
+                ) : (
+                  <ul className="mt-4 space-y-2" aria-label="Names that match">
+                    {choices.map((person) => (
+                      <li key={person.id}>
+                        <form action={joinAsPerson}>
+                          <input type="hidden" name="attendeeId" value={person.id} />
+                          <button
+                            type="submit"
+                            className="flex min-h-14 w-full items-center justify-between gap-3 rounded-lg border border-line bg-background px-4 py-2 text-left hover:border-primary"
+                          >
+                            <span className="min-w-0">
+                              <span className="block font-bold text-ink">{person.name}</span>
+                              <span className="block text-sm text-ink-soft">
+                                {[person.title, shortDepartment(config, person.department)]
+                                  .filter(Boolean)
+                                  .join(', ')}
+                              </span>
+                            </span>
+                            <span className="shrink-0 font-bold text-primary">That is me</span>
+                          </button>
+                        </form>
+                      </li>
+                    ))}
+                  </ul>
+                )
+              ) : null}
+
+              <details className="mt-5">
+                <summary className="cursor-pointer text-sm font-semibold text-ink-soft">
+                  Or sign in with your staff number
+                </summary>
+                <form action={joinLeaderboard} className="mt-3 space-y-3">
+                  <div>
+                    <label htmlFor="staff-no" className="block text-sm font-semibold text-ink">
+                      Staff number
+                    </label>
+                    <input
+                      id="staff-no"
+                      name="staffNo"
+                      required
+                      inputMode="numeric"
+                      autoComplete="off"
+                      className="mt-1 block min-h-12 w-full rounded-lg border border-line bg-background px-4 text-lg text-ink focus:border-primary focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="your-name" className="block text-sm font-semibold text-ink">
+                      Your first name
+                    </label>
+                    <input
+                      id="your-name"
+                      name="name"
+                      required
+                      autoComplete="given-name"
+                      className="mt-1 block min-h-12 w-full rounded-lg border border-line bg-background px-4 text-lg text-ink focus:border-primary focus:outline-none"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    className="btn-primary min-h-12 w-full rounded-lg bg-primary px-5 font-bold text-on-primary"
+                  >
+                    Join
+                  </button>
+                </form>
+              </details>
+            </>
+          )}
         </section>
       )}
 

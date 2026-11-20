@@ -20,7 +20,8 @@ import { defineConfig, devices } from '@playwright/test';
 const PORT = Number(process.env.PLAYWRIGHT_PORT ?? 3200);
 
 /** Spec files that change state the whole portal shares. See projects below. */
-const SHARED_SWITCHES = /(backup-qa-polls|look|photo-wall|announcements|desk-browse|content-editor)\.spec\.ts$/;
+const SHARED_SWITCHES =
+  /(backup-qa-polls|look|photo-wall|announcements|desk-browse|content-editor|checklist)\.spec\.ts$/;
 const useDevServer = process.env.PLAYWRIGHT_DEV === '1';
 const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? `http://127.0.0.1:${PORT}`;
 
@@ -47,7 +48,7 @@ export default defineConfig({
       name: 'shared-switches',
       use: { ...devices['Desktop Chrome'] },
       testMatch: SHARED_SWITCHES,
-      testIgnore: /photo-wall\.spec\.ts$/,
+      testIgnore: /(photo-wall|checklist)\.spec\.ts$/,
       dependencies: ['phone', 'desktop'],
     },
     {
@@ -57,6 +58,13 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
       testMatch: /photo-wall\.spec\.ts$/,
       dependencies: ['shared-switches'],
+    },
+    {
+      // Clear test data wipes what every other test uses, so it goes last.
+      name: 'wipe',
+      use: { ...devices['Desktop Chrome'] },
+      testMatch: /checklist\.spec\.ts$/,
+      dependencies: ['photo-wall'],
     },
   ],
 

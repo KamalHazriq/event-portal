@@ -1334,6 +1334,21 @@ export function createPrismaAdapter(
       await prisma.adminPresence.deleteMany();
     },
 
+    async clearActivity() {
+      // Child rows first, so foreign keys stay happy.
+      await prisma.deviceLink.deleteMany();
+      await prisma.commentLike.deleteMany();
+      await prisma.comment.deleteMany();
+      await prisma.reaction.deleteMany();
+      await prisma.luckyDrawWinner.deleteMany();
+      await prisma.feedback.deleteMany();
+      await prisma.checkIn.deleteMany();
+      await prisma.photo.deleteMany();
+      await prisma.questionVote.deleteMany();
+      await prisma.question.deleteMany();
+      await prisma.pollVote.deleteMany();
+    },
+
     async close() {
       await prisma.$disconnect();
     },

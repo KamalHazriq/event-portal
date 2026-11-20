@@ -320,6 +320,13 @@ export interface DataAdapter {
   healthCheck(): Promise<{ ok: boolean; detail: string }>;
   /** Clears every table. Test and demo seeding only. */
   reset(): Promise<void>;
+  /**
+   * Clears what people DID (check ins, comments, reactions, photos,
+   * feedback, lucky draw winners, votes, questions, phone sign ins) and
+   * keeps what was SET UP (the attendee list, settings, polls, imports).
+   * For wiping test activity before the event.
+   */
+  clearActivity(): Promise<void>;
   close(): Promise<void>;
 
   readonly attendees: AttendeeRepository;

@@ -246,3 +246,23 @@ export function shortName(name: string): string {
   const given = (stop > 0 ? words.slice(0, stop) : words).slice(0, 2);
   return given.join(' ');
 }
+
+/**
+ * People whose name contains every word typed (two letters or more each),
+ * for "find your name" on the My points page. At most `limit`, and only the
+ * name, title and department are ever shown.
+ */
+export function findByName<T extends { name: string }>(people: T[], typed: string, limit = 8): T[] {
+  const words = typed
+    .toLowerCase()
+    .split(/\s+/)
+    .filter((word) => word.length >= 2);
+  if (words.length === 0) return [];
+  return people
+    .filter((p) => {
+      const name = p.name.toLowerCase();
+      return words.every((word) => name.includes(word));
+    })
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .slice(0, limit);
+}

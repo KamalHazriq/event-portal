@@ -12,11 +12,16 @@ test('a phone joins with staff number and first name, and sees its points', asyn
   await expect(page.getByRole('heading', { name: 'Leaderboard', level: 1 })).toBeVisible();
   await page.getByRole('link', { name: 'Join the leaderboard' }).click();
 
+  // The other way in: a staff number and a name that agree.
+  await page.getByText('Or sign in with your staff number').click();
+
   // A staff number with somebody else's name does not get in.
   await page.getByLabel('Staff number').fill('D10002');
   await page.getByLabel('Your first name').fill('Hafiz');
   await page.getByRole('button', { name: 'Join' }).click();
   await expect(page.getByText(/do not go together/)).toBeVisible();
+  // The page reloads with the staff number form closed again.
+  await page.getByText('Or sign in with your staff number').click();
 
   await page.getByLabel('Staff number').fill('D10002');
   await page.getByLabel('Your first name').fill('lailatul');
@@ -55,4 +60,46 @@ test('the projector has a leaderboard view', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Leaderboard' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Departments' })).toBeVisible();
   await expect(page.getByText('Scan to join')).toBeVisible();
+});
+
+// Shanti Fernandez (D10005) is one the demo seed leaves unlinked.
+test('a phone joins by picking its name, and a second phone must prove it', async ({
+  page,
+  browser,
+}, testInfo) => {
+  test.skip(testInfo.project.name !== 'desktop', 'Changes shared state, so runs once.');
+
+  // Pick the name from the list: no staff number typed.
+  await page.goto('/me');
+  await page.getByLabel('Type your name').fill('shanti fernandez');
+  await page.getByRole('button', { name: 'Find me' }).click();
+  const choice = page.getByRole('button', { name: /Shanti Fernandez/ });
+  await expect(choice).toBeVisible();
+  // Only the name, title and department show, never a staff number.
+  await expect(choice).not.toContainText('D10005');
+  await choice.click();
+  await expect(page.getByText(/^You are in./)).toBeVisible();
+  await expect(page.getByText('Shanti Fernandez', { exact: true })).toBeVisible();
+
+  // A second phone picking the same name is asked for the staff number.
+  const other = await browser.newPage();
+  await other.goto('/me?find=shanti+fernandez');
+  await other.getByRole('button', { name: /Shanti Fernandez/ }).click();
+  await expect(
+    other.getByText('Shanti Fernandez is already signed in on another phone.'),
+  ).toBeVisible();
+  await other.getByLabel('Your staff number').fill('D99999');
+  await other.getByRole('button', { name: 'This is me' }).click();
+  await expect(other.getByText(/That staff number is not theirs/)).toBeVisible();
+  await other.getByLabel('Your staff number').fill('d10005');
+  await other.getByRole('button', { name: 'This is me' }).click();
+  await expect(other.getByText(/^You are in./)).toBeVisible();
+  // Leave nothing linked behind, so the test can run again.
+  await other.getByRole('button', { name: 'Not you? Sign out' }).click();
+  await other.close();
+
+  // A name that is not on the list says so.
+  await page.getByRole('button', { name: 'Not you? Sign out' }).click();
+  await page.goto('/me?find=zzzzzz');
+  await expect(page.getByText(/Nobody on the list has that name/)).toBeVisible();
 });

@@ -9,6 +9,7 @@ import {
   type Score,
   type ScorePerson,
   type ScoreSources,
+  findByName,
 } from './logic';
 
 const empty: ScoreSources = {
@@ -155,5 +156,28 @@ describe('shortName', () => {
     expect(shortName('Kavitha a/p Ariaratnam')).toBe('Kavitha');
     expect(shortName('Lee Chong Wei')).toBe('Lee Chong');
     expect(shortName('Madonna')).toBe('Madonna');
+  });
+});
+
+describe('findByName', () => {
+  const people = [
+    { name: 'Nur Aisyah binti Ahmad' },
+    { name: 'Muhammad Kamal Hazriq' },
+    { name: 'Muhammad Azim bin Hamir' },
+    { name: 'Lailatul Zainal' },
+  ];
+  it('finds people whose name has every word typed, in any case', () => {
+    expect(findByName(people, 'muhammad').map((p) => p.name)).toEqual([
+      'Muhammad Azim bin Hamir',
+      'Muhammad Kamal Hazriq',
+    ]);
+    expect(findByName(people, 'kamal muh')).toHaveLength(1);
+    expect(findByName(people, 'zz')).toEqual([]);
+  });
+  it('needs a word of two letters, and returns few', () => {
+    expect(findByName(people, 'a')).toEqual([]);
+    expect(findByName(people, '  ')).toEqual([]);
+    expect(findByName(people, 'a aisy', 8).map((p) => p.name)).toEqual(['Nur Aisyah binti Ahmad']);
+    expect(findByName(people, 'mu', 1)).toHaveLength(1);
   });
 });
