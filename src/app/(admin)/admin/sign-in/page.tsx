@@ -75,7 +75,12 @@ export default async function SignInPage({ searchParams }: { searchParams: Searc
         </p>
       ) : null}
 
-      <form method="post" action="/api/admin/sign-in" className="space-y-4">
+      <form
+        method="post"
+        action="/api/admin/sign-in"
+        data-loader="Signing in"
+        className="space-y-4"
+      >
         <input type="hidden" name="next" value={next} />
 
         <div>

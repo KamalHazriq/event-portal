@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 
 import { ConfigErrorScreen } from '@/components/ConfigErrorScreen';
+import { FormLoader } from '@/components/FormLoader';
 import { tryLoadEventConfig } from '@/lib/config';
 import { refreshConfigOverlay } from '@/lib/config-sync';
 import { buildThemeCss, resolveTheme } from '@/lib/theme';
@@ -92,6 +93,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           Skip to main content
         </a>
         {children}
+        <FormLoader />
       </body>
     </html>
   );

@@ -39,7 +39,7 @@ export default async function PassPage({
           code below.
         </p>
 
-        <form method="get" className="mt-6 space-y-3">
+        <form method="get" data-loader="Checking the code" className="mt-6 space-y-3">
           <label htmlFor="event-code" className="block text-sm font-semibold text-ink">
             Event code
           </label>

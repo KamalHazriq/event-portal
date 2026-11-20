@@ -47,7 +47,17 @@ export function ScreenFrame({
     >
       <AutoRefresh intervalMs={SCREEN_POLL_MS} />
       {/* The same calm navy backdrop behind every view. */}
-      <div aria-hidden="true" className="screen-bg pointer-events-none absolute inset-0" />
+      <div aria-hidden="true" className="screen-bg pointer-events-none absolute inset-0">
+        <span className="screen-blob screen-blob-a" />
+        <span className="screen-blob screen-blob-b" />
+        <span className="screen-blob screen-blob-c" />
+        <span className="screen-hex" />
+        <span className="screen-sweep" />
+        <span className="screen-corner screen-corner-tl" />
+        <span className="screen-corner screen-corner-tr" />
+        <span className="screen-corner screen-corner-bl" />
+        <span className="screen-corner screen-corner-br" />
+      </div>
 
       <div className="absolute inset-x-[5vw] top-[2.5vh] z-20 flex items-center justify-between text-[clamp(0.8rem,1.2vw,1.6rem)] text-ink-soft">
         <span className="flex items-center gap-[1vw]">

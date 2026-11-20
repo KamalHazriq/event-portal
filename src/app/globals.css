@@ -1363,3 +1363,276 @@ label.bg-primary:hover::after {
 .screen-banner {
   animation: screen-banner-in 600ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
+
+
+/* ------------------------------------------------------------------------
+ * The hexagon loader. Seven hexagons light up one after another around a
+ * centre one. Only opacity and scale animate (the position uses the separate
+ * `translate` property), so it stays smooth even on a busy phone.
+ * ---------------------------------------------------------------------- */
+
+.hex-cluster {
+  --u: 1.15rem;
+  position: relative;
+  width: calc(var(--u) * 6);
+  height: calc(var(--u) * 6);
+}
+
+.hex {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: calc(var(--u) * 1.62);
+  height: calc(var(--u) * 1.87);
+  margin: calc(var(--u) * -0.935) 0 0 calc(var(--u) * -0.81);
+  clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+  translate: calc(var(--x, 0) * var(--u)) calc(var(--y, 0) * var(--u));
+  background: linear-gradient(160deg, var(--c-accent), var(--c-primary));
+  will-change: opacity, scale;
+}
+
+.hex-core {
+  animation: hex-core 1.6s ease-in-out infinite;
+}
+
+.hex-ring {
+  opacity: 0.16;
+  animation: hex-wave 1.6s ease-in-out infinite;
+  animation-delay: calc(var(--i) * 0.2s);
+}
+
+@keyframes hex-wave {
+  0%,
+  100% {
+    opacity: 0.16;
+    scale: 0.8;
+  }
+  25% {
+    opacity: 1;
+    scale: 1;
+  }
+  55% {
+    opacity: 0.16;
+    scale: 0.8;
+  }
+}
+
+@keyframes hex-core {
+  0%,
+  100% {
+    scale: 0.92;
+    opacity: 0.85;
+  }
+  50% {
+    scale: 1.08;
+    opacity: 1;
+  }
+}
+
+/* A trailing "..." that counts, with no script. */
+.hex-dots::after {
+  content: '';
+  animation: hex-dots 1.6s steps(1, end) infinite;
+}
+
+@keyframes hex-dots {
+  0% {
+    content: '';
+  }
+  25% {
+    content: '.';
+  }
+  50% {
+    content: '..';
+  }
+  75% {
+    content: '...';
+  }
+}
+
+/* Fades in after a beat, so a quick answer never flashes a spinner. */
+.hex-overlay {
+  animation: hex-overlay-in 220ms ease-out 180ms both;
+}
+
+@keyframes hex-overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hex-ring {
+    opacity: 0.6;
+    animation: none;
+  }
+  .hex-core,
+  .hex-dots::after {
+    animation: none;
+  }
+}
+
+/* ------------------------------------------------------------------------
+ * The big screen backdrop: three slow glows drifting behind a faint
+ * honeycomb and a thin line that sweeps down now and then. Everything moves
+ * with transform or opacity only, so the projector laptop barely notices.
+ * ---------------------------------------------------------------------- */
+
+.screen-bg {
+  overflow: hidden;
+}
+
+.screen-blob {
+  position: absolute;
+  border-radius: 50%;
+  width: 70vmax;
+  height: 70vmax;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--blob) 42%, transparent),
+    transparent
+  );
+  will-change: transform;
+}
+
+.screen-blob-a {
+  --blob: var(--c-primary);
+  left: -20vmax;
+  top: -25vmax;
+  animation: blob-a 46s ease-in-out infinite alternate;
+}
+
+.screen-blob-b {
+  --blob: var(--c-accent);
+  right: -25vmax;
+  bottom: -30vmax;
+  width: 60vmax;
+  height: 60vmax;
+  animation: blob-b 58s ease-in-out infinite alternate;
+}
+
+.screen-blob-c {
+  --blob: #0b3a9a;
+  left: 30vw;
+  top: 25vh;
+  width: 50vmax;
+  height: 50vmax;
+  opacity: 0.7;
+  animation: blob-c 72s ease-in-out infinite alternate;
+}
+
+@keyframes blob-a {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(30vw, 22vh, 0) scale(1.15);
+  }
+}
+
+@keyframes blob-b {
+  from {
+    transform: translate3d(0, 0, 0) scale(1.1);
+  }
+  to {
+    transform: translate3d(-34vw, -20vh, 0) scale(0.9);
+  }
+}
+
+@keyframes blob-c {
+  from {
+    transform: translate3d(-16vw, 8vh, 0) scale(0.9);
+  }
+  to {
+    transform: translate3d(18vw, -14vh, 0) scale(1.15);
+  }
+}
+
+/* The honeycomb takes the text colour, so it follows the theme. */
+.screen-hex {
+  position: absolute;
+  inset: 0;
+  background: var(--c-text);
+  opacity: 0.07;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100'%3E%3Cpath d='M28 66L0 50L0 16L28 0L56 16L56 50L28 66L28 100M28 0L28 34L0 50L0 84L28 100L56 84L56 50L28 34' fill='none' stroke='black' stroke-width='1.2'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100'%3E%3Cpath d='M28 66L0 50L0 16L28 0L56 16L56 50L28 66L28 100M28 0L28 34L0 50L0 84L28 100L56 84L56 50L28 34' fill='none' stroke='black' stroke-width='1.2'/%3E%3C/svg%3E");
+  mask-size: 3.6vw auto;
+}
+
+/* A hairline that sweeps down the screen every so often. */
+.screen-sweep {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 0.2vh;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--c-accent) 70%, transparent),
+    transparent
+  );
+  opacity: 0;
+  animation: screen-sweep 16s linear infinite;
+}
+
+@keyframes screen-sweep {
+  0%,
+  72% {
+    transform: translateY(-2vh);
+    opacity: 0;
+  }
+  76% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateY(104vh);
+    opacity: 0;
+  }
+}
+
+/* Small corner marks, like a viewfinder. */
+.screen-corner {
+  position: absolute;
+  width: 2.2vw;
+  height: 2.2vw;
+  border: 0 solid color-mix(in srgb, var(--c-accent) 55%, transparent);
+}
+.screen-corner-tl {
+  left: 2vw;
+  top: 2vh;
+  border-width: 0.18vw 0 0 0.18vw;
+}
+.screen-corner-tr {
+  right: 2vw;
+  top: 2vh;
+  border-width: 0.18vw 0.18vw 0 0;
+}
+.screen-corner-bl {
+  left: 2vw;
+  bottom: 2vh;
+  border-width: 0 0 0.18vw 0.18vw;
+}
+.screen-corner-br {
+  right: 2vw;
+  bottom: 2vh;
+  border-width: 0 0.18vw 0.18vw 0;
+}
+
+/* The calm Ruled style keeps the screen still. */
+[data-style='ruled'] .screen-blob,
+[data-style='ruled'] .screen-hex,
+[data-style='ruled'] .screen-sweep,
+[data-style='ruled'] .screen-corner {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .screen-blob,
+  .screen-sweep {
+    animation: none;
+  }
+}

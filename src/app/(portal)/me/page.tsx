@@ -148,7 +148,7 @@ export default async function MyPointsPage({
           </p>
 
           {taken ? (
-            <form action={joinAsPerson} className="mt-4 space-y-3">
+            <form action={joinAsPerson} data-loader="Signing you in" className="mt-4 space-y-3">
               <input type="hidden" name="attendeeId" value={taken.id} />
               <p className="font-semibold text-ink">
                 {taken.name} is already signed in on another phone.
@@ -180,7 +180,7 @@ export default async function MyPointsPage({
           ) : (
             <>
               {/* A plain form that reloads the page with matches, so it needs no JavaScript. */}
-              <form method="get" action="/me" className="mt-4 space-y-3">
+              <form method="get" action="/me" data-loader="Finding you" className="mt-4 space-y-3">
                 <div>
                   <label htmlFor="find-name" className="block text-sm font-semibold text-ink">
                     Type your name
@@ -212,7 +212,7 @@ export default async function MyPointsPage({
                   <ul className="mt-4 space-y-2" aria-label="Names that match">
                     {choices.map((person) => (
                       <li key={person.id}>
-                        <form action={joinAsPerson}>
+                        <form action={joinAsPerson} data-loader="Signing you in">
                           <input type="hidden" name="attendeeId" value={person.id} />
                           <button
                             type="submit"
@@ -239,7 +239,11 @@ export default async function MyPointsPage({
                 <summary className="cursor-pointer text-sm font-semibold text-ink-soft">
                   Or sign in with your staff number
                 </summary>
-                <form action={joinLeaderboard} className="mt-3 space-y-3">
+                <form
+                  action={joinLeaderboard}
+                  data-loader="Signing you in"
+                  className="mt-3 space-y-3"
+                >
                   <div>
                     <label htmlFor="staff-no" className="block text-sm font-semibold text-ink">
                       Staff number
