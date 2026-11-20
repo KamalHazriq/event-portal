@@ -157,6 +157,16 @@ export default async function AdminHomePage() {
       ? [`Speakers still to confirm: ${unconfirmed.map((s) => s.name).join(', ')}.`]
       : []),
     ...(isPlaceholderUrl(config.event.portalUrl) ? ['The portal address for the QR codes.'] : []),
+    ...(() => {
+      const open = config.days
+        .flatMap((d) => d.sessions)
+        .filter((s) => !s.hidden && looksUnconfirmed(`${s.title} ${s.description} ${s.room}`));
+      return open.length > 0
+        ? [
+            `Session details still to confirm (time or room): ${open.map((s) => s.title).join('; ')}.`,
+          ]
+        : [];
+    })(),
     ...(missingShort.length > 0
       ? [
           `A short name for ${missingShort.length === 1 ? 'this department' : 'these departments'} (like CORES): ${missingShort.join(', ')}. Shown in full until then.`,

@@ -212,8 +212,12 @@ export default function GuidePage() {
       'Yes. Each device signs in with the PIN and its own label, and they all see the same numbers. The Admins page shows which desks are signed in and a log of what each one did.',
     ],
     [
+      'Can we change the agenda or the event details ourselves?',
+      "Yes, no developer needed. Admin, Agenda: change any session's title, time, room or speakers, hide one, or add one, and fill in the speakers' names. Admin, Event info: the event name and venue, the Know before you go page, resource links, the Slido link, the footer and the department short names. Changes show on phones and the big screen within a few seconds, every change is checked first (an end time before the start is refused with the reason), and Reset on the Event info page puts everything back to the event file.",
+    ],
+    [
       'How do we change the colours or the logo?',
-      'Edit the branding block in the config file. Phones, the console and the projector all follow.',
+      'Colours and logos are in the branding block of the event file (a developer change). Phones, the console and the projector all follow.',
     ],
     [
       'Can we reuse it for the next event?',
