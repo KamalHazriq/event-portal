@@ -64,3 +64,9 @@ test('the big screen and the kiosk install as their own full screen apps', async
     expect(manifest.short_name).toBe(short);
   }
 });
+
+test('the health check answers without the event code', async ({ request }) => {
+  const res = await request.get('/api/health');
+  expect(res.status()).toBe(200);
+  expect((await res.json()).ok).toBe(true);
+});

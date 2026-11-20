@@ -149,6 +149,14 @@ while a big screen page is open, but do not rely on it.
 The address answers only with the right secret, so it is safe to leave on.
 Pause or delete the job after the event.
 
+## Know if the site goes down (optional)
+
+`/api/health` answers 200 when the portal and its database are working, and
+503 when the database is not. In Google Cloud, Monitoring, Uptime checks,
+create an HTTPS check on `https://<the portal address>/api/health` every
+minute, then add an email (or phone app) notification channel to its alert.
+It holds nothing about the event, so it is open.
+
 ## How the event code works
 
 - The QR codes on the projector, posters and table tents carry the code, so
