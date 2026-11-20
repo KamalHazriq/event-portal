@@ -135,7 +135,7 @@ export default async function ChecklistPage({ searchParams }: { searchParams: Se
               className="mt-1 block min-h-11 w-48 rounded-lg border border-line bg-canvas px-3 text-ink"
             />
           </label>
-          <button type="submit" className="min-h-11 rounded-lg bg-live px-5 font-bold text-white">
+          <button type="submit" className="min-h-11 rounded-lg bg-live px-5 font-bold text-canvas">
             Clear all test data
           </button>
         </form>

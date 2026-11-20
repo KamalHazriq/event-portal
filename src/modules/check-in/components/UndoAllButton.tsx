@@ -79,7 +79,7 @@ export function UndoAllButton({
             type="button"
             disabled={busy || word.trim().toUpperCase() !== 'UNDO'}
             onClick={() => void run()}
-            className="min-h-11 rounded-lg bg-live px-4 font-bold text-white disabled:opacity-50"
+            className="min-h-11 rounded-lg bg-live px-4 font-bold text-canvas disabled:opacity-50"
           >
             Undo all check ins
           </button>

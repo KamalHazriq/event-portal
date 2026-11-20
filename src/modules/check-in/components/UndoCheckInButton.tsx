@@ -61,7 +61,7 @@ export function UndoCheckInButton({
         type="button"
         disabled={busy}
         onClick={() => void undo()}
-        className="min-h-9 rounded bg-live px-3 py-1 text-sm font-bold text-white disabled:opacity-60"
+        className="min-h-9 rounded bg-live px-3 py-1 text-sm font-bold text-canvas disabled:opacity-60"
       >
         Yes
       </button>

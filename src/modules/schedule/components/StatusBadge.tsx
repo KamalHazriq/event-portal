@@ -13,7 +13,7 @@ const LABELS: Record<SessionStatus, string> = {
 export function StatusBadge({ status }: { status: SessionStatus }) {
   if (status === 'live') {
     return (
-      <span className="inline-flex items-center gap-1.5 rounded-full bg-live px-2.5 py-1 text-xs font-bold uppercase tracking-wide text-white">
+      <span className="inline-flex items-center gap-1.5 rounded-full bg-live px-2.5 py-1 text-xs font-bold uppercase tracking-wide text-canvas">
         <span aria-hidden="true" className="live-dot size-1.5 rounded-full bg-white" />
         {LABELS.live}
       </span>
