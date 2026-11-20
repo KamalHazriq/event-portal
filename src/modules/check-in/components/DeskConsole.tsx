@@ -69,6 +69,11 @@ export function DeskConsole({
   const [query, setQuery] = useState('');
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [searchMessage, setSearchMessage] = useState('');
+  // The second way to find someone: the whole list, one tap to check in.
+  const [mode, setMode] = useState<'search' | 'browse'>('search');
+  const [everyone, setEveryone] = useState<SearchResult[] | null>(null);
+  const [group, setGroup] = useState('all');
+  const [onlyMissing, setOnlyMissing] = useState(true);
 
   const recentRef = useRef<Map<string, number>>(new Map());
   const manualRef = useRef<HTMLInputElement | null>(null);
@@ -131,11 +136,13 @@ export function DeskConsole({
         if (body.outcome === 'card-not-found' && body.card?.name) setQuery(body.card.name);
         beep(body.outcome === 'checked-in');
 
-        // Refresh the search list so it stops saying someone is not in yet.
-        if (body.outcome === 'checked-in' && searchResults.length > 0) {
-          setSearchResults((rows) =>
-            rows.map((row) => (row.id === body.attendee?.id ? { ...row, checkedIn: true } : row)),
-          );
+        // Keep both lists honest: they stop saying this person is not in yet.
+        if (body.outcome === 'checked-in' || body.outcome === 'already-checked-in') {
+          const id = body.attendee?.id;
+          const mark = (rows: SearchResult[]) =>
+            rows.map((row) => (row.id === id ? { ...row, checkedIn: true } : row));
+          setSearchResults(mark);
+          setEveryone((rows) => (rows ? mark(rows) : rows));
         }
       } catch {
         setResult({ outcome: 'error', message: scanOutcomeMessage('error') });
@@ -144,7 +151,12 @@ export function DeskConsole({
         setBusy(false);
       }
     },
-    [beep, dayId, searchResults.length],
+    [beep, dayId],
+  );
+
+  const checkInById = useCallback(
+    (attendeeId: string) => void sendCheckIn({ attendeeId, method: 'manual' }),
+    [sendCheckIn],
   );
 
   /** Drops repeats of a tag that is still sitting in front of the camera. */
@@ -203,6 +215,29 @@ export function DeskConsole({
     const timer = window.setInterval(poll, POLL_MS);
     return () => window.clearInterval(timer);
   }, [dayId]);
+
+  // The whole list, while browsing; refreshed so other desks' check ins show.
+  useEffect(() => {
+    if (mode !== 'browse') return;
+    let stopped = false;
+    const load = async () => {
+      try {
+        const response = await fetch(
+          `/api/attendees/search?all=1&dayId=${encodeURIComponent(dayId)}`,
+        );
+        const body = (await response.json()) as { results?: SearchResult[] };
+        if (!stopped && body.results) setEveryone(body.results);
+      } catch {
+        // Keep showing the last list.
+      }
+    };
+    void load();
+    const timer = window.setInterval(load, 10_000);
+    return () => {
+      stopped = true;
+      window.clearInterval(timer);
+    };
+  }, [mode, dayId]);
 
   const runSearch = useCallback(
     async (text: string) => {
@@ -409,60 +444,219 @@ export function DeskConsole({
         </section>
 
         <section className="rounded-xl border border-line bg-surface p-4">
-          <h2 className="font-bold text-ink">Search by name</h2>
+          <h2 className="font-bold text-ink">Find someone</h2>
           <p className="text-sm text-ink-soft">For a lost tag or a code that will not read.</p>
 
-          <label htmlFor="desk-search" className="sr-only">
-            Search for a name or staff number
-          </label>
-          <input
-            id="desk-search"
-            type="search"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Name or staff number"
-            className="mt-2 min-h-11 w-full rounded-lg border border-line bg-canvas px-3 py-2 text-ink"
-          />
+          <div
+            className="mt-3 grid grid-cols-2 gap-2"
+            role="group"
+            aria-label="How to find someone"
+          >
+            {(
+              [
+                ['search', 'Search'],
+                ['browse', 'Whole list'],
+              ] as const
+            ).map(([value, label]) => (
+              <button
+                key={value}
+                type="button"
+                aria-pressed={mode === value}
+                onClick={() => setMode(value)}
+                className={`min-h-11 rounded-lg border px-3 font-semibold ${
+                  mode === value
+                    ? 'border-primary bg-primary/15 text-ink'
+                    : 'border-line text-ink-soft hover:text-ink'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
 
-          {searchMessage ? <p className="mt-2 text-sm text-ink-soft">{searchMessage}</p> : null}
+          {mode === 'search' ? (
+            <>
+              <label htmlFor="desk-search" className="sr-only">
+                Search for a name, staff number or department
+              </label>
+              <input
+                id="desk-search"
+                type="search"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Name, staff number or department"
+                className="mt-3 min-h-11 w-full rounded-lg border border-line bg-canvas px-3 py-2 text-ink"
+              />
 
-          {searchResults.length > 0 ? (
-            <ul className="mt-3 space-y-2">
-              {searchResults.map((person) => (
-                <li
-                  key={person.id}
-                  className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-line p-3"
-                >
-                  <div className="min-w-0">
-                    <p className="font-bold text-ink">{person.name}</p>
-                    <p className="text-sm text-ink-soft">
-                      {[person.title, person.department].filter(Boolean).join(', ')}
-                    </p>
-                    {person.remark ? (
-                      <p className="text-sm font-semibold text-ink">{person.remark}</p>
-                    ) : null}
-                  </div>
+              {searchMessage ? <p className="mt-2 text-sm text-ink-soft">{searchMessage}</p> : null}
 
-                  {person.checkedIn ? (
-                    <span className="shrink-0 rounded-full bg-success/15 px-3 py-1 text-sm font-bold text-success">
-                      Already in
-                    </span>
-                  ) : (
-                    <button
-                      type="button"
-                      disabled={busy}
-                      onClick={() => void sendCheckIn({ attendeeId: person.id, method: 'manual' })}
-                      className="min-h-11 shrink-0 rounded-lg bg-primary px-4 py-2 font-bold text-on-primary disabled:opacity-60"
-                    >
-                      Check in
-                    </button>
-                  )}
-                </li>
-              ))}
-            </ul>
-          ) : null}
+              {searchResults.length > 0 ? (
+                <ul className="mt-3 space-y-2">
+                  {searchResults.map((person) => (
+                    <PersonRow
+                      key={person.id}
+                      person={person}
+                      busy={busy}
+                      onCheckIn={checkInById}
+                    />
+                  ))}
+                </ul>
+              ) : null}
+            </>
+          ) : (
+            <BrowseList
+              people={everyone}
+              busy={busy}
+              group={group}
+              onGroup={setGroup}
+              onlyMissing={onlyMissing}
+              onOnlyMissing={setOnlyMissing}
+              onCheckIn={checkInById}
+            />
+          )}
         </section>
       </div>
+    </div>
+  );
+}
+
+function PersonRow({
+  person,
+  busy,
+  onCheckIn,
+  showDepartment = true,
+}: {
+  person: SearchResult;
+  busy: boolean;
+  onCheckIn: (attendeeId: string) => void;
+  showDepartment?: boolean;
+}) {
+  return (
+    <li className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-line p-3">
+      <div className="min-w-0 flex-1 basis-40">
+        <p className="font-bold text-ink">{person.name}</p>
+        <p className="text-sm text-ink-soft">
+          {[person.title, showDepartment ? person.department : ''].filter(Boolean).join(', ')}
+        </p>
+        {person.remark ? <p className="text-sm font-semibold text-ink">{person.remark}</p> : null}
+      </div>
+
+      {person.checkedIn ? (
+        <span className="shrink-0 rounded-full bg-success/15 px-3 py-1 text-sm font-bold text-success">
+          Already in
+        </span>
+      ) : (
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => onCheckIn(person.id)}
+          className="min-h-11 shrink-0 rounded-lg bg-primary px-4 py-2 font-bold text-on-primary disabled:opacity-60"
+        >
+          Check in
+        </button>
+      )}
+    </li>
+  );
+}
+
+/** Everyone on the list, grouped by department, so a tap checks them in. */
+function BrowseList({
+  people,
+  busy,
+  group,
+  onGroup,
+  onlyMissing,
+  onOnlyMissing,
+  onCheckIn,
+}: {
+  people: SearchResult[] | null;
+  busy: boolean;
+  group: string;
+  onGroup: (value: string) => void;
+  onlyMissing: boolean;
+  onOnlyMissing: (value: boolean) => void;
+  onCheckIn: (attendeeId: string) => void;
+}) {
+  if (people === null) return <p className="mt-3 text-sm text-ink-soft">Loading the list…</p>;
+
+  const departments = [...new Set(people.map((p) => p.department || 'No department'))].sort();
+  const count = (dept: string) => {
+    const mine = people.filter((p) => (p.department || 'No department') === dept);
+    return { total: mine.length, arrived: mine.filter((p) => p.checkedIn).length };
+  };
+
+  const shown = people.filter(
+    (p) =>
+      (group === 'all' || (p.department || 'No department') === group) &&
+      (!onlyMissing || !p.checkedIn),
+  );
+  const groups = departments.filter((d) =>
+    shown.some((p) => (p.department || 'No department') === d),
+  );
+
+  return (
+    <div className="mt-3 space-y-3">
+      <div className="flex flex-wrap items-end gap-3">
+        <label className="block text-sm font-semibold text-ink">
+          Department
+          <select
+            value={group}
+            onChange={(event) => onGroup(event.target.value)}
+            className="mt-1 block min-h-11 rounded-lg border border-line bg-canvas px-3 text-ink"
+          >
+            <option value="all">All departments ({people.length})</option>
+            {departments.map((dept) => {
+              const c = count(dept);
+              return (
+                <option key={dept} value={dept}>
+                  {dept} ({c.arrived}/{c.total} in)
+                </option>
+              );
+            })}
+          </select>
+        </label>
+        <label className="flex min-h-11 items-center gap-2 text-sm font-semibold text-ink">
+          <input
+            type="checkbox"
+            checked={onlyMissing}
+            onChange={(event) => onOnlyMissing(event.target.checked)}
+            className="size-5"
+          />
+          Only people not in yet
+        </label>
+      </div>
+
+      {shown.length === 0 ? (
+        <p className="rounded-lg border border-success bg-success/10 p-3 font-semibold text-ink">
+          {onlyMissing ? 'Everyone here is in.' : 'Nobody on the list.'}
+        </p>
+      ) : (
+        <div className="max-h-[32rem] space-y-4 overflow-y-auto pr-1">
+          {groups.map((dept) => (
+            <section key={dept} aria-label={dept}>
+              <h3 className="mb-1 text-sm font-bold text-ink-soft">
+                {dept}{' '}
+                <span className="font-normal">
+                  ({count(dept).arrived}/{count(dept).total} in)
+                </span>
+              </h3>
+              <ul className="space-y-2">
+                {shown
+                  .filter((p) => (p.department || 'No department') === dept)
+                  .map((person) => (
+                    <PersonRow
+                      key={person.id}
+                      person={person}
+                      busy={busy}
+                      onCheckIn={onCheckIn}
+                      showDepartment={false}
+                    />
+                  ))}
+              </ul>
+            </section>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

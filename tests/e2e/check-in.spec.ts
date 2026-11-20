@@ -87,7 +87,7 @@ test.describe('the registration desk', () => {
     await expect(counter).toBeVisible();
 
     // Search by name. Every dummy attendee has a staff number starting D1.
-    await page.getByLabel('Search for a name or staff number').fill('D10001');
+    await page.getByLabel('Search for a name, staff number or department').fill('D10001');
     const row = page.locator('li', { hasText: 'D10001' }).first();
 
     // Either they are already in from an earlier run, or we check them in.
@@ -162,7 +162,9 @@ test.describe('the digital business card in the TNB app', () => {
     await signIn(page);
     await scanCard(page, 'MECARD:N:Atall,Nobody;;');
     await expect(page.getByText('Business card not on the list')).toBeVisible();
-    await expect(page.getByLabel('Search for a name or staff number')).toHaveValue('Nobody Atall');
+    await expect(page.getByLabel('Search for a name, staff number or department')).toHaveValue(
+      'Nobody Atall',
+    );
   });
 
   test('the server keeps only the name and email from a card', async ({ page }) => {

@@ -24,30 +24,51 @@ export async function GET(request: Request): Promise<Response> {
   const url = new URL(request.url);
   const query = plainText(url.searchParams.get('q') ?? '', 80);
   const dayId = plainText(url.searchParams.get('dayId') ?? '', 64);
+  const everyone = url.searchParams.get('all') === '1';
 
-  if (query.length < 2) {
+  if (!everyone && query.length < 2) {
     return Response.json({ results: [], message: 'Type at least two letters.' });
   }
 
+  const config = getEventConfig();
   const data = getData();
-  const people = await data.attendees.search(query, 25);
+  const [people, arrivals] = await Promise.all([
+    data.attendees.list(),
+    dayId ? data.checkIns.listByDay(dayId) : Promise.resolve([]),
+  ]);
+  const arrivedAt = new Map(arrivals.map((c) => [c.attendeeId, c.at]));
 
-  // Say who is already in, so the desk does not scan someone twice.
-  const results = await Promise.all(
-    people.map(async (person) => {
-      const existing = dayId ? await data.checkIns.get(person.id, dayId) : null;
-      return {
-        id: person.id,
-        name: person.name,
-        title: person.title,
-        department: shortDepartment(getEventConfig(), person.department),
-        remark: person.remark,
-        staffNo: person.staffNo,
-        checkedIn: existing !== null,
-        checkedInAt: existing?.at ?? null,
-      };
-    }),
+  // The whole list is about a hundred people, so matching is done here:
+  // a name, a staff number or a department (in full or the short name).
+  const q = query.toLowerCase();
+  const matches = everyone
+    ? people
+    : people.filter((p) =>
+        [p.name, p.staffNo, p.department, shortDepartment(config, p.department)].some((field) =>
+          field.toLowerCase().includes(q),
+        ),
+      );
+  const sorted = [...matches].sort((a, b) =>
+    everyone
+      ? a.department.localeCompare(b.department) || a.name.localeCompare(b.name)
+      : a.name.localeCompare(b.name),
   );
+  const limited = everyone ? sorted : sorted.slice(0, 60);
 
-  return Response.json({ results, message: results.length === 0 ? 'Nobody matches that.' : '' });
+  const results = limited.map((person) => ({
+    id: person.id,
+    name: person.name,
+    title: person.title,
+    department: shortDepartment(config, person.department),
+    remark: person.remark,
+    staffNo: person.staffNo,
+    checkedIn: arrivedAt.has(person.id),
+    checkedInAt: arrivedAt.get(person.id) ?? null,
+  }));
+
+  return Response.json({
+    results,
+    truncated: !everyone && sorted.length > limited.length,
+    message: results.length === 0 ? 'Nobody matches that.' : '',
+  });
 }

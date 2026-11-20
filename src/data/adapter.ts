@@ -98,6 +98,8 @@ export interface CheckInRepository {
   }): Promise<{ checkIn: CheckIn; alreadyCheckedIn: boolean }>;
   /** Undo, for a scan of the wrong tag. */
   remove(attendeeId: string, dayId: string): Promise<boolean>;
+  /** Undo every check in on one day, or on all days. For testing before the event. */
+  clear(dayId?: string): Promise<number>;
   get(attendeeId: string, dayId: string): Promise<CheckIn | null>;
   listByDay(dayId: string): Promise<CheckInWithAttendee[]>;
   /** For the arrival wall on the big screen. Newest first. */

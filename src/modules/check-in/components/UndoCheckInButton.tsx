@@ -51,8 +51,12 @@ export function UndoCheckInButton({
   }
 
   return (
-    <span className="flex shrink-0 items-center gap-2">
-      <span className="text-sm text-ink-soft">Undo {name}?</span>
+    <span
+      role="group"
+      aria-label={`Undo the check in for ${name}?`}
+      className="flex w-full flex-wrap items-center gap-2 rounded-lg bg-live/10 p-2"
+    >
+      <span className="min-w-0 flex-1 text-sm font-semibold text-ink">Undo this check in?</span>
       <button
         type="button"
         disabled={busy}

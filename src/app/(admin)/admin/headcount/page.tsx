@@ -7,6 +7,7 @@ import { requireAdmin } from '@/lib/admin-guard';
 import { getEventConfig } from '@/lib/config';
 import { shortDepartment } from '@/lib/departments';
 import { formatShortDate, resolveEventNow } from '@/lib/time';
+import { UndoAllButton } from '@/modules/check-in/components/UndoAllButton';
 import { UndoCheckInButton } from '@/modules/check-in/components/UndoCheckInButton';
 import {
   arrivalRate,
@@ -164,7 +165,7 @@ export default async function HeadcountPage({ searchParams }: { searchParams: Se
                 key={row.id}
                 className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-line bg-surface p-3"
               >
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1 basis-48">
                   <p className="font-semibold text-ink">{row.attendee.name}</p>
                   <p className="text-sm text-ink-soft">
                     {shortDepartment(config, row.attendee.department)} /{' '}
@@ -182,6 +183,8 @@ export default async function HeadcountPage({ searchParams }: { searchParams: Se
           </ul>
         )}
       </section>
+
+      <UndoAllButton days={days.map((d) => ({ id: d.id, label: d.label }))} currentDayId={day.id} />
 
       <section>
         <h2 className="mb-2 text-lg font-bold text-ink">

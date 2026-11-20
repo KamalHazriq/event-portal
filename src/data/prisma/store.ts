@@ -426,6 +426,11 @@ export function createPrismaAdapter(
       return deleted.count > 0;
     },
 
+    async clear(dayId) {
+      const deleted = await prisma.checkIn.deleteMany({ where: dayId ? { dayId } : {} });
+      return deleted.count;
+    },
+
     async get(attendeeId, dayId) {
       const row = await prisma.checkIn.findUnique({
         where: { attendeeId_dayId: { attendeeId, dayId } },
