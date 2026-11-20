@@ -58,6 +58,13 @@ env:
     secret: portal-admin-pin
     availability: [RUNTIME]
 
+  # Scheduled reminders (Announce page). Cloud Scheduler calls
+  # POST /api/cron/reminders every minute with this secret. Create the secret
+  # and the scheduler job as in docs/DEPLOYING.md, then remove the # here.
+  # - variable: CRON_SECRET
+  #   secret: portal-cron-secret
+  #   availability: [RUNTIME]
+
   # The event code. Only people with it can open the portal.
   - variable: EVENT_PASS
     secret: portal-event-pass

@@ -88,11 +88,6 @@ export default async function PortalLayout({ children }: { children: React.React
                 </Link>
               </p>
             ) : null}
-            <p className="mt-2">
-              <Link href="/guide" className="text-primary">
-                How this portal works
-              </Link>
-            </p>
             {branding.footerText ? <p className="mt-4 text-xs">{branding.footerText}</p> : null}
           </div>
         </div>

@@ -8,6 +8,7 @@ import {
   isLive,
   parseAnnouncement,
   parseHistory,
+  screenAnnouncement,
   safeHref,
 } from './logic';
 
@@ -104,5 +105,24 @@ describe('isPushServiceUrl', () => {
     expect(isPushServiceUrl('https://fcm.googleapis.com.evil.example/x')).toBe(false);
     expect(isPushServiceUrl('http://fcm.googleapis.com/x')).toBe(false);
     expect(isPushServiceUrl('not a url')).toBe(false);
+  });
+});
+
+describe('screenAnnouncement', () => {
+  const base = {
+    id: 'a',
+    text: 'Lunch is served',
+    href: '',
+    at: '2026-12-14T04:00:00Z',
+    pushed: null,
+  };
+  const now = new Date('2026-12-14T05:00:00Z');
+  it('shows a live announcement, unless it is team only or kept off the screen', () => {
+    expect(screenAnnouncement(base, now)).toBe('Lunch is served');
+    expect(screenAnnouncement({ ...base, screen: true }, now)).toBe('Lunch is served');
+    expect(screenAnnouncement({ ...base, screen: false }, now)).toBeNull();
+    expect(screenAnnouncement({ ...base, audience: 'team' }, now)).toBeNull();
+    expect(screenAnnouncement(base, new Date('2026-12-15T05:00:00Z'))).toBeNull();
+    expect(screenAnnouncement(null, now)).toBeNull();
   });
 });

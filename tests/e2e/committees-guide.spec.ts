@@ -37,7 +37,13 @@ function committeeFile(): Buffer {
   ]);
 }
 
-test('the guide explains the portal and needs no sign in', async ({ page }) => {
+test('the guide needs the PIN, then explains the portal', async ({ page, request }) => {
+  // Attendees cannot read it: it names the secretariat pages.
+  const stranger = await request.get('/guide', { maxRedirects: 0 });
+  expect([302, 303, 307, 308]).toContain(stranger.status());
+  expect(stranger.headers().location).toContain('/admin/sign-in');
+
+  await signIn(page);
   await page.goto('/guide');
   await expect(page.getByRole('heading', { level: 1 })).toContainText('portal works');
   await expect(page.getByRole('heading', { name: 'Three kinds of screen' })).toBeVisible();

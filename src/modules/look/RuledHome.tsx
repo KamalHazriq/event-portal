@@ -419,11 +419,7 @@ export async function RuledHome({
 
       {/* 6. Process: how to take part. */}
       <section aria-labelledby="how" className={SECTION}>
-        <Opener
-          id="how"
-          lines={['How to take', 'part']}
-          control={{ href: '/guide', label: 'Guide' }}
-        />
+        <Opener id="how" lines={['How to take', 'part']} control={null} />
         <ol className="mt-8 grid gap-0 sm:grid-cols-2 lg:grid-cols-5">
           {steps.map(([title, text], i) => (
             <li key={title} className="relative border-line py-5 pr-5 lg:border-t-0 lg:py-0">
@@ -527,11 +523,7 @@ export async function RuledHome({
         <Opener
           id="faq"
           lines={['Good to', 'know']}
-          control={
-            config.info
-              ? { href: '/info', label: config.info.title }
-              : { href: '/guide', label: 'Full guide' }
-          }
+          control={config.info ? { href: '/info', label: config.info.title } : null}
         />
         <dl className="mt-8 grid gap-x-12 gap-y-8 md:grid-cols-2">
           {faqs.map(([q, a]) => (

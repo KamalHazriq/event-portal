@@ -130,6 +130,14 @@ export const ADMIN_GROUPS: AdminGroup[] = [
         icon: 'shield',
       },
       {
+        href: '/admin/device-check',
+        label: 'Device check',
+        title: 'Device check',
+        description:
+          'Open on the real tablet, projector laptop and phones: camera, alerts, speed and clock.',
+        icon: 'monitor',
+      },
+      {
         href: '/admin/name-tags',
         label: 'Name tags',
         title: 'Name tags',

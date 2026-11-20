@@ -5,10 +5,13 @@
 import { notFound } from 'next/navigation';
 import { after } from 'next/server';
 
+import { getData } from '@/data';
 import { requireAdmin } from '@/lib/admin-guard';
 import { getEventConfig } from '@/lib/config';
 import { resolveEventNow } from '@/lib/time';
+import { ANNOUNCE_KEYS, parseAnnouncement, screenAnnouncement } from '@/modules/announce/logic';
 import { runFeedbackNudges } from '@/modules/announce/nudges';
+import { dispatchDueReminders } from '@/modules/reminders/dispatch';
 import { readNowParam } from '@/modules/schedule/logic';
 
 import { ScreenFrame } from './components/ScreenFrame';
@@ -36,16 +39,21 @@ export async function renderScreen(options: {
   });
   // Automatic feedback reminders ride on the projector's regular refresh.
   after(() => runFeedbackNudges(now).catch(() => 0));
+  // And the scheduled reminders, in case the scheduler is not set up.
+  after(() => dispatchDueReminders().catch(() => 0));
   const settings = await readScreenSettings();
-  const [payload, reactions] = await Promise.all([
+  const [payload, reactions, announcementRaw] = await Promise.all([
     loadScreenView(options.view ?? settings.view, now, settings),
     loadScreenReactions(),
+    getData().settings.get(ANNOUNCE_KEYS.current),
   ]);
+  const banner = screenAnnouncement(parseAnnouncement(announcementRaw), new Date());
 
   return (
     <ScreenFrame
       payload={payload}
       reactions={reactions}
+      banner={banner}
       shortName={config.event.shortName}
       orgLogo={
         config.branding.organisationLogoPath

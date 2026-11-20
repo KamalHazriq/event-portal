@@ -30,7 +30,9 @@ export function isOpenPath(pathname: string): boolean {
     pathname === '/manifest.webmanifest' ||
     pathname === '/robots.txt' ||
     // The alerts service worker: fixed code, no event data in it.
-    pathname === '/sw.js'
+    pathname === '/sw.js' ||
+    // The scheduler's call: it carries its own secret, checked by the route.
+    pathname === '/api/cron/reminders'
   );
 }
 

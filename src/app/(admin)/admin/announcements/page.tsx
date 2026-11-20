@@ -27,7 +27,16 @@ import {
 import { AlertsOptIn } from '@/modules/announce/components/AlertsOptIn';
 import { TEAM_AUTO_KEY, teamAutoOn } from '@/modules/announce/team';
 import { EVENT_FORM_SLUG } from '@/modules/feedback/logic';
+import { addReminder, deleteReminder } from '@/modules/reminders/actions';
+import {
+  parseReminders,
+  REMINDERS_KEY,
+  REMINDERS_PING_KEY,
+  reminderStatus,
+  sortReminders,
+} from '@/modules/reminders/logic';
 import { localDateTime } from '@/modules/reports/logic';
+import { localDateTimeToInstant } from '@/lib/time';
 
 export const dynamic = 'force-dynamic';
 
@@ -75,16 +84,34 @@ export default async function AnnouncementsPage({ searchParams }: { searchParams
   const tz = config.event.timezone;
   const data = getData();
   const deviceId = readDeviceId((await cookies()).get(DEVICE_COOKIE)?.value);
-  const [currentRaw, historyRaw, phones, nudgeSetting, teamAutoSetting, allSubs] =
-    await Promise.all([
-      data.settings.get(ANNOUNCE_KEYS.current),
-      data.settings.get(ANNOUNCE_KEYS.history),
-      data.push.count(),
-      data.settings.get(NUDGE_KEYS.enabled),
-      data.settings.get(TEAM_AUTO_KEY),
-      data.push.list(),
-    ]);
+  const [
+    currentRaw,
+    historyRaw,
+    phones,
+    nudgeSetting,
+    teamAutoSetting,
+    allSubs,
+    remindersRaw,
+    pingRaw,
+  ] = await Promise.all([
+    data.settings.get(ANNOUNCE_KEYS.current),
+    data.settings.get(ANNOUNCE_KEYS.history),
+    data.push.count(),
+    data.settings.get(NUDGE_KEYS.enabled),
+    data.settings.get(TEAM_AUTO_KEY),
+    data.push.list(),
+    data.settings.get(REMINDERS_KEY),
+    data.settings.get(REMINDERS_PING_KEY),
+  ]);
   const teamAuto = teamAutoOn(teamAutoSetting);
+  const nowDate = new Date();
+  const toInstant = (local: string) => localDateTimeToInstant(local, tz);
+  const reminders = sortReminders(parseReminders(remindersRaw)).map((r) => ({
+    ...r,
+    status: reminderStatus(r, nowDate, toInstant),
+  }));
+  const pingAge = pingRaw ? nowDate.getTime() - new Date(pingRaw).getTime() : null;
+  const schedulerOn = pingAge !== null && pingAge < 3 * 60 * 1000;
   const teamPhones = allSubs.filter((p) => p.team).length;
   const mine = deviceId ? allSubs.filter((p) => p.deviceId === deviceId) : [];
   const thisPhoneAlerts = mine.length > 0;
@@ -197,6 +224,15 @@ export default async function AnnouncementsPage({ searchParams }: { searchParams
             ))}
           </select>
         </div>
+        <label className="flex min-h-11 items-center gap-3 text-ink">
+          <input type="checkbox" name="screen" defaultChecked className="size-5" />
+          <span>
+            Also show it as a banner on the big screen
+            <span className="block text-sm text-ink-soft">
+              Across every projector view until you take it down. Not for team only messages.
+            </span>
+          </span>
+        </label>
         <label className="flex items-start gap-3 text-ink">
           <input type="checkbox" name="push" defaultChecked className="mt-1 size-5" />
           <span>
@@ -213,6 +249,92 @@ export default async function AnnouncementsPage({ searchParams }: { searchParams
           Post announcement
         </button>
       </form>
+
+      <section
+        aria-labelledby="reminders"
+        className="space-y-4 rounded-xl border border-line bg-surface p-4"
+      >
+        <div>
+          <h2 id="reminders" className="text-lg font-bold text-ink">
+            Scheduled reminders
+          </h2>
+          <p className="text-ink-soft">
+            Write it now, it goes out at the time you pick (event time, {tz}). Good for early setup
+            calls like “Projector on, desks open”.
+          </p>
+          <p className="mt-1 text-sm text-ink-soft">
+            {schedulerOn
+              ? 'The scheduler is running, so reminders go out on the minute.'
+              : 'The scheduler has not called in the last few minutes. Reminders still go out while a big screen page is open, otherwise set up the scheduler (see the deploy notes).'}
+          </p>
+        </div>
+        <form
+          action={addReminder}
+          className="grid gap-3 sm:grid-cols-[auto_1fr_auto_auto] sm:items-end"
+        >
+          <label className="block text-sm font-medium text-ink">
+            Reminder time
+            <input
+              type="datetime-local"
+              name="at"
+              required
+              className="mt-1 block min-h-11 w-full rounded-lg border border-line bg-surface px-3 text-ink"
+            />
+          </label>
+          <label className="block text-sm font-medium text-ink">
+            Reminder message
+            <input
+              type="text"
+              name="text"
+              required
+              maxLength={200}
+              placeholder="Projector on, desks open"
+              className="mt-1 block min-h-11 w-full rounded-lg border border-line bg-surface px-3 text-ink"
+            />
+          </label>
+          <label className="block text-sm font-medium text-ink">
+            Send to
+            <select
+              name="audience"
+              className="mt-1 block min-h-11 w-full rounded-lg border border-line bg-surface px-3 text-ink"
+            >
+              <option value="team">Team only</option>
+              <option value="everyone">Everyone</option>
+            </select>
+          </label>
+          <button
+            type="submit"
+            className="min-h-11 rounded-lg bg-primary px-5 font-bold text-on-primary"
+          >
+            Add reminder
+          </button>
+        </form>
+        {reminders.length === 0 ? (
+          <p className="text-ink-soft">No reminders yet.</p>
+        ) : (
+          <ul className="divide-y divide-line">
+            {reminders.map((r) => (
+              <li key={r.id} className="flex flex-wrap items-center gap-x-4 gap-y-1 py-2">
+                <span className="font-mono text-sm text-ink-soft">{r.at.replace('T', ' ')}</span>
+                <span className="min-w-0 flex-1 text-ink">{r.text}</span>
+                <span className="text-sm text-ink-soft">
+                  {r.audience === 'team' ? 'Team' : 'Everyone'} ·{' '}
+                  {r.status === 'sent' ? 'Sent' : r.status === 'missed' ? 'Missed' : 'Waiting'}
+                </span>
+                <form action={deleteReminder}>
+                  <input type="hidden" name="id" value={r.id} />
+                  <button
+                    type="submit"
+                    className="min-h-11 px-2 text-sm font-semibold text-primary underline"
+                  >
+                    Remove
+                  </button>
+                </form>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
 
       <section
         aria-labelledby="test-alerts"

@@ -184,11 +184,6 @@ export function RuledFooter({ config }: { config: EventConfig }) {
                 </Link>
               </li>
             ) : null}
-            <li>
-              <Link href="/guide" className={linkClass}>
-                How this portal works
-              </Link>
-            </li>
             <li className="text-ink-soft">Registration desk, any time</li>
           </ul>
         </nav>

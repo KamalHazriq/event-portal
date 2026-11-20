@@ -50,6 +50,6 @@ export function announcement(
     text: first
       ? `${first.title} from ${f.clock(first.start)}${first.room ? ` in the ${first.room}` : ''}.`
       : `${event.name} begins.`,
-    link: { href: '/guide', label: 'How check in works' },
+    link: { href: '/#how', label: 'How check in works' },
   };
 }

@@ -82,6 +82,7 @@ export default defineConfig({
           // not the real one, which changes as the event is planned.
           EVENT_CONFIG_PATH: 'config/event.test.json',
           ALLOW_TIME_OVERRIDE: 'true',
+          CRON_SECRET: 'e2e-cron-secret',
           // The tests seed and reset data, so they run on local SQLite unless
           // a run asks for Postgres. Next does not override names already
           // set, so a .env.local pointing at Neon cannot leak in.

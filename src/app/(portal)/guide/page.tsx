@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 
+import { requireAdmin } from '@/lib/admin-guard';
 import { getEventConfig } from '@/lib/config';
 import { logoFor, resolveTheme } from '@/lib/theme';
 import { formatShortDate } from '@/lib/time';
@@ -15,10 +16,12 @@ export const metadata: Metadata = { title: 'How the portal works' };
  * It explains the three kinds of screen, what happens on an event day, what
  * each secretariat page is for and who does what. Parts that are switched
  * off in config/event.json are left out, so the page always matches what is
- * actually running. It holds no personal data and nothing secret, so it can
- * be shared as a link.
+ * actually running. It names the secretariat pages, so it is for the
+ * secretariat only and needs the PIN.
  */
-export default function GuidePage() {
+export default async function GuidePage() {
+  // For the secretariat: it names the admin pages, so it needs the PIN.
+  await requireAdmin('/guide');
   const config = getEventConfig();
   const { event, features } = config;
   const dates =

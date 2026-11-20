@@ -23,6 +23,7 @@ import {
 export function ScreenFrame({
   payload,
   reactions = [],
+  banner = null,
   shortName,
   orgLogo = null,
   clock,
@@ -31,6 +32,8 @@ export function ScreenFrame({
   payload: ScreenPayload;
   /** Recent taps from phones, floating up over the view. */
   reactions?: { id: string; emoji: string }[];
+  /** The secretariat's announcement, shown across the foot of every view. */
+  banner?: string | null;
   shortName: string;
   /** The organiser's logo (Digital & Information), top left on every view. */
   orgLogo?: { src: string; alt: string } | null;
@@ -40,7 +43,7 @@ export function ScreenFrame({
   return (
     <main
       id="main"
-      className="screen-glow relative flex h-dvh w-full flex-col overflow-hidden px-[5vw] pb-[5vh] pt-[9vh]"
+      className={`screen-glow relative flex h-dvh w-full flex-col overflow-hidden px-[5vw] pt-[9vh] ${banner ? 'pb-[16vh]' : 'pb-[5vh]'}`}
     >
       <AutoRefresh intervalMs={SCREEN_POLL_MS} />
       {/* The same calm navy backdrop behind every view. */}
@@ -80,6 +83,19 @@ export function ScreenFrame({
         {payload.view === 'leaderboard' ? <LeaderboardView {...payload.props} /> : null}
         {payload.view === 'comments' ? <CommentsView {...payload.props} /> : null}
       </div>
+      {banner ? (
+        // Keyed by the text, so a new announcement slides up again.
+        <p
+          key={banner}
+          role="status"
+          className="screen-banner absolute inset-x-[5vw] bottom-[3vh] z-30 rounded-[1vw] bg-primary px-[2.5vw] py-[2vh] text-[clamp(1.3rem,2.6vw,3.6rem)] font-bold leading-tight text-on-primary"
+        >
+          <span aria-hidden="true" className="mr-[1vw]">
+            📣
+          </span>
+          {banner}
+        </p>
+      ) : null}
       <ReactionOverlay reactions={reactions} />
     </main>
   );

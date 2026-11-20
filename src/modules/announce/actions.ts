@@ -65,6 +65,7 @@ export async function postAnnouncement(formData: FormData): Promise<void> {
     at: new Date().toISOString(),
     pushed,
     ...(teamOnly ? { audience: 'team' as const } : {}),
+    screen: formData.get('screen') === 'on',
   };
   const data = getData();
   const history = parseHistory(await data.settings.get(ANNOUNCE_KEYS.history));

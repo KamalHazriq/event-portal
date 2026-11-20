@@ -357,6 +357,13 @@ export const TEST_PLAN: Part[] = [
             href: '/screen',
           },
           {
+            id: 's-screen-device',
+            do: 'On the projector laptop, the check in tablet and each secretariat phone, open Device check.',
+            expect:
+              'Every line is OK or has a plain fix. The corner marks of the test pattern are all visible on the projector.',
+            href: '/admin/device-check',
+          },
+          {
             id: 's-screen-views',
             do: 'From the Big screen page show each view in turn: Welcome, Now and next, Arrivals, Countdown, Lucky draw, Photo wall, Questions, Poll, Leaderboard, Comments.',
             expect:
@@ -393,6 +400,20 @@ export const TEST_PLAN: Part[] = [
             do: 'On Announce, under Test your alerts, press "Send a test to the team". Then send a message with "The team only" chosen. Then, from another phone, share a photo that needs approval.',
             expect:
               'Each team phone gets the test and the team message, attendees see no banner, and a "Photo waiting" alert arrives (at most one every five minutes).',
+            href: '/admin/announcements',
+          },
+          {
+            id: 's-room-remind',
+            do: 'On Announce, add a scheduled reminder for two minutes from now, to the team only. Wait.',
+            expect:
+              'The team phones get it on the minute and the list shows Sent. If it stays Waiting, the scheduler is not set up (see the deploy notes); it still goes out while a big screen page is open.',
+            href: '/admin/announcements',
+          },
+          {
+            id: 's-room-banner',
+            do: 'Post an announcement with "Also show it as a banner on the big screen" ticked, then look at the projector. Then Take it down.',
+            expect:
+              'A banner shows along the bottom of every projector view, and goes when taken down.',
             href: '/admin/announcements',
           },
           {

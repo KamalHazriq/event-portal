@@ -56,7 +56,7 @@ test('post an announcement, see it on a phone, take it down', async ({ browser, 
   await admin.goto('/admin/announcements');
   await expect(admin.getByText(/Also send it as a notification to \d+ phones?/)).toBeVisible();
   const text = `Buses leave at 7:30 ${Math.random().toString(36).slice(2, 6)}`;
-  await admin.getByLabel('Message').fill(text);
+  await admin.getByLabel('Message', { exact: true }).fill(text);
   await admin.getByLabel('Tapping it opens').selectOption('/agenda');
   await admin.getByRole('button', { name: 'Post announcement' }).click();
   await expect(admin.getByRole('heading', { name: /^Showing now/ })).toBeVisible({
@@ -71,11 +71,18 @@ test('post an announcement, see it on a phone, take it down', async ({ browser, 
   await banner.getByRole('link').click();
   await expect(phone).toHaveURL(/\/agenda/);
 
+  // The projector shows it too, across every view.
+  const projector = await admin.context().newPage();
+  await projector.goto('/screen/welcome');
+  await expect(projector.getByText(text)).toBeVisible();
+
   await admin.getByRole('button', { name: 'Take it down' }).click();
   await expect(admin.getByRole('heading', { name: /^Showing now/ })).toHaveCount(0);
   await expect(admin.getByText(text)).toBeVisible(); // still in "Sent before"
   await phone.goto('/');
   await expect(phone.getByRole('status', { name: 'Announcement' })).toHaveCount(0);
+  await projector.reload();
+  await expect(projector.getByText(text)).toHaveCount(0);
 
   // A test goes to this phone only; this browser has no alerts on.
   await admin.getByRole('button', { name: 'Send a test to this phone' }).click();
@@ -133,4 +140,56 @@ test('team alerts can only be switched on by a signed in desk', async ({ browser
   ).json();
   expect(after).toMatchObject({ on: true, team: false });
   await desk.request.delete('/api/push', { data: { endpoint } });
+});
+
+test('scheduled reminders: the scheduler call needs its secret, and a due one is sent once', async ({
+  page,
+  request,
+}) => {
+  // The scheduler's address: closed without the secret, open with it.
+  expect((await request.post('/api/cron/reminders')).status()).toBe(401);
+  expect(
+    (
+      await request.post('/api/cron/reminders', { headers: { authorization: 'Bearer wrong' } })
+    ).status(),
+  ).toBe(401);
+
+  await page.goto('/admin/sign-in');
+  await page.getByLabel('Which desk is this?').fill('reminders');
+  await page.getByLabel('Admin PIN').fill(PIN);
+  await page.getByRole('button', { name: 'Sign in' }).click();
+  await page.goto('/admin/announcements');
+
+  const text = `Projector on ${Date.now()}`;
+  await page.getByLabel('Reminder time').fill('2020-01-01T07:00');
+  await page.getByLabel('Reminder message').fill(text);
+  await page.getByRole('button', { name: 'Add reminder' }).click();
+  const row = page.getByRole('listitem').filter({ hasText: text });
+  // A time that is long past is shown as missed, never sent late.
+  await expect(row).toContainText('Missed');
+
+  // One in the next hour waits, then goes out when the scheduler calls.
+  const soon = new Date(Date.now() - 60_000 + 8 * 3600_000); // a minute ago in KL (UTC+8)
+  const local = soon.toISOString().slice(0, 16);
+  const text2 = `Desks open ${Date.now()}`;
+  await page.getByLabel('Reminder time').fill(local);
+  await page.getByLabel('Reminder message').fill(text2);
+  await page.getByRole('button', { name: 'Add reminder' }).click();
+  const row2 = page.getByRole('listitem').filter({ hasText: text2 });
+  await expect(row2).toContainText('Waiting');
+
+  const ok = await request.post('/api/cron/reminders', {
+    headers: { authorization: 'Bearer e2e-cron-secret' },
+  });
+  expect(ok.ok()).toBe(true);
+  expect((await ok.json()).sent).toBeGreaterThanOrEqual(1);
+  await page.reload();
+  await expect(row2).toContainText('Sent');
+  await expect(page.getByText('The scheduler is running')).toBeVisible();
+
+  // Tidy up.
+  for (const r of [row, row2]) {
+    await r.getByRole('button', { name: 'Remove' }).click();
+  }
+  await expect(page.getByText(text2)).toHaveCount(0);
 });

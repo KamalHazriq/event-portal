@@ -20,6 +20,8 @@ export type Announcement = {
   pushed: number | null;
   /** "team": sent to the secretariat phones only, and never shown to attendees. */
   audience?: 'team';
+  /** Also shown as a banner on the big screen. Older announcements, with no value, count as yes. */
+  screen?: boolean;
 };
 
 /** Only paths inside the portal, never another site. */
@@ -147,4 +149,10 @@ export function isPushServiceUrl(value: string): boolean {
   } catch {
     return false;
   }
+}
+
+/** The text to put on the big screen, or null: nothing live, team only, or switched off for the screen. */
+export function screenAnnouncement(a: Announcement | null, now: Date): string | null {
+  if (!isLive(a, now) || a.audience === 'team' || a.screen === false) return null;
+  return a.text;
 }

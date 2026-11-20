@@ -35,7 +35,7 @@ describe('the announcement line', () => {
     const a = announcement(base, event, '2026-11-20', f);
     expect(a.strong).toBe('Day 1, Mon 14 Dec.');
     expect(a.text).toBe('Arrival and registration from 10:00 in the Classroom hall.');
-    expect(a.link.href).toBe('/guide');
+    expect(a.link.href).toBe('/#how');
   });
 
   it('during a session: what is on now', () => {

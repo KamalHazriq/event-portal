@@ -123,6 +123,32 @@ with `minInstances: 1` set.
   nobody can open it any more. When the reports are downloaded, delete the
   Neon project and the Firebase backend.
 
+## Scheduled reminders (optional, recommended)
+
+The Announce page can hold reminders that go out at a set time, for example
+"Projector on, desks open" to the team at 07:00. They send on time only if
+something calls the portal every minute. Without that they still go out
+while a big screen page is open, but do not rely on it.
+
+1. Make a secret: `firebase apphosting:secrets:set portal-cron-secret`
+   (paste any long random text), and let the backend read it when asked.
+2. In `apphosting.yaml`, remove the `#` in front of the `CRON_SECRET` lines.
+3. Create the scheduler job (Google Cloud, Cloud Scheduler), with the same
+   secret text:
+
+   ```sh
+   gcloud scheduler jobs create http portal-reminders \
+     --location=asia-southeast1 --schedule="* * * * *" \
+     --uri="https://<the portal address>/api/cron/reminders" \
+     --http-method=POST \
+     --headers="Authorization=Bearer <the secret text>"
+   ```
+
+4. On the Announce page the scheduler line turns to "running" within a minute.
+
+The address answers only with the right secret, so it is safe to leave on.
+Pause or delete the job after the event.
+
 ## How the event code works
 
 - The QR codes on the projector, posters and table tents carry the code, so
