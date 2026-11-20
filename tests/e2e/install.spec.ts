@@ -51,3 +51,16 @@ test('the secretariat installs as its own app, opening at /admin', async ({ page
     '/manifest.webmanifest',
   );
 });
+
+test('the big screen and the kiosk install as their own full screen apps', async ({ request }) => {
+  for (const [path, short] of [
+    ['/screen', 'Screen'],
+    ['/kiosk', 'Kiosk'],
+  ] as const) {
+    const manifest = await (await request.get(`${path}/app.webmanifest`)).json();
+    expect(manifest.start_url).toBe(path);
+    expect(manifest.scope).toBe(path);
+    expect(manifest.display).toBe('fullscreen');
+    expect(manifest.short_name).toBe(short);
+  }
+});

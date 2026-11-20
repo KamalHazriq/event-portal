@@ -300,7 +300,9 @@ export interface PushRepository {
    * changed when it is given, so an attendee sign up does not switch a
    * secretariat phone's team alerts off.
    */
-  save(input: Omit<PushSubscriptionRecord, 'createdAt' | 'team'> & { team?: boolean }): Promise<void>;
+  save(
+    input: Omit<PushSubscriptionRecord, 'createdAt' | 'team'> & { team?: boolean },
+  ): Promise<void>;
   /** Switches team alerts on or off for one phone. */
   setTeam(endpoint: string, team: boolean): Promise<boolean>;
   get(endpoint: string): Promise<PushSubscriptionRecord | null>;

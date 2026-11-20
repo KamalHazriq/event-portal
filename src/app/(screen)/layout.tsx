@@ -1,5 +1,10 @@
+import type { Metadata } from 'next';
+
 import { getEventConfig } from '@/lib/config';
 import { resolveTheme } from '@/lib/theme';
+
+/** Installs as its own full screen app. */
+export const metadata: Metadata = { manifest: '/screen/app.webmanifest' };
 
 /**
  * The projector shell. No header, no navigation, nothing to click: just the

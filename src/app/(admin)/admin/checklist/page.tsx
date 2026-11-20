@@ -1,6 +1,14 @@
 import type { Metadata } from 'next';
 
+import { headers } from 'next/headers';
+
+import { getData } from '@/data';
 import { requireAdmin } from '@/lib/admin-guard';
+import { getAdminPin } from '@/lib/auth';
+import { getEventConfig } from '@/lib/config';
+import { eventPass } from '@/lib/event-pass-server';
+import { REMINDERS_KEY, REMINDERS_PING_KEY, parseReminders } from '@/modules/reminders/logic';
+import { hostOf, readyItems } from '@/modules/readiness/logic';
 import { clearTestData } from '@/modules/checklist/actions';
 import { TestPlan } from '@/modules/checklist/components/TestPlan';
 import { TEST_PLAN } from '@/modules/checklist/steps';
@@ -14,6 +22,24 @@ type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 export default async function ChecklistPage({ searchParams }: { searchParams: SearchParams }) {
   await requireAdmin('/admin/checklist');
   const params = await searchParams;
+  const data = getData();
+  const [attendees, subs, remindersRaw, pingRaw] = await Promise.all([
+    data.attendees.count(),
+    data.push.list(),
+    data.settings.get(REMINDERS_KEY),
+    data.settings.get(REMINDERS_PING_KEY),
+  ]);
+  const ready = readyItems({
+    attendees,
+    pinLength: getAdminPin()?.length ?? 0,
+    passSet: eventPass() !== null,
+    portalHost: hostOf(getEventConfig().event.portalUrl),
+    requestHost: (await headers()).get('x-forwarded-host') ?? (await headers()).get('host'),
+    teamPhones: subs.filter((p) => p.team).length,
+    eventPhones: subs.length,
+    remindersWaiting: parseReminders(remindersRaw).filter((r) => !r.sentAt).length,
+    schedulerRecent: !!pingRaw && new Date().getTime() - new Date(pingRaw).getTime() < 3 * 60 * 1000,
+  });
 
   return (
     <div className="max-w-4xl space-y-10">
@@ -25,6 +51,30 @@ export default async function ChecklistPage({ searchParams }: { searchParams: Se
           Print it with Ctrl and P.
         </p>
       </header>
+
+      <section
+        aria-labelledby="ready-h"
+        className="rounded-xl border border-line bg-surface p-4 print:hidden"
+      >
+        <h2 id="ready-h" className="text-xl font-bold text-ink">
+          Ready check
+        </h2>
+        <p className="text-ink-soft">What the portal can check by itself, right now.</p>
+        <ul className="mt-3 space-y-2">
+          {ready.map((item) => (
+            <li key={item.id} className="flex gap-3">
+              <span aria-hidden className={item.ok ? 'text-success' : 'text-warning'}>
+                {item.ok ? '✓' : '!'}
+              </span>
+              <span className="text-ink">
+                <span className="sr-only">{item.ok ? 'OK: ' : 'Needs attention: '}</span>
+                {item.label}
+                {item.ok ? null : <span className="block text-sm text-ink-soft">{item.fix}</span>}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </section>
 
       <TestPlan parts={TEST_PLAN} />
 

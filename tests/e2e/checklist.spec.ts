@@ -14,6 +14,8 @@ test('tick the plan, and clear test data behind a typed word', async ({ page }) 
   await page.getByLabel('Admin PIN').fill(PIN);
   await page.getByRole('button', { name: 'Sign in' }).click();
   await expect(page.getByRole('heading', { name: 'Test plan', level: 1 })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Ready check' })).toBeVisible();
+  await expect(page.getByText('Secretariat PIN is set and long enough')).toBeVisible();
 
   // Both user types are there, and ticks survive a reload.
   await expect(page.getByRole('heading', { name: 'As an attendee, on a phone' })).toBeVisible();

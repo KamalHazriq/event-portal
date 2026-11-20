@@ -112,6 +112,12 @@ export default async function BigScreenControlPage() {
           <li>Press F11 for full screen. Leave it open all day.</li>
         </ol>
         <p className="mt-3 text-ink">
+          <span className="font-bold">A shortcut instead of a link:</span> on /screen, in Chrome or
+          Edge open the menu, choose Save and share (Chrome) or Apps (Edge), then Install this page
+          as an app. You get a desktop icon that opens the big screen full screen on its own. The
+          check in kiosk installs the same way from /kiosk.
+        </p>
+        <p className="mt-3 text-ink">
           <span className="font-bold">Using the same laptop for the secretariat?</span> Plug in the
           projector, set the display to Extend (Windows key and P), open /screen in a new window,
           drag that window onto the projector, then press F11. Keep this admin window on the laptop.

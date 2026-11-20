@@ -29,6 +29,8 @@ export function isOpenPath(pathname: string): boolean {
     // home screen from the page that asks for the code.
     pathname === '/manifest.webmanifest' ||
     pathname === '/admin/app.webmanifest' ||
+    pathname === '/screen/app.webmanifest' ||
+    pathname === '/kiosk/app.webmanifest' ||
     pathname === '/robots.txt' ||
     // The alerts service worker: fixed code, no event data in it.
     pathname === '/sw.js' ||
