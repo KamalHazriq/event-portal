@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useEffect, useRef } from 'react';
 
 import { ADMIN_GROUPS, ADMIN_PAGES, groupHref, type AdminPage } from './admin-pages';
 import { Icon } from './icons';
@@ -43,9 +44,20 @@ function tabPages(pathname: string): AdminPage[] {
 /** Phones and tablets: one swipeable row of tabs under the header. */
 export function AdminTabs() {
   const pathname = usePathname();
+  const row = useRef<HTMLUListElement>(null);
+
+  // Bring the tab you are on into view, so a section far along the row is not hidden.
+  useEffect(() => {
+    const list = row.current;
+    const tab = list?.querySelector<HTMLElement>('[aria-current="page"]');
+    if (list && tab) {
+      list.scrollTo({ left: tab.offsetLeft - list.clientWidth / 2 + tab.clientWidth / 2 });
+    }
+  }, [pathname]);
+
   return (
     <nav aria-label="Secretariat" className="px-2 lg:hidden">
-      <ul className="no-scrollbar flex gap-1 overflow-x-auto">
+      <ul ref={row} className="no-scrollbar relative flex gap-1 overflow-x-auto">
         {tabPages(pathname).map((page) => {
           const active =
             page.href === '/admin' ? pathname === '/admin' : isActive(pathname, page.href);

@@ -134,8 +134,11 @@ test('Slido fails: the portal takes over Q&A and polls, then hands back', async 
   // Results stay hidden from the room until revealed.
   await expect(phone.getByText('Results,')).toHaveCount(0);
   await card.getByRole('button', { name: 'Reveal results' }).click();
-  await phone.reload();
-  await expect(phone.getByText('Results, 1 answer')).toBeVisible();
+  // The click saves in the background: reload until the phone sees it.
+  await expect(async () => {
+    await phone.reload();
+    await expect(phone.getByText('Results, 1 answer')).toBeVisible({ timeout: 2_000 });
+  }).toPass({ timeout: 15_000 });
 
   await card.getByRole('button', { name: 'Put on the big screen' }).click();
   await admin.goto('/screen/poll');

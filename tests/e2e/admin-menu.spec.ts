@@ -65,3 +65,16 @@ test('the sidebar shows the four sections, and opens the one you are in', async 
   await expect(page).toHaveURL(/\/admin\/on-the-day$/);
   await expect(nav.getByRole('link', { name: 'Headcount' })).toBeVisible();
 });
+
+test('on a phone the tab you are on is brought into view', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'phone', 'the tab row is for phone width');
+  await page.goto('/admin/sign-in');
+  await page.getByLabel('Which desk is this?').fill('menu3');
+  await page.getByLabel('Admin PIN').fill(PIN);
+  await page.getByRole('button', { name: 'Sign in' }).click();
+  await page.goto('/admin/more');
+  const tab = page
+    .getByRole('navigation', { name: 'Secretariat' })
+    .getByRole('link', { name: 'More', exact: true });
+  await expect(tab).toBeInViewport({ ratio: 0.9 });
+});
