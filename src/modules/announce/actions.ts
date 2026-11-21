@@ -91,9 +91,7 @@ export async function sendTestToTeam(): Promise<void> {
     url: '/admin',
     tag: 'test-team',
   });
-  redirect(
-    `/admin/announce?test=${result.sent > 0 ? `team-sent-${result.sent}` : 'team-none'}`,
-  );
+  redirect(`/admin/announce?test=${result.sent > 0 ? `team-sent-${result.sent}` : 'team-none'}`);
 }
 
 /** Switches "tell the team when photos or comments are waiting" on or off. */

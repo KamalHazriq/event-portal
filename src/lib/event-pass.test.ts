@@ -5,6 +5,7 @@ import { proxy } from '@/proxy';
 
 import { displayUrl, isOpenPath, PASS_COOKIE, withPass } from './event-pass';
 import { digestMatches, passDigest } from './event-pass-server';
+import { resetRateLimits } from './rate-limit';
 
 const PASS = 'SUMMIT27';
 const request = (path: string, cookie?: string) =>
@@ -13,6 +14,7 @@ const request = (path: string, cookie?: string) =>
   });
 
 afterEach(() => {
+  resetRateLimits();
   vi.unstubAllEnvs();
 });
 
@@ -58,6 +60,33 @@ describe('the event pass gate', () => {
     const response = proxy(request('/?pass=nope'));
     expect(response.status).toBe(401);
     expect(response.headers.get('x-middleware-rewrite')).toContain('/pass?wrong=1');
+  });
+
+  it('slows down someone guessing the code, but only that one address', () => {
+    vi.stubEnv('EVENT_PASS', PASS);
+    const from = (ip: string, code: string) =>
+      new NextRequest(`https://portal.example.com/agenda?pass=${code}`, {
+        headers: { 'x-forwarded-for': ip },
+      });
+    for (let i = 0; i < 30; i += 1) {
+      expect(proxy(from('203.0.113.9', `WRONG${i}`)).status).toBe(401);
+    }
+    // The next try is refused, even with the right code.
+    expect(proxy(from('203.0.113.9', PASS)).status).toBe(429);
+    // Someone else at another address is not affected.
+    expect(proxy(from('198.51.100.4', PASS)).status).toBe(307);
+  });
+
+  it('does not count right codes, so one hall on one Wi-Fi never locks itself out', () => {
+    vi.stubEnv('EVENT_PASS', PASS);
+    for (let i = 0; i < 60; i += 1) {
+      const res = proxy(
+        new NextRequest(`https://portal.example.com/?pass=${PASS}`, {
+          headers: { 'x-forwarded-for': '203.0.113.50' },
+        }),
+      );
+      expect(res.status).toBe(307);
+    }
   });
 
   it('lets a phone with the cookie in', () => {

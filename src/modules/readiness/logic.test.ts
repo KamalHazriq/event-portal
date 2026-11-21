@@ -5,7 +5,9 @@ import { hostOf, readyItems, type ReadyFacts } from './logic';
 const good: ReadyFacts = {
   attendees: 300,
   pinLength: 8,
+  pinWeak: false,
   passSet: true,
+  passWeak: false,
   portalHost: 'portal.example.com',
   requestHost: 'portal.example.com',
   teamPhones: 3,
@@ -25,6 +27,8 @@ describe('ready check', () => {
     expect(bad({ attendees: 0 }, 'attendees')).toBe(false);
     expect(bad({ pinLength: 4 }, 'pin')).toBe(false);
     expect(bad({ passSet: false }, 'pass')).toBe(false);
+    expect(bad({ pinWeak: true }, 'pin')).toBe(false);
+    expect(bad({ passWeak: true }, 'pass')).toBe(false);
     expect(bad({ requestHost: 'other.example.com' }, 'address')).toBe(false);
     expect(bad({ teamPhones: 0 }, 'team')).toBe(false);
     expect(bad({ remindersWaiting: 2 }, 'scheduler')).toBe(false);

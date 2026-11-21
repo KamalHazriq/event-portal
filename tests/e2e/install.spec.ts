@@ -70,3 +70,15 @@ test('the health check answers without the event code', async ({ request }) => {
   expect(res.status()).toBe(200);
   expect((await res.json()).ok).toBe(true);
 });
+
+test('every page carries the security headers', async ({ request }) => {
+  for (const path of ['/', '/agenda', '/api/health', '/admin/sign-in']) {
+    const res = await request.get(path);
+    const h = res.headers();
+    expect(h['x-content-type-options'], path).toBe('nosniff');
+    expect(h['x-frame-options'], path).toBe('DENY');
+    expect(h['referrer-policy'], path).toBe('strict-origin-when-cross-origin');
+    expect(h['permissions-policy'], path).toContain('camera=(self)');
+    expect(h['content-security-policy'], path).toContain("frame-ancestors 'none'");
+  }
+});

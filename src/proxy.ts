@@ -14,6 +14,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { isOpenPath, PASS_COOKIE, PASS_COOKIE_MAX_AGE, PASS_PARAM } from '@/lib/event-pass';
 import { digestMatches, eventPass, passDigest } from '@/lib/event-pass-server';
 import { KIOSK_COOKIE, kioskBlocks, kioskLockRequested } from '@/lib/kiosk';
+import { isRateLimited, LIMITS, rateLimit } from '@/lib/rate-limit';
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -52,6 +53,19 @@ function passGate(request: NextRequest) {
   const offered = searchParams.get(PASS_PARAM);
 
   if (offered !== null) {
+    // Guessing the code is slowed down. Only wrong guesses count, so a hall of
+    // people on one hotel Wi-Fi, all typing it right, never lock each other out.
+    const caller =
+      request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+      request.headers.get('x-real-ip') ||
+      'local';
+    const key = `pass:${caller}`;
+    if (!isRateLimited(key, LIMITS.passGuess).allowed) {
+      return new NextResponse('Too many tries. Wait a few minutes, then try again.', {
+        status: 429,
+        headers: { 'Retry-After': '300' },
+      });
+    }
     if (digestMatches(passDigest(offered.trim()), expected)) {
       // Into the page they asked for, with the code out of the address bar
       // so it is not shared by accident with a screenshot.
@@ -67,6 +81,7 @@ function passGate(request: NextRequest) {
       });
       return response;
     }
+    rateLimit(key, LIMITS.passGuess);
     return gate(request, true);
   }
 

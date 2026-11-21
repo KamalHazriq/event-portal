@@ -97,6 +97,8 @@ export function resetRateLimits(): void {
 export const LIMITS = {
   /** Guessing the admin PIN. */
   adminPin: { limit: 10, windowMs: 10 * 60 * 1000 },
+  /** Guessing the event code. Only wrong guesses count. */
+  passGuess: { limit: 30, windowMs: 10 * 60 * 1000 },
   /** Recording arrivals from one desk. */
   checkIn: { limit: 240, windowMs: 60 * 1000 },
   /** Feedback submissions from one device. Generous: a person fills in

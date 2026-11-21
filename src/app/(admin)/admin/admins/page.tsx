@@ -141,7 +141,10 @@ export default async function AdminsPage({ searchParams }: { searchParams: Searc
               <input type="checkbox" name="confirm" value="yes" className="size-5" />
               Yes, sign every phone out of the leaderboard
             </label>
-            <button type="submit" className="min-h-11 rounded-lg bg-live px-5 font-bold text-canvas">
+            <button
+              type="submit"
+              className="min-h-11 rounded-lg bg-live px-5 font-bold text-canvas"
+            >
               Reset the leaderboard sign ins
             </button>
           </form>

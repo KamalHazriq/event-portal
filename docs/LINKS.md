@@ -1,7 +1,8 @@
 # Power Summit portal: every link, in full
 
-Event code (attendees only, if asked): summit-2027
-The secretariat PIN is not written here; give it only to the team.
+The event code and the secretariat PIN are not written here, on purpose: this
+repository may be public. Ask the secretariat, and give them only to the people
+who need them.
 
 ## 1. The important ones
 

@@ -5,7 +5,11 @@
 export type ReadyFacts = {
   attendees: number;
   pinLength: number;
+  /** The PIN is short, common or a simple pattern. */
+  pinWeak: boolean;
   passSet: boolean;
+  /** The event code is short or made of obvious words and years. */
+  passWeak: boolean;
   /** The portal address from the event config, and the host this page was opened on. */
   portalHost: string;
   requestHost: string | null;
@@ -39,20 +43,24 @@ export function readyItems(f: ReadyFacts): ReadyItem[] {
     },
     {
       id: 'pin',
-      ok: f.pinLength >= 6,
+      ok: f.pinLength >= 6 && !f.pinWeak,
       label:
-        f.pinLength >= 6
-          ? 'Secretariat PIN is set and long enough'
-          : 'Secretariat PIN is short or missing',
-      fix: 'Use a PIN of at least 6 characters in the portal-admin-pin secret, then roll out.',
+        f.pinLength < 6
+          ? 'Secretariat PIN is short or missing'
+          : f.pinWeak
+            ? 'Secretariat PIN is easy to guess'
+            : 'Secretariat PIN is set and hard to guess',
+      fix: 'Use a PIN of 8 or more letters and numbers that is not a pattern, in the portal-admin-pin secret, then roll out. Everyone signs in again.',
     },
     {
       id: 'pass',
-      ok: f.passSet,
-      label: f.passSet
-        ? 'Event code is on, so only participants get in'
-        : 'No event code: the portal is open to anyone with the link',
-      fix: 'Set the portal-event-pass secret and roll out.',
+      ok: f.passSet && !f.passWeak,
+      label: !f.passSet
+        ? 'No event code: the portal is open to anyone with the link'
+        : f.passWeak
+          ? 'Event code is easy to guess'
+          : 'Event code is on, and hard to guess',
+      fix: 'Set the portal-event-pass secret to a random code of 10 or more characters and roll out, BEFORE printing name tags (the QR carries it). Nobody types it.',
     },
     {
       id: 'address',

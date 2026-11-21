@@ -5,6 +5,7 @@ import { headers } from 'next/headers';
 import { getData } from '@/data';
 import { requireAdmin } from '@/lib/admin-guard';
 import { getAdminPin } from '@/lib/auth';
+import { weakEventCode, weakPin } from '@/lib/secret-strength';
 import { getEventConfig } from '@/lib/config';
 import { eventPass } from '@/lib/event-pass-server';
 import { REMINDERS_KEY, REMINDERS_PING_KEY, parseReminders } from '@/modules/reminders/logic';
@@ -34,7 +35,9 @@ export default async function ChecklistPage({ searchParams }: { searchParams: Se
   const ready = readyItems({
     attendees,
     pinLength: getAdminPin()?.length ?? 0,
+    pinWeak: weakPin(getAdminPin() ?? ''),
     passSet: eventPass() !== null,
+    passWeak: weakEventCode(eventPass() ?? ''),
     portalHost: hostOf(getEventConfig().event.portalUrl),
     requestHost: (await headers()).get('x-forwarded-host') ?? (await headers()).get('host'),
     teamPhones: subs.filter((p) => p.team).length,
