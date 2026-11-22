@@ -25,6 +25,7 @@ export function ScreenFrame({
   payload,
   reactions = [],
   banner = null,
+  calm = false,
   shortName,
   orgLogo = null,
   clock,
@@ -35,6 +36,8 @@ export function ScreenFrame({
   reactions?: { id: string; emoji: string }[];
   /** The secretariat's announcement, shown across the foot of every view. */
   banner?: string | null;
+  /** No moving background and no hexagon wipe, for a weak projector laptop. */
+  calm?: boolean;
   shortName: string;
   /** The organiser's logo (Digital & Information), top left on every view. */
   orgLogo?: { src: string; alt: string } | null;
@@ -44,7 +47,7 @@ export function ScreenFrame({
   return (
     <main
       id="main"
-      className={`screen-glow relative flex h-dvh w-full flex-col overflow-hidden px-[5vw] pt-[9vh] ${banner ? 'pb-[16vh]' : 'pb-[5vh]'}`}
+      className={`screen-glow ${calm ? 'screen-calm' : ''} relative flex h-dvh w-full flex-col overflow-hidden px-[5vw] pt-[9vh] ${banner ? 'pb-[16vh]' : 'pb-[5vh]'}`}
     >
       <AutoRefresh intervalMs={SCREEN_POLL_MS} />
       {/* The same calm navy backdrop behind every view. */}
@@ -85,7 +88,7 @@ export function ScreenFrame({
       </div>
 
       {/* A hexagon wipe covers the change when the MC picks another view. */}
-      <ViewTransition viewKey={payload.view}>
+      <ViewTransition viewKey={payload.view} enabled={!calm}>
         <div key={payload.view} className="relative min-h-0 flex-1">
           {payload.view === 'welcome' ? <WelcomeView {...payload.props} /> : null}
           {payload.view === 'now-next' ? <NowNextView {...payload.props} /> : null}

@@ -74,11 +74,12 @@ export async function loadScreenReactions(): Promise<{ id: string; emoji: string
 
 export async function readScreenSettings(): Promise<ScreenSettings> {
   const data = getData();
-  const [view, hideNames] = await Promise.all([
+  const [view, hideNames, calm] = await Promise.all([
     data.settings.get(SCREEN_KEYS.view),
     data.settings.get(SCREEN_KEYS.hideNames),
+    data.settings.get(SCREEN_KEYS.calm),
   ]);
-  return resolveScreenSettings({ view, hideNames });
+  return resolveScreenSettings({ view, hideNames, calm });
 }
 
 function toScreenSession(s: ResolvedSession): ScreenSession {

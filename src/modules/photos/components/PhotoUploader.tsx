@@ -129,6 +129,11 @@ export function PhotoUploader({
               ? 'An organiser checks every photo before it goes on the big screen.'
               : 'It goes straight onto the big screen, so keep it friendly.'}
           </p>
+          <p className="text-sm text-ink-soft">
+            By sharing a photo you agree it may be shown on the big screen and kept by the
+            organisers as an event record. Only share photos you are happy to show, and leave out
+            anyone who would rather not appear.
+          </p>
         </div>
       ) : (
         <p className="rounded-xl border border-line bg-surface p-4 text-ink">

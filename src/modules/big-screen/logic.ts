@@ -27,6 +27,8 @@ export type ScreenView = (typeof SCREEN_VIEWS)[number];
 export const SCREEN_KEYS = {
   view: 'bigscreen.view',
   hideNames: 'bigscreen.hideNames',
+  /** Calm mode: no moving background and no hexagon wipe, for a weak projector laptop. */
+  calm: 'bigscreen.calm',
 } as const;
 
 export const DEFAULT_SCREEN_VIEW: ScreenView = 'welcome';
@@ -35,16 +37,18 @@ export function isScreenView(value: unknown): value is ScreenView {
   return typeof value === 'string' && (SCREEN_VIEWS as readonly string[]).includes(value);
 }
 
-export type ScreenSettings = { view: ScreenView; hideNames: boolean };
+export type ScreenSettings = { view: ScreenView; hideNames: boolean; calm: boolean };
 
 /** Stored settings, with anything missing or unrecognised falling back. */
 export function resolveScreenSettings(stored: {
   view: string | null;
   hideNames: string | null;
+  calm?: string | null;
 }): ScreenSettings {
   return {
     view: isScreenView(stored.view) ? stored.view : DEFAULT_SCREEN_VIEW,
     hideNames: stored.hideNames === 'true',
+    calm: stored.calm === 'true',
   };
 }
 

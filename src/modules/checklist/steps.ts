@@ -364,6 +364,13 @@ export const TEST_PLAN: Part[] = [
             href: '/admin/headcount',
           },
           {
+            id: 's-desk-offline',
+            do: 'With the Desk page open on a phone, switch on airplane mode (or turn Wi-Fi off), then check in someone by name from the Whole list. Switch the connection back on.',
+            expect:
+              'An amber bar says "No connection" and the check in is saved on the device ("1 check in saved"). When the connection returns it sends itself, the bar goes, and Headcount shows the person. Do not reload the page while offline.',
+            href: '/admin/desk',
+          },
+          {
             id: 's-desk-undoall',
             do: 'On Desk (or Headcount), press "Undo all attendance (for testing)", choose a day, type UNDO and confirm.',
             expect:
@@ -402,6 +409,13 @@ export const TEST_PLAN: Part[] = [
             do: 'From the Big screen page show each view in turn: Welcome, Now and next, Arrivals, Countdown, Lucky draw, Photo wall, Questions, Poll, Leaderboard, Comments.',
             expect:
               'A hexagon wipe covers each change, then the new view appears within a few seconds. The Welcome QR scans. Arrivals counts guests only.',
+            href: '/admin/big-screen',
+          },
+          {
+            id: 's-screen-calm',
+            do: 'If the projector laptop stutters: on the Big screen page, under Effects, press "Calm mode: turn the effects off". Press it again to turn them back on.',
+            expect:
+              'In calm mode the background stands still and views change straight away. Turn effects back on if the laptop copes.',
             href: '/admin/big-screen',
           },
           {
@@ -488,6 +502,12 @@ export const TEST_PLAN: Part[] = [
             do: 'On Reports, download the Excel report, open the PDF summary, and upload the Slido export.',
             expect:
               'The workbook has attendance, departments, feedback and the lucky draw. Department short names are in their own column.',
+            href: '/admin/reports',
+          },
+          {
+            id: 's-after-backup',
+            do: 'At the end of EACH event day, on Reports, download the Excel file and the approved photos. Keep a copy outside the portal.',
+            expect: 'Two files saved. If anything went wrong overnight you still have the day.',
             href: '/admin/reports',
           },
           {

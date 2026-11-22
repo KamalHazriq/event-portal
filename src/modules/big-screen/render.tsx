@@ -54,6 +54,7 @@ export async function renderScreen(options: {
       payload={payload}
       reactions={reactions}
       banner={banner}
+      calm={settings.calm}
       shortName={config.event.shortName}
       orgLogo={
         config.branding.organisationLogoPath

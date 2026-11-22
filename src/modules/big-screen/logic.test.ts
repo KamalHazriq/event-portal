@@ -19,6 +19,7 @@ describe('screen settings', () => {
     expect(resolveScreenSettings({ view: null, hideNames: null })).toEqual({
       view: DEFAULT_SCREEN_VIEW,
       hideNames: false,
+      calm: false,
     });
   });
 
@@ -26,6 +27,7 @@ describe('screen settings', () => {
     expect(resolveScreenSettings({ view: '<script>', hideNames: 'yes' })).toEqual({
       view: 'welcome',
       hideNames: false,
+      calm: false,
     });
   });
 
@@ -33,7 +35,9 @@ describe('screen settings', () => {
     expect(resolveScreenSettings({ view: 'arrivals', hideNames: 'true' })).toEqual({
       view: 'arrivals',
       hideNames: true,
+      calm: false,
     });
+    expect(resolveScreenSettings({ view: null, hideNames: null, calm: 'true' }).calm).toBe(true);
   });
 
   it('describes every view', () => {

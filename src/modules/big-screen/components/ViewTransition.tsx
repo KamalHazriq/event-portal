@@ -88,9 +88,12 @@ function HexCells({ phase }: { phase: 'cover' | 'reveal' }) {
 
 export function ViewTransition({
   viewKey,
+  enabled = true,
   children,
 }: {
   viewKey: string;
+  /** Off in calm mode: the view just changes. */
+  enabled?: boolean;
   children: React.ReactNode;
 }) {
   // What is on screen: the old view until the cells cover it.
@@ -101,7 +104,7 @@ export function ViewTransition({
     latest.current = children;
   });
 
-  const covering = viewKey !== shown.key;
+  const covering = enabled && viewKey !== shown.key;
 
   useEffect(() => {
     if (!covering) return;
@@ -122,7 +125,9 @@ export function ViewTransition({
     <>
       {/* The live view keeps updating while it is the one on screen. */}
       {covering ? shown.node : children}
-      {covering || revealing ? <HexCells phase={covering ? 'cover' : 'reveal'} /> : null}
+      {enabled && (covering || revealing) ? (
+        <HexCells phase={covering ? 'cover' : 'reveal'} />
+      ) : null}
     </>
   );
 }

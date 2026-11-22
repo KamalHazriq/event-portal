@@ -80,8 +80,9 @@ export default async function RunbookPage() {
       title: 'Projector laptop',
       body: (
         <>
-          Open <code>{address}/screen</code>, sign in as <code>screen</code>, press F11 for full
-          screen. It follows the view chosen on the Big screen page.
+          Open <code>{address}/screen</code> (or the installed Big screen app), sign in as{' '}
+          <code>screen</code>, press F11 for full screen. It follows the view chosen on the Big
+          screen page. If it stutters, switch on calm mode there.
         </>
       ),
     },
@@ -92,7 +93,8 @@ export default async function RunbookPage() {
             body: (
               <>
                 Sign in at <code>/admin</code> as <code>desk-1</code>, <code>desk-2</code> and so
-                on, then open Desk. Test one business card scan and one name search.
+                on, then open On the day, then Desk. Test one business card scan and one name
+                search. Keep the Desk page open all day: it keeps working if the Wi-Fi drops.
               </>
             ),
           },
@@ -105,6 +107,10 @@ export default async function RunbookPage() {
           Sign in as <code>mc</code>, keep Live and Big screen open.
         </>
       ),
+    },
+    {
+      title: 'Open the Test plan',
+      body: 'Set up, then Test plan: every line of the Ready check should have a tick.',
     },
     {
       title: 'Check the Wi-Fi and the mobile data',
@@ -145,6 +151,10 @@ export default async function RunbookPage() {
       fix: 'Phones carry on over mobile data; the portal is on the internet, not the hotel network. The projector keeps its last view: reconnect the laptop and it catches up within seconds.',
     },
     {
+      problem: 'The Wi-Fi drops at the desk',
+      fix: 'Keep scanning and checking in. An amber bar says how many check ins are saved on that device, and they go through by themselves when the connection is back (or press Send now). Do not reload the Desk page while offline. The big counter catches up afterwards.',
+    },
+    {
       problem: 'A business card will not scan',
       fix: 'Screen brightness up and closer to the camera; otherwise search by name or pick from the whole list on the Desk page. Nobody waits more than a few seconds.',
     },
@@ -167,6 +177,22 @@ export default async function RunbookPage() {
     {
       problem: 'The portal is slow or will not load',
       fix: 'Check the dashboard Storage card. In the Firebase console, App Hosting shows whether the latest rollout is healthy; roll back to the previous one if a new one broke something.',
+    },
+    {
+      problem: 'The big screen stutters',
+      fix: 'Big screen page, Effects: Calm mode turns off the moving background and the hexagon wipe. Close other programs on the laptop and keep it plugged in.',
+    },
+    {
+      problem: 'Alerts are not arriving on a phone',
+      fix: 'iPhone: the portal must be added to the Home Screen first, then opened from the icon. Android: allow notifications. On Announce, under Test your alerts, send a test to check.',
+    },
+    {
+      problem: 'A phone was lost, or the PIN got out',
+      fix: 'Admins page, Resets: Sign everyone out, then change the PIN (the portal-admin-pin secret) and roll out. Everyone signs in again with the new one.',
+    },
+    {
+      problem: 'The self check in tablet is stuck or locked',
+      fix: 'Open the Secretariat link at its foot (or /admin) and enter the PIN: that unlocks it. To use it again, open /kiosk?lock=1 from the Desk page.',
     },
     {
       problem: 'Something wrong is on the big screen',
@@ -362,7 +388,7 @@ export default async function RunbookPage() {
               : []),
             {
               title: 'Close the portal',
-              body: 'Change the event code (the portal-event-pass secret) so the portal closes to everyone.',
+              body: 'Change the event code (the portal-event-pass secret) and the PIN so the portal closes to everyone.',
             },
             {
               title: 'Clean up',

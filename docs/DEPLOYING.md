@@ -149,6 +149,15 @@ while a big screen page is open, but do not rely on it.
 The address answers only with the right secret, so it is safe to leave on.
 Pause or delete the job after the event.
 
+## Keeping the database awake
+
+The free Neon database pauses when nobody has used it for a few minutes, and
+the first request afterwards waits about a second for it to wake. During the
+event it is busy all day, so it stays awake. To keep it awake in the quiet
+hours before, set up the scheduler job under "Scheduled reminders" above: it
+touches the database every minute. The uptime check under "Know if the site
+goes down" does the same.
+
 ## Know if the site goes down (optional)
 
 `/api/health` answers 200 when the portal and its database are working, and

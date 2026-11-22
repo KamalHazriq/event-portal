@@ -1678,3 +1678,12 @@ main:has(.hex-wipe) .screen-blob,
 main:has(.hex-wipe) .screen-sweep {
   animation-play-state: paused;
 }
+
+/* Calm mode: the backdrop stands still, with no sweeping line. */
+.screen-calm .screen-blob,
+.screen-calm .screen-sweep {
+  animation: none !important;
+}
+.screen-calm .screen-sweep {
+  display: none;
+}

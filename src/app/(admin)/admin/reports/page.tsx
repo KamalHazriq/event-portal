@@ -63,7 +63,22 @@ export default async function ReportsPage({ searchParams }: { searchParams: Sear
           >
             Summary for PDF
           </Link>
+          {config.features.photoWall ? (
+            // A download, not a page: it has to be a plain link.
+            // eslint-disable-next-line @next/next/no-html-link-for-pages
+            <a
+              href="/api/photos/zip"
+              className="inline-flex min-h-11 items-center rounded-lg border border-line px-4 font-semibold text-ink no-underline"
+            >
+              Download approved photos
+            </a>
+          ) : null}
         </div>
+        <p className="mt-3 text-sm text-ink-soft">
+          <span className="font-semibold text-ink">End of day backup:</span> download the Excel file
+          (and the photos) at the end of each event day and keep a copy outside the portal. It is
+          the quickest way to be safe if anything goes wrong overnight.
+        </p>
         <p className="mt-3 text-sm text-ink-soft">
           The Excel file holds names, so keep it on approved storage and do not forward it outside
           the secretariat.

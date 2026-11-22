@@ -127,3 +127,30 @@ test('the MC switches the projector from a phone', async ({ browser }, testInfo)
   await phone.getByRole('button', { name: 'Show names' }).click();
   await phone.getByRole('button', { name: /^Welcome/ }).click();
 });
+
+test('calm mode turns the screen effects off from the big screen page', async ({
+  browser,
+}, testInfo) => {
+  test.skip(testInfo.project.name !== 'desktop', 'Changes a shared setting, so runs once.');
+
+  const projector = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
+  const phone = await browser.newPage({ viewport: { width: 375, height: 812 } });
+  await signIn(projector, 'screen-calm');
+  await signIn(phone, 'mc-calm');
+
+  await projector.goto('/screen/welcome');
+  await expect(projector.locator('.screen-calm')).toHaveCount(0);
+
+  await phone.goto('/admin/big-screen');
+  await phone.getByRole('button', { name: 'Calm mode: turn the effects off' }).click();
+  await expect(phone.getByRole('button', { name: 'Turn the effects on' })).toBeVisible();
+
+  await projector.goto('/screen/welcome');
+  await expect(projector.locator('.screen-calm')).toHaveCount(1);
+
+  // Put it back for whoever runs next.
+  await phone.getByRole('button', { name: 'Turn the effects on' }).click();
+  await expect(
+    phone.getByRole('button', { name: 'Calm mode: turn the effects off' }),
+  ).toBeVisible();
+});

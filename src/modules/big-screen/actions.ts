@@ -29,6 +29,17 @@ export async function setScreenView(formData: FormData): Promise<void> {
   revalidatePath('/admin/big-screen');
 }
 
+/** Calm mode on or off: no moving background and no hexagon wipe. */
+export async function setScreenCalm(formData: FormData): Promise<void> {
+  await assertAdmin();
+  const calm = String(formData.get('calm') ?? '') === 'true';
+  await getData().settings.set(SCREEN_KEYS.calm, calm ? 'true' : 'false');
+  await recordActivity(
+    calm ? 'Turned the big screen to calm mode' : 'Turned the big screen effects on',
+  );
+  revalidatePath('/admin/big-screen');
+}
+
 export async function setHideNames(formData: FormData): Promise<void> {
   await assertAdmin();
   const hide = String(formData.get('hideNames') ?? '') === 'true';

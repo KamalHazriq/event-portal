@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 
 import { requireAdmin } from '@/lib/admin-guard';
 import { getEventConfig } from '@/lib/config';
-import { setHideNames, setScreenView } from '@/modules/big-screen/actions';
+import { setHideNames, setScreenCalm, setScreenView } from '@/modules/big-screen/actions';
 import { ScaledPreview } from '@/modules/big-screen/components/ScaledPreview';
 import { readScreenSettings } from '@/modules/big-screen/load';
 import { availableScreenViews, SCREEN_VIEW_INFO } from '@/modules/big-screen/logic';
@@ -73,6 +73,25 @@ export default async function BigScreenControlPage() {
         })}
       </ul>
 
+      <section className="rounded-xl border border-line bg-surface p-4">
+        <h2 className="text-sm font-bold uppercase tracking-wide text-ink-soft">Effects</h2>
+        <p className="mt-1 text-ink">
+          Moving background and hexagon wipe are{' '}
+          <span className="font-bold">{settings.calm ? 'off (calm mode)' : 'on'}</span>.
+          {settings.calm
+            ? ' The screen stands still and views change straight away.'
+            : ' If the projector laptop stutters, turn on calm mode.'}
+        </p>
+        <form action={setScreenCalm} className="mt-3">
+          <input type="hidden" name="calm" value={settings.calm ? 'false' : 'true'} />
+          <button
+            type="submit"
+            className="min-h-11 rounded-lg border border-line px-4 font-semibold text-ink"
+          >
+            {settings.calm ? 'Turn the effects on' : 'Calm mode: turn the effects off'}
+          </button>
+        </form>
+      </section>
       <section className="rounded-xl border border-line bg-surface p-4">
         <h2 className="text-sm font-bold uppercase tracking-wide text-ink-soft">Arrivals</h2>
         <p className="mt-1 text-ink">
