@@ -6,11 +6,16 @@ import { getEventConfig } from '@/lib/config';
 import { shortDepartment } from '@/lib/departments';
 import { getData } from '@/data';
 import { joinAsPerson, joinLeaderboard, leaveLeaderboard } from '@/modules/points/actions';
+import { cookies, headers } from 'next/headers';
+
+import { DEVICE_COOKIE, readDeviceId } from '@/lib/device';
+import { LIMITS, rateLimit } from '@/lib/rate-limit';
 import { findByName } from '@/modules/points/logic';
 import { CAPS, POINT_LABELS, POINTS, type PointKind } from '@/modules/points/logic';
 import { currentPlayer, loadScoreboard } from '@/modules/points/server';
 import { AlertsOptIn } from '@/modules/announce/components/AlertsOptIn';
 import { InstallApp } from '@/components/InstallApp';
+import { FormPending } from '@/components/FormPending';
 
 export const dynamic = 'force-dynamic';
 
@@ -63,8 +68,17 @@ export default async function MyPointsPage({
   // has already joined as the person picked, who it is.
   const typed = (find ?? '').slice(0, 60);
   const data = getData();
-  const choices =
-    !me && typed.trim().length >= 2 ? findByName(await data.attendees.list(), typed) : [];
+  const searching = !me && typed.trim().length >= 3;
+  // Slowed down per phone and per address, so the names cannot be read out in bulk.
+  let tooManyFinds = false;
+  if (searching) {
+    const device = readDeviceId((await cookies()).get(DEVICE_COOKIE)?.value) ?? 'none';
+    const address = (await headers()).get('x-forwarded-for')?.split(',')[0]?.trim() || 'local';
+    tooManyFinds =
+      !rateLimit(`find:${device}`, LIMITS.nameFind).allowed ||
+      !rateLimit(`find-ip:${address}`, LIMITS.nameFindAddress).allowed;
+  }
+  const choices = searching && !tooManyFinds ? findByName(await data.attendees.list(), typed) : [];
   const taken = !me && state === 'taken' && who ? await data.attendees.get(who.slice(0, 64)) : null;
 
   // Only what is switched on is worth offering.
@@ -148,7 +162,8 @@ export default async function MyPointsPage({
           </p>
 
           {taken ? (
-            <form action={joinAsPerson} data-loader="Signing you in" className="mt-4 space-y-3">
+            <form action={joinAsPerson} className="mt-4 space-y-3">
+              <FormPending label="Signing you in" />
               <input type="hidden" name="attendeeId" value={taken.id} />
               <p className="font-semibold text-ink">
                 {taken.name} is already signed in on another phone.
@@ -191,6 +206,7 @@ export default async function MyPointsPage({
                     defaultValue={typed}
                     autoComplete="off"
                     placeholder="For example Aisyah"
+                    minLength={3}
                     className="mt-1 block min-h-12 w-full rounded-lg border border-line bg-background px-4 text-lg text-ink focus:border-primary focus:outline-none"
                   />
                 </div>
@@ -202,17 +218,26 @@ export default async function MyPointsPage({
                 </button>
               </form>
 
-              {typed.trim().length >= 2 ? (
-                choices.length === 0 ? (
+              {typed.trim().length > 0 && typed.trim().length < 3 ? (
+                <p className="mt-4 text-ink-soft">Type at least three letters of your name.</p>
+              ) : null}
+              {searching ? (
+                tooManyFinds ? (
+                  <p role="alert" className="mt-4 font-semibold text-ink">
+                    Too many searches from this phone. Wait a few minutes, or ask the registration
+                    desk.
+                  </p>
+                ) : choices.length === 0 ? (
                   <p className="mt-4 text-ink-soft">
-                    Nobody on the list has that name. Try another part of it, or ask the
-                    registration desk.
+                    Nobody on the list has that name. Type the start of your first or last name, or
+                    ask the registration desk.
                   </p>
                 ) : (
                   <ul className="mt-4 space-y-2" aria-label="Names that match">
                     {choices.map((person) => (
                       <li key={person.id}>
-                        <form action={joinAsPerson} data-loader="Signing you in">
+                        <form action={joinAsPerson}>
+                          <FormPending label="Signing you in" />
                           <input type="hidden" name="attendeeId" value={person.id} />
                           <button
                             type="submit"
@@ -241,9 +266,10 @@ export default async function MyPointsPage({
                 </summary>
                 <form
                   action={joinLeaderboard}
-                  data-loader="Signing you in"
+
                   className="mt-3 space-y-3"
                 >
+                  <FormPending label="Signing you in" />
                   <div>
                     <label htmlFor="staff-no" className="block text-sm font-semibold text-ink">
                       Staff number

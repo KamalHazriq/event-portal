@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useSyncExternalStore } from 'react';
 
 import { shouldSpin, spinSchedule } from '../logic';
+import { playFanfare, playTick, soundReady, subscribeSound } from '../sound';
 
 type Winner = { key: string; name: string; department: string };
 
@@ -36,6 +37,8 @@ export function LuckyDrawSpinner({
   const [shown, setShown] = useState(spinNames[0] ?? '');
   // Confetti only after a spin this screen actually showed.
   const [celebrate, setCelebrate] = useState(false);
+  // True on the server, so the hint never flashes before the page knows.
+  const sound = useSyncExternalStore(subscribeSound, soundReady, () => true);
 
   useEffect(() => {
     if (!spinning) return;
@@ -48,9 +51,11 @@ export function LuckyDrawSpinner({
       if (i >= gaps.length) {
         setSpinning(false);
         if (!reduce) setCelebrate(true);
+        playFanfare();
         return;
       }
       setShown(spinNames[(i * 7 + 3) % spinNames.length] ?? '');
+      playTick();
       timer = window.setTimeout(tick, gaps[i]);
       i += 1;
     };
@@ -65,6 +70,11 @@ export function LuckyDrawSpinner({
   return (
     <div className="relative flex h-full flex-col items-center justify-center overflow-hidden text-center">
       {celebrate ? <Confetti /> : null}
+      {sound ? null : (
+        <p className="absolute bottom-[1vh] right-[1vw] text-[clamp(0.7rem,1vw,1.2rem)] text-ink-soft opacity-70">
+          Click this screen once to turn the sound on
+        </p>
+      )}
 
       <p className="text-[clamp(1.2rem,2.6vw,3.5rem)] font-bold text-accent">
         {prize || 'Lucky draw'}

@@ -158,6 +158,16 @@ hours before, set up the scheduler job under "Scheduled reminders" above: it
 touches the database every minute. The uptime check under "Know if the site
 goes down" does the same.
 
+## The free alternative: GitHub's event-day watch
+
+`.github/workflows/event-watch.yml` runs on GitHub every 5 minutes on 13 to 16
+December only. It checks `/api/health` and, if the repository has a secret
+called `CRON_SECRET` (the same text as `portal-cron-secret`), sends the
+reminders that are due. A failed run emails you, so it works as a free "site
+is down" alert. GitHub can start a scheduled run a few minutes late, so
+reminders can be late by that much; Cloud Scheduler above is exact. Test it
+any time from the Actions tab: Event-day watch, Run workflow.
+
 ## Know if the site goes down (optional)
 
 `/api/health` answers 200 when the portal and its database are working, and

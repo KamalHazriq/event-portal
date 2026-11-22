@@ -174,10 +174,14 @@ describe('findByName', () => {
     expect(findByName(people, 'kamal muh')).toHaveLength(1);
     expect(findByName(people, 'zz')).toEqual([]);
   });
-  it('needs a word of two letters, and returns few', () => {
+  it('needs a word of three letters, matches the start of a name word, and returns few', () => {
     expect(findByName(people, 'a')).toEqual([]);
+    expect(findByName(people, 'mu')).toEqual([]);
     expect(findByName(people, '  ')).toEqual([]);
     expect(findByName(people, 'a aisy', 8).map((p) => p.name)).toEqual(['Nur Aisyah binti Ahmad']);
-    expect(findByName(people, 'mu', 1)).toHaveLength(1);
+    expect(findByName(people, 'muh', 1)).toHaveLength(1);
+    // The middle of a word does not count, so two or three letters cannot sweep the list.
+    expect(findByName(people, 'zim')).toEqual([]);
+    expect(findByName(people, 'hamir').map((p) => p.name)).toEqual(['Muhammad Azim bin Hamir']);
   });
 });

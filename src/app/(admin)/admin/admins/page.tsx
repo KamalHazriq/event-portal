@@ -13,6 +13,7 @@ import {
 } from '@/modules/admins/logic';
 import { resetLeaderboardSignIns, signEveryoneOut } from '@/modules/admins/actions';
 import { localClock } from '@/modules/reports/logic';
+import { FormPending } from '@/components/FormPending';
 
 export const dynamic = 'force-dynamic';
 
@@ -113,6 +114,7 @@ export default async function AdminsPage({ searchParams }: { searchParams: Searc
           action={signEveryoneOut}
           className="space-y-3 rounded-xl border border-line bg-surface p-4"
         >
+          <FormPending label="Signing everyone out" />
           <p className="font-bold text-ink">Sign every desk out</p>
           <p className="text-ink-soft">
             Everyone on the secretariat side, you included, has to enter the PIN again. Use it for a
@@ -132,6 +134,7 @@ export default async function AdminsPage({ searchParams }: { searchParams: Searc
             action={resetLeaderboardSignIns}
             className="space-y-3 rounded-xl border border-line bg-surface p-4"
           >
+            <FormPending label="Resetting" />
             <p className="font-bold text-ink">Reset the leaderboard sign ins</p>
             <p className="text-ink-soft">
               Every attendee phone that joined the leaderboard is signed out, so people pick their

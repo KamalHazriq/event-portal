@@ -17,6 +17,7 @@ import {
   POLL_KINDS,
   tallyPoll,
 } from '@/modules/polls/logic';
+import { FormPending } from '@/components/FormPending';
 
 export const dynamic = 'force-dynamic';
 
@@ -166,6 +167,7 @@ export default async function PollsAdminPage() {
       <section className="rounded-xl border border-line bg-surface p-4">
         <h2 className="text-lg font-bold text-ink">Write a new poll</h2>
         <form action={createPoll} className="mt-3 space-y-3">
+          <FormPending label="Saving the poll" />
           <label className="block text-sm font-semibold text-ink">
             Question
             <input

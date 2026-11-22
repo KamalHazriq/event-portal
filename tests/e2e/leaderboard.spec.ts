@@ -103,3 +103,14 @@ test('a phone joins by picking its name, and a second phone must prove it', asyn
   await page.goto('/me?find=zzzzzz');
   await expect(page.getByText(/Nobody on the list has that name/)).toBeVisible();
 });
+
+test('finding your name needs three letters, so the list cannot be read out', async ({ page }) => {
+  await page.goto('/me?find=sh');
+  await expect(page.getByText('Type at least three letters of your name.')).toBeVisible();
+  await expect(page.getByRole('list', { name: 'Names that match' })).toHaveCount(0);
+  // The middle of a name does not match, the start does.
+  await page.goto('/me?find=anti');
+  await expect(page.getByRole('list', { name: 'Names that match' })).toHaveCount(0);
+  await page.goto('/me?find=shan');
+  await expect(page.getByRole('list', { name: 'Names that match' })).toBeVisible();
+});

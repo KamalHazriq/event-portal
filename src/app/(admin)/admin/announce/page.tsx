@@ -37,6 +37,7 @@ import {
 } from '@/modules/reminders/logic';
 import { localDateTime } from '@/modules/reports/logic';
 import { localDateTimeToInstant } from '@/lib/time';
+import { FormPending } from '@/components/FormPending';
 
 export const dynamic = 'force-dynamic';
 
@@ -172,6 +173,7 @@ export default async function AnnouncementsPage({ searchParams }: { searchParams
         action={postAnnouncement}
         className="space-y-4 rounded-xl border border-line bg-surface p-4"
       >
+        <FormPending label="Posting" />
         <div>
           <label htmlFor="announce-text" className="block font-semibold text-ink">
             Message
@@ -272,6 +274,7 @@ export default async function AnnouncementsPage({ searchParams }: { searchParams
           action={addReminder}
           className="grid gap-3 sm:grid-cols-[auto_1fr_auto_auto] sm:items-end"
         >
+          <FormPending label="Saving the reminder" />
           <label className="block text-sm font-medium text-ink">
             Reminder time
             <input
@@ -377,6 +380,7 @@ export default async function AnnouncementsPage({ searchParams }: { searchParams
 
         <div className="flex flex-wrap gap-3">
           <form action={sendTestToTeam}>
+            <FormPending label="Sending" />
             <button
               type="submit"
               className="min-h-11 rounded-lg bg-primary px-4 font-bold text-on-primary"
@@ -385,6 +389,7 @@ export default async function AnnouncementsPage({ searchParams }: { searchParams
             </button>
           </form>
           <form action={sendTestAlert}>
+            <FormPending label="Sending" />
             <button
               type="submit"
               className="min-h-11 rounded-lg border border-line px-4 font-semibold text-ink"

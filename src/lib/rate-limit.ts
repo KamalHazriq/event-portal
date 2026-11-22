@@ -97,6 +97,10 @@ export function resetRateLimits(): void {
 export const LIMITS = {
   /** Guessing the admin PIN. */
   adminPin: { limit: 10, windowMs: 10 * 60 * 1000 },
+  /** Looking up names on My points, per phone. */
+  nameFind: { limit: 30, windowMs: 10 * 60 * 1000 },
+  /** The same, per address: generous, a whole hall shares one hotel Wi-Fi. */
+  nameFindAddress: { limit: 600, windowMs: 10 * 60 * 1000 },
   /** Guessing the event code. Only wrong guesses count. */
   passGuess: { limit: 30, windowMs: 10 * 60 * 1000 },
   /** Recording arrivals from one desk. */

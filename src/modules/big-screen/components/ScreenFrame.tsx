@@ -3,6 +3,8 @@ import { AutoRefresh } from '@/components/AutoRefresh';
 import { SCREEN_POLL_MS } from '../logic';
 import type { ScreenPayload } from '../load';
 import { ReactionOverlay } from './ReactionOverlay';
+import { SoundUnlock } from '@/modules/lucky-draw/components/SoundUnlock';
+
 import { ViewTransition } from './ViewTransition';
 import {
   ArrivalsView,
@@ -50,6 +52,7 @@ export function ScreenFrame({
       className={`screen-glow ${calm ? 'screen-calm' : ''} relative flex h-dvh w-full flex-col overflow-hidden px-[5vw] pt-[9vh] ${banner ? 'pb-[16vh]' : 'pb-[5vh]'}`}
     >
       <AutoRefresh intervalMs={SCREEN_POLL_MS} />
+      <SoundUnlock />
       {/* The same calm navy backdrop behind every view. */}
       <div
         aria-hidden="true"

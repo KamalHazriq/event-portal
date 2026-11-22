@@ -15,6 +15,7 @@ import { UndoAllButton } from '@/modules/check-in/components/UndoAllButton';
 import { clearTestData } from '@/modules/checklist/actions';
 import { TestPlan } from '@/modules/checklist/components/TestPlan';
 import { TEST_PLAN } from '@/modules/checklist/steps';
+import { FormPending } from '@/components/FormPending';
 
 export const dynamic = 'force-dynamic';
 
@@ -120,6 +121,7 @@ export default async function ChecklistPage({ searchParams }: { searchParams: Se
           action={clearTestData}
           className="mt-3 space-y-4 rounded-xl border border-line bg-surface p-5"
         >
+          <FormPending label="Clearing" />
           <div>
             <p className="font-bold text-ink">This clears</p>
             <ul className="mt-1 list-disc pl-5 text-ink-soft">

@@ -24,6 +24,7 @@ import {
   resolveExclusions,
 } from '@/modules/lucky-draw/logic';
 import { localClock } from '@/modules/reports/logic';
+import { FormPending } from '@/components/FormPending';
 
 export const dynamic = 'force-dynamic';
 
@@ -201,6 +202,7 @@ export default async function LuckyDrawPage() {
           secretariat start unticked. Only people checked in that day are ever drawn.
         </p>
         <form action={saveExclusions} className="mt-2">
+          <FormPending label="Saving" />
           <ul className="max-h-[28rem] divide-y divide-line overflow-y-auto">
             {sortedPeople.map((p) => (
               <li key={p.id}>

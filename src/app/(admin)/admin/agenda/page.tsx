@@ -15,6 +15,7 @@ import {
   saveSpeaker,
 } from '@/modules/content/actions';
 import { sessionTypeLabel } from '@/modules/schedule/logic';
+import { FormPending } from '@/components/FormPending';
 
 export const dynamic = 'force-dynamic';
 
@@ -139,6 +140,7 @@ export default async function AgendaEditorPage({ searchParams }: { searchParams:
               + Add a session to {day.label}
             </summary>
             <form action={addSession} className="space-y-3 border-t border-line p-4">
+              <FormPending label="Adding the session" />
               <input type="hidden" name="dayId" value={day.id} />
               <label className={label}>
                 Title
@@ -205,6 +207,7 @@ export default async function AgendaEditorPage({ searchParams }: { searchParams:
                       </summary>
 
                       <form action={saveSession} className="space-y-3 border-t border-line p-4">
+                        <FormPending label="Saving" />
                         <input type="hidden" name="id" value={s.id} />
                         <label className={label}>
                           Title
@@ -331,6 +334,7 @@ export default async function AgendaEditorPage({ searchParams }: { searchParams:
 
                       {isAdded ? (
                         <form action={deleteSession} className="border-t border-line p-4">
+                          <FormPending label="Deleting" />
                           <input type="hidden" name="id" value={s.id} />
                           <button type="submit" className={quietButton}>
                             Delete this session
@@ -359,6 +363,7 @@ export default async function AgendaEditorPage({ searchParams }: { searchParams:
             + Add a speaker
           </summary>
           <form action={addSpeaker} className="space-y-3 border-t border-line p-4">
+            <FormPending label="Adding the speaker" />
             <label className={label}>
               Name
               <input name="name" required maxLength={120} className={input} />
@@ -410,6 +415,7 @@ export default async function AgendaEditorPage({ searchParams }: { searchParams:
                     ) : null}
                   </summary>
                   <form action={saveSpeaker} className="space-y-3 border-t border-line p-4">
+                    <FormPending label="Saving" />
                     <input type="hidden" name="id" value={p.id} />
                     <label className={label}>
                       Name
@@ -455,6 +461,7 @@ export default async function AgendaEditorPage({ searchParams }: { searchParams:
                   </form>
                   {addedSpeakers.has(p.id) ? (
                     <form action={deleteSpeaker} className="border-t border-line p-4">
+                      <FormPending label="Deleting" />
                       <input type="hidden" name="id" value={p.id} />
                       <button type="submit" className={quietButton}>
                         Delete this speaker

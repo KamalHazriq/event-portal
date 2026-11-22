@@ -1,0 +1,48 @@
+name: Event-day watch
+
+# During the event days only: every 5 minutes, check the portal answers and
+# send any scheduled reminders that are due. A failed run emails the owner of
+# this repository, so it doubles as a "the site is down" alert.
+#
+# GitHub may run a scheduled job a few minutes late, so reminders sent this
+# way can be late by that much. Cloud Scheduler (docs/DEPLOYING.md) is exact.
+#
+# The days are in UTC: 13 to 16 December covers 8 am on the 13th to 8 am on
+# the 17th in Malaysia. Change them for another event.
+
+on:
+  schedule:
+    - cron: '*/5 * 13-16 12 *'
+  # Run it by hand from the Actions tab to test it.
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    env:
+      PORTAL: https://portal--powersummit-7d255.asia-southeast1.hosted.app
+      # Optional. The same text as the portal-cron-secret in Secret Manager,
+      # saved as a repository secret named CRON_SECRET.
+      CRON_SECRET: ${{ secrets.CRON_SECRET }}
+    steps:
+      - name: The portal and its database answer
+        run: |
+          # Three tries, so a single slow answer does not raise an alarm.
+          for attempt in 1 2 3; do
+            code=$(curl -s -o health.json -w '%{http_code}' --max-time 20 "$PORTAL/api/health" || true)
+            echo "Try $attempt: HTTP $code $(cat health.json 2>/dev/null)"
+            if [ "$code" = "200" ]; then exit 0; fi
+            sleep 20
+          done
+          echo "::error::The portal did not answer. Check Firebase App Hosting and the Neon database."
+          exit 1
+
+      - name: Send the reminders that are due
+        if: ${{ env.CRON_SECRET != '' }}
+        run: |
+          curl -fsS --max-time 30 -X POST \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            "$PORTAL/api/cron/reminders"

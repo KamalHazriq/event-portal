@@ -18,6 +18,7 @@ import {
   bestSessionChoices,
 } from '@/modules/feedback/logic';
 import { readFormSettings } from '@/modules/feedback/settings';
+import { FormPending } from '@/components/FormPending';
 
 export const dynamic = 'force-dynamic';
 
@@ -114,6 +115,7 @@ export default async function FeedbackPage({ params, searchParams }: PageProps) 
       ) : null}
 
       <form action={submitFeedback} className="space-y-5">
+        <FormPending label="Sending" />
         <input type="hidden" name="formId" value={form.id} />
 
         <StarRating

@@ -248,20 +248,23 @@ export function shortName(name: string): string {
 }
 
 /**
- * People whose name contains every word typed (two letters or more each),
- * for "find your name" on the My points page. At most `limit`, and only the
- * name, title and department are ever shown.
+ * The people whose name matches what was typed, for "pick your name".
+ *
+ * Each typed word of three letters or more must be the START of a word in
+ * the name ("muh" finds Muhammad, "ham" does not). Few results, and short
+ * words are ignored, so the list cannot be walked through two letters at a
+ * time to read out every name.
  */
-export function findByName<T extends { name: string }>(people: T[], typed: string, limit = 8): T[] {
+export function findByName<T extends { name: string }>(people: T[], typed: string, limit = 6): T[] {
   const words = typed
     .toLowerCase()
     .split(/\s+/)
-    .filter((word) => word.length >= 2);
+    .filter((word) => word.length >= 3);
   if (words.length === 0) return [];
   return people
     .filter((p) => {
-      const name = p.name.toLowerCase();
-      return words.every((word) => name.includes(word));
+      const parts = p.name.toLowerCase().split(/[\s'-]+/);
+      return words.every((word) => parts.some((part) => part.startsWith(word)));
     })
     .sort((a, b) => a.name.localeCompare(b.name))
     .slice(0, limit);

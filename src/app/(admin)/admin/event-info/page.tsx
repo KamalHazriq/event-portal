@@ -11,6 +11,7 @@ import {
   saveInfo,
   saveResources,
 } from '@/modules/content/actions';
+import { FormPending } from '@/components/FormPending';
 
 export const dynamic = 'force-dynamic';
 
@@ -126,6 +127,7 @@ export default async function EventInfoEditorPage({
         hint="Shown in the page header, the footer, the big screen welcome and the browser tab."
       >
         <form action={saveEventDetails} className={`${card} space-y-3`}>
+          <FormPending label="Saving" />
           <label className={label}>
             Event name
             <input
@@ -217,6 +219,7 @@ export default async function EventInfoEditorPage({
         hint="A line with nothing after its label reads “Coming soon” for attendees. Tick Remove to take a line off."
       >
         <form action={saveInfo} className="space-y-4">
+          <FormPending label="Saving" />
           <div className={`${card} space-y-3`}>
             <label className={label}>
               Page title
@@ -338,6 +341,7 @@ export default async function EventInfoEditorPage({
         hint="Slides, guides and photos for the Take aways page. A link not filled in yet reads “Coming soon”."
       >
         <form action={saveResources} className="space-y-3">
+          <FormPending label="Saving" />
           {[
             ...resources.map((r, j) => ({ ...r, key: `r${j}`, isNew: false })),
             ...[0, 1, 2].map((j) => ({
@@ -413,6 +417,7 @@ export default async function EventInfoEditorPage({
         hint="One per line, like Corporate & Engineering Services = CORES. Used on the big screen, phones, name tags and reports."
       >
         <form action={saveDepartments} className={`${card} space-y-3`}>
+          <FormPending label="Saving" />
           <label className={label}>
             Departments
             <textarea
@@ -434,6 +439,7 @@ export default async function EventInfoEditorPage({
         hint="Drops every change made on the Agenda and Event info pages, so the event file shows again."
       >
         <form action={resetContent} className={`${card} space-y-3`}>
+          <FormPending label="Resetting" />
           <p className="text-ink">
             {edited
               ? 'There are saved changes on top of the event file.'
