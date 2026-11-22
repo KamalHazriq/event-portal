@@ -4,6 +4,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { looksLikeBusinessCard } from '../business-card';
 import { parseScanPayload, scanOutcomeMessage, type ScanOutcome } from '../logic';
+import { shouldQueue } from '../offline-queue';
+import { useCheckInQueue } from './useCheckInQueue';
 import { useQrScanner } from './useQrScanner';
 
 /**
@@ -46,6 +48,8 @@ type Result = {
   card?: { name: string; email: string };
   /** When a card's name is close to more than one person, or not exact. */
   candidates?: DeskAttendee[];
+  /** Saved on this device because there was no connection. */
+  queued?: boolean;
 };
 
 /** Ignore the same tag for this long, so one tag held up does not spam. */
@@ -74,6 +78,15 @@ export function DeskConsole({
   const [everyone, setEveryone] = useState<SearchResult[] | null>(null);
   const [group, setGroup] = useState('all');
   const [onlyMissing, setOnlyMissing] = useState(true);
+  const refreshCounter = useCallback(() => {
+    void fetch(`/api/headcount?dayId=${encodeURIComponent(dayId)}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((body: { total?: Rate } | null) => {
+        if (body?.total) setHeadcount(body.total);
+      })
+      .catch(() => undefined);
+  }, [dayId]);
+  const offline = useCheckInQueue(refreshCounter);
 
   const recentRef = useRef<Map<string, number>>(new Map());
   const manualRef = useRef<HTMLInputElement | null>(null);
@@ -117,11 +130,50 @@ export function DeskConsole({
     }) => {
       setBusy(true);
       try {
-        const response = await fetch('/api/check-in', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ...input, dayId }),
-        });
+        let response: Response | null = null;
+        try {
+          response = await fetch('/api/check-in', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ...input, dayId }),
+          });
+        } catch {
+          response = null;
+        }
+
+        // No connection, or the server is down: keep the check in on this
+        // device and send it when it can, so the queue keeps moving.
+        if (shouldQueue(response ? response.status : null)) {
+          const known = [...searchResults, ...(everyone ?? [])].find(
+            (row) => row.id === input.attendeeId,
+          );
+          offline.save({
+            id: crypto.randomUUID?.() ?? `${Date.now()}-${Math.random()}`,
+            dayId,
+            method: input.method,
+            payload: input.payload,
+            attendeeId: input.attendeeId,
+            cardEmail: input.cardEmail,
+            queuedAt: new Date().toISOString(),
+            label: known?.name,
+          });
+          setResult({
+            outcome: 'error',
+            queued: true,
+            message:
+              'No connection. Saved on this device, it will check in when the Wi-Fi is back.',
+            attendee: known,
+          });
+          beep(true);
+          if (known) {
+            const mark = (rows: SearchResult[]) =>
+              rows.map((row) => (row.id === known.id ? { ...row, checkedIn: true } : row));
+            setSearchResults(mark);
+            setEveryone((rows) => (rows ? mark(rows) : rows));
+          }
+          return;
+        }
+        if (!response) return;
         const body = (await response.json()) as Result & { headcount?: Rate };
 
         setResult({
@@ -151,7 +203,7 @@ export function DeskConsole({
         setBusy(false);
       }
     },
-    [beep, dayId],
+    [beep, dayId, everyone, offline, searchResults],
   );
 
   const checkInById = useCallback(
@@ -268,8 +320,9 @@ export function DeskConsole({
 
   /* -------------------------------------------------------------- view */
 
-  const tone =
-    result?.outcome === 'checked-in'
+  const tone = result?.queued
+    ? 'border-warning bg-warning/10'
+    : result?.outcome === 'checked-in'
       ? 'border-success bg-success/10'
       : result?.outcome === 'already-checked-in' || result?.outcome === 'choose'
         ? 'border-warning bg-warning/10'
@@ -279,6 +332,52 @@ export function DeskConsole({
 
   return (
     <div className="space-y-4">
+      {!offline.online || offline.queue.length > 0 || offline.review.length > 0 ? (
+        <section
+          role="status"
+          className="space-y-2 rounded-xl border-2 border-warning bg-warning/10 p-3 text-ink"
+        >
+          {!offline.online ? (
+            <p className="font-bold">
+              No connection. Keep scanning: check ins are saved on this device and sent when the
+              Wi-Fi is back. To check in by name, use the Whole list tab.
+            </p>
+          ) : null}
+          {offline.queue.length > 0 ? (
+            <p className="flex flex-wrap items-center gap-3">
+              <span className="font-semibold">
+                {offline.queue.length} check in{offline.queue.length === 1 ? '' : 's'} saved on this
+                device, waiting to be sent.
+              </span>
+              <button
+                type="button"
+                onClick={() => void offline.flush()}
+                className="min-h-11 rounded-lg border border-line bg-surface px-4 font-semibold"
+              >
+                Send now
+              </button>
+            </p>
+          ) : null}
+          {offline.review.length > 0 ? (
+            <ul className="space-y-1">
+              {offline.review.map((item) => (
+                <li key={item.id} className="flex flex-wrap items-center gap-3">
+                  <span>
+                    <span className="font-semibold">{item.label}:</span> {item.message}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => offline.dismiss(item.id)}
+                    className="min-h-11 rounded-lg border border-line bg-surface px-3 text-sm font-semibold"
+                  >
+                    Dismiss
+                  </button>
+                </li>
+              ))}
+            </ul>
+          ) : null}
+        </section>
+      ) : null}
       <section className="rounded-xl border border-line bg-surface p-4">
         <div className="flex items-end justify-between gap-3">
           <div>

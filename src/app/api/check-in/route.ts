@@ -13,6 +13,7 @@ import { requireAdminApi } from '@/lib/admin-guard';
 import { getData, type Attendee } from '@/data';
 import { LIMITS, rateLimit } from '@/lib/rate-limit';
 import { matchBusinessCard, parseBusinessCard } from '@/modules/check-in/business-card';
+import { clampArrivalTime } from '@/modules/check-in/offline-queue';
 import { arrivalRate, parseScanPayload, scanOutcomeMessage } from '@/modules/check-in/logic';
 import type { ScanOutcome } from '@/modules/check-in/logic';
 import { getEventConfig } from '@/lib/config';
@@ -32,6 +33,11 @@ const BodySchema = z.object({
    * person a card belongs to, so the next scan matches straight away.
    */
   cardEmail: z.string().max(200).optional(),
+  /**
+   * Only sent by a desk that saved the check in while offline: when the person
+   * was really there. Ignored unless it is recent and not in the future.
+   */
+  at: z.string().max(40).optional(),
   dayId: z.string().min(1).max(64),
   method: z.enum(['qr', 'manual', 'admin']).default('qr'),
 });
@@ -76,7 +82,7 @@ export async function POST(request: Request): Promise<Response> {
   const parsed = BodySchema.safeParse(body);
   if (!parsed.success) return reply('unreadable', {}, 400);
 
-  const { payload, attendeeId, cardEmail, dayId, method } = parsed.data;
+  const { payload, attendeeId, cardEmail, dayId, method, at } = parsed.data;
 
   // The day has to be one the event actually has, not whatever was posted.
   const config = getEventConfig();
@@ -125,6 +131,7 @@ export async function POST(request: Request): Promise<Response> {
       dayId,
       method,
       byOperator: operator,
+      at: clampArrivalTime(at, new Date()),
     });
 
     // So tomorrow this person's card matches on the email at once.

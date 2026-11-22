@@ -76,9 +76,10 @@ test('edit a session, add one, and get a plain reason when it does not fit', asy
       await added.locator('summary').click();
     }
     await added.getByRole('button', { name: 'Delete this session' }).click();
-    expect(await (await request.get('/agenda?day=day-1')).text()).not.toContain(
-      'Bus to the dinner',
-    );
+    // The delete saves in the background: wait until the agenda drops it.
+    await expect
+      .poll(async () => (await request.get('/agenda?day=day-1')).text(), { timeout: 10_000 })
+      .not.toContain('Bus to the dinner');
   } finally {
     await reset(page);
   }

@@ -12,7 +12,7 @@ import { shortName } from '@/modules/points/logic';
 import { LAYOUT_COUNT, PHOTO_KEYS, resolvePhotoLayout } from '@/modules/photos/logic';
 import {
   COMMENT_KEYS,
-  publicComments,
+  screenComments,
   reactionEmoji,
   SCREEN_COMMENTS,
   SCREEN_REACTION_WINDOW_MS,
@@ -326,7 +326,7 @@ export async function loadScreenView(
       const session =
         agenda.byId.get(chosen ?? '') ?? live.live[0] ?? live.next ?? agenda.sessions[0];
       const list = session
-        ? publicComments(await data.comments.listBySession(session.id)).slice(0, SCREEN_COMMENTS)
+        ? screenComments(await data.comments.listBySession(session.id)).slice(0, SCREEN_COMMENTS)
         : [];
       return {
         view,

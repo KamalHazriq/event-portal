@@ -8,6 +8,7 @@ import {
   reactionEmoji,
   reactionsOpen,
   validateComment,
+  screenComments,
 } from './logic';
 
 describe('reactions', () => {
@@ -53,5 +54,29 @@ describe('comments', () => {
       { id: 'e', status: 'hidden' as const, likes: 5, createdAt: '2026-12-14T01:00:00Z' },
     ];
     expect(publicComments(list).map((c) => c.id)).toEqual(['c', 'd', 'a']);
+  });
+});
+
+describe('the projector comments', () => {
+  const c = (
+    id: string,
+    createdAt: string,
+    status: 'approved' | 'pending' | 'hidden',
+    likes = 0,
+  ) => ({
+    id,
+    createdAt,
+    status,
+    likes,
+  });
+
+  it('shows approved comments, newest first, whatever the likes', () => {
+    const list = [
+      c('a', '2026-12-14T10:00:00Z', 'approved', 9),
+      c('b', '2026-12-14T10:05:00Z', 'approved', 0),
+      c('c', '2026-12-14T10:10:00Z', 'pending'),
+      c('d', '2026-12-14T10:07:00Z', 'hidden'),
+    ];
+    expect(screenComments(list).map((x) => x.id)).toEqual(['b', 'a']);
   });
 });

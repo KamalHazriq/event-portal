@@ -90,9 +90,10 @@ export interface CheckInRepository {
     method: CheckInMethod;
     byOperator: string;
     /**
-     * Only the demo seed passes this, so arrival times look like a real
-     * morning rather than all landing in the same second. The desk never
-     * sets it: a real arrival is recorded when it happens.
+     * The demo seed passes this, so arrival times look like a real morning
+     * rather than all landing in the same second. A desk that saved the check
+     * in while offline passes the time it happened (checked by the route).
+     * Otherwise a real arrival is recorded when it happens.
      */
     at?: string;
   }): Promise<{ checkIn: CheckIn; alreadyCheckedIn: boolean }>;

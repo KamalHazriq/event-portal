@@ -103,6 +103,18 @@ export function publicComments<T extends Pick<Comment, 'status' | 'likes' | 'cre
   return rankComments(list.filter((c) => c.status === 'approved'));
 }
 
+/**
+ * What the projector shows: approved comments, newest first, so a comment
+ * posted now reaches the screen at once instead of waiting behind older ones.
+ */
+export function screenComments<T extends Pick<Comment, 'status' | 'createdAt' | 'id'>>(
+  list: T[],
+): T[] {
+  return list
+    .filter((c) => c.status === 'approved')
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt) || (a.id < b.id ? 1 : -1));
+}
+
 export const COMMENT_STATUS_LABEL: Record<Comment['status'], string> = {
   pending: 'Waiting',
   approved: 'Shown',
