@@ -216,6 +216,12 @@ export const TEST_PLAN: Part[] = [
             expect:
               'It answers {"ok":true...}. If you set up the uptime alert, an email arrives when it does not.',
           },
+          {
+            id: 's-ready-watch',
+            do: 'On GitHub, open the Actions tab, choose Event-day watch, and press Run workflow.',
+            expect:
+              'It finishes with a green tick within a minute. On 13 to 16 December it runs by itself every 5 minutes and emails you if the portal stops answering.',
+          },
         ],
       },
       {
@@ -475,14 +481,22 @@ export const TEST_PLAN: Part[] = [
             id: 's-room-draw',
             do: 'On Lucky draw, draw one winner and then several. Mark one "Not here". Then Start over.',
             expect:
-              'The big screen spins, then shows the winner with confetti. A winner whose phone joined the leaderboard gets a banner and an alert.',
+              'The big screen spins with a ticking sound, then shows the winner with confetti and a short fanfare (click the projector screen once first so the browser allows sound). A winner whose phone joined the leaderboard gets a banner and an alert.',
             href: '/admin/lucky-draw',
           },
           {
             id: 's-room-slido',
-            do: 'Run a real Slido question and poll. Then switch to the portal backup on the Polls page and back.',
-            expect: 'Both ways work. Switching back puts the Slido buttons back.',
+            do: 'Run a real Slido question and poll. Then switch to the portal backup on the Polls page: from a phone, ask a question and vote in a poll; approve the question on Q&A and show it on the big screen. Then switch back.',
+            expect:
+              'Both ways work. In backup mode the session page shows the portal Q&A and poll, the question reaches the big screen once approved, and switching back puts the Slido buttons back.',
             href: '/admin/polls',
+          },
+          {
+            id: 's-room-committee',
+            do: '(If you use it) On Committees, upload a committee Excel and choose who can see its summary. Open the summary link on a phone.',
+            expect:
+              'The summary shows the right numbers, and only the people you chose can open it.',
+            href: '/admin/committees',
           },
           {
             id: 's-room-insights',
