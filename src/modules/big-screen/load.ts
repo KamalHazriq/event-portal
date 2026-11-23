@@ -31,6 +31,7 @@ import { arrivalRate, resolveCheckInDay } from '@/modules/check-in/logic';
 import { tallyPoll } from '@/modules/polls/logic';
 import { QA_KEYS, screenQuestions } from '@/modules/qa/logic';
 import { groupDraws, LUCKY_KEYS, resolveExclusions } from '@/modules/lucky-draw/logic';
+import { parsePickerState, PICKER_KEY } from '@/modules/name-picker/logic';
 import { buildAgenda, findNowAndNext, type ResolvedSession } from '@/modules/schedule/logic';
 
 import {
@@ -47,6 +48,7 @@ import type {
   CommentsView,
   LeaderboardView,
   LuckyDrawView,
+  NamePickerView,
   NowNextView,
   PhotosView,
   PollView,
@@ -106,6 +108,7 @@ export type ScreenPayload =
   | { view: 'arrivals'; props: ComponentProps<typeof ArrivalsView> }
   | { view: 'countdown'; props: ComponentProps<typeof CountdownView> }
   | { view: 'lucky-draw'; props: ComponentProps<typeof LuckyDrawView> }
+  | { view: 'name-picker'; props: ComponentProps<typeof NamePickerView> }
   | { view: 'photos'; props: ComponentProps<typeof PhotosView> }
   | { view: 'qa'; props: ComponentProps<typeof QuestionsView> }
   | { view: 'poll'; props: ComponentProps<typeof PollView> }
@@ -241,6 +244,38 @@ export async function loadScreenView(
             : null,
           spinNames,
           inHat: hat.filter((a) => !wonIds.has(a.id)).length,
+        },
+      };
+    }
+
+    case 'name-picker': {
+      const [raw, people] = await Promise.all([
+        data.settings.get(PICKER_KEY),
+        data.attendees.list(),
+      ]);
+      const latest = parsePickerState(raw).latest;
+      const spinNames = people
+        .filter((p) => !p.isSecretariat)
+        .map((a) => ({ a, k: Math.random() }))
+        .sort((x, y) => x.k - y.k)
+        .slice(0, 60)
+        .map(({ a }) => a.name);
+      return {
+        view,
+        props: {
+          latest: latest
+            ? {
+                id: latest.id,
+                title: latest.title,
+                atMs: new Date(latest.at).getTime(),
+                people: latest.people.map((p) => ({
+                  key: p.id,
+                  name: p.name,
+                  department: p.department,
+                })),
+              }
+            : null,
+          spinNames,
         },
       };
     }

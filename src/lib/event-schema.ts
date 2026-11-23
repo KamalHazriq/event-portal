@@ -268,6 +268,10 @@ export const FeaturesSchema = z.object({
   reactions: z.boolean().default(false),
   /** A moderated comments and take aways wall on each talk. */
   comments: z.boolean().default(false),
+  /** Phones and laptops say who they are before the first page (Welcome). */
+  askNameFirst: z.boolean().default(false),
+  /** A spin for one door gift the first time each person signs in. */
+  doorGift: z.boolean().default(false),
 });
 
 export const EventInfoSchema = z.object({

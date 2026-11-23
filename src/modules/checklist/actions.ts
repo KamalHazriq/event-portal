@@ -1,5 +1,8 @@
 'use server';
 
+import { removeAllClaims } from '@/modules/door-gift/server';
+import { PICKER_KEY } from '@/modules/name-picker/logic';
+
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
@@ -26,6 +29,9 @@ export async function clearTestData(formData: FormData): Promise<void> {
     redirect('/admin/test-plan?error=confirm#clean');
   }
   await getData().clearActivity();
+  // Door gift spins and name picker turns live in settings: they go too.
+  await removeAllClaims();
+  await getData().settings.remove(PICKER_KEY);
   await recordActivity(
     'Cleared all test data (activity only; the list and settings kept)',
     auth.session.operator,

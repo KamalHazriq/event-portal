@@ -23,11 +23,17 @@ export function LuckyDrawSpinner({
   drawnAtMs,
   winners,
   spinNames,
+  heading = 'Lucky draw',
+  calm = false,
 }: {
   prize: string;
   drawnAtMs: number;
   winners: Winner[];
   spinNames: string[];
+  /** The title when no prize is named: "Lucky draw", or the name picker's. */
+  heading?: string;
+  /** The name picker: no confetti or fanfare, just the names. */
+  calm?: boolean;
 }) {
   // Server and browser both ask the clock, so they agree on the first frame
   // and a fresh draw never flashes its result before the spin.
@@ -51,8 +57,8 @@ export function LuckyDrawSpinner({
     const tick = () => {
       if (i >= gaps.length) {
         setSpinning(false);
-        if (!reduce) setCelebrate(true);
-        playFanfare();
+        if (!reduce && !calm) setCelebrate(true);
+        if (!calm) playFanfare();
         return;
       }
       setStep(i);
@@ -66,91 +72,98 @@ export function LuckyDrawSpinner({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const big = winners.length === 1;
-  // One drum for one winner; for more, three spin side by side.
-  const drums = big ? 1 : Math.min(3, winners.length);
+  // One drum per winner, so ten winners spin ten names at once.
+  const count = Math.max(1, winners.length);
+  const layout = drumLayout(count);
   const nameAt = (drum: number) =>
     spinNames[(step * 7 + 3 + drum * 11) % Math.max(1, spinNames.length)] ?? '';
 
   return (
-    <div className="relative flex h-full flex-col items-center justify-center overflow-hidden text-center">
+    <div className="relative flex h-full flex-col items-center justify-center overflow-hidden px-[2vw] text-center">
       {celebrate ? <Confetti /> : null}
-      {sound ? null : (
+      {sound || calm ? null : (
         <p className="absolute bottom-[1vh] right-[1vw] text-[clamp(0.7rem,1vw,1.2rem)] text-ink-soft opacity-70">
           Click this screen once to turn the sound on
         </p>
       )}
 
-      <p className="text-[clamp(1.2rem,2.6vw,3.5rem)] font-bold text-accent">
-        {prize || 'Lucky draw'}
-      </p>
+      <p className="text-[clamp(1.2rem,2.6vw,3.5rem)] font-bold text-accent">{prize || heading}</p>
 
-      {spinning ? (
-        <div
-          className={`mt-[3vh] grid w-full gap-[2vw] ${drums === 1 ? 'max-w-[80vw]' : 'max-w-[92vw] grid-cols-3'}`}
-        >
-          {Array.from({ length: drums }, (_, d) => (
-            <div
-              key={d}
-              className="draw-drum min-w-0 rounded-[2vw] border-2 border-accent px-[2vw] py-[4vh]"
-            >
-              <p className="text-[clamp(0.9rem,1.6vw,2.2rem)] font-semibold tracking-[0.2em] text-ink-soft uppercase">
-                Drawing…
-              </p>
-              <p
-                // Keyed by the name, so each one flicks in from above.
-                key={nameAt(d)}
-                className={`draw-tick mt-[1.5vh] truncate font-bold leading-none text-ink ${
-                  drums === 1 ? 'text-[clamp(3rem,8vw,11rem)]' : 'text-[clamp(1.4rem,3.4vw,5rem)]'
-                }`}
-                aria-live="off"
-                suppressHydrationWarning
-              >
-                {nameAt(d)}
-              </p>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <ol
-          aria-live="polite"
-          className={
-            big
-              ? 'relative mt-[3vh]'
-              : 'relative mt-[3vh] grid w-full max-w-[85vw] grid-cols-2 gap-x-[4vw] gap-y-[2.5vh] text-left'
-          }
-        >
-          {winners.map((w, i) => (
-            <li
-              key={w.key}
-              className={celebrate ? 'winner-reveal' : 'screen-arrive'}
-              style={{ animationDelay: `${i * 350}ms` }}
-            >
-              <p
-                className={
-                  big
-                    ? 'winner-name text-[clamp(3rem,8vw,11rem)] font-bold leading-none'
-                    : 'winner-name text-[clamp(1.4rem,3.2vw,4.4rem)] font-bold leading-tight'
-                }
-              >
-                {big ? '' : `${i + 1}. `}
-                {w.name}
-              </p>
-              <p
-                className={
-                  big
-                    ? 'mt-[2vh] text-[clamp(1.2rem,2.6vw,3.5rem)] text-ink-soft'
-                    : 'text-[clamp(0.9rem,1.6vw,2.2rem)] text-ink-soft'
-                }
-              >
-                {w.department}
-              </p>
-            </li>
-          ))}
-        </ol>
-      )}
+      <ol
+        aria-live={spinning ? 'off' : 'polite'}
+        className={`mt-[3vh] grid w-full gap-[1.5vw] ${layout.grid}`}
+      >
+        {(spinning ? Array.from({ length: count }, () => null) : winners).map((w, d) => (
+          <li
+            key={w ? w.key : d}
+            className={`draw-drum flex min-w-0 flex-col justify-center rounded-[1.5vw] border-2 ${
+              spinning ? 'border-accent' : 'border-success'
+            } ${layout.pad} ${!spinning ? (celebrate ? 'winner-reveal' : 'screen-arrive') : ''}`}
+            style={!spinning ? { animationDelay: `${d * 180}ms` } : undefined}
+          >
+            {spinning ? (
+              <>
+                <p
+                  className={`${layout.label} font-semibold tracking-[0.2em] text-ink-soft uppercase`}
+                >
+                  {calm ? 'Picking…' : 'Drawing…'}
+                </p>
+                <p
+                  // Keyed by the name, so each one flicks in from above.
+                  key={nameAt(d)}
+                  className={`draw-tick mt-[1vh] truncate font-bold leading-tight text-ink ${layout.name}`}
+                  suppressHydrationWarning
+                >
+                  {nameAt(d)}
+                </p>
+              </>
+            ) : w ? (
+              <>
+                {count > 1 ? (
+                  <p className={`${layout.label} font-bold text-ink-soft tabular-nums`}>{d + 1}</p>
+                ) : null}
+                <p className={`winner-name font-bold leading-tight ${layout.name} break-words`}>
+                  {w.name}
+                </p>
+                <p className={`mt-[0.5vh] ${layout.label} text-ink-soft`}>{w.department}</p>
+              </>
+            ) : null}
+          </li>
+        ))}
+      </ol>
     </div>
   );
+}
+
+/** Columns and type sizes, so 1 to 10 drums all fit a 16:9 screen. */
+function drumLayout(n: number): { grid: string; pad: string; name: string; label: string } {
+  if (n === 1)
+    return {
+      grid: 'max-w-[80vw] grid-cols-1',
+      pad: 'px-[3vw] py-[5vh]',
+      name: 'text-[clamp(3rem,8vw,11rem)]',
+      label: 'text-[clamp(0.9rem,1.8vw,2.4rem)]',
+    };
+  if (n <= 3)
+    return {
+      grid: `max-w-[92vw] ${n === 2 ? 'grid-cols-2' : 'grid-cols-3'}`,
+      pad: 'px-[2vw] py-[4vh]',
+      name: 'text-[clamp(1.6rem,3.6vw,5rem)]',
+      label: 'text-[clamp(0.8rem,1.4vw,2rem)]',
+    };
+  if (n <= 6)
+    return {
+      grid: `max-w-[94vw] ${n === 4 ? 'grid-cols-2' : 'grid-cols-3'}`,
+      pad: 'px-[1.5vw] py-[2.5vh]',
+      name: 'text-[clamp(1.3rem,2.8vw,4rem)]',
+      label: 'text-[clamp(0.7rem,1.2vw,1.6rem)]',
+    };
+  return {
+    grid: 'max-w-[96vw] grid-cols-5',
+    pad: 'px-[1vw] py-[2vh]',
+    name: 'text-[clamp(1rem,2vw,3rem)]',
+    label: 'text-[clamp(0.6rem,1vw,1.3rem)]',
+  };
 }
 
 /** Pieces of confetti falling across the screen, in the theme colours. */

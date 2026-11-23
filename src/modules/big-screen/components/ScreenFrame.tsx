@@ -12,6 +12,7 @@ import {
   CountdownView,
   LeaderboardView,
   LuckyDrawView,
+  NamePickerView,
   NowNextView,
   PhotosView,
   PollView,
@@ -98,6 +99,7 @@ export function ScreenFrame({
           {payload.view === 'arrivals' ? <ArrivalsView {...payload.props} /> : null}
           {payload.view === 'countdown' ? <CountdownView {...payload.props} /> : null}
           {payload.view === 'lucky-draw' ? <LuckyDrawView {...payload.props} /> : null}
+          {payload.view === 'name-picker' ? <NamePickerView {...payload.props} /> : null}
           {payload.view === 'photos' ? <PhotosView {...payload.props} /> : null}
           {payload.view === 'qa' ? <QuestionsView {...payload.props} /> : null}
           {payload.view === 'poll' ? <PollView {...payload.props} /> : null}

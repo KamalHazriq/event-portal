@@ -3,7 +3,15 @@
 import { useFormStatus } from 'react-dom';
 
 /** Says "Drawing" while the server works, so nobody presses it twice. */
-export function DrawButton({ disabled }: { disabled: boolean }) {
+export function DrawButton({
+  disabled,
+  label = 'Draw',
+  pendingLabel = 'Drawing...',
+}: {
+  disabled: boolean;
+  label?: string;
+  pendingLabel?: string;
+}) {
   const { pending } = useFormStatus();
   return (
     <button
@@ -11,7 +19,7 @@ export function DrawButton({ disabled }: { disabled: boolean }) {
       disabled={disabled || pending}
       className="min-h-11 rounded-lg bg-primary px-6 py-2 font-bold text-on-primary disabled:opacity-50"
     >
-      {pending ? 'Drawing...' : 'Draw'}
+      {pending ? pendingLabel : label}
     </button>
   );
 }

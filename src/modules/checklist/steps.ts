@@ -41,11 +41,12 @@ export const TEST_PLAN: Part[] = [
           {
             id: 'a-prep-tester',
             changed: true,
-            do: 'On this page, under Test as an attendee, press Add a test participant. On the phone, open My points and type the test staff number shown there.',
-            expect: 'The phone is signed in as Test Participant and earns points as them.',
+            do: 'On this page, under Test as an attendee, press Add a test participant. On the door gifts page, set "When can people spin?" to "Now, any day" for testing.',
+            expect:
+              'Test Participant is on the list, and the Door gifts page says the spin is open now.',
             links: [
               { href: '#tester', label: 'Test as an attendee (on this page)' },
-              { href: '/me', label: 'My points' },
+              { href: '/admin/door-gifts', label: 'Door gifts' },
             ],
           },
           {
@@ -75,6 +76,33 @@ export const TEST_PLAN: Part[] = [
             expect:
               'A "participants only" page. A wrong code is refused; the right event code lets you in, with a short hexagon loading screen while it checks.',
             links: [{ href: '/', label: 'The portal (open in a private window)' }],
+          },
+          {
+            id: 'a-in-welcome',
+            changed: true,
+            do: 'Still in the private window, open any page (say the Agenda). Type "Test", tap Test Participant, then press "Yes, that is me".',
+            expect:
+              'Before the page, it asks "Welcome! Who are you?". After a name is picked it asks "Are you Test Participant?". "No, that is not me" goes back. Once confirmed the phone goes on to the door gift spin, then to the page it was opening, and is never asked again.',
+            links: [{ href: '/agenda', label: 'Agenda (in a private window)' }],
+          },
+          {
+            id: 'a-in-gift',
+            changed: true,
+            do: 'On the door gift page press "Spin for my gift". Then open the home page, and the door gift page again.',
+            expect:
+              'A light runs round the three gifts, slows down and stops on one, with its name. The home page shows "Your door gift" with it, and the gift page shows the same gift again: there is only one spin.',
+            links: [
+              { href: '/door-gift', label: 'Door gift' },
+              { href: '/', label: 'Home page' },
+            ],
+          },
+          {
+            id: 'a-in-taken',
+            changed: true,
+            do: 'On a second phone, pick Test Participant on the welcome page too.',
+            expect:
+              'It says the name is already signed in on another device and asks for the staff number (TEST0001). A wrong number is refused.',
+            links: [{ href: '/agenda', label: 'Agenda (second phone)' }],
           },
           {
             id: 'a-in-install',
@@ -411,6 +439,17 @@ export const TEST_PLAN: Part[] = [
               'Everyone whose role, department or remark says Secretariat is marked by itself. Only open "The secretariat" box below the list if someone was missed.',
             links: [{ href: '/admin/attendees', label: 'Attendees' }],
           },
+          {
+            id: 's-people-askfirst',
+            changed: true,
+            do: 'At the top of Attendees, find "Ask new phones who they are". Turn it off, open the Agenda in a private window, then turn it back on.',
+            expect:
+              'Off: the private window goes straight to the Agenda. On: it asks "Who are you?" first. Secretariat desks signed in with the PIN are never asked.',
+            links: [
+              { href: '/admin/attendees', label: 'Attendees' },
+              { href: '/agenda', label: 'Agenda (private window)' },
+            ],
+          },
         ],
       },
       {
@@ -649,10 +688,32 @@ export const TEST_PLAN: Part[] = [
             changed: true,
             do: 'On Lucky draw, draw one winner and then several. Mark one "Not here". Then Start over.',
             expect:
-              'The big screen spins with a ticking sound (one name for one winner, three names side by side for several), then shows the winners with confetti and a short fanfare (click the projector screen once first so the browser allows sound). A winner whose phone joined the leaderboard gets a banner and an alert.',
+              'The big screen spins with a ticking sound, one spinning name for each winner (10 winners spin 10 names), then shows the winners with confetti and a short fanfare (click the projector screen once first so the browser allows sound). A winner whose phone joined the leaderboard gets a banner and an alert.',
             links: [
               { href: '/admin/lucky-draw', label: 'Lucky draw' },
               { href: '/screen', label: 'Big screen' },
+            ],
+          },
+          {
+            id: 's-room-picker',
+            changed: true,
+            do: 'On Name picker, pick 3 people with a title such as "Share one idea", with "Spin it on the big screen" ticked. Pick again, then press Start the picker again.',
+            expect:
+              'The big screen shows three names spinning, then stops on them (no confetti: it is not a prize). The second pick never repeats the first. Nobody picked here is taken out of the lucky draw.',
+            links: [
+              { href: '/admin/name-picker', label: 'Name picker' },
+              { href: '/screen', label: 'Big screen' },
+            ],
+          },
+          {
+            id: 's-room-gifts',
+            changed: true,
+            do: 'On Door gifts, set the real stock of each gift and save. Find Test Participant: change their gift with the dropdown, press Mark collected, then choose "No gift yet". Finally set "When can people spin?" back to "Only on the first day".',
+            expect:
+              'Each gift shows how many are given, collected and left. The change saves at once and the phone shows the new gift. "No gift yet" lets them spin again. If the stock is less than the number of people, the page says how many short.',
+            links: [
+              { href: '/admin/door-gifts', label: 'Door gifts' },
+              { href: '/door-gift', label: 'Door gift (on the phone)' },
             ],
           },
           {

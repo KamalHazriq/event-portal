@@ -5,7 +5,8 @@ import { shortDepartment } from '@/lib/departments';
 import { getData } from '@/data';
 import { requireAdmin } from '@/lib/admin-guard';
 import { FormPending } from '@/components/FormPending';
-import { saveSecretariatList } from '@/modules/attendees/actions';
+import { saveSecretariatList, setAskNameFirst } from '@/modules/attendees/actions';
+import { ASK_FIRST_KEY } from '@/modules/identity/logic';
 import { readSecretariatList } from '@/modules/attendees/secretariat';
 import { AttendeeTable, type AttendeeRow } from '@/modules/attendees/components/AttendeeTable';
 
@@ -43,6 +44,8 @@ export default async function AttendeesPage({ searchParams }: { searchParams: Se
   await requireAdmin('/admin/attendees');
   const params = await searchParams;
   const secretariatList = await readSecretariatList();
+  const askFirst =
+    config.features.askNameFirst && (await getData().settings.get(ASK_FIRST_KEY)) !== 'off';
   const result = one(params.result);
   const everyone = await getData().attendees.list();
   const rows: AttendeeRow[] = everyone.map((p) => ({
@@ -116,6 +119,28 @@ export default async function AttendeesPage({ searchParams }: { searchParams: Se
           </div>
         ))}
       </section>
+
+      {config.features.askNameFirst ? (
+        <section className="flex flex-wrap items-center gap-3 rounded-xl border border-line bg-surface p-4">
+          <div className="min-w-0 flex-1">
+            <h2 className="font-bold text-ink">Ask new phones who they are</h2>
+            <p className="text-sm text-ink-soft">
+              {askFirst
+                ? 'On: a phone or laptop opening the portal for the first time types its name and confirms it, so everything it does links to that person. Signed in desks are never asked.'
+                : 'Off: phones go straight in. People can still say who they are on My points.'}
+            </p>
+          </div>
+          <form action={setAskNameFirst}>
+            <input type="hidden" name="mode" value={askFirst ? 'off' : 'on'} />
+            <button
+              type="submit"
+              className="min-h-11 rounded-lg border border-line px-4 font-semibold text-ink hover:border-primary"
+            >
+              {askFirst ? 'Turn it off' : 'Turn it on'}
+            </button>
+          </form>
+        </section>
+      ) : null}
 
       <section className="rounded-xl border border-line bg-surface p-4">
         <h2 className="font-bold text-ink">Upload the list</h2>

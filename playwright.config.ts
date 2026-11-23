@@ -21,7 +21,7 @@ const PORT = Number(process.env.PLAYWRIGHT_PORT ?? 3200);
 
 /** Spec files that change state the whole portal shares. See projects below. */
 const SHARED_SWITCHES =
-  /(backup-qa-polls|look|photo-wall|announcements|desk-browse|content-editor|checklist)\.spec\.ts$/;
+  /(backup-qa-polls|look|photo-wall|announcements|desk-browse|content-editor|checklist|door-gift|name-picker)\.spec\.ts$/;
 const useDevServer = process.env.PLAYWRIGHT_DEV === '1';
 const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? `http://127.0.0.1:${PORT}`;
 

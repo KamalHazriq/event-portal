@@ -70,7 +70,11 @@ export default async function LuckyDrawPage() {
         <h1 className="text-2xl font-bold text-ink">Lucky draw</h1>
         <p className="mt-1 text-ink-soft">
           Draws from people checked in {day ? `on ${day.label}` : 'today'}. Nobody can win twice,
-          across every draw and every day.
+          across every draw and every day. Picking people to speak instead? Use the{' '}
+          <Link href="/admin/name-picker" className="font-semibold text-primary">
+            Name picker
+          </Link>
+          , so they keep their chance of a prize.
         </p>
       </div>
 

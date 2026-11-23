@@ -92,7 +92,9 @@
     "polls": true,
     "leaderboard": true,
     "reactions": true,
-    "comments": true
+    "comments": true,
+    "askNameFirst": true,
+    "doorGift": true
   },
   "nameTags": {
     "_readme": "personalQr false: one sided tags with the portal QR. Check in is by the TNB app business card, or by name at the desk.",

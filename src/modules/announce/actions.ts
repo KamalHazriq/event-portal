@@ -11,12 +11,7 @@ import { DEVICE_COOKIE, readDeviceId } from '@/lib/device';
 import { newId } from '@/lib/ids';
 import { recordActivity } from '@/modules/admins/record';
 
-import {
-  ANNOUNCE_KEYS,
-  NUDGE_KEYS,
-  cleanAnnouncementText,
-  safeHref,
-} from './logic';
+import { ANNOUNCE_KEYS, NUDGE_KEYS, cleanAnnouncementText, safeHref } from './logic';
 import { pushToDevice, pushToTeam } from './push';
 import { publishAnnouncement } from './publish';
 import { loadReminders, saveReminders } from '@/modules/reminders/dispatch';

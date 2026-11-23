@@ -104,6 +104,22 @@ export const ADMIN_GROUPS: AdminGroup[] = [
         description: 'Draw winners from whoever has checked in. Nobody wins twice.',
         icon: 'gift',
       },
+      {
+        href: '/admin/name-picker',
+        label: 'Name picker',
+        title: 'Name picker',
+        description:
+          'Pick people at random to speak or answer, spinning on the big screen. Separate from the prizes.',
+        icon: 'sparkle',
+      },
+      {
+        href: '/admin/door-gifts',
+        label: 'Door gifts',
+        title: 'Door gifts',
+        description:
+          'Each person spins for one door gift when they first sign in. Stock, who got what, and changes.',
+        icon: 'gift',
+      },
     ],
   },
   {

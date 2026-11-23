@@ -1,5 +1,6 @@
 'use server';
 
+import { ASK_FIRST_KEY } from '@/modules/identity/logic';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
@@ -54,4 +55,17 @@ export async function saveAttendee(formData: FormData): Promise<void> {
   await recordActivity(`Edited the details of ${name}`, auth.session.operator);
   revalidatePath('/', 'layout');
   redirect('/admin/attendees?edited=1#who');
+}
+
+/** Turns "ask every new phone who they are first" on or off. */
+export async function setAskNameFirst(formData: FormData): Promise<void> {
+  const auth = await requireAdminApi();
+  if (!auth.ok) throw new Error('Not signed in.');
+  const on = formData.get('mode') === 'on';
+  await getData().settings.set(ASK_FIRST_KEY, on ? 'on' : 'off');
+  await recordActivity(
+    on ? 'Turned on asking new phones their name' : 'Turned off asking new phones their name',
+    auth.session.operator,
+  );
+  revalidatePath('/', 'layout');
 }

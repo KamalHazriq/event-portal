@@ -245,18 +245,12 @@ export async function RuledHome({
             ) : null}
           </div>
           <p className="mt-7 flex flex-wrap gap-x-6 gap-y-2 text-sm text-[#C7D8EE]">
-            {[
-              event.venue,
-              dates,
-              branding.organisationName,
-            ]
-              .filter(Boolean)
-              .map((item) => (
-                <span key={item} className="inline-flex items-center gap-2">
-                  <span aria-hidden="true" className="size-1.5 rounded-full bg-accent" />
-                  {item}
-                </span>
-              ))}
+            {[event.venue, dates, branding.organisationName].filter(Boolean).map((item) => (
+              <span key={item} className="inline-flex items-center gap-2">
+                <span aria-hidden="true" className="size-1.5 rounded-full bg-accent" />
+                {item}
+              </span>
+            ))}
           </p>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img

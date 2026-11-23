@@ -16,6 +16,7 @@ export const SCREEN_VIEWS = [
   'arrivals',
   'countdown',
   'lucky-draw',
+  'name-picker',
   'photos',
   'qa',
   'poll',
@@ -102,6 +103,12 @@ export const SCREEN_VIEW_INFO: Record<
     title: 'Leaderboard',
     description: 'The top eight people and the department ranking, with a QR to join.',
     whenToUse: 'Breaks, and before the closing',
+  },
+  'name-picker': {
+    title: 'Name picker',
+    description:
+      'Spins names and stops on the people picked to speak. Pick on the name picker page.',
+    whenToUse: 'Sharing rounds and Q&A, to choose who talks',
   },
   'lucky-draw': {
     title: 'Lucky draw',

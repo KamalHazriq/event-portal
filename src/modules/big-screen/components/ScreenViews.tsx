@@ -393,6 +393,43 @@ export function LuckyDrawView({
   );
 }
 
+/* ------------------------------------------------------------ name picker */
+
+export function NamePickerView({
+  latest,
+  spinNames,
+}: {
+  latest: {
+    id: string;
+    title: string;
+    atMs: number;
+    people: { key: string; name: string; department: string }[];
+  } | null;
+  spinNames: string[];
+}) {
+  if (!latest) {
+    return (
+      <div className="screen-fade flex h-full flex-col items-center justify-center text-center">
+        <p className="text-[clamp(2.5rem,7vw,10rem)] font-bold text-ink">Who&apos;s next?</p>
+        <p className="mt-[2vh] text-[clamp(1.2rem,2.6vw,3.5rem)] text-ink-soft">
+          The name picker chooses at random
+        </p>
+      </div>
+    );
+  }
+  return (
+    <LuckyDrawSpinner
+      key={latest.id}
+      prize={latest.title}
+      heading="Who's next?"
+      calm
+      drawnAtMs={latest.atMs}
+      winners={latest.people}
+      spinNames={[...new Set([...spinNames, ...latest.people.map((p) => p.name)])]}
+    />
+  );
+}
+
 /* ----------------------------------------------------------------- photos */
 
 export function PhotosView({

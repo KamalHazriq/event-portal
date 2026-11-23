@@ -10,6 +10,7 @@ import { readBackupMode } from '@/modules/backup/server';
 import { RuledHome } from '@/modules/look/RuledHome';
 import { readStyle } from '@/modules/look/server';
 import { DevTimeNotice } from '@/modules/schedule/components/DevTimeNotice';
+import { DoorGiftCard } from '@/modules/door-gift/components/DoorGiftCard';
 import { NowNextPanel } from '@/modules/schedule/components/NowNextPanel';
 import { SessionList } from '@/modules/schedule/components/SessionCard';
 import { EVENT_FORM_ID, EVENT_FORM_SLUG } from '@/modules/feedback/logic';
@@ -123,6 +124,8 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
             </p>
             <p className="text-sm text-ink-soft">{config.event.venue}</p>
           </section>
+
+          <DoorGiftCard />
 
           <NowNextPanel
             nowAndNext={nowAndNext}

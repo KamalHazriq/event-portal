@@ -1,5 +1,6 @@
 'use server';
 
+import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
 import { getData } from '@/data';
@@ -7,6 +8,8 @@ import { getEventConfig } from '@/lib/config';
 import { plainText } from '@/lib/text';
 import { LIMITS, rateLimit } from '@/lib/rate-limit';
 import { currentDeviceId, deviceIdOrNew } from '@/modules/backup/server';
+import { giftFor, loadDoorGifts } from '@/modules/door-gift/server';
+import { GUEST_COOKIE, safeNext } from '@/modules/identity/logic';
 
 /**
  * Signs this device in as a person, for points.
@@ -45,28 +48,50 @@ export async function joinAsPerson(formData: FormData): Promise<void> {
   const config = getEventConfig();
   if (!config.features.leaderboard) redirect('/');
 
+  // From the Welcome page the answers go back there, and on to the page
+  // the phone was opening (or the door gift spin) once it is done.
+  const fromWelcome = formData.get('from') === 'welcome';
+  const next = safeNext(formData.get('next'));
+  const home = fromWelcome ? '/welcome' : '/me';
+  const keep = fromWelcome ? `&next=${encodeURIComponent(next)}` : '';
+
   const deviceId = await deviceIdOrNew();
-  if (!rateLimit(`join:${deviceId}`, LIMITS.join).allowed) redirect('/me?state=too-many');
+  if (!rateLimit(`join:${deviceId}`, LIMITS.join).allowed)
+    redirect(`${home}?state=too-many${keep}`);
 
   const attendeeId = plainText(String(formData.get('attendeeId') ?? ''), 64);
   const typed = plainText(String(formData.get('staffNo') ?? ''), 40).replace(/\s+/g, '');
 
   const data = getData();
   const person = attendeeId ? await data.attendees.get(attendeeId) : null;
-  if (!person) redirect('/me?state=missing');
+  if (!person) redirect(`${home}?state=missing${keep}`);
 
   const takenElsewhere = (await data.players.links()).some(
     (link) => link.attendeeId === person.id && link.deviceId !== deviceId,
   );
   if (takenElsewhere) {
-    if (!typed) redirect(`/me?state=taken&who=${encodeURIComponent(person.id)}`);
+    const who = `state=taken&who=${encodeURIComponent(person.id)}`;
+    if (!typed) redirect(`${home}?${who}${keep}`);
     if (typed.toLowerCase() !== person.staffNo.replace(/\s+/g, '').toLowerCase()) {
-      redirect(`/me?state=taken&who=${encodeURIComponent(person.id)}&wrong=1`);
+      redirect(`${home}?${who}&wrong=1${keep}`);
     }
   }
 
   await data.players.link(deviceId, person.id);
-  redirect('/me?state=joined');
+  if (!fromWelcome) redirect('/me?state=joined');
+
+  // First time in: spin for a door gift, if there is one to spin for.
+  const gifts = await loadDoorGifts();
+  if (gifts.open && giftFor(person, gifts) && !gifts.claims.has(person.id)) {
+    redirect(`/door-gift?next=${encodeURIComponent(next)}`);
+  }
+  redirect(next);
+}
+
+/** Someone not on the list carries on without a name, for this visit. */
+export async function continueAsGuest(formData: FormData): Promise<void> {
+  (await cookies()).set(GUEST_COOKIE, '1', { httpOnly: true, sameSite: 'lax', path: '/' });
+  redirect(safeNext(formData.get('next')));
 }
 
 export async function leaveLeaderboard(): Promise<void> {

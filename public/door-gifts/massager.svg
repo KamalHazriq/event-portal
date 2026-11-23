@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-label="Massager">
+  <defs>
+    <linearGradient id="b" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3b82f6"/><stop offset="1" stop-color="#1e40af"/></linearGradient>
+    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e5e7eb"/><stop offset="1" stop-color="#9ca3af"/></linearGradient>
+  </defs>
+  <circle cx="120" cy="120" r="112" fill="#0b1b3a" opacity=".06"/>
+  <!-- head and shaft -->
+  <rect x="30" y="62" width="34" height="44" rx="17" fill="url(#g)"/>
+  <rect x="60" y="74" width="26" height="20" rx="4" fill="#6b7280"/>
+  <!-- body -->
+  <rect x="82" y="56" width="128" height="56" rx="28" fill="url(#b)"/>
+  <circle cx="186" cy="84" r="9" fill="#93c5fd"/>
+  <rect x="100" y="78" width="54" height="12" rx="6" fill="#1e3a8a" opacity=".5"/>
+  <!-- handle -->
+  <path d="M120 108h40l-6 92a12 12 0 0 1-12 11h-4a12 12 0 0 1-12-11z" fill="url(#b)"/>
+  <rect x="128" y="150" width="24" height="5" rx="2.5" fill="#1e3a8a" opacity=".5"/>
+  <rect x="128" y="162" width="24" height="5" rx="2.5" fill="#1e3a8a" opacity=".5"/>
+  <!-- motion -->
+  <path d="M20 70q-8 14 0 28M10 62q-12 22 0 44" fill="none" stroke="#3b82f6" stroke-width="4" stroke-linecap="round"/>
+</svg>

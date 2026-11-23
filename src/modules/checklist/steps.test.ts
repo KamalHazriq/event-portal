@@ -43,6 +43,8 @@ describe('the test plan', () => {
       '/leaderboard',
       '/poll',
       '/feedback/event',
+      '/door-gift',
+      '/welcome',
       '/screen',
       '/kiosk',
       '/guide',
