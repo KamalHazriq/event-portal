@@ -81,6 +81,40 @@ test('every step has links, and they open in a new tab', async ({ page }) => {
   await expect(page.getByRole('checkbox').first()).not.toBeChecked();
 });
 
+test('a test participant can be added, found on My points, and removed; the test clock gives links', async ({
+  page,
+  browser,
+}) => {
+  await page.goto('/admin/sign-in');
+  await page.getByLabel('Which desk is this?').fill('plan-tester');
+  await page.getByLabel('Admin PIN').fill(PIN);
+  await page.getByRole('button', { name: 'Sign in' }).click();
+  await page.goto('/admin/test-plan');
+
+  await page.getByRole('button', { name: 'Add a test participant' }).click();
+  await expect(page.getByText('Test Participant is on the list.')).toBeVisible();
+  await expect(page.getByText('Test Participant is still on the list')).toBeVisible();
+
+  // An attendee phone finds them.
+  const phone = await (await browser.newContext()).newPage();
+  await phone.goto('/me?find=test');
+  await expect(phone.getByRole('list', { name: 'Names that match' })).toContainText(
+    'Test Participant',
+  );
+
+  // The test clock links pretend a moment during the chosen session.
+  const session = page.getByRole('link', { name: /^This session/ });
+  await expect(session).toHaveAttribute(
+    'href',
+    /\/session\/.+\?now=\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/,
+  );
+
+  await page.getByRole('button', { name: 'Remove the test participant' }).click();
+  await expect(page.getByText(/Test Participant is off the list/)).toBeVisible();
+  await phone.goto('/me?find=test');
+  await expect(phone.getByRole('list', { name: 'Names that match' })).toHaveCount(0);
+});
+
 test('reset the leaderboard sign ins, then sign every desk out', async ({ page, browser }) => {
   // A phone joins the leaderboard by picking its name.
   const phone = await browser.newPage();

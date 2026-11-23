@@ -12,7 +12,15 @@ import { REMINDERS_KEY, REMINDERS_PING_KEY, parseReminders } from '@/modules/rem
 import { hostOf, readyItems } from '@/modules/readiness/logic';
 import { checkInDays } from '@/modules/check-in/logic';
 import { UndoAllButton } from '@/modules/check-in/components/UndoAllButton';
-import { clearTestData } from '@/modules/checklist/actions';
+import {
+  addTestParticipant,
+  clearTestData,
+  removeTestParticipant,
+} from '@/modules/checklist/actions';
+import { TestClock } from '@/modules/checklist/components/TestClock';
+import { TEST_STAFF_NO } from '@/modules/checklist/test-participant';
+import { buildAgenda } from '@/modules/schedule/logic';
+import { timeOverrideAllowed } from '@/lib/time';
 import { TestPlan } from '@/modules/checklist/components/TestPlan';
 import { TEST_PLAN } from '@/modules/checklist/steps';
 import { FormPending } from '@/components/FormPending';
@@ -33,6 +41,21 @@ export default async function ChecklistPage({ searchParams }: { searchParams: Se
     data.settings.get(REMINDERS_KEY),
     data.settings.get(REMINDERS_PING_KEY),
   ]);
+  const tester = await data.attendees.findByStaffNo(TEST_STAFF_NO);
+  const agenda = buildAgenda(getEventConfig());
+  const clockSessions = agenda.days.flatMap((d) =>
+    d.sessions
+      .filter((s) => !s.hidden)
+      .map((s) => ({
+        id: s.id,
+        title: s.title,
+        dayLabel: d.label,
+        date: d.date,
+        start: s.start,
+        end: s.end,
+        feedback: s.feedbackEnabled,
+      })),
+  );
   const ready = readyItems({
     attendees,
     pinLength: getAdminPin()?.length ?? 0,
@@ -43,6 +66,8 @@ export default async function ChecklistPage({ searchParams }: { searchParams: Se
     requestHost: (await headers()).get('x-forwarded-host') ?? (await headers()).get('host'),
     teamPhones: subs.filter((p) => p.team).length,
     eventPhones: subs.length,
+    testParticipant: tester !== null,
+    testClock: timeOverrideAllowed(),
     remindersWaiting: parseReminders(remindersRaw).filter((r) => !r.sentAt).length,
     schedulerRecent:
       !!pingRaw && new Date().getTime() - new Date(pingRaw).getTime() < 3 * 60 * 1000,
@@ -81,6 +106,77 @@ export default async function ChecklistPage({ searchParams }: { searchParams: Se
             </li>
           ))}
         </ul>
+      </section>
+
+      <section
+        id="tester"
+        aria-labelledby="tester-h"
+        className="scroll-mt-24 space-y-5 rounded-xl border border-line bg-surface p-4 print:hidden"
+      >
+        <div>
+          <h2 id="tester-h" className="text-xl font-bold text-ink">
+            Test as an attendee
+          </h2>
+          <p className="text-ink-soft">
+            Two aids for testing before the event: a pretend attendee to sign in as, and a test
+            clock that makes the portal think a session is on.
+          </p>
+        </div>
+
+        <div className="space-y-2">
+          <h3 className="font-bold text-ink">1. The test participant</h3>
+          {params.tester === 'added' ? (
+            <p role="status" className="font-semibold text-ink">
+              Test Participant is on the list.
+            </p>
+          ) : params.tester === 'removed' ? (
+            <p role="status" className="font-semibold text-ink">
+              Test Participant is off the list, with their check ins and points.
+            </p>
+          ) : null}
+          {tester ? (
+            <>
+              <p className="text-ink-soft">
+                On a phone in a private window, open{' '}
+                <a href="/me" target="_blank" rel="noopener">
+                  My points
+                </a>
+                , type <strong className="text-ink">Test</strong>, tap Find me, then Test
+                Participant. Check them in on the Desk (search Test) to see check in points. Points
+                show on My points and the leaderboard.
+              </p>
+              <form action={removeTestParticipant}>
+                <FormPending label="Removing" />
+                <button
+                  type="submit"
+                  className="min-h-11 rounded-lg border-2 border-live px-4 font-semibold text-ink"
+                >
+                  Remove the test participant
+                </button>
+              </form>
+            </>
+          ) : (
+            <form action={addTestParticipant}>
+              <FormPending label="Adding" />
+              <button
+                type="submit"
+                className="min-h-11 rounded-lg bg-primary px-4 font-bold text-on-primary"
+              >
+                Add a test participant
+              </button>
+            </form>
+          )}
+        </div>
+
+        <div id="test-clock" className="scroll-mt-24 space-y-2">
+          <h3 className="font-bold text-ink">2. The test clock</h3>
+          <p className="text-ink-soft">
+            Reactions only open while a talk is on, and feedback after it ends. Pick a session and
+            open the links: those tabs pretend it is that moment. Use them on the attendee phone,
+            and open the big screen link on the laptop to see reactions float up.
+          </p>
+          <TestClock sessions={clockSessions} allowed={timeOverrideAllowed()} />
+        </div>
       </section>
 
       <TestPlan parts={TEST_PLAN} />

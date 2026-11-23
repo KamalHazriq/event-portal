@@ -19,6 +19,11 @@ const bad = (over: Partial<ReadyFacts>, id: string) =>
   readyItems({ ...good, ...over }).find((i) => i.id === id)!.ok;
 
 describe('ready check', () => {
+  it('warns about the testing aids', () => {
+    expect(bad({ testParticipant: true }, 'test-participant')).toBe(false);
+    expect(bad({ testClock: true }, 'test-clock')).toBe(false);
+  });
+
   it('passes when everything is set', () => {
     expect(readyItems(good).every((i) => i.ok)).toBe(true);
   });

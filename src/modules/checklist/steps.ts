@@ -33,6 +33,27 @@ export const TEST_PLAN: Part[] = [
       'Use a real phone that is NOT signed in to the secretariat (a private window works). Try an iPhone and an Android if you can, on the hotel Wi-Fi and on mobile data.',
     groups: [
       {
+        id: 'a-prep',
+        title: 'A0. Before you start',
+        steps: [
+          {
+            id: 'a-prep-tester',
+            do: 'On this page, under Test as an attendee, press Add a test participant. On the phone, open My points, type Test and pick Test Participant.',
+            expect: 'The phone is signed in as Test Participant and earns points as them.',
+            links: [
+              { href: '#tester', label: 'Test as an attendee (on this page)' },
+              { href: '/me', label: 'My points' },
+            ],
+          },
+          {
+            id: 'a-prep-clock',
+            do: 'For the steps that need a live session (reactions, the live highlight, feedback), use the test clock on this page: pick a session and open its links on the phone.',
+            expect: 'The session shows as Happening now, with a Test mode notice at the top.',
+            links: [{ href: '#test-clock', label: 'Test clock (on this page)' }],
+          },
+        ],
+      },
+      {
         id: 'a-in',
         title: 'A1. Getting in',
         steps: [
@@ -124,6 +145,7 @@ export const TEST_PLAN: Part[] = [
             do: 'During a live session, tap a reaction.',
             expect: 'It floats up on the big screen within a few seconds.',
             links: [
+              { href: '#test-clock', label: 'Test clock' },
               { href: '/agenda', label: 'Agenda (open the live session)' },
               { href: '/screen', label: 'Big screen' },
             ],
@@ -154,6 +176,7 @@ export const TEST_PLAN: Part[] = [
             expect:
               'A thank you, and the second try says it was already sent. On Day 3, the whole-summit feedback form works too.',
             links: [
+              { href: '#test-clock', label: 'Test clock' },
               { href: '/agenda', label: 'Agenda (open a finished session)' },
               { href: '/feedback/event', label: 'Whole summit form' },
             ],
@@ -178,7 +201,10 @@ export const TEST_PLAN: Part[] = [
             id: 'a-points-earn',
             do: 'Do something that earns points (a reaction, feedback).',
             expect: 'Your points go up after the next refresh.',
-            links: [{ href: '/me', label: 'My points' }],
+            links: [
+              { href: '#test-clock', label: 'Test clock' },
+              { href: '/me', label: 'My points' },
+            ],
           },
           {
             id: 'a-points-second',

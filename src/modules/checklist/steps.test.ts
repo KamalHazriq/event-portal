@@ -48,7 +48,7 @@ describe('the test plan', () => {
       '/guide',
       '/api/health',
     ]);
-    const anchors = new Set(['#ready-h', '#clean']);
+    const anchors = new Set(['#ready-h', '#clean', '#tester', '#test-clock']);
     for (const part of TEST_PLAN) {
       for (const group of part.groups) {
         for (const step of group.steps) {

@@ -311,6 +311,17 @@ export function createPrismaAdapter(
       return deleted.count;
     },
 
+    async remove(id) {
+      const [, , , , deleted] = await prisma.$transaction([
+        prisma.deviceLink.deleteMany({ where: { attendeeId: id } }),
+        prisma.luckyDrawWinner.deleteMany({ where: { attendeeId: id } }),
+        prisma.checkIn.deleteMany({ where: { attendeeId: id } }),
+        prisma.feedback.updateMany({ where: { attendeeId: id }, data: { attendeeId: null } }),
+        prisma.attendee.deleteMany({ where: { id } }),
+      ]);
+      return deleted.count > 0;
+    },
+
     async importRows(rows) {
       const result: AttendeeImportResult = {
         created: 0,

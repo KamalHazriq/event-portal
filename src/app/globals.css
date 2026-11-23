@@ -1895,13 +1895,31 @@ a.session-live.border {
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 11vw;
-  height: 14.7vw;
+  width: 34vw;
   translate: -50% -50%;
-  background: var(--brand-mark-dark) center / contain no-repeat;
-  filter: drop-shadow(0 0 2vw color-mix(in srgb, var(--c-primary) 70%, transparent));
   will-change: transform, opacity;
 }
+.hex-wipe-logo .hex-mark {
+  background-image: var(--brand-mark-dark);
+  filter: drop-shadow(0 0 2vw color-mix(in srgb, var(--c-primary) 70%, transparent));
+}
+.hex-wipe-logo .hex-cell-ring {
+  fill: var(--c-background);
+  stroke: var(--c-primary-ink);
+  stroke-width: 1.4;
+  opacity: 1;
+  animation: none;
+  filter: drop-shadow(0 0 0.6px var(--c-primary-ink));
+}
+/* A solid dark disc behind the emblem, so the honeycomb does not run through it. */
+.hex-wipe-logo::before {
+  content: '';
+  position: absolute;
+  inset: -6%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, var(--c-background) 70%, transparent);
+}
+
 .hex-wipe-cover .hex-wipe-logo {
   animation: hex-logo-in 520ms cubic-bezier(0.2, 0.9, 0.3, 1.2) 160ms both;
 }
@@ -1932,4 +1950,63 @@ a.session-live.border {
 /* The page loader waits a beat before showing, so a quick page shows nothing. */
 .page-loading {
   animation: hex-overlay-in 240ms ease-out 250ms both;
+}
+
+/* ------------------------------------------------------------------------
+ * The emblem: a ring of eight outlined hexagons around the D (see
+ * HexLoader.tsx). Each outline brightens in turn, going round clockwise.
+ * ---------------------------------------------------------------------- */
+.hex-emblem {
+  position: relative;
+  display: inline-block;
+  aspect-ratio: 74 / 56;
+}
+.hex-emblem-loader {
+  width: 9.5rem;
+}
+.hex-emblem-ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.hex-cell-ring {
+  fill: color-mix(in srgb, var(--c-primary) 6%, transparent);
+  stroke: var(--c-accent);
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+  opacity: 0.25;
+  animation: hex-ring-glow 2s ease-in-out infinite;
+  animation-delay: calc(var(--i) * 0.25s);
+}
+@keyframes hex-ring-glow {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  20% {
+    opacity: 1;
+    stroke: var(--c-primary-ink);
+  }
+  45% {
+    opacity: 0.25;
+  }
+}
+.hex-emblem .hex-mark {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 18%;
+  height: 30%;
+  translate: -50% -50%;
+  background: var(--brand-mark) center / contain no-repeat;
+  filter: drop-shadow(0 0 0.6rem color-mix(in srgb, var(--c-primary) 60%, transparent));
+  animation: hex-core 2s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hex-cell-ring {
+    animation: none;
+    opacity: 0.7;
+  }
 }

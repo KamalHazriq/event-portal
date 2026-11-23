@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react';
 
+import { HexEmblem } from '@/components/HexLoader';
+
 /**
  * A hexagon wipe between projector views. When the view changes, hexagons
  * grow from the centre until they cover the screen, the new view is put in
@@ -93,7 +95,7 @@ function HexCells({ phase }: { phase: 'cover' | 'reveal' }) {
         />
       ))}
       {/* The logo, in the middle of the honeycomb while it covers the screen. */}
-      <span className="hex-wipe-logo" />
+      <HexEmblem className="hex-wipe-logo" />
     </div>
   );
 }

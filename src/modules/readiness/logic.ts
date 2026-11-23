@@ -17,6 +17,10 @@ export type ReadyFacts = {
   eventPhones: number;
   remindersWaiting: number;
   schedulerRecent: boolean;
+  /** The pretend attendee for testing is still on the list. */
+  testParticipant?: boolean;
+  /** ?now= works on this server, so anyone can pretend it is another time. */
+  testClock?: boolean;
 };
 
 export type ReadyItem = { id: string; ok: boolean; label: string; fix: string };
@@ -90,6 +94,20 @@ export function readyItems(f: ReadyFacts): ReadyItem[] {
             ? `${f.remindersWaiting} reminders waiting, scheduler is running`
             : `${f.remindersWaiting} reminders waiting but the scheduler is not calling`,
       fix: 'Set up Cloud Scheduler (docs/DEPLOYING.md, Scheduled reminders), or keep a big screen page open.',
+    },
+    {
+      id: 'test-participant',
+      ok: !f.testParticipant,
+      label: f.testParticipant
+        ? 'Test Participant is still on the list'
+        : 'No test participant on the list',
+      fix: 'Remove it in "Test as an attendee" on this page before the event.',
+    },
+    {
+      id: 'test-clock',
+      ok: !f.testClock,
+      label: f.testClock ? 'The test clock is on' : 'The test clock is off',
+      fix: 'Before 14 December, remove the ALLOW_TIME_OVERRIDE lines from apphosting.yaml (or ask the developer) and roll out, so nobody can pretend it is another time.',
     },
   ];
 }
