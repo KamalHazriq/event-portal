@@ -84,9 +84,9 @@ export function AttendeeTable({ rows }: { rows: AttendeeRow[] }) {
           Nobody matches.
         </p>
       ) : (
-        <div className="overflow-x-auto rounded-xl border border-line">
+        <div className="max-h-[70vh] max-w-full overflow-auto rounded-xl border border-line [contain:inline-size]">
           <table className="w-full text-left text-sm">
-            <thead className="bg-muted text-ink-soft">
+            <thead className="sticky top-0 z-10 bg-muted text-ink-soft">
               <tr>
                 <th className="px-3 py-2 font-semibold">No</th>
                 <th className="px-3 py-2 font-semibold">Name</th>

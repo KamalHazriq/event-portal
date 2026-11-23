@@ -34,7 +34,7 @@ test('edit a session, add one, and get a plain reason when it does not fit', asy
   try {
     await page.goto('/admin/agenda');
     const session = page.locator('details', { hasText: 'Welcome and opening remarks' }).first();
-    await session.locator('summary').click();
+    await session.locator(':scope > summary').click();
     await session.getByLabel('Title', { exact: true }).fill('Opening, edited by the secretariat');
     await session.getByLabel('Room').fill('Room 42');
     await session.getByRole('button', { name: 'Save this session' }).click();
@@ -50,9 +50,9 @@ test('edit a session, add one, and get a plain reason when it does not fit', asy
     const again = page
       .locator('details', { hasText: 'Opening, edited by the secretariat' })
       .first();
-    await again.locator('summary').click();
-    await again.getByLabel('Starts').fill('12:00');
-    await again.getByLabel('Ends').fill('11:00');
+    await again.locator(':scope > summary').click();
+    await again.getByLabel('Starts', { exact: true }).fill('12:00');
+    await again.getByLabel('Ends', { exact: true }).fill('11:00');
     await again.getByRole('button', { name: 'Save this session' }).click();
     const refused = page.getByRole('alert').filter({ hasText: 'That was not saved.' });
     await expect(refused).toContainText('ends before it starts');
@@ -62,8 +62,8 @@ test('edit a session, add one, and get a plain reason when it does not fit', asy
     await page.getByText('+ Add a session to Day 1').click();
     const form = page.locator('#add-day-1 form');
     await form.getByLabel('Title').fill('Bus to the dinner');
-    await form.getByLabel('Starts').fill('18:30');
-    await form.getByLabel('Ends').fill('19:00');
+    await form.getByLabel('Starts', { exact: true }).fill('18:30');
+    await form.getByLabel('Ends', { exact: true }).fill('19:00');
     await form.getByLabel('Room').fill('Hotel lobby');
     await form.getByRole('button', { name: 'Add session' }).click();
     await expect(page.getByText('Saved. It is live now.')).toBeVisible();
@@ -73,7 +73,7 @@ test('edit a session, add one, and get a plain reason when it does not fit', asy
     const added = page.locator('details', { hasText: 'Bus to the dinner' }).first();
     // A session just added is already open.
     if (!(await added.evaluate((el) => (el as HTMLDetailsElement).open))) {
-      await added.locator('summary').click();
+      await added.locator(':scope > summary').click();
     }
     await added.getByRole('button', { name: 'Delete this session' }).click();
     // The delete saves in the background: wait until the agenda drops it.

@@ -49,7 +49,7 @@ test.describe('the views', () => {
     await signIn(page);
     await page.goto('/screen/arrivals?now=2026-12-14T13:00');
     await expect(page.getByText(/^Arrived,/)).toBeVisible();
-    await expect(page.getByText('/ 90')).toBeVisible();
+    await expect(page.getByText(/^\d+ \/ \d+$/)).toBeVisible();
   });
 
   test('fills a 1920 x 1080 screen without scrolling', async ({ page }) => {

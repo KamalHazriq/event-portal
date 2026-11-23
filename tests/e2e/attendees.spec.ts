@@ -62,7 +62,9 @@ test('an Excel list uploads, shows up, and a second upload duplicates nobody', a
 
   // The list filters as you type: no button to press.
   await page.getByLabel('Search the list').fill(tag);
-  await expect(page.getByRole('cell', { name: `Uploaded Person ${tag}` })).toBeVisible();
+  await expect(
+    page.getByRole('cell', { name: new RegExp(`^Uploaded Person ${tag}`) }),
+  ).toBeVisible();
   // Flagged as secretariat: the badge next to the name.
   await expect(
     page

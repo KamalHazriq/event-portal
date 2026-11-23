@@ -173,7 +173,8 @@ test('scheduled reminders: the scheduler call needs its secret, and a due one is
 
   const text = `Projector on ${Date.now()}`;
   await schedule(text, '2020-01-01T07:00');
-  const row = page.getByRole('listitem').filter({ hasText: text });
+  const scheduled = page.locator('section', { has: page.locator('#reminders') });
+  const row = scheduled.getByRole('listitem').filter({ hasText: text });
   // A time that is long past is shown as missed, never sent late.
   await expect(row).toContainText('Missed');
 
@@ -182,7 +183,7 @@ test('scheduled reminders: the scheduler call needs its secret, and a due one is
   const local = soon.toISOString().slice(0, 16);
   const text2 = `Desks open ${Date.now()}`;
   await schedule(text2, local);
-  const row2 = page.getByRole('listitem').filter({ hasText: text2 });
+  const row2 = scheduled.getByRole('listitem').filter({ hasText: text2 });
   // A big screen page left open elsewhere may send it first: also fine.
   await expect(row2).toContainText(/Waiting|Sent/);
 
@@ -199,5 +200,5 @@ test('scheduled reminders: the scheduler call needs its secret, and a due one is
   for (const r of [row, row2]) {
     await r.getByRole('button', { name: 'Remove' }).click();
   }
-  await expect(page.getByText(text2)).toHaveCount(0);
+  await expect(scheduled.getByText(text2)).toHaveCount(0);
 });
