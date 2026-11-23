@@ -71,3 +71,23 @@ test('the kiosk moves on to the camera even when the browser never finishes play
   await expect(page.getByRole('button', { name: 'Start the camera' })).toHaveCount(0);
   await expect(page.locator('video')).toBeVisible();
 });
+
+test('no card: type your name at the kiosk, confirm, and you are in', async ({
+  page,
+}, testInfo) => {
+  test.skip(testInfo.project.name !== 'desktop', 'Checks a shared person in, so runs once.');
+  await page.goto('/kiosk');
+  await page.getByLabel('Which desk is this?').fill('kiosk-type');
+  await page.getByLabel('Admin PIN').fill(PIN);
+  await page.getByRole('button', { name: 'Sign in' }).click();
+  await expect(page.getByRole('heading', { name: 'Check yourself in' })).toBeVisible();
+
+  await page.getByRole('button', { name: 'No card? Type your name' }).click();
+  await page.getByLabel('Type your name').fill('ka');
+  await expect(page.getByText('Keep typing: three letters or more.')).toBeVisible();
+  // Kamala Mansor (D10008) in the dummy list.
+  await page.getByLabel('Type your name').fill('kamala man');
+  await page.getByRole('list', { name: 'Names that match' }).getByRole('button').first().click();
+  await page.getByRole('button', { name: /^Yes, I am Kamala/ }).click();
+  await expect(page.getByText(/^Welcome( back)?, Kamala Mansor/)).toBeVisible();
+});

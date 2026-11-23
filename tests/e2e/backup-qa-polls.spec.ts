@@ -32,6 +32,7 @@ test.afterEach(async ({ browser }, testInfo) => {
   const admin = await browser.newPage();
   await signIn(admin, 'cleanup');
   await admin.goto('/admin/polls');
+  await admin.getByRole('heading', { level: 1 }).waitFor();
   const back = admin.getByRole('button', { name: 'Switch back to Slido' });
   if (await back.isVisible()) {
     await back.click();

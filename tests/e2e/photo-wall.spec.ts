@@ -25,6 +25,7 @@ async function signIn(page: Page): Promise<void> {
 /** Sets approval on or off, whatever it was before. */
 async function setApproval(page: Page, on: boolean): Promise<void> {
   await page.goto('/admin/photos');
+  await page.getByText(/^Approval first: (on|off)\./).waitFor();
   const button = page.getByRole('button', { name: on ? 'Turn approval on' : 'Turn approval off' });
   if (await button.isVisible()) await button.click();
   await expect(page.getByText(`Approval first: ${on ? 'on' : 'off'}.`)).toBeVisible();
@@ -32,6 +33,7 @@ async function setApproval(page: Page, on: boolean): Promise<void> {
 
 async function setLayout(page: Page, name: string): Promise<void> {
   await page.goto('/admin/photos');
+  await page.getByText(/^Approval first: (on|off)\./).waitFor();
   const button = page.getByRole('button', { name, exact: true });
   await button.click();
   await expect(button).toHaveAttribute('aria-pressed', 'true');
@@ -52,7 +54,7 @@ test('approval off, grid layout, and the new photo pop up', async ({ browser }) 
 
 async function runWall(admin: Page, browser: Browser): Promise<void> {
   await setApproval(admin, false);
-  await setLayout(admin, 'Grid');
+  await setLayout(admin, 'Scrolling wall');
   const show = admin.getByRole('button', { name: 'Show the photo wall now' });
   if (await show.isVisible()) await show.click();
   await expect(admin.getByText('The photo wall is on the big screen now.')).toBeVisible();
@@ -67,8 +69,11 @@ async function runWall(admin: Page, browser: Browser): Promise<void> {
   const caption = `Wall ${Math.random().toString(36).slice(2, 8)}`;
   const phone = await browser.newPage({ viewport: { width: 375, height: 812 } });
   await phone.goto('/photos');
-  await phone.getByLabel(/A caption/).fill(caption);
+  // One photo: choose it, see it, caption it, then share.
   await phone.locator('input[type=file]').setInputFiles(PHOTO);
+  await expect(phone.getByRole('img', { name: 'The photo you chose' })).toBeVisible();
+  await phone.getByLabel(/Caption/).fill(caption);
+  await phone.getByRole('button', { name: 'Share this photo' }).click();
   await expect(phone.getByText(/1 photo shared from this device/)).toBeVisible({ timeout: 20_000 });
 
   // The screen picks it up on its next refresh and shows it large first.

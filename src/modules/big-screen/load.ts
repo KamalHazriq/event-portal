@@ -258,7 +258,7 @@ export async function loadScreenView(
           layout,
           slides: approved
             .slice(0, LAYOUT_COUNT[layout])
-            .map((p) => ({ id: p.id, caption: p.caption })),
+            .map((p) => ({ id: p.id, caption: p.caption, width: p.width, height: p.height })),
           shareUrl: passLink(`${config.event.portalUrl.replace(/\/$/, '')}/photos`),
         },
       };

@@ -46,12 +46,17 @@ export default async function PhotosAdminPage({ searchParams }: { searchParams: 
   const status: PhotoStatus = raw === 'approved' || raw === 'rejected' ? raw : 'pending';
 
   const data = getData();
-  const [all, moderationSetting, layoutSetting, screenView] = await Promise.all([
+  const [all, moderationSetting, layoutSetting, screenView, links, people] = await Promise.all([
     data.photos.list(),
     data.settings.get(PHOTO_KEYS.moderation),
     data.settings.get(PHOTO_KEYS.layout),
     data.settings.get(SCREEN_KEYS.view),
+    data.players.links(),
+    data.attendees.list(),
   ]);
+  // Who sent each photo: the person that phone signed in as on My points, if any.
+  const nameOf = new Map(people.map((p) => [p.id, p.name]));
+  const senderOf = new Map(links.map((l) => [l.deviceId, nameOf.get(l.attendeeId) ?? '']));
   const onScreen = screenView === 'photos';
   const moderated = moderationOn(moderationSetting);
   const layout = resolvePhotoLayout(layoutSetting);
@@ -155,6 +160,9 @@ export default async function PhotosAdminPage({ searchParams }: { searchParams: 
                 <p className="truncate text-sm font-semibold text-ink">
                   {photo.caption || 'No caption'}
                 </p>
+                <p className="truncate text-xs text-ink">
+                  From {senderOf.get(photo.deviceId) || 'a phone not signed in on My points'}
+                </p>
                 <p className="text-xs text-ink-soft">
                   {localClock(photo.createdAt, config.event.timezone)},{' '}
                   {Math.round(photo.sizeBytes / 1024)} KB
@@ -178,13 +186,24 @@ export default async function PhotosAdminPage({ searchParams }: { searchParams: 
                       </button>
                     </form>
                   ) : (
-                    <form action={reviewPhoto} className="flex flex-1">
-                      <input type="hidden" name="id" value={photo.id} />
-                      <input type="hidden" name="decision" value="delete" />
-                      <button type="submit" className={`${button} border border-line text-ink`}>
+                    // Deleting cannot be undone, so it asks first, in red.
+                    <details className="flex-1">
+                      <summary
+                        className={`${button} flex cursor-pointer list-none items-center justify-center border border-line text-ink`}
+                      >
                         Delete
-                      </button>
-                    </form>
+                      </summary>
+                      <form action={reviewPhoto} className="mt-1">
+                        <input type="hidden" name="id" value={photo.id} />
+                        <input type="hidden" name="decision" value="delete" />
+                        <button
+                          type="submit"
+                          className="min-h-11 w-full rounded-lg bg-[#b91c1c] px-2 text-sm font-bold text-white"
+                        >
+                          Yes, delete for good
+                        </button>
+                      </form>
+                    </details>
                   )}
                 </div>
               </div>

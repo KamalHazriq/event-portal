@@ -4,6 +4,9 @@ import { shortDepartment } from '@/lib/departments';
 
 import { getData } from '@/data';
 import { requireAdmin } from '@/lib/admin-guard';
+import { FormPending } from '@/components/FormPending';
+import { saveSecretariatList } from '@/modules/attendees/actions';
+import { readSecretariatList } from '@/modules/attendees/secretariat';
 
 export const dynamic = 'force-dynamic';
 
@@ -38,6 +41,7 @@ export default async function AttendeesPage({ searchParams }: { searchParams: Se
   const config = getEventConfig();
   await requireAdmin('/admin/attendees');
   const params = await searchParams;
+  const secretariatList = await readSecretariatList();
   const result = one(params.result);
   const q = one(params.q).trim().toLowerCase();
 
@@ -212,6 +216,46 @@ export default async function AttendeesPage({ searchParams }: { searchParams: Se
             </table>
           </div>
         )}
+      </section>
+
+      <section
+        id="secretariat"
+        aria-labelledby="secretariat-h"
+        className="scroll-mt-24 rounded-xl border border-line bg-surface p-4"
+      >
+        <h2 id="secretariat-h" className="text-lg font-bold text-ink">
+          The secretariat
+        </h2>
+        <p className="mt-1 text-sm text-ink-soft">
+          The secretariat are left out of the arrivals screen, the leaderboard and the lucky draw.
+          Anyone whose department, role or remark says Secretariat is found by itself. Paste the
+          staff numbers of anyone else: they stay marked when you upload the list again.{' '}
+          {secretariat} marked now.
+        </p>
+        {params.secretariat === 'saved' ? (
+          <p role="status" className="mt-2 font-semibold text-ink">
+            Saved. The secretariat are marked.
+          </p>
+        ) : null}
+        <form action={saveSecretariatList} className="mt-3 space-y-3">
+          <FormPending label="Saving" />
+          <label className="block text-sm font-semibold text-ink">
+            Staff numbers of the secretariat
+            <textarea
+              name="staffNos"
+              rows={4}
+              defaultValue={secretariatList.join('\n')}
+              placeholder={'One per line, for example\nD10001\nD10002'}
+              className="mt-1 block w-full rounded-lg border border-line bg-canvas px-3 py-2 font-mono text-ink"
+            />
+          </label>
+          <button
+            type="submit"
+            className="min-h-11 rounded-lg bg-primary px-4 font-bold text-on-primary"
+          >
+            Save the secretariat list
+          </button>
+        </form>
       </section>
 
       {everyone.length > 0 ? (

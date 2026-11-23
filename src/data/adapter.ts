@@ -76,6 +76,8 @@ export interface AttendeeRepository {
    * phone links and lucky draw wins go with them. Returns how many.
    */
   removeAll(): Promise<number>;
+  /** Marks people as secretariat, or not. Returns how many changed. */
+  setSecretariat(ids: string[], value: boolean): Promise<number>;
   /** Removes one person (the test participant), with their check ins and phone links. */
   remove(id: string): Promise<boolean>;
 }

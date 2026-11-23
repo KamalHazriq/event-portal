@@ -9,6 +9,7 @@
  * Re-uploading a corrected list updates people by staff number, so nobody
  * is duplicated and check ins survive.
  */
+import { applySecretariatList } from '@/modules/attendees/secretariat';
 import { NextResponse } from 'next/server';
 
 import { getData } from '@/data';
@@ -100,6 +101,8 @@ export async function POST(request: Request): Promise<Response> {
     department: canonicalDepartment(config, row.department ?? ''),
   }));
   const result = await data.attendees.importRows(rows);
+  // Keep the secretariat marked by staff number, whatever the new file says.
+  await applySecretariatList();
   await recordActivity(
     `Uploaded the participant list: ${result.created} added, ${result.updated} updated`,
     operator,

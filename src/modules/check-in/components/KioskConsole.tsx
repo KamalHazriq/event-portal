@@ -33,8 +33,13 @@ export function KioskConsole({
 }) {
   const [shown, setShown] = useState<Shown | null>(null);
   const [confirm, setConfirm] = useState<Confirm | null>(null);
+  // Typing your name instead of scanning.
+  const [typing, setTyping] = useState(false);
+  const [typed, setTyped] = useState('');
+  const [matches, setMatches] = useState<Candidate[]>([]);
   const confirmRef = useRef<Confirm | null>(null);
   const confirmTimer = useRef<number | undefined>(undefined);
+  const typingRef = useRef(false);
   const busyRef = useRef(false);
   const resetRef = useRef<number | undefined>(undefined);
   const recentRef = useRef<Map<string, number>>(new Map());
@@ -58,14 +63,19 @@ export function KioskConsole({
   }, []);
 
   const send = useCallback(
-    async (input: { payload?: string; attendeeId?: string; cardEmail?: string }) => {
+    async (input: {
+      payload?: string;
+      attendeeId?: string;
+      cardEmail?: string;
+      method?: 'qr' | 'manual';
+    }) => {
       if (busyRef.current) return;
       busyRef.current = true;
       try {
         const response = await fetch('/api/check-in', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ...input, method: 'qr', dayId }),
+          body: JSON.stringify({ method: 'qr', ...input, dayId }),
         });
         const body = (await response.json()) as {
           outcome: ScanOutcome;
@@ -102,18 +112,72 @@ export function KioskConsole({
       const current = confirmRef.current;
       ask(null);
       if (!candidate || !current) {
-        show(kioskMessage('card-not-found', undefined, dayLabel));
+        // Picked from a typed search: let them try again. From a card: the desk.
+        if (current && !current.cardEmail) setTyping(true);
+        else show(kioskMessage('card-not-found', undefined, dayLabel));
         return;
       }
-      void send({ attendeeId: candidate.id, cardEmail: current.cardEmail || undefined });
+      void send({
+        attendeeId: candidate.id,
+        cardEmail: current.cardEmail || undefined,
+        method: current.cardEmail ? 'qr' : 'manual',
+      });
     },
     [ask, dayLabel, send, show],
+  );
+
+  useEffect(() => {
+    typingRef.current = typing;
+    if (!typing) return;
+    // Walked away mid-typing: back to the camera after a while.
+    const idle = window.setTimeout(() => {
+      setTyping(false);
+      setTyped('');
+      setMatches([]);
+    }, 45_000);
+    return () => window.clearTimeout(idle);
+  }, [typing, typed]);
+
+  // Names that start the way the person typed: three letters, then a moment's pause.
+  useEffect(() => {
+    if (!typing) return;
+    const text = typed.trim();
+    const timer = window.setTimeout(async () => {
+      if (text.length < 3) {
+        setMatches([]);
+        return;
+      }
+      try {
+        const response = await fetch(`/api/attendees/search?kiosk=1&q=${encodeURIComponent(text)}`);
+        const body = (await response.json()) as { results?: Candidate[] };
+        setMatches(body.results ?? []);
+      } catch {
+        setMatches([]);
+      }
+    }, 300);
+    return () => window.clearTimeout(timer);
+  }, [typed, typing]);
+
+  const stopTyping = useCallback(() => {
+    setTyping(false);
+    setTyped('');
+    setMatches([]);
+  }, []);
+
+  /** A name picked from the typed search: asked "Is this you?" first. */
+  const chooseTyped = useCallback(
+    (person: Candidate) => {
+      stopTyping();
+      ask({ cardEmail: '', candidates: [person] });
+    },
+    [ask, stopTyping],
   );
 
   const handleScanned = useCallback(
     (raw: string) => {
       // While someone is answering "Are you ...?", ignore the camera.
       if (confirmRef.current) return;
+      if (typingRef.current) return;
       const value = looksLikeBusinessCard(raw) ? raw : parseScanPayload(raw);
       if (!value) {
         show(kioskMessage('unreadable', undefined, dayLabel));
@@ -204,6 +268,59 @@ export function KioskConsole({
             {confirm.candidates.length === 1 ? 'No, that is not me' : 'None of these'}
           </button>
         </div>
+      ) : typing ? (
+        <div className="screen-fade w-full max-w-2xl rounded-3xl border-4 border-primary bg-surface p-8 text-left">
+          <label className="block text-[clamp(1.4rem,4vw,2.4rem)] font-bold text-ink">
+            Type your name
+            <input
+              autoFocus
+              value={typed}
+              onChange={(e) => setTyped(e.target.value)}
+              autoComplete="off"
+              autoCapitalize="words"
+              spellCheck={false}
+              placeholder="The start of your first or last name"
+              className="mt-3 block min-h-16 w-full rounded-2xl border-2 border-line bg-canvas px-5 text-[clamp(1.2rem,3vw,1.8rem)] font-semibold text-ink focus:border-primary focus:outline-none"
+            />
+          </label>
+          {typed.trim().length > 0 && typed.trim().length < 3 ? (
+            <p className="mt-3 text-lg text-ink-soft">Keep typing: three letters or more.</p>
+          ) : typed.trim().length >= 3 && matches.length === 0 ? (
+            <p className="mt-3 text-lg text-ink-soft">
+              No match yet. Try your other name, or see the registration desk.
+            </p>
+          ) : null}
+          <ul className="mt-4 space-y-2" aria-label="Names that match">
+            {matches.map((person) => (
+              <li key={person.id}>
+                <button
+                  type="button"
+                  onClick={() => chooseTyped(person)}
+                  className="flex min-h-16 w-full items-center justify-between gap-3 rounded-2xl border-2 border-line bg-canvas px-5 py-3 text-left hover:border-primary"
+                >
+                  <span>
+                    <span className="block text-[clamp(1.1rem,2.8vw,1.6rem)] font-bold text-ink">
+                      {person.name}
+                    </span>
+                    {person.department ? (
+                      <span className="block text-base text-ink-soft">{person.department}</span>
+                    ) : null}
+                  </span>
+                  <span aria-hidden="true" className="text-2xl text-primary">
+                    →
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+          <button
+            type="button"
+            onClick={stopTyping}
+            className="mt-4 min-h-14 w-full rounded-2xl border-2 border-line px-6 text-lg font-semibold text-ink"
+          >
+            Back to scanning
+          </button>
+        </div>
       ) : shown ? (
         <div
           role="status"
@@ -253,7 +370,15 @@ export function KioskConsole({
         ) : null}
       </div>
 
-      <p className="text-ink-soft">No card? The registration desk will check you in by name.</p>
+      {!typing && !confirm ? (
+        <button
+          type="button"
+          onClick={() => setTyping(true)}
+          className="min-h-14 rounded-2xl border-2 border-primary px-6 text-lg font-bold text-ink"
+        >
+          No card? Type your name
+        </button>
+      ) : null}
     </div>
   );
 }

@@ -8,6 +8,7 @@ import { getEventConfig } from '@/lib/config';
 import { requireAdminApi } from '@/lib/admin-guard';
 import { LIMITS, rateLimit } from '@/lib/rate-limit';
 import { plainText } from '@/lib/text';
+import { findByName } from '@/modules/points/logic';
 
 export async function GET(request: Request): Promise<Response> {
   const auth = await requireAdminApi();
@@ -25,6 +26,21 @@ export async function GET(request: Request): Promise<Response> {
   const query = plainText(url.searchParams.get('q') ?? '', 80);
   const dayId = plainText(url.searchParams.get('dayId') ?? '', 64);
   const everyone = url.searchParams.get('all') === '1';
+
+  // The self check in kiosk: the person types their own name, so it shows
+  // only names that start the way they typed (three letters or more), a few
+  // at a time, and nothing but the name and department.
+  if (url.searchParams.get('kiosk') === '1') {
+    const config = getEventConfig();
+    const found = findByName(await getData().attendees.list(), query, 5);
+    return Response.json({
+      results: found.map((p) => ({
+        id: p.id,
+        name: p.name,
+        department: shortDepartment(config, p.department),
+      })),
+    });
+  }
 
   if (!everyone && query.length < 2) {
     return Response.json({ results: [], message: 'Type at least two letters.' });

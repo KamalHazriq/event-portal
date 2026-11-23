@@ -311,6 +311,15 @@ export function createPrismaAdapter(
       return deleted.count;
     },
 
+    async setSecretariat(ids, value) {
+      if (ids.length === 0) return 0;
+      const updated = await prisma.attendee.updateMany({
+        where: { id: { in: ids } },
+        data: { isSecretariat: value },
+      });
+      return updated.count;
+    },
+
     async remove(id) {
       const [, , , , deleted] = await prisma.$transaction([
         prisma.deviceLink.deleteMany({ where: { attendeeId: id } }),

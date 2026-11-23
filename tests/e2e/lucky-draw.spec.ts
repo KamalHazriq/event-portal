@@ -50,6 +50,7 @@ test('draws winners from people checked in, and nobody wins twice', async ({
 
   // Start clean, so a rerun against the same database behaves the same.
   await page.goto('/admin/lucky-draw');
+  await expect(page.getByRole('heading', { name: 'Lucky draw', level: 1 })).toBeVisible();
   if (await page.getByText('Start over').isVisible()) {
     await page.getByText('Start over').click();
     await page.getByLabel(/Yes, clear all/).check();
@@ -90,7 +91,6 @@ test('draws winners from people checked in, and nobody wins twice', async ({
   await phone.goto('/me');
   await phone.getByText('Or sign in with your staff number').click();
   await phone.getByLabel('Staff number').fill(winner!.staffNo);
-  await phone.getByLabel('Your first name').fill(winner!.name.split(' ')[0] ?? '');
   await phone.getByRole('button', { name: 'Join' }).click();
   await expect(phone.getByText(/^You are in./)).toBeVisible();
   await phone.goto('/');
@@ -107,6 +107,7 @@ test('draws winners from people checked in, and nobody wins twice', async ({
 
   // Someone was not in the room.
   await page.goto('/admin/lucky-draw');
+  await expect(page.getByRole('button', { name: 'Not here' }).first()).toBeVisible();
   const before = await page.getByRole('button', { name: 'Not here' }).count();
   await page.getByRole('button', { name: 'Not here' }).first().click();
   await expect(page.getByRole('button', { name: 'Not here' })).toHaveCount(before - 1);

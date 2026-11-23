@@ -582,16 +582,6 @@ export const TEST_PLAN: Part[] = [
             links: [{ href: '/admin/announce', label: 'Announce, Scheduled reminders' }],
           },
           {
-            id: 's-room-banner',
-            do: 'Post an announcement with "Also show it as a banner on the big screen" ticked, then look at the projector. Then Take it down.',
-            expect:
-              'A banner shows along the bottom of every projector view, and goes when taken down.',
-            links: [
-              { href: '/admin/announce', label: 'Announce' },
-              { href: '/screen', label: 'Big screen' },
-            ],
-          },
-          {
             id: 's-room-moderate',
             do: 'Approve and hide a comment, and approve and reject a photo. Try the approval switch and each photo layout.',
             expect: 'Each change shows on phones and the big screen.',

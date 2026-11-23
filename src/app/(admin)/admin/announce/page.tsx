@@ -226,15 +226,6 @@ export default async function AnnouncementsPage({ searchParams }: { searchParams
             ))}
           </select>
         </div>
-        <label className="flex min-h-11 items-center gap-3 text-ink">
-          <input type="checkbox" name="screen" defaultChecked className="size-5" />
-          <span>
-            Also show it as a banner on the big screen
-            <span className="block text-sm text-ink-soft">
-              Across every projector view until you take it down. Not for team only messages.
-            </span>
-          </span>
-        </label>
         <label className="flex items-start gap-3 text-ink">
           <input type="checkbox" name="push" defaultChecked className="mt-1 size-5" />
           <span>

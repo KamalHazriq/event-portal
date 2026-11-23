@@ -49,8 +49,11 @@ test('a shared photo waits for approval, then reaches the slideshow', async ({
   const caption = `E2E photo ${Math.random().toString(36).slice(2, 8)}`;
   const phone = await browser.newPage({ viewport: { width: 375, height: 812 } });
   await phone.goto('/photos');
-  await phone.getByLabel(/A caption/).fill(caption);
+  // One photo: choose it, see it, caption it, then share.
   await phone.locator('input[type=file]').setInputFiles(PHOTO);
+  await expect(phone.getByRole('img', { name: 'The photo you chose' })).toBeVisible();
+  await phone.getByLabel(/Caption/).fill(caption);
+  await phone.getByRole('button', { name: 'Share this photo' }).click();
   await expect(phone.getByText('Sent, waiting for approval')).toBeVisible({ timeout: 20_000 });
   await expect(phone.getByText(/1 photo shared from this device/)).toBeVisible();
 

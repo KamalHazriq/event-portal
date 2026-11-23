@@ -14,7 +14,7 @@ import {
 } from '../logic';
 import { PhotoSlideshow } from './PhotoSlideshow';
 
-type Slide = { id: string; caption: string };
+type Slide = { id: string; caption: string; width?: number; height?: number };
 
 /**
  * The big screen photo wall, in the layout the secretariat picked. The screen
@@ -62,7 +62,11 @@ export function PhotoWall({
       ) : layout === 'slideshow' ? (
         <PhotoSlideshow slides={slides} />
       ) : layout === 'grid' ? (
-        <GridWall slides={slides} />
+        slides.length <= SCROLL_FROM ? (
+          <GridWall slides={slides} />
+        ) : (
+          <ScrollingWall slides={slides} />
+        )
       ) : slides.length < MOSAIC_MIN ? (
         <GridWall slides={slides} />
       ) : (
@@ -135,6 +139,67 @@ function GridWall({ slides }: { slides: Slide[] }) {
       ))}
       <PageCount page={page} pages={pages} />
     </div>
+  );
+}
+
+/** Below this many photos the wall stands still in even tiles; above, it scrolls. */
+const SCROLL_FROM = 8;
+const COLUMNS = 4;
+
+/**
+ * Every photo in four columns drifting slowly down, each photo in its own
+ * shape (no cropping). Each column holds its photos twice over and moves by
+ * exactly one set, so the loop never jumps. Columns move at slightly
+ * different speeds, which keeps it from looking like one sheet.
+ */
+function ScrollingWall({ slides }: { slides: Slide[] }) {
+  const columns = Array.from({ length: COLUMNS }, (_, c) =>
+    slides.filter((_, i) => i % COLUMNS === c),
+  );
+  return (
+    <div
+      data-layout="grid"
+      className="keep-motion grid h-full grid-cols-4 gap-[0.8vw] overflow-hidden"
+    >
+      {columns.map((column, c) => {
+        // Enough photos in a set to be taller than the screen.
+        const repeat = Math.max(1, Math.ceil(5 / Math.max(1, column.length)));
+        const set = Array.from({ length: repeat }).flatMap(() => column);
+        const seconds = Math.max(40, set.length * 9) * (1 + c * 0.09);
+        return (
+          <div key={c} className="min-h-0 overflow-hidden">
+            <div className="wall-column" style={{ animationDuration: `${seconds}s` }}>
+              {[...set, ...set].map((slide, i) => (
+                <WallPhoto key={`${i}-${slide.id}`} slide={slide} />
+              ))}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function WallPhoto({ slide }: { slide: Slide }) {
+  const ratio = slide.width && slide.height ? `${slide.width} / ${slide.height}` : '4 / 3';
+  return (
+    <figure
+      className="relative mb-[0.8vw] overflow-hidden rounded-[0.8vw] bg-surface"
+      style={{ aspectRatio: ratio }}
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={`/api/photos/${slide.id}?size=thumb`}
+        alt={slide.caption || 'A photo from the event'}
+        decoding="async"
+        className="absolute inset-0 h-full w-full object-cover"
+      />
+      {slide.caption ? (
+        <figcaption className="absolute inset-x-0 bottom-0 truncate bg-gradient-to-t from-black/80 to-transparent px-[1vw] pt-[3vh] pb-[1vh] text-[clamp(0.7rem,1vw,1.4rem)] font-semibold text-white">
+          {slide.caption}
+        </figcaption>
+      ) : null}
+    </figure>
   );
 }
 

@@ -71,18 +71,16 @@ test('post an announcement, see it on a phone, take it down', async ({ browser, 
   await banner.getByRole('link').click();
   await expect(phone).toHaveURL(/\/agenda/);
 
-  // The projector shows it too, across every view.
+  // The projector stays calm: announcements are for phones only.
   const projector = await admin.context().newPage();
   await projector.goto('/screen/welcome');
-  await expect(projector.getByText(text)).toBeVisible();
+  await expect(projector.getByText(text)).toHaveCount(0);
 
   await admin.getByRole('button', { name: 'Take it down' }).click();
   await expect(admin.getByRole('heading', { name: /^Showing now/ })).toHaveCount(0);
   await expect(admin.getByText(text)).toBeVisible(); // still in "Sent before"
   await phone.goto('/');
   await expect(phone.getByRole('status', { name: 'Announcement' })).toHaveCount(0);
-  await projector.reload();
-  await expect(projector.getByText(text)).toHaveCount(0);
 
   // A test goes to this device only; this browser has no alerts on.
   await admin.getByRole('button', { name: 'Send a test to this device' }).click();

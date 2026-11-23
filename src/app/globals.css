@@ -2010,3 +2010,72 @@ a.session-live.border {
     opacity: 0.7;
   }
 }
+
+/* The scrolling photo wall: each column drifts down by one full set of
+ * photos and starts again, so the loop is seamless. Transform only. */
+.wall-column {
+  animation-name: wall-down;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  will-change: transform;
+}
+@keyframes wall-down {
+  from {
+    transform: translateY(-50%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+/* "That is me" on My points: a card per name with its initials, lifting a
+ * little under the finger, and a pill that fills in on hover. */
+.pick-me {
+  display: flex;
+  width: 100%;
+  min-height: 4rem;
+  align-items: center;
+  gap: 0.9rem;
+  border: 1px solid var(--c-border);
+  border-radius: 0.9rem;
+  background: var(--c-surface);
+  padding: 0.75rem 0.9rem;
+  animation: nav-pop 380ms cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+  transition:
+    border-color 200ms ease,
+    transform 200ms ease;
+}
+.pick-me:hover,
+.pick-me:focus-visible {
+  border-color: var(--c-primary);
+  transform: translateY(-2px);
+}
+.pick-me-initials {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--c-primary), var(--c-accent));
+  color: var(--c-primary-text);
+  font-weight: 700;
+}
+.pick-me-cta {
+  flex-shrink: 0;
+  border: 1px solid var(--c-primary);
+  border-radius: 999px;
+  padding: 0.35rem 0.8rem;
+  color: var(--c-primary-ink);
+  font-size: 0.875rem;
+  font-weight: 700;
+  transition:
+    background-color 200ms ease,
+    color 200ms ease;
+}
+.pick-me:hover .pick-me-cta,
+.pick-me:focus-visible .pick-me-cta {
+  background: var(--c-primary);
+  color: var(--c-primary-text);
+}

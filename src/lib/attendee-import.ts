@@ -67,7 +67,7 @@ function hasColumn(record: Record<string, string>, names: readonly string[]): bo
  * The secretariat are flagged so the lucky draw can leave them out. The
  * department, the role or the remark can say so.
  */
-function looksLikeSecretariat(department: string, remark: string, title = ''): boolean {
+export function looksLikeSecretariat(department: string, remark: string, title = ''): boolean {
   return /secretariat/i.test(`${department} ${remark} ${title}`);
 }
 

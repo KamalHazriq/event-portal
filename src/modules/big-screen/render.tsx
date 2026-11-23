@@ -5,11 +5,9 @@
 import { notFound } from 'next/navigation';
 import { after } from 'next/server';
 
-import { getData } from '@/data';
 import { requireAdmin } from '@/lib/admin-guard';
 import { getEventConfig } from '@/lib/config';
 import { resolveEventNow } from '@/lib/time';
-import { ANNOUNCE_KEYS, parseAnnouncement, screenAnnouncement } from '@/modules/announce/logic';
 import { runFeedbackNudges } from '@/modules/announce/nudges';
 import { dispatchDueReminders } from '@/modules/reminders/dispatch';
 import { readNowParam } from '@/modules/schedule/logic';
@@ -42,18 +40,16 @@ export async function renderScreen(options: {
   // And the scheduled reminders, in case the scheduler is not set up.
   after(() => dispatchDueReminders().catch(() => 0));
   const settings = await readScreenSettings();
-  const [payload, reactions, announcementRaw] = await Promise.all([
+  // Announcements stay on phones: the projector is left as a calm screen.
+  const [payload, reactions] = await Promise.all([
     loadScreenView(options.view ?? settings.view, now, settings),
     loadScreenReactions(),
-    getData().settings.get(ANNOUNCE_KEYS.current),
   ]);
-  const banner = screenAnnouncement(parseAnnouncement(announcementRaw), new Date());
 
   return (
     <ScreenFrame
       payload={payload}
       reactions={reactions}
-      banner={banner}
       calm={settings.calm}
       shortName={config.event.shortName}
       orgLogo={

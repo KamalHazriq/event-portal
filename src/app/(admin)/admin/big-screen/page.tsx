@@ -3,6 +3,14 @@ import { notFound } from 'next/navigation';
 
 import { requireAdmin } from '@/lib/admin-guard';
 import { getEventConfig } from '@/lib/config';
+import { setPhotoLayout } from '@/modules/photos/actions';
+import {
+  PHOTO_KEYS,
+  PHOTO_LAYOUT_INFO,
+  PHOTO_LAYOUTS,
+  resolvePhotoLayout,
+} from '@/modules/photos/logic';
+import { getData } from '@/data';
 import { setHideNames, setScreenCalm, setScreenView } from '@/modules/big-screen/actions';
 import { ScaledPreview } from '@/modules/big-screen/components/ScaledPreview';
 import { readScreenSettings } from '@/modules/big-screen/load';
@@ -18,6 +26,7 @@ export default async function BigScreenControlPage() {
   const config = getEventConfig();
   const settings = await readScreenSettings();
   const views = availableScreenViews(config.features);
+  const photoLayout = resolvePhotoLayout(await getData().settings.get(PHOTO_KEYS.layout));
 
   if (!config.features.bigScreen) notFound();
 
@@ -72,6 +81,45 @@ export default async function BigScreenControlPage() {
           );
         })}
       </ul>
+
+      {config.features.photoWall ? (
+        <section className="rounded-xl border border-line bg-surface p-4">
+          <h2 className="text-sm font-bold uppercase tracking-wide text-ink-soft">
+            Photo wall layout
+          </h2>
+          <p className="mt-1 text-sm text-ink-soft">
+            How the Photo wall view shows the approved photos. A new photo always pops up large for
+            a few seconds first.
+          </p>
+          <ul className="mt-3 grid gap-2 sm:grid-cols-3">
+            {PHOTO_LAYOUTS.map((option) => (
+              <li key={option}>
+                <form action={setPhotoLayout} className="h-full">
+                  <input type="hidden" name="layout" value={option} />
+                  <button
+                    type="submit"
+                    aria-pressed={option === photoLayout}
+                    className={[
+                      'block h-full min-h-11 w-full rounded-lg border p-3 text-left',
+                      option === photoLayout
+                        ? 'border-primary bg-primary/10'
+                        : 'border-line hover:border-primary',
+                    ].join(' ')}
+                  >
+                    <span className="block font-bold text-ink">
+                      {PHOTO_LAYOUT_INFO[option].title}
+                      {option === photoLayout ? ' ✓' : ''}
+                    </span>
+                    <span className="mt-1 block text-sm text-ink-soft">
+                      {PHOTO_LAYOUT_INFO[option].description}
+                    </span>
+                  </button>
+                </form>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       <section className="rounded-xl border border-line bg-surface p-4">
         <h2 className="text-sm font-bold uppercase tracking-wide text-ink-soft">Effects</h2>

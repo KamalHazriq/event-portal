@@ -5,15 +5,11 @@ import { useRef, useState } from 'react';
 import { shrinkPhoto } from '../compress';
 import { PHOTO_LIMITS } from '../logic';
 
-type Item = {
-  name: string;
-  state: 'waiting' | 'shrinking' | 'sending' | 'sent' | 'failed';
-  note?: string;
-};
+type Sent = { url: string; caption: string; state: 'sent' | 'failed'; note?: string };
 
 /**
- * Picks photos, shrinks each one on the phone, and sends them one at a time,
- * so a slow connection only ever has one photo in flight.
+ * One photo at a time: choose it, see it, add a caption if you like, then
+ * press Share. Shrunk on the phone first, so it goes quickly on hotel Wi-Fi.
  */
 export function PhotoUploader({
   alreadySent,
@@ -24,62 +20,59 @@ export function PhotoUploader({
   moderated?: boolean;
 }) {
   const [sent, setSent] = useState(alreadySent);
-  const [items, setItems] = useState<Item[]>([]);
-  const [busy, setBusy] = useState(false);
+  const [file, setFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
   const [caption, setCaption] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [problem, setProblem] = useState('');
+  const [history, setHistory] = useState<Sent[]>([]);
   const input = useRef<HTMLInputElement>(null);
 
-  // No limit per phone any more; the count is just a thank you.
-  const left = Number.POSITIVE_INFINITY;
+  const choose = (picked: File | undefined) => {
+    setProblem('');
+    if (preview) URL.revokeObjectURL(preview);
+    setFile(picked ?? null);
+    setPreview(picked ? URL.createObjectURL(picked) : null);
+  };
 
-  const update = (i: number, patch: Partial<Item>) =>
-    setItems((prev) => prev.map((item, j) => (j === i ? { ...item, ...patch } : item)));
-
-  const send = async (files: File[]) => {
-    const batch = files.slice(0, left);
-    if (batch.length === 0) return;
-    setBusy(true);
-    const start = items.length;
-    setItems((prev) => [
-      ...prev,
-      ...batch.map((f) => ({ name: f.name, state: 'waiting' as const })),
-    ]);
-
-    for (let k = 0; k < batch.length; k += 1) {
-      const i = start + k;
-      try {
-        update(i, { state: 'shrinking' });
-        const { image, thumbnail } = await shrinkPhoto(batch[k] as File);
-        update(i, { state: 'sending' });
-        const body = new FormData();
-        body.set('image', image, 'photo.jpg');
-        body.set('thumbnail', thumbnail, 'thumb.jpg');
-        body.set('caption', caption);
-        const response = await fetch('/api/photos', { method: 'POST', body });
-        const result = (await response.json().catch(() => null)) as
-          { ok: true; sent: number } | { ok: false; message: string } | null;
-        if (result?.ok) {
-          setSent(result.sent);
-          update(i, { state: 'sent' });
-        } else {
-          update(i, { state: 'failed', note: result?.message ?? 'It did not arrive. Try again.' });
-          if (response.status === 429 || response.status === 403) break;
-        }
-      } catch {
-        update(i, { state: 'failed', note: 'This device could not read that photo.' });
-      }
-    }
-    setBusy(false);
+  const reset = () => {
+    setFile(null);
+    setPreview(null);
     setCaption('');
     if (input.current) input.current.value = '';
   };
 
-  const label: Record<Item['state'], string> = {
-    waiting: 'Waiting',
-    shrinking: 'Shrinking',
-    sending: 'Sending',
-    sent: moderated ? 'Sent, waiting for approval' : 'On the wall',
-    failed: 'Not sent',
+  const share = async () => {
+    if (!file || busy) return;
+    setBusy(true);
+    setProblem('');
+    try {
+      const { image, thumbnail } = await shrinkPhoto(file);
+      const body = new FormData();
+      body.set('image', image, 'photo.jpg');
+      body.set('thumbnail', thumbnail, 'thumb.jpg');
+      body.set('caption', caption);
+      const response = await fetch('/api/photos', { method: 'POST', body });
+      const result = (await response.json().catch(() => null)) as
+        { ok: true; sent: number } | { ok: false; message: string } | null;
+      if (result?.ok) {
+        setSent(result.sent);
+        setHistory((h) =>
+          [{ url: URL.createObjectURL(thumbnail), caption, state: 'sent' as const }, ...h].slice(
+            0,
+            8,
+          ),
+        );
+        if (preview) URL.revokeObjectURL(preview);
+        reset();
+      } else {
+        setProblem(result?.message ?? 'It did not arrive. Try again.');
+      }
+    } catch {
+      setProblem('This device could not read that photo. Try another one.');
+    } finally {
+      setBusy(false);
+    }
   };
 
   return (
@@ -91,77 +84,95 @@ export function PhotoUploader({
         </p>
       ) : null}
 
-      {left > 0 ? (
-        <div className="space-y-3 rounded-xl border border-line bg-surface p-4">
-          <label className="block text-sm font-semibold text-ink">
-            A caption for the next photos (optional)
-            <input
-              type="text"
-              value={caption}
-              onChange={(e) => setCaption(e.target.value)}
-              maxLength={PHOTO_LIMITS.maxCaption}
-              placeholder="For example, our table at the gala"
-              disabled={busy}
-              className="mt-1 block min-h-11 w-full rounded-lg border border-line bg-canvas px-3 text-ink"
-            />
-          </label>
-          <label
-            className={[
-              'flex min-h-14 cursor-pointer items-center justify-center rounded-lg bg-primary px-4 font-bold text-on-primary',
-              busy ? 'pointer-events-none opacity-60' : '',
-            ].join(' ')}
-          >
-            {busy ? 'Sending...' : 'Choose or take photos'}
+      <div className="space-y-3 rounded-xl border border-line bg-surface p-4">
+        {!file ? (
+          <label className="flex min-h-14 cursor-pointer items-center justify-center rounded-lg bg-primary px-4 font-bold text-on-primary">
+            Choose or take a photo
             <input
               ref={input}
               type="file"
               accept="image/*"
-              multiple
               className="sr-only"
-              disabled={busy}
-              onChange={(e) => void send(Array.from(e.target.files ?? []))}
+              onChange={(e) => choose(e.target.files?.[0])}
             />
           </label>
-          <p className="text-sm text-ink-soft">
-            Each photo is shrunk on your phone before it is sent, and the location and camera
-            details are removed.{' '}
-            {moderated
-              ? 'An organiser checks every photo before it goes on the big screen.'
-              : 'It goes straight onto the big screen, so keep it friendly.'}
-          </p>
-          <p className="text-sm text-ink-soft">
-            By sharing a photo you agree it may be shown on the big screen and kept by the
-            organisers as an event record. Only share photos you are happy to show, and leave out
-            anyone who would rather not appear.
-          </p>
-        </div>
-      ) : (
-        <p className="rounded-xl border border-line bg-surface p-4 text-ink">
-          You have shared the most one phone can send. Thank you!
-        </p>
-      )}
-
-      {items.length > 0 ? (
-        <ul
-          className="divide-y divide-line rounded-xl border border-line bg-surface"
-          aria-live="polite"
-        >
-          {items.map((item, i) => (
-            <li key={i} className="flex flex-wrap items-center justify-between gap-2 px-4 py-2">
-              <span className="min-w-0 truncate text-sm text-ink">{item.name}</span>
-              <span
-                className={[
-                  'text-sm font-semibold',
-                  item.state === 'sent'
-                    ? 'text-success'
-                    : item.state === 'failed'
-                      ? 'text-warning'
-                      : 'text-ink-soft',
-                ].join(' ')}
+        ) : (
+          <>
+            {preview ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={preview}
+                alt="The photo you chose"
+                className="max-h-80 w-full rounded-lg bg-canvas object-contain"
+              />
+            ) : null}
+            <label className="block text-sm font-semibold text-ink">
+              Caption (optional)
+              <input
+                type="text"
+                value={caption}
+                onChange={(e) => setCaption(e.target.value)}
+                maxLength={PHOTO_LIMITS.maxCaption}
+                placeholder="For example, our table at the gala"
+                disabled={busy}
+                className="mt-1 block min-h-11 w-full rounded-lg border border-line bg-canvas px-3 text-ink"
+              />
+            </label>
+            <div className="grid gap-2">
+              <button
+                type="button"
+                onClick={() => void share()}
+                disabled={busy}
+                className="min-h-12 w-full rounded-lg bg-primary px-5 font-bold text-on-primary disabled:opacity-60"
               >
-                {label[item.state]}
-                {item.note ? `: ${item.note}` : ''}
-              </span>
+                {busy ? 'Sharing…' : 'Share this photo'}
+              </button>
+              <button
+                type="button"
+                onClick={reset}
+                disabled={busy}
+                className="min-h-12 rounded-lg border border-line px-4 font-semibold text-ink disabled:opacity-60"
+              >
+                Choose a different one
+              </button>
+            </div>
+          </>
+        )}
+        {problem ? (
+          <p role="alert" className="text-sm font-semibold text-warning">
+            {problem}
+          </p>
+        ) : null}
+        <p className="text-sm text-ink-soft">
+          One photo at a time. Each is shrunk on your phone before it is sent, and the location and
+          camera details are removed.{' '}
+          {moderated
+            ? 'An organiser checks every photo before it goes on the big screen.'
+            : 'It goes straight onto the big screen, so keep it friendly.'}
+        </p>
+        <p className="text-sm text-ink-soft">
+          By sharing a photo you agree it may be shown on the big screen and kept by the organisers
+          as an event record. Only share photos you are happy to show, and leave out anyone who
+          would rather not appear.
+        </p>
+      </div>
+
+      {history.length > 0 ? (
+        <ul aria-live="polite" className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+          {history.map((item, i) => (
+            <li key={i} className="overflow-hidden rounded-lg border border-line bg-surface">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={item.url}
+                alt={item.caption || 'Your photo'}
+                className="aspect-square w-full object-cover"
+              />
+              <p className="truncate px-2 py-1 text-xs text-ink">
+                <span className="font-semibold text-success">
+                  {moderated ? 'Sent, waiting for approval' : 'On the wall'}
+                </span>
+                {item.caption ? ` · ${item.caption}` : ''}
+              </p>
             </li>
           ))}
         </ul>

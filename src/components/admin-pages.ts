@@ -170,6 +170,13 @@ export const ADMIN_GROUPS: AdminGroup[] = [
     folded: true,
     pages: [
       {
+        href: '/admin/points',
+        label: 'Points',
+        title: 'Points',
+        description: 'Where everyone’s points come from, person by person.',
+        icon: 'star',
+      },
+      {
         href: '/admin/insights',
         label: 'Insights',
         title: 'Insights',

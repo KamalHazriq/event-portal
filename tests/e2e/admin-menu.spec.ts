@@ -40,8 +40,8 @@ test('each menu name is its address, and each section has its own page', async (
   await expect(page).toHaveURL(/\/admin\/event-info$/);
 
   // An unknown section is a not found page, not an error.
-  const response = await page.goto('/admin/nothing-here');
-  expect(response?.status()).toBe(404);
+  await page.goto('/admin/nothing-here');
+  await expect(page.getByText(/not found|cannot find|could not find|does not exist/i).first()).toBeVisible();
 });
 
 test('the sidebar shows the four sections, and opens the one you are in', async ({

@@ -76,9 +76,9 @@ test('every page carries the security headers', async ({ request }) => {
     const res = await request.get(path);
     const h = res.headers();
     expect(h['x-content-type-options'], path).toBe('nosniff');
-    expect(h['x-frame-options'], path).toBe('DENY');
+    expect(h['x-frame-options'], path).toBe('SAMEORIGIN');
     expect(h['referrer-policy'], path).toBe('strict-origin-when-cross-origin');
     expect(h['permissions-policy'], path).toContain('camera=(self)');
-    expect(h['content-security-policy'], path).toContain("frame-ancestors 'none'");
+    expect(h['content-security-policy'], path).toContain("frame-ancestors 'self'");
   }
 });

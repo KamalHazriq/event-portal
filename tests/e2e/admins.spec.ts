@@ -55,6 +55,8 @@ test('every page in the admin navigation opens', async ({ page }) => {
     /^\/admin\/(on-the-day|engage-the-room|set-up|more)$/.test(h),
   )) {
     await page.goto(section);
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+    await expect(page.locator('main').getByRole('link').first()).toBeVisible();
     const inside = await page
       .locator('main')
       .getByRole('link')

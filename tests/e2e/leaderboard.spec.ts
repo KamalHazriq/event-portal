@@ -7,24 +7,22 @@ import { expect, test } from '@playwright/test';
 
 const PIN = process.env.E2E_ADMIN_PIN ?? '246810';
 
-test('a phone joins with staff number and first name, and sees its points', async ({ page }) => {
+test('a phone joins with its staff number, and sees its points', async ({ page }) => {
   await page.goto('/leaderboard');
   await expect(page.getByRole('heading', { name: 'Leaderboard', level: 1 })).toBeVisible();
   await page.getByRole('link', { name: 'Join the leaderboard' }).click();
 
-  // The other way in: a staff number and a name that agree.
+  // The other way in: the staff number alone.
   await page.getByText('Or sign in with your staff number').click();
 
-  // A staff number with somebody else's name does not get in.
-  await page.getByLabel('Staff number').fill('D10002');
-  await page.getByLabel('Your first name').fill('Hafiz');
+  // A staff number that is not on the list does not get in.
+  await page.getByLabel('Staff number').fill('D99999');
   await page.getByRole('button', { name: 'Join' }).click();
-  await expect(page.getByText(/do not go together/)).toBeVisible();
+  await expect(page.getByText(/is not on the list/)).toBeVisible();
   // The page reloads with the staff number form closed again.
   await page.getByText('Or sign in with your staff number').click();
 
   await page.getByLabel('Staff number').fill('D10002');
-  await page.getByLabel('Your first name').fill('lailatul');
   await page.getByRole('button', { name: 'Join' }).click();
   await expect(page.getByText(/^You are in./)).toBeVisible();
   await expect(page.getByText('Lailatul Zainal', { exact: true })).toBeVisible();

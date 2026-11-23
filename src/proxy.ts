@@ -13,7 +13,8 @@ import { NextResponse, type NextRequest } from 'next/server';
 
 import { isOpenPath, PASS_COOKIE, PASS_COOKIE_MAX_AGE, PASS_PARAM } from '@/lib/event-pass';
 import { digestMatches, eventPass, passDigest } from '@/lib/event-pass-server';
-import { KIOSK_COOKIE, kioskBlocks, kioskLockRequested } from '@/lib/kiosk';
+import { ADMIN_COOKIE, readSessionValue } from '@/lib/admin-session';
+import { KIOSK_COOKIE, kioskBlocks, kioskLockRequested, needsAdmin } from '@/lib/kiosk';
 import { isRateLimited, LIMITS, rateLimit } from '@/lib/rate-limit';
 
 export function proxy(request: NextRequest) {
@@ -25,6 +26,17 @@ export function proxy(request: NextRequest) {
     const url = request.nextUrl.clone();
     url.pathname = '/admin/sign-in';
     url.search = '';
+    return NextResponse.redirect(url);
+  }
+
+  // The secretariat pages, checked here before anything is built: the sign
+  // in cookie must be genuine and in date. (The page still checks it fully.)
+  // Doing it here lets those pages show a loading screen the moment a tab is
+  // tapped, while a stranger still gets a plain redirect to the PIN.
+  if (needsAdmin(pathname) && !readSessionValue(request.cookies.get(ADMIN_COOKIE)?.value)) {
+    const url = request.nextUrl.clone();
+    url.pathname = '/admin/sign-in';
+    url.search = `?next=${encodeURIComponent(pathname + request.nextUrl.search)}`;
     return NextResponse.redirect(url);
   }
 

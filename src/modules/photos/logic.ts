@@ -140,9 +140,20 @@ export const PHOTO_LAYOUTS = ['slideshow', 'grid', 'mosaic'] as const;
 export type PhotoLayout = (typeof PHOTO_LAYOUTS)[number];
 
 export const PHOTO_LAYOUT_INFO: Record<PhotoLayout, { title: string; description: string }> = {
-  slideshow: { title: 'Slideshow', description: 'One photo at a time, full screen.' },
-  grid: { title: 'Grid', description: 'The newest twelve in even tiles.' },
-  mosaic: { title: 'Mosaic', description: 'The newest large, the rest around it.' },
+  slideshow: {
+    title: 'Slideshow',
+    description: 'One photo at a time, full screen, a new one every 8 seconds.',
+  },
+  grid: {
+    title: 'Scrolling wall',
+    description:
+      'Every photo in four columns drifting slowly down, each in its own shape, round and round.',
+  },
+  mosaic: {
+    title: 'Mosaic',
+    description:
+      'One photo large with eight smaller around it, turning to the next nine every 12 seconds.',
+  },
 };
 
 export function resolvePhotoLayout(stored: string | null): PhotoLayout {

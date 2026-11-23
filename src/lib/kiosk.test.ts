@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { kioskBlocks, kioskLockRequested } from './kiosk';
+import { kioskBlocks, kioskLockRequested, needsAdmin } from './kiosk';
 
 describe('kioskBlocks', () => {
   it('keeps a locked device out of the admin pages, except signing in', () => {
@@ -20,5 +20,22 @@ describe('kioskLockRequested', () => {
     expect(kioskLockRequested('/kiosk', new URLSearchParams(''))).toBe(false);
     expect(kioskLockRequested('/kiosk', new URLSearchParams('lock=0'))).toBe(false);
     expect(kioskLockRequested('/admin', new URLSearchParams('lock=1'))).toBe(false);
+  });
+});
+
+describe('needsAdmin', () => {
+  it('covers the secretariat pages, not their sign in or app manifest', () => {
+    for (const p of ['/admin', '/admin/desk', '/screen', '/screen/welcome', '/kiosk', '/guide']) {
+      expect(needsAdmin(p), p).toBe(true);
+    }
+    for (const p of [
+      '/admin/sign-in',
+      '/admin/app.webmanifest',
+      '/screen/app.webmanifest',
+      '/',
+      '/agenda',
+    ]) {
+      expect(needsAdmin(p), p).toBe(false);
+    }
   });
 });

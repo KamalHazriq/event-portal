@@ -25,14 +25,14 @@ const MESSAGES: Record<string, { text: string; good: boolean }> = {
   joined: { text: 'You are in. Everything this device does now counts for you.', good: true },
   left: { text: 'Signed out. This device no longer collects points for anyone.', good: true },
   'no-match': {
-    text: 'That staff number and name do not go together. Check both, or ask the secretariat.',
+    text: 'That staff number is not on the list. Check it, or ask the registration desk.',
     good: false,
   },
   'taken-wrong': {
     text: 'That staff number is not theirs. Try again, or ask the registration desk.',
     good: false,
   },
-  missing: { text: 'Fill in both boxes.', good: false },
+  missing: { text: 'Type your staff number.', good: false },
   'too-many': { text: 'Too many tries. Wait a few minutes, or ask the secretariat.', good: false },
 };
 
@@ -241,9 +241,19 @@ export default async function MyPointsPage({
                           <input type="hidden" name="attendeeId" value={person.id} />
                           <button
                             type="submit"
-                            className="flex min-h-14 w-full items-center justify-between gap-3 rounded-lg border border-line bg-background px-4 py-2 text-left hover:border-primary"
+                            className="pick-me group"
+                            aria-label={`That is me: ${person.name}`}
                           >
-                            <span className="min-w-0">
+                            <span aria-hidden="true" className="pick-me-initials">
+                              {person.name
+                                .split(/\s+/)
+                                .filter((w) => !/^(bin|binti|bt|b|a\/l|a\/p)$/i.test(w))
+                                .slice(0, 2)
+                                .map((w) => w[0])
+                                .join('')
+                                .toUpperCase()}
+                            </span>
+                            <span className="min-w-0 flex-1 text-left">
                               <span className="block font-bold text-ink">{person.name}</span>
                               <span className="block text-sm text-ink-soft">
                                 {[person.title, shortDepartment(config, person.department)]
@@ -251,7 +261,9 @@ export default async function MyPointsPage({
                                   .join(', ')}
                               </span>
                             </span>
-                            <span className="shrink-0 font-bold text-primary">That is me</span>
+                            <span className="pick-me-cta">
+                              That is me <span aria-hidden="true">→</span>
+                            </span>
                           </button>
                         </form>
                       </li>
@@ -278,20 +290,8 @@ export default async function MyPointsPage({
                       id="staff-no"
                       name="staffNo"
                       required
-                      inputMode="numeric"
+                      autoCapitalize="characters"
                       autoComplete="off"
-                      className="mt-1 block min-h-12 w-full rounded-lg border border-line bg-background px-4 text-lg text-ink focus:border-primary focus:outline-none"
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="your-name" className="block text-sm font-semibold text-ink">
-                      Your first name
-                    </label>
-                    <input
-                      id="your-name"
-                      name="name"
-                      required
-                      autoComplete="given-name"
                       className="mt-1 block min-h-12 w-full rounded-lg border border-line bg-background px-4 text-lg text-ink focus:border-primary focus:outline-none"
                     />
                   </div>
