@@ -24,22 +24,45 @@ describe('the test plan', () => {
     expect(new Set(ids).size).toBe(ids.length);
   });
 
-  it('only links to pages that exist', () => {
+  it('only links to pages that exist, and every step has one', () => {
     const adminPages = new Set([
       '/admin',
+      '/admin/sign-in',
       '/admin/runbook',
       '/admin/test-plan',
+      '/admin/reports/summary',
       ...ADMIN_PAGES.map((p) => p.href),
     ]);
-    const attendeePages = new Set(['/agenda', '/info', '/photos', '/me', '/screen', '/kiosk']);
+    const otherPages = new Set([
+      '/',
+      '/agenda',
+      '/info',
+      '/resources',
+      '/photos',
+      '/me',
+      '/leaderboard',
+      '/poll',
+      '/feedback/event',
+      '/screen',
+      '/kiosk',
+      '/guide',
+      '/api/health',
+    ]);
+    const anchors = new Set(['#ready-h', '#clean']);
     for (const part of TEST_PLAN) {
       for (const group of part.groups) {
         for (const step of group.steps) {
-          if (!step.href) continue;
-          const known = step.href.startsWith('/admin')
-            ? adminPages.has(step.href)
-            : attendeePages.has(step.href);
-          expect(known, `${step.id} links to ${step.href}`).toBe(true);
+          expect(step.links?.length ?? 0, `${step.id} has a link`).toBeGreaterThan(0);
+          for (const link of step.links ?? []) {
+            expect(link.label.length, step.id).toBeGreaterThan(2);
+            const path = link.href.split('?')[0] ?? '';
+            const known = link.href.startsWith('https://github.com/')
+              ? true
+              : link.href.startsWith('#')
+                ? anchors.has(link.href)
+                : adminPages.has(path) || otherPages.has(path);
+            expect(known, `${step.id} links to ${link.href}`).toBe(true);
+          }
         }
       }
     }

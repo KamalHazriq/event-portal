@@ -102,14 +102,53 @@ export function TestPlan({ parts }: { parts: Part[] }) {
                           <strong className="font-semibold text-ink">You should see: </strong>
                           {step.expect}
                         </span>
-                        {step.href ? (
-                          <Link
-                            href={step.href}
-                            className="mt-1 inline-block text-sm"
-                            onClick={(event) => event.stopPropagation()}
-                          >
-                            Open {step.href}
-                          </Link>
+                        {step.links && step.links.length > 0 ? (
+                          <span className="mt-2 flex flex-wrap gap-2 print:hidden">
+                            {step.links.map((link) => {
+                              const className =
+                                'inline-flex min-h-9 items-center gap-1 rounded-lg border border-line bg-canvas px-3 text-sm font-semibold text-primary no-underline hover:border-primary';
+                              // Anchors stay on this page; everything else opens beside it.
+                              if (link.href.startsWith('#')) {
+                                return (
+                                  <a
+                                    key={link.href}
+                                    href={link.href}
+                                    className={className}
+                                    onClick={(event) => event.stopPropagation()}
+                                  >
+                                    {link.label}
+                                  </a>
+                                );
+                              }
+                              const external = link.href.startsWith('http');
+                              return external ? (
+                                <a
+                                  key={link.href}
+                                  href={link.href}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className={className}
+                                  onClick={(event) => event.stopPropagation()}
+                                >
+                                  {link.label}
+                                  <span aria-hidden="true">↗</span>
+                                  <span className="sr-only"> (opens in a new tab)</span>
+                                </a>
+                              ) : (
+                                <Link
+                                  key={link.href}
+                                  href={link.href}
+                                  target="_blank"
+                                  className={className}
+                                  onClick={(event) => event.stopPropagation()}
+                                >
+                                  {link.label}
+                                  <span aria-hidden="true">↗</span>
+                                  <span className="sr-only"> (opens in a new tab)</span>
+                                </Link>
+                              );
+                            })}
+                          </span>
                         ) : null}
                       </span>
                     </label>

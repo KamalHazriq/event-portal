@@ -105,3 +105,21 @@ test('reset the leaderboard sign ins, then sign every desk out', async ({ page, 
   await signIn(page, 'desk-reset-1');
   await signIn(other, 'desk-reset-2');
 });
+
+test('every step has links, and they open in a new tab', async ({ page }) => {
+  await page.goto('/admin/sign-in');
+  await page.getByLabel('Which desk is this?').fill('plan-links');
+  await page.getByLabel('Admin PIN').fill(PIN);
+  await page.getByRole('button', { name: 'Sign in' }).click();
+  await page.goto('/admin/test-plan');
+
+  const nameTags = page.getByRole('link', { name: /^Name tags to print/ });
+  await expect(nameTags).toHaveAttribute('href', '/admin/name-tags');
+  await expect(nameTags).toHaveAttribute('target', '_blank');
+
+  // Clicking one opens the page beside the plan, and does not tick the step.
+  const [opened] = await Promise.all([page.context().waitForEvent('page'), nameTags.click()]);
+  await opened.waitForLoadState();
+  expect(new URL(opened.url()).pathname).toBe('/admin/name-tags');
+  await expect(page.getByRole('checkbox').first()).not.toBeChecked();
+});
