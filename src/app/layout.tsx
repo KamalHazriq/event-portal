@@ -4,7 +4,8 @@ import { ConfigErrorScreen } from '@/components/ConfigErrorScreen';
 import { FormLoader } from '@/components/FormLoader';
 import { tryLoadEventConfig } from '@/lib/config';
 import { refreshConfigOverlay } from '@/lib/config-sync';
-import { buildThemeCss, resolveTheme } from '@/lib/theme';
+import { refreshScheduleDelay } from '@/lib/schedule-delay';
+import { buildThemeCss, markFor, resolveTheme } from '@/lib/theme';
 
 // The Ruled style's typefaces, bundled with the site (nothing loads from an
 // outside service). A browser only downloads them when a page uses them.
@@ -56,10 +57,18 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
+/** CSS variables with the logo mark, safely quoted. */
+function markCss(mark: string | null, darkMark: string | null): string {
+  const url = (path: string | null) =>
+    path && /^\/[\w./-]+$/.test(path) ? `url("${path}")` : 'none';
+  return `:root{--brand-mark:${url(mark)};--brand-mark-dark:${url(darkMark ?? mark)};}`;
+}
+
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   // Pick up edits saved on the secretariat pages (at most one quick read
   // every two seconds), before anything below reads the config.
   await refreshConfigOverlay();
+  await refreshScheduleDelay();
   const result = tryLoadEventConfig();
 
   // A broken config file must not produce a stack trace on a phone in a
@@ -84,6 +93,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <head>
         {/* Theme tokens from config/event.json. See src/lib/theme.ts. */}
         <style>{buildThemeCss(config.branding)}</style>
+        {/* The logo mark, for the hexagon loader and the big screen wipe. */}
+        <style>{markCss(markFor(config.branding, theme), markFor(config.branding, 'dark'))}</style>
       </head>
       <body className="min-h-dvh font-sans antialiased">
         <a

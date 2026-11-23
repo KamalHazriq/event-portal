@@ -1,5 +1,5 @@
 /**
- * Device check: what this phone or laptop can do, in plain words.
+ * Device check: what this device or laptop can do, in plain words.
  * Pure helpers; the browser probing is in DeviceCheck.tsx.
  */
 export type CheckState = 'good' | 'warn' | 'bad' | 'info';

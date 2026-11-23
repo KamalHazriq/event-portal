@@ -108,96 +108,110 @@ export function RuledHeader({ config, mark }: { config: EventConfig; mark: strin
 export function RuledFooter({ config }: { config: EventConfig }) {
   const { event, branding } = config;
   const slido = config.integrations.slido;
+  const slidoHref = slidoLink(config);
   const year = event.endDate.slice(0, 4);
-  const group = 'text-xs font-semibold uppercase tracking-[0.14em] text-ink-soft';
-  const linkClass = 'text-primary underline underline-offset-4';
+  const dates = `${formatShortDate(event.startDate, event.timezone)} to ${formatShortDate(event.endDate, event.timezone)}`;
+  const group = 'text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-ink-soft';
+
+  const takingPart = [
+    ...(config.features.leaderboard ? [{ href: '/me', label: 'My points' }] : []),
+    ...(config.features.photoWall ? [{ href: '/photos', label: 'Share a photo' }] : []),
+    ...(config.features.leaderboard ? [{ href: '/leaderboard', label: 'Leaderboard' }] : []),
+  ];
+  const help = [
+    ...(config.info ? [{ href: '/info', label: config.info.title }] : []),
+    { href: '/#faq', label: 'General Q&A' },
+  ];
 
   return (
-    <footer className="mt-16 border-t border-line text-sm">
-      <div
-        className={`${RULED_CONTAINER} grid gap-10 py-12 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr]`}
-      >
-        <div>
-          {branding.organisationLogoPath ? (
-            <span className="inline-flex rounded-lg bg-white px-3 py-2">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={branding.organisationLogoPath}
-                alt={branding.organisationName || 'Organiser logo'}
-                className="h-8 w-auto"
-              />
-            </span>
-          ) : null}
-          <p className="mt-4 font-display text-lg font-medium text-ink">{event.name}</p>
-          <p className="mt-1 text-ink-soft">
-            {event.venue}
-            {event.city ? `, ${event.city}` : ''}
-          </p>
-          {event.helpText ? <p className="mt-3 text-ink-soft">{event.helpText}</p> : null}
+    <footer className="ruled-footer relative mt-20 overflow-hidden border-t border-line text-sm">
+      <div aria-hidden="true" className="ruled-footer-glow" />
+      <div className={`${RULED_CONTAINER} relative py-14`}>
+        <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-[1.6fr_1fr_1fr_1fr]">
+          <div>
+            {branding.organisationLogoPath ? (
+              <span className="inline-flex rounded-lg bg-white px-3 py-2">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={branding.organisationLogoPath}
+                  alt={branding.organisationName || 'Organiser logo'}
+                  className="h-8 w-auto"
+                />
+              </span>
+            ) : null}
+            <p className="mt-5 font-display text-2xl font-medium leading-tight text-ink">
+              {event.name}
+            </p>
+            <p className="mt-2 text-ink-soft">
+              {dates} · {event.venue}
+              {event.city ? `, ${event.city}` : ''}
+            </p>
+            {slidoHref && slido?.eventCode ? (
+              <a
+                href={slidoHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="footer-chip mt-5 inline-flex items-center gap-2 rounded-full border border-line px-3.5 py-1.5 text-ink no-underline"
+              >
+                <span className="text-ink-soft">Slido</span>
+                <span className="font-semibold tabular-nums">{slido.eventCode}</span>
+                <span aria-hidden="true">↗</span>
+              </a>
+            ) : null}
+          </div>
+
+          <FooterColumn title="Event" className={group} links={portalNavItems(config)} />
+          <FooterColumn title="Taking part" className={group} links={takingPart} />
+          <div>
+            <FooterColumn title="Help" className={group} links={help} />
+            <p className="mt-3 text-ink-soft">
+              {event.helpText || 'The registration desk, any time.'}
+            </p>
+          </div>
         </div>
-
-        <nav aria-label="Event">
-          <p className={group}>Event</p>
-          <ul className="mt-3 space-y-2">
-            {portalNavItems(config).map((item) => (
-              <li key={item.href}>
-                <Link href={item.href} className={linkClass}>
-                  {item.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
-
-        <nav aria-label="Taking part">
-          <p className={group}>Taking part</p>
-          <ul className="mt-3 space-y-2">
-            {config.features.leaderboard ? (
-              <li>
-                <Link href="/me" className={linkClass}>
-                  My points
-                </Link>
-              </li>
-            ) : null}
-            {config.features.photoWall ? (
-              <li>
-                <Link href="/photos" className={linkClass}>
-                  Share a photo
-                </Link>
-              </li>
-            ) : null}
-            {slidoLink(config) && slido?.eventCode ? (
-              <li className="text-ink-soft">
-                Slido code <span className="font-semibold text-ink">{slido.eventCode}</span>
-              </li>
-            ) : null}
-          </ul>
-        </nav>
-
-        <nav aria-label="Help">
-          <p className={group}>Help</p>
-          <ul className="mt-3 space-y-2">
-            {config.info ? (
-              <li>
-                <Link href="/info" className={linkClass}>
-                  {config.info.title}
-                </Link>
-              </li>
-            ) : null}
-            <li className="text-ink-soft">Registration desk, any time</li>
-          </ul>
-        </nav>
       </div>
-      <div className="border-t border-line">
-        <p
-          className={`${RULED_CONTAINER} flex flex-col gap-1 py-5 text-xs text-ink-soft sm:flex-row sm:justify-between`}
+      <div className="relative border-t border-line">
+        <div
+          className={`${RULED_CONTAINER} flex flex-col gap-2 py-5 text-xs text-ink-soft sm:flex-row sm:items-center sm:justify-between`}
         >
           <span>
             {branding.footerText || `© ${year} ${branding.organisationName || event.shortName}`}
           </span>
           <span>For summit participants only. Please keep the event code within the summit.</span>
-        </p>
+          <a href="#top" className="footer-link self-start sm:self-auto">
+            Back to top <span aria-hidden="true">↑</span>
+          </a>
+        </div>
       </div>
     </footer>
+  );
+}
+
+function FooterColumn({
+  title,
+  className,
+  links,
+}: {
+  title: string;
+  className: string;
+  links: { href: string; label: string }[];
+}) {
+  if (links.length === 0) return null;
+  return (
+    <nav aria-label={title}>
+      <p className={className}>{title}</p>
+      <ul className="mt-4 space-y-2.5">
+        {links.map((item) => (
+          <li key={item.href}>
+            <Link href={item.href} className="footer-link">
+              {item.label}
+              <span aria-hidden="true" className="footer-arrow">
+                →
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </nav>
   );
 }

@@ -7,6 +7,7 @@ import {
   PHOTO_LIMITS,
   uploadMessage,
   zipName,
+  wallPage,
   gridShape,
 } from './logic';
 
@@ -134,5 +135,19 @@ describe('gridShape', () => {
     expect(gridShape(9)).toEqual({ columns: 3, rows: 3 });
     expect(gridShape(12)).toEqual({ columns: 4, rows: 3 });
     expect(gridShape(40)).toEqual({ columns: 4, rows: 3 });
+  });
+});
+
+describe('wallPage', () => {
+  const items = Array.from({ length: 25 }, (_, i) => i);
+  it('shows every photo in turn, a page at a time, and starts again', () => {
+    expect(wallPage(items, 12, 0)).toEqual({ items: items.slice(0, 12), page: 0, pages: 3 });
+    expect(wallPage(items, 12, 1).items).toEqual(items.slice(12, 24));
+    expect(wallPage(items, 12, 2).items).toEqual([24]);
+    expect(wallPage(items, 12, 3).page).toBe(0);
+  });
+  it('is one page when they all fit', () => {
+    expect(wallPage([1, 2, 3], 12, 7)).toEqual({ items: [1, 2, 3], page: 0, pages: 1 });
+    expect(wallPage([], 12, 0)).toEqual({ items: [], page: 0, pages: 1 });
   });
 });

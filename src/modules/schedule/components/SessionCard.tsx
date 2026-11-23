@@ -33,12 +33,13 @@ export function SessionCard({
       <Link
         href={`/session/${session.id}${linkSuffix}`}
         className={[
-          'block h-full rounded-lg border bg-surface p-3 no-underline sm:p-4',
+          // The same height for every card, so the grid reads evenly.
+          'flex h-full min-h-[7.5rem] flex-col rounded-lg border bg-surface p-3 no-underline sm:p-4',
           'hover:border-primary focus-visible:border-primary',
           status === 'live'
-            ? 'border-live border-l-4'
+            ? 'session-live border-live'
             : status === 'past'
-              ? 'border-line opacity-70'
+              ? 'border-line opacity-60'
               : 'border-line',
         ].join(' ')}
       >

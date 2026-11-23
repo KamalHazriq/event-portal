@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  isDivision,
   canonicalDepartment,
   departmentWithShort,
   departmentsWithoutShortName,
@@ -62,5 +63,21 @@ describe('canonicalDepartment', () => {
       'Corporate & Engineering Services',
     );
     expect(canonicalDepartment(config, ' New Unit ')).toBe('New Unit');
+  });
+});
+
+describe('the division', () => {
+  const config = {
+    departments: [
+      { name: 'Digital & Information Division', short: 'D&I', division: true },
+      { name: 'Corporate & Engineering Services', short: 'CORES' },
+    ],
+  };
+  it('is not a department', () => {
+    expect(isDivision(config, 'Digital & Information Division')).toBe(true);
+    expect(isDivision(config, 'D&I')).toBe(true);
+    expect(isDivision(config, 'Corporate and Engineering Services')).toBe(false);
+    // Called a division even without the mark.
+    expect(isDivision({ departments: [] }, 'Some Other Division')).toBe(true);
   });
 });

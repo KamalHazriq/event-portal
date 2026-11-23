@@ -52,7 +52,7 @@ test('a shared photo waits for approval, then reaches the slideshow', async ({
   await phone.getByLabel(/A caption/).fill(caption);
   await phone.locator('input[type=file]').setInputFiles(PHOTO);
   await expect(phone.getByText('Sent, waiting for approval')).toBeVisible({ timeout: 20_000 });
-  await expect(phone.getByText(/1 photo shared from this phone/)).toBeVisible();
+  await expect(phone.getByText(/1 photo shared from this device/)).toBeVisible();
 
   const admin = await browser.newPage();
   await signIn(admin);

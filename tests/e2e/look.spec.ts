@@ -47,8 +47,8 @@ test('the secretariat switches the whole portal between styles', async ({ page }
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Power Summit');
   await expect(page.getByRole('region', { name: 'On now and next' })).toBeVisible();
   await expect(page.getByRole('heading', { name: /How to take\s*part/ })).toBeVisible();
-  await expect(page.getByRole('heading', { name: /Good to\s*know/ })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'How check in works' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /General\s*Q&A/ })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'See the agenda' }).first()).toBeVisible();
 
   // Nothing makes a phone scroll sideways.
   await page.setViewportSize({ width: 375, height: 812 });

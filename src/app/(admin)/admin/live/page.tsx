@@ -7,7 +7,8 @@ import { requireAdmin } from '@/lib/admin-guard';
 import { getEventConfig } from '@/lib/config';
 import { formatClock, formatTimeRange, resolveEventNow } from '@/lib/time';
 import { readBackupMode } from '@/modules/backup/server';
-import { updateCountdown, updateCountdownLabel } from '@/modules/admin/actions';
+import { setScheduleDelay, updateCountdown, updateCountdownLabel } from '@/modules/admin/actions';
+import { DELAY_CHOICES, scheduleDelayMinutes } from '@/lib/schedule-delay-state';
 import { CountdownClock } from '@/modules/admin/components/CountdownClock';
 import {
   minutesLeftInSession,
@@ -81,6 +82,42 @@ export default async function LiveControlPage() {
           )}
         </p>
       </header>
+
+      {/* ------------------------------------------------- running late */}
+      <section className="rounded-xl border border-line bg-surface p-4 xl:col-span-2">
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <h2 className="text-sm font-bold uppercase tracking-wide text-ink-soft">Running late?</h2>
+          <p className="text-sm font-semibold text-ink" role="status">
+            {scheduleDelayMinutes()
+              ? `The agenda is running ${scheduleDelayMinutes()} minutes late`
+              : 'On time'}
+          </p>
+        </div>
+        <p className="mt-1 text-sm text-ink-soft">
+          The portal follows the clock by itself. If the room is behind, pick how far: “Happening
+          now”, what is next, reactions and feedback reminders then follow the room. Set it back to
+          On time when you catch up. The printed times do not change.
+        </p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {DELAY_CHOICES.map((minutes) => (
+            <form key={minutes} action={setScheduleDelay}>
+              <input type="hidden" name="minutes" value={minutes} />
+              <button
+                type="submit"
+                aria-pressed={scheduleDelayMinutes() === minutes}
+                className={[
+                  'min-h-11 rounded-lg border px-4 text-sm font-semibold',
+                  scheduleDelayMinutes() === minutes
+                    ? 'border-primary bg-primary text-on-primary'
+                    : 'border-line text-ink hover:border-primary',
+                ].join(' ')}
+              >
+                {minutes === 0 ? 'On time' : `${minutes} min late`}
+              </button>
+            </form>
+          ))}
+        </div>
+      </section>
 
       {/* ---------------------------------------------------------- now */}
       <section

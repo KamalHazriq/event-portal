@@ -38,7 +38,7 @@ async function currentSubscription(): Promise<PushSubscription | null> {
 }
 
 /**
- * "Get event alerts on this phone." Explains first, asks the browser only
+ * "Get event alerts on this device." Explains first, asks the browser only
  * when tapped, and says plainly when a phone cannot (or must be added to
  * the home screen first, on iPhone).
  */
@@ -54,7 +54,7 @@ export function AlertsOptIn({ team = false }: { team?: boolean }) {
       .then(async (sub) => {
         if (!sub) return setOn(false);
         if (!team) return setOn(true);
-        // Team alerts: the server knows whether this phone is a team phone.
+        // Team alerts: the server knows whether this device is a team phone.
         const status = (await (
           await fetch(`/api/push?endpoint=${encodeURIComponent(sub.endpoint)}`)
         ).json()) as { team?: boolean };
@@ -140,7 +140,7 @@ export function AlertsOptIn({ team = false }: { team?: boolean }) {
     return (
       <p className="flex flex-wrap items-center gap-2 text-sm text-ink-soft" role="status">
         <span aria-hidden="true">🔔</span>{' '}
-        {team ? 'Team alerts are on for this phone.' : 'Event alerts are on for this phone.'}
+        {team ? 'Team alerts are on for this device.' : 'Event alerts are on for this device.'}
         <button
           type="button"
           onClick={() => void turnOff()}
@@ -157,7 +157,7 @@ export function AlertsOptIn({ team = false }: { team?: boolean }) {
     <section aria-label="Event alerts" className="rounded-xl border border-line bg-surface p-4">
       <p className="font-bold text-ink">
         <span aria-hidden="true">🔔 </span>
-        {team ? 'Get team alerts on this phone' : 'Get event alerts on this phone'}
+        {team ? 'Get team alerts on this device' : 'Get event alerts on this device'}
       </p>
       <p className="mt-1 text-sm text-ink-soft">
         {team

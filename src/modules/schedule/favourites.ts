@@ -1,5 +1,5 @@
 /**
- * "My agenda": the sessions someone starred, kept only in this phone's
+ * "Favourites": the sessions someone starred, kept only in this device's
  * browser storage. No sign in and nothing sent to the server, so nothing
  * personal is collected. If storage is blocked (a private window), starring
  * still works until the page is closed.

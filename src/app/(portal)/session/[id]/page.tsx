@@ -111,9 +111,13 @@ export default async function SessionPage({ params, searchParams }: PageProps) {
       <nav>
         <Link
           href={`/agenda?day=${session.dayId}${nowLinkSuffix(now, '&')}`}
-          className="text-sm font-semibold text-primary"
+          className="nav-pill"
+          aria-label={`Back to ${session.dayLabel}`}
         >
-          Back to {session.dayLabel}
+          <span aria-hidden="true" className="nav-arrow nav-arrow-back">
+            ←
+          </span>
+          {session.dayLabel} agenda
         </Link>
       </nav>
 
@@ -203,22 +207,42 @@ export default async function SessionPage({ params, searchParams }: PageProps) {
 
       <nav
         aria-label="Other sessions this day"
-        className="flex gap-3 border-t border-line pt-4 text-sm"
+        className="grid gap-3 border-t border-line pt-4 sm:grid-cols-2"
       >
         {previous ? (
           <Link
             href={`/session/${previous.id}${linkSuffix}`}
-            className="font-semibold text-primary"
+            className="nav-step"
+            aria-label={`Previous: ${previous.title}`}
           >
-            Previous: {previous.title}
+            <span aria-hidden="true" className="nav-arrow nav-arrow-back">
+              ←
+            </span>
+            <span className="min-w-0">
+              <span className="block text-xs font-semibold uppercase tracking-[0.12em] text-ink-soft">
+                Previous
+              </span>
+              <span className="block truncate font-semibold text-ink">{previous.title}</span>
+            </span>
           </Link>
-        ) : null}
+        ) : (
+          <span className="hidden sm:block" />
+        )}
         {following ? (
           <Link
             href={`/session/${following.id}${linkSuffix}`}
-            className="ml-auto text-right font-semibold text-primary"
+            className="nav-step justify-end text-right"
+            aria-label={`Next: ${following.title}`}
           >
-            Next: {following.title}
+            <span className="min-w-0">
+              <span className="block text-xs font-semibold uppercase tracking-[0.12em] text-ink-soft">
+                Next
+              </span>
+              <span className="block truncate font-semibold text-ink">{following.title}</span>
+            </span>
+            <span aria-hidden="true" className="nav-arrow">
+              →
+            </span>
           </Link>
         ) : null}
       </nav>

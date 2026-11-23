@@ -1,7 +1,7 @@
 /**
  * Shrinks a photo on the phone before it is sent, per the brief: a 12 MB
- * camera photo becomes a JPEG of about 1600 px on its longest side, a few
- * hundred KB, so it uploads quickly on hotel Wi-Fi.
+ * camera photo becomes a JPEG of about 2048 px on its longest side, well
+ * under a megabyte, sharp on the projector and still quick on hotel Wi-Fi.
  *
  * Browser only. createImageBitmap applies the camera's rotation tag, so
  * portrait photos stay upright. Re-encoding through a canvas also drops the
@@ -32,8 +32,8 @@ async function encode(
 export async function shrinkPhoto(file: File): Promise<{ image: Blob; thumbnail: Blob }> {
   const bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' });
   try {
-    const image = await encode(bitmap, PHOTO_LIMITS.longestSide, 0.82);
-    const thumbnail = await encode(bitmap, PHOTO_LIMITS.thumbLongestSide, 0.72);
+    const image = await encode(bitmap, PHOTO_LIMITS.longestSide, 0.88);
+    const thumbnail = await encode(bitmap, PHOTO_LIMITS.thumbLongestSide, 0.82);
     return { image: image.blob, thumbnail: thumbnail.blob };
   } finally {
     bitmap.close();

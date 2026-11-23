@@ -66,7 +66,7 @@ export function PhotoUploader({
           if (response.status === 429 || response.status === 403) break;
         }
       } catch {
-        update(i, { state: 'failed', note: 'This phone could not read that photo.' });
+        update(i, { state: 'failed', note: 'This device could not read that photo.' });
       }
     }
     setBusy(false);
@@ -87,7 +87,7 @@ export function PhotoUploader({
       {sent > 0 ? (
         <p className="text-ink">
           <span className="text-2xl font-bold tabular-nums">{sent}</span>{' '}
-          {sent === 1 ? 'photo' : 'photos'} shared from this phone. Thank you, keep them coming.
+          {sent === 1 ? 'photo' : 'photos'} shared from this device. Thank you, keep them coming.
         </p>
       ) : null}
 

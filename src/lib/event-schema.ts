@@ -299,7 +299,18 @@ export const EventConfigSchema = z
      * name tags and reports carry both. See src/lib/departments.ts.
      */
     departments: z
-      .array(z.object({ name: z.string().min(1).max(120), short: z.string().min(1).max(16) }))
+      .array(
+        z.object({
+          name: z.string().min(1).max(120),
+          short: z.string().min(1).max(16),
+          /**
+           * The parent of the departments (Digital & Information Division),
+           * not a department itself: left out of the department count and
+           * the department leaderboard. Its people still take part.
+           */
+          division: z.boolean().optional(),
+        }),
+      )
       .default([]),
     /**
      * Name tags. With personalQr off (the default), each tag is one sided:

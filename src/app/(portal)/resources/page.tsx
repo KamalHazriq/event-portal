@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import { getEventConfig } from '@/lib/config';
@@ -37,7 +38,27 @@ export default function ResourcesPage() {
       ) : (
         <ul className="space-y-2">
           {config.resources.map((resource) =>
-            isPlaceholderUrl(resource.url) ? (
+            // Photos with no album link yet: the photo wall is the album.
+            isPlaceholderUrl(resource.url) &&
+            config.features.photoWall &&
+            /photo/i.test(`${resource.id} ${resource.title}`) ? (
+              <li key={resource.id}>
+                <Link
+                  href="/photos"
+                  className="block rounded-lg border border-line bg-surface p-4 no-underline hover:border-primary focus-visible:border-primary"
+                >
+                  <span className="flex items-baseline justify-between gap-3">
+                    <span className="font-bold text-ink">{resource.title}</span>
+                    <span className="shrink-0 text-xs font-semibold uppercase text-ink-soft">
+                      Photo wall
+                    </span>
+                  </span>
+                  <span className="mt-1 block text-sm text-ink-soft">
+                    Everything shared and approved so far, on the Photos page.
+                  </span>
+                </Link>
+              </li>
+            ) : isPlaceholderUrl(resource.url) ? (
               // Not published yet: shown, so people know it is coming, but
               // not a link to a page that does not exist.
               <li

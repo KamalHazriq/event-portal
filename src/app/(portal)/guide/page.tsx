@@ -204,7 +204,7 @@ export default async function GuidePage() {
     ],
     [
       'Can people keep their own agenda?',
-      'Yes. The star on a session adds it to My agenda, a tab on the agenda page. It is kept on that phone only, with no sign in.',
+      'Yes. The star on a session adds it to Favourites, a tab on the agenda page. It is kept on that phone only, with no sign in.',
     ],
     [
       'What if a business card will not scan?',

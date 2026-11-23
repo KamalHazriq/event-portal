@@ -7,4 +7,6 @@ export async function register(): Promise<void> {
   if (process.env.NEXT_RUNTIME !== 'nodejs') return;
   const { refreshConfigOverlay } = await import('./lib/config-sync');
   await refreshConfigOverlay(true);
+  const { refreshScheduleDelay } = await import('./lib/schedule-delay');
+  await refreshScheduleDelay(true);
 }

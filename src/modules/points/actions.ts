@@ -10,7 +10,7 @@ import { currentDeviceId, deviceIdOrNew } from '@/modules/backup/server';
 import { nameTokens } from '@/modules/check-in/business-card';
 
 /**
- * Signs this phone in as a person, for points.
+ * Signs this device in as a person, for points.
  *
  * It asks for the staff number and a name, and both have to agree. So
  * typing in staff numbers does not reveal whose they are, and nobody signs
@@ -39,9 +39,9 @@ export async function joinLeaderboard(formData: FormData): Promise<void> {
 }
 
 /**
- * Signs this phone in by picking a name from the list, so no staff number
+ * Signs this device in by picking a name from the list, so no staff number
  * needs typing: the person's record already has it. If someone has already
- * joined as that person on another phone (or this phone's memory was
+ * joined as that person on another phone (or this device's memory was
  * cleared), the staff number is asked for as proof, so nobody can take
  * over a colleague's name just by tapping it.
  */

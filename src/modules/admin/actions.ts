@@ -6,6 +6,8 @@ import { getData } from '@/data';
 import { requireAdminApi } from '@/lib/admin-guard';
 import { getEventConfig } from '@/lib/config';
 import { plainText } from '@/lib/text';
+import { storeScheduleDelay } from '@/lib/schedule-delay';
+import { parseDelay } from '@/lib/schedule-delay-state';
 import { resolveEventNow } from '@/lib/time';
 
 import {
@@ -27,6 +29,18 @@ import { recordActivity } from '@/modules/admins/record';
 async function assertAdmin(): Promise<void> {
   const auth = await requireAdminApi();
   if (!auth.ok) throw new Error('Not signed in.');
+}
+
+/** "We are running N minutes late": the whole portal's now follows. 0 is on time. */
+export async function setScheduleDelay(formData: FormData): Promise<void> {
+  await assertAdmin();
+  const minutes = parseDelay(String(formData.get('minutes') ?? '0'));
+  await storeScheduleDelay(minutes);
+  await recordActivity(
+    minutes ? `Set the agenda running ${minutes} minutes late` : 'Set the agenda back on time',
+  );
+  revalidatePath('/admin/live');
+  revalidatePath('/', 'layout');
 }
 
 export async function updateCountdown(formData: FormData): Promise<void> {
@@ -62,7 +76,8 @@ export async function updateCountdown(formData: FormData): Promise<void> {
       throw new Error('That is not a number of minutes.');
     }
     const config = getEventConfig();
-    const now = resolveEventNow({ timezone: config.event.timezone });
+    // The real clock, not the running late one: a countdown is to a real moment.
+    const now = resolveEventNow({ timezone: config.event.timezone, at: new Date() });
     targetAt = countdownTargetFromNow(now, Math.round(minutes));
   } else if (intent === 'exact') {
     const raw = String(formData.get('targetAt') ?? '').trim();

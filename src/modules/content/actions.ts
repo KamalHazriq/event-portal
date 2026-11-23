@@ -114,11 +114,19 @@ export async function saveEventDetails(formData: FormData): Promise<void> {
   await commit(overlay, EVENT_PATH, 'Edited the event details', operator, 'details');
 }
 
-/** "Corporate & Engineering Services = CORES", one per line. */
+/**
+ * "Corporate & Engineering Services = CORES", one per line. A line ending in
+ * "(division)" marks the division over the departments.
+ */
+/** Only working sessions can ask for feedback: not a meal, a break or logistics. */
+function asksFeedback(type: FormDataEntryValue | null): boolean {
+  return !['meal', 'break', 'logistics'].includes(String(type ?? ''));
+}
+
 export async function saveDepartments(formData: FormData): Promise<void> {
   const { operator, overlay } = await begin();
   const lines = String(formData.get('departments') ?? '').split(/\r?\n/);
-  const departments: { name: string; short: string }[] = [];
+  const departments: { name: string; short: string; division?: boolean }[] = [];
   for (const [index, line] of lines.entries()) {
     if (!line.trim()) continue;
     const [name = '', short = ''] = line.split('=').map((part) => plainText(part, 120));
@@ -129,7 +137,9 @@ export async function saveDepartments(formData: FormData): Promise<void> {
         'departments',
       );
     }
-    departments.push({ name, short: short.slice(0, 16) });
+    const division = /\(division\)\s*$/i.test(short);
+    const cleanShort = short.replace(/\(division\)\s*$/i, '').trim();
+    departments.push({ name, short: cleanShort.slice(0, 16), ...(division ? { division } : {}) });
   }
   overlay.departments = departments;
   await commit(overlay, EVENT_PATH, 'Edited the department short names', operator, 'departments');
@@ -257,7 +267,8 @@ export async function saveSession(formData: FormData): Promise<void> {
     description: multilineText(formData.get('description'), 1500),
     type: sessionType(formData.get('type')),
     hidden: formData.get('show') !== 'on',
-    feedbackEnabled: formData.get('feedback') === 'on',
+    // Meals, breaks and logistics never ask for feedback.
+    feedbackEnabled: formData.get('feedback') === 'on' && asksFeedback(formData.get('type')),
     qaEnabled: formData.get('qa') === 'on',
     speakerIds: formData
       .getAll('speaker')
@@ -304,7 +315,7 @@ export async function addSession(formData: FormData): Promise<void> {
         speakerIds: [],
         type: sessionType(formData.get('type')),
         qaEnabled: false,
-        feedbackEnabled: formData.get('feedback') === 'on',
+        feedbackEnabled: formData.get('feedback') === 'on' && asksFeedback(formData.get('type')),
         hidden: false,
       },
     },

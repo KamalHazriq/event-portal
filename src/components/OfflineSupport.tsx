@@ -33,7 +33,7 @@ export function OfflineSupport() {
       role="status"
       className="sticky top-0 z-50 bg-warning px-4 py-2 text-center text-sm font-semibold text-canvas"
     >
-      You are offline. Showing the last copy saved on this phone.
+      You are offline. Showing the last copy saved on this device.
     </div>
   );
 }

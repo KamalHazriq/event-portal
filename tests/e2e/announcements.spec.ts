@@ -84,8 +84,8 @@ test('post an announcement, see it on a phone, take it down', async ({ browser, 
   await projector.reload();
   await expect(projector.getByText(text)).toHaveCount(0);
 
-  // A test goes to this phone only; this browser has no alerts on.
-  await admin.getByRole('button', { name: 'Send a test to this phone' }).click();
+  // A test goes to this device only; this browser has no alerts on.
+  await admin.getByRole('button', { name: 'Send a test to this device' }).click();
   await expect(admin.getByText(/has not turned on alerts yet/)).toBeVisible();
 
   // The automatic feedback reminders switch, on and back off.

@@ -414,7 +414,7 @@ export default async function EventInfoEditorPage({
       <Section
         id="departments"
         title="Department short names"
-        hint="One per line, like Corporate & Engineering Services = CORES. Used on the big screen, phones, name tags and reports."
+        hint="One per line, like Corporate & Engineering Services = CORES. Add (division) after the short name of the division over the departments (D&I): it is left out of the department count and leaderboard. Used on the big screen, phones, name tags and reports."
       >
         <form action={saveDepartments} className={`${card} space-y-3`}>
           <FormPending label="Saving" />
@@ -423,7 +423,9 @@ export default async function EventInfoEditorPage({
             <textarea
               name="departments"
               rows={Math.min(20, Math.max(5, departments.length + 2))}
-              defaultValue={departments.map((d) => `${d.name} = ${d.short}`).join('\n')}
+              defaultValue={departments
+                .map((d) => `${d.name} = ${d.short}${d.division ? ' (division)' : ''}`)
+                .join('\n')}
               className={`${input} font-mono text-sm`}
             />
           </label>

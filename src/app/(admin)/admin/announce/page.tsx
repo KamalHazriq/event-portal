@@ -54,13 +54,13 @@ const EXAMPLES = [
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
 const TEST_RESULT: Record<string, { text: string; good: boolean }> = {
-  sent: { text: 'Test sent. It should arrive on this phone within a few seconds.', good: true },
+  sent: { text: 'Test sent. It should arrive on this device within a few seconds.', good: true },
   failed: {
     text: 'The push service did not take the test. Try again in a minute.',
     good: false,
   },
   none: {
-    text: 'This phone has not turned on alerts yet. Open the portal home on this phone, tap Turn on alerts, then try again.',
+    text: 'This device has not turned on alerts yet. Open the portal home on this device, tap Turn on alerts, then try again.',
     good: false,
   },
 };
@@ -348,7 +348,7 @@ export default async function AnnouncementsPage({ searchParams }: { searchParams
             Test your alerts
           </h2>
           <p className="mt-1 text-ink-soft">
-            This phone right now:{' '}
+            This device right now:{' '}
             <strong className={thisPhoneAlerts ? 'text-success' : 'text-warning'}>
               event alerts {thisPhoneAlerts ? 'on' : 'off'}
             </strong>
@@ -362,8 +362,8 @@ export default async function AnnouncementsPage({ searchParams }: { searchParams
 
         <ol className="list-decimal space-y-1 pl-5 text-ink">
           <li>
-            On this phone, tap <strong>Turn on team alerts</strong> below and allow it. (iPhone: add
-            the app to the home screen first, then open it from the icon.)
+            On this device, tap <strong>Turn on team alerts</strong> below and allow it. (iPhone:
+            add the app to the home screen first, then open it from the icon.)
           </li>
           <li>
             Tap <strong>Send a test to the team</strong>. A notification should arrive within a few
@@ -394,7 +394,7 @@ export default async function AnnouncementsPage({ searchParams }: { searchParams
               type="submit"
               className="min-h-11 rounded-lg border border-line px-4 font-semibold text-ink"
             >
-              Send a test to this phone only
+              Send a test to this device only
             </button>
           </form>
         </div>

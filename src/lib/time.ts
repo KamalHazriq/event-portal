@@ -9,6 +9,8 @@
  * bundle small). Intl, which is built into Node and every browser, is enough.
  */
 
+import { scheduleDelayMinutes } from './schedule-delay-state';
+
 /** A moment, expressed the way the agenda is written. */
 export type EventNow = {
   /** Calendar date in the event time zone, as YYYY-MM-DD. */
@@ -124,7 +126,10 @@ export function resolveEventNow(options: {
     const fromEnv = parseTimeOverride(process.env.DEV_FAKE_NOW);
     if (fromEnv) return fromEnv;
   }
-  return wallClockInZone(options.timezone, options.at ?? new Date());
+  // Running late (set on Live control): the agenda follows the room.
+  const at = options.at ?? new Date();
+  const late = options.at ? 0 : scheduleDelayMinutes();
+  return wallClockInZone(options.timezone, late ? new Date(at.getTime() - late * 60_000) : at);
 }
 
 /**

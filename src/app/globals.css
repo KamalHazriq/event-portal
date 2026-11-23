@@ -1154,10 +1154,34 @@ label.bg-primary:hover::after {
   --rule: 1.5px;
 }
 
-/* One background: no drifting glows or grid behind the page. */
-[data-style='ruled'] body::before,
+/* A quiet, techy backdrop: three soft glows in the theme colours drifting
+   behind a fine grid that fades out towards the edges. Cards stay solid on
+   top, so the glow only shows in the gaps. */
+[data-style='ruled'] body::before {
+  background:
+    radial-gradient(
+      40vmax 32vmax at 82% 6%,
+      color-mix(in srgb, var(--c-primary) 30%, transparent),
+      transparent 68%
+    ),
+    radial-gradient(
+      34vmax 28vmax at 8% 55%,
+      color-mix(in srgb, var(--c-accent) 18%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      38vmax 26vmax at 70% 96%,
+      color-mix(in srgb, var(--c-primary) 20%, transparent),
+      transparent 70%
+    );
+}
 [data-style='ruled'] body::after {
-  display: none;
+  background:
+    linear-gradient(color-mix(in srgb, var(--c-text) 5%, transparent) 1px, transparent 1px) 0 0 /
+      64px 64px,
+    linear-gradient(90deg, color-mix(in srgb, var(--c-text) 5%, transparent) 1px, transparent 1px) 0
+      0 / 64px 64px;
+  mask-image: radial-gradient(ellipse 75% 55% at 50% 0%, black, transparent 80%);
 }
 
 /* Display type at a steady 500, tight, with no accent bar under titles. */
@@ -1374,10 +1398,25 @@ label.bg-primary:hover::after {
  * ---------------------------------------------------------------------- */
 
 .hex-cluster {
-  --u: 1.15rem;
+  --u: 1.05rem;
   position: relative;
-  width: calc(var(--u) * 6);
-  height: calc(var(--u) * 6);
+  width: calc(var(--u) * 7);
+  height: calc(var(--u) * 7);
+}
+
+/* The logo in the middle, breathing gently. */
+.hex-mark {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: calc(var(--u) * 1.7);
+  height: calc(var(--u) * 2.3);
+  translate: -50% -50%;
+  background: var(--brand-mark) center / contain no-repeat;
+  filter: drop-shadow(
+    0 0 calc(var(--u) * 0.6) color-mix(in srgb, var(--c-primary) 60%, transparent)
+  );
+  animation: hex-core 1.6s ease-in-out infinite;
 }
 
 .hex {
@@ -1686,4 +1725,211 @@ main:has(.hex-wipe) .screen-sweep {
 }
 .screen-calm .screen-sweep {
   display: none;
+}
+
+/* -- The attendee footer: a soft glow from below, links whose underline
+ *    grows on hover with a small arrow that slides in. */
+.ruled-footer-glow {
+  position: absolute;
+  inset: auto -10% -60% -10%;
+  height: 120%;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      50% 55% at 20% 100%,
+      color-mix(in srgb, var(--c-primary) 22%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      40% 50% at 85% 100%,
+      color-mix(in srgb, var(--c-accent) 18%, transparent),
+      transparent 70%
+    );
+}
+
+.footer-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--c-primary-ink);
+  text-decoration: none;
+  background-image: linear-gradient(currentColor, currentColor);
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  background-size: 0 1px;
+  transition:
+    background-size 220ms ease,
+    color 220ms ease;
+}
+.footer-link:hover,
+.footer-link:focus-visible {
+  background-size: 100% 1px;
+}
+.footer-arrow {
+  opacity: 0;
+  transform: translateX(-4px);
+  transition:
+    opacity 200ms ease,
+    transform 200ms ease;
+}
+.footer-link:hover .footer-arrow,
+.footer-link:focus-visible .footer-arrow {
+  opacity: 1;
+  transform: none;
+}
+.footer-chip {
+  transition:
+    border-color 200ms ease,
+    transform 200ms ease;
+}
+.footer-chip:hover {
+  border-color: var(--c-primary);
+  transform: translateY(-1px);
+}
+
+/* -- Buttons that move you along: back to the day, previous and next
+ *    session. They pop in, lift a little under the pointer, and the arrow
+ *    slides the way it points. Transform and opacity only. */
+.nav-pill,
+.nav-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  border: 1px solid var(--c-border);
+  background: var(--c-surface);
+  color: var(--c-text);
+  text-decoration: none;
+  animation: nav-pop 420ms cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+  transition:
+    border-color 200ms ease,
+    transform 200ms ease,
+    background-color 200ms ease;
+}
+.nav-pill {
+  min-height: 2.5rem;
+  border-radius: 999px;
+  padding: 0.35rem 1rem 0.35rem 0.8rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+.nav-step {
+  min-height: 4rem;
+  border-radius: 0.9rem;
+  padding: 0.75rem 1rem;
+}
+.nav-pill:hover,
+.nav-step:hover,
+.nav-pill:focus-visible,
+.nav-step:focus-visible {
+  border-color: var(--c-primary);
+  background: color-mix(in srgb, var(--c-primary) 8%, var(--c-surface));
+  transform: translateY(-2px);
+}
+.nav-arrow {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  background: var(--c-primary);
+  color: var(--c-primary-text);
+  font-weight: 700;
+  transition: transform 220ms cubic-bezier(0.2, 0.9, 0.3, 1.3);
+}
+.nav-pill .nav-arrow {
+  width: 1.6rem;
+  height: 1.6rem;
+}
+.nav-pill:hover .nav-arrow-back,
+.nav-step:hover .nav-arrow-back {
+  transform: translateX(-4px);
+}
+.nav-step:hover .nav-arrow:not(.nav-arrow-back) {
+  transform: translateX(4px);
+}
+@keyframes nav-pop {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* -- The session happening now: hard to miss from across the room. A thick
+ *    edge in the live colour, a wash of it behind the text and a soft ring. */
+a.session-live.border {
+  border-width: 2px;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--c-live) 18%, var(--c-surface)),
+    var(--c-surface) 70%
+  );
+  box-shadow:
+    0 0 0 4px color-mix(in srgb, var(--c-live) 16%, transparent),
+    0 10px 30px -12px color-mix(in srgb, var(--c-live) 45%, transparent);
+}
+
+/* The agenda's day changes in place: a quick fade and rise. */
+.agenda-panel {
+  animation: agenda-in 220ms ease-out both;
+}
+@keyframes agenda-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* The logo in the middle of the wipe: it grows in as the honeycomb closes,
+ * holds while the new view is put behind, and fades as it opens again. */
+.hex-wipe-logo {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 11vw;
+  height: 14.7vw;
+  translate: -50% -50%;
+  background: var(--brand-mark-dark) center / contain no-repeat;
+  filter: drop-shadow(0 0 2vw color-mix(in srgb, var(--c-primary) 70%, transparent));
+  will-change: transform, opacity;
+}
+.hex-wipe-cover .hex-wipe-logo {
+  animation: hex-logo-in 520ms cubic-bezier(0.2, 0.9, 0.3, 1.2) 160ms both;
+}
+.hex-wipe-reveal .hex-wipe-logo {
+  animation: hex-logo-out 260ms ease-in both;
+}
+@keyframes hex-logo-in {
+  from {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes hex-logo-out {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.15);
+  }
+}
+
+/* The page loader waits a beat before showing, so a quick page shows nothing. */
+.page-loading {
+  animation: hex-overlay-in 240ms ease-out 250ms both;
 }

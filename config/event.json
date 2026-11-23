@@ -660,7 +660,7 @@
     ]
   },
   "departments": [
-    { "name": "Digital & Information Division", "short": "D&I" },
+    { "name": "Digital & Information Division", "short": "D&I", "division": true },
     { "name": "Chief Cybersecurity Operations Office", "short": "CS" },
     { "name": "Chief Information Security Office", "short": "CISO" },
     { "name": "Digital, Data & AI", "short": "DDAI" },

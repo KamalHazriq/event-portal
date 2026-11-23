@@ -2,7 +2,16 @@
 
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 
-import { gridShape, MOSAIC_MIN, NEW_PHOTO_MS, type PhotoLayout } from '../logic';
+import {
+  GRID_PAGE,
+  gridShape,
+  MOSAIC_MIN,
+  MOSAIC_PAGE,
+  NEW_PHOTO_MS,
+  WALL_PAGE_MS,
+  wallPage,
+  type PhotoLayout,
+} from '../logic';
 import { PhotoSlideshow } from './PhotoSlideshow';
 
 type Slide = { id: string; caption: string };
@@ -87,39 +96,63 @@ function Tile({ slide, large = false }: { slide: Slide; large?: boolean }) {
   );
 }
 
-/** The newest twelve in even tiles, sized so a few photos fill the screen. */
+/** Turns the page every few seconds while there are more photos than fit. */
+function usePage<T>(items: T[], size: number) {
+  const [tick, setTick] = useState(0);
+  const many = items.length > size;
+  useEffect(() => {
+    if (!many) return;
+    const timer = window.setInterval(() => setTick((n) => n + 1), WALL_PAGE_MS);
+    return () => window.clearInterval(timer);
+  }, [many]);
+  return wallPage(items, size, tick);
+}
+
+function PageCount({ page, pages }: { page: number; pages: number }) {
+  if (pages <= 1) return null;
+  return (
+    <p className="absolute right-[0.6vw] bottom-[0.6vw] z-10 rounded-full bg-black/60 px-[0.8vw] py-[0.3vh] text-[clamp(0.7rem,0.9vw,1.2rem)] tabular-nums text-white">
+      {page + 1} / {pages}
+    </p>
+  );
+}
+
+/** Even tiles, a page of twelve at a time, sized so a few photos fill the screen. */
 function GridWall({ slides }: { slides: Slide[] }) {
-  const shown = slides.slice(0, 12);
+  const { items: shown, page, pages } = usePage(slides, GRID_PAGE);
   const { columns, rows } = gridShape(shown.length);
   return (
     <div
       data-layout="grid"
-      className="grid h-full gap-[0.8vw]"
+      className="relative grid h-full gap-[0.8vw]"
       style={{
         gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
         gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))`,
       }}
     >
       {shown.map((s) => (
-        <Tile key={s.id} slide={s} large={shown.length <= 4} />
+        <Tile key={`${page}-${s.id}`} slide={s} large={shown.length <= 4} />
       ))}
+      <PageCount page={page} pages={pages} />
     </div>
   );
 }
 
-/** The newest photo large on the left, the next eight around it. */
+/** One photo large on the left, eight around it, a page at a time. */
 function MosaicWall({ slides }: { slides: Slide[] }) {
-  const [first, ...rest] = slides;
+  const { items, page, pages } = usePage(slides, MOSAIC_PAGE);
+  const [first, ...rest] = items;
   return (
-    <div data-layout="mosaic" className="grid h-full grid-cols-4 grid-rows-3 gap-[0.8vw]">
+    <div data-layout="mosaic" className="relative grid h-full grid-cols-4 grid-rows-3 gap-[0.8vw]">
       {first ? (
         <div className="col-span-2 row-span-2 grid">
-          <Tile slide={first} large />
+          <Tile key={`${page}-${first.id}`} slide={first} large />
         </div>
       ) : null}
-      {rest.slice(0, 8).map((s) => (
-        <Tile key={s.id} slide={s} />
+      {rest.map((s) => (
+        <Tile key={`${page}-${s.id}`} slide={s} />
       ))}
+      <PageCount page={page} pages={pages} />
     </div>
   );
 }

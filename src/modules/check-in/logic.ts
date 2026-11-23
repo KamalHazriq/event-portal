@@ -159,17 +159,17 @@ export const KIOSK_RESET_MS = 5_000;
 
 /**
  * What the self check in kiosk says. The person reading it is the attendee,
- * so it greets them by first name only and never lists anyone else: anything
- * unsure (two people with the same name, a card not on the list) sends them
- * to the desk.
+ * so it greets them by their full name, as it is on the list, and never lists
+ * anyone else. A card not on the list sends them to the desk. (A close name
+ * is confirmed on the kiosk first: see KioskConsole.)
  */
 export function kioskMessage(
   outcome: ScanOutcome,
   fullName: string | undefined,
   dayLabel: string,
 ): { tone: 'good' | 'again' | 'desk'; title: string; detail: string } {
-  const first = (fullName ?? '').trim().split(/\s+/)[0] ?? '';
-  const hello = first ? `, ${first}` : '';
+  const name = (fullName ?? '').trim();
+  const hello = name ? `, ${name}` : '';
   switch (outcome) {
     case 'checked-in':
       return {

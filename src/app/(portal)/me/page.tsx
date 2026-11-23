@@ -22,8 +22,8 @@ export const dynamic = 'force-dynamic';
 export const metadata: Metadata = { title: 'My points' };
 
 const MESSAGES: Record<string, { text: string; good: boolean }> = {
-  joined: { text: 'You are in. Everything this phone does now counts for you.', good: true },
-  left: { text: 'Signed out. This phone no longer collects points for anyone.', good: true },
+  joined: { text: 'You are in. Everything this device does now counts for you.', good: true },
+  left: { text: 'Signed out. This device no longer collects points for anyone.', good: true },
   'no-match': {
     text: 'That staff number and name do not go together. Check both, or ask the secretariat.',
     good: false,
@@ -157,7 +157,7 @@ export default async function MyPointsPage({
           <p className="mt-1 text-ink-soft">
             Once, on your own phone. Then taking part earns points for you and your department.
             {config.features.luckyDraw
-              ? ' If you win the lucky draw, this phone tells you too.'
+              ? ' If you win the lucky draw, this device tells you too.'
               : ''}
           </p>
 
@@ -170,7 +170,7 @@ export default async function MyPointsPage({
               </p>
               <p className="text-ink-soft">
                 If that is you (a new phone, or you cleared your browser), type your staff number to
-                use this phone too.
+                use this device too.
               </p>
               <div>
                 <label htmlFor="proof-staff-no" className="block text-sm font-semibold text-ink">
@@ -224,7 +224,7 @@ export default async function MyPointsPage({
               {searching ? (
                 tooManyFinds ? (
                   <p role="alert" className="mt-4 font-semibold text-ink">
-                    Too many searches from this phone. Wait a few minutes, or ask the registration
+                    Too many searches from this device. Wait a few minutes, or ask the registration
                     desk.
                   </p>
                 ) : choices.length === 0 ? (

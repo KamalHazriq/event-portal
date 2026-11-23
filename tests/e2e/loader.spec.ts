@@ -32,7 +32,7 @@ test('signing in shows the hexagon loader while it waits, and then lands', async
     page.getByRole('heading', { name: /^Good (morning|afternoon|evening)/, level: 1 }),
   ).toBeVisible({ timeout: 15_000 });
   // It showed the seven hexagons and its words while it waited, and is gone now.
-  expect(await page.evaluate(() => sessionStorage.getItem('hexSeen'))).toBe('7');
+  expect(await page.evaluate(() => sessionStorage.getItem('hexSeen'))).toBe('6');
   expect(await page.evaluate(() => sessionStorage.getItem('hexText'))).toContain('Signing in');
   await expect(page.locator('.hex-overlay')).toHaveCount(0);
 });

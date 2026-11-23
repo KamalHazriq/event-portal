@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 
 import { formatShortDate } from '@/lib/time';
@@ -5,8 +7,9 @@ import { formatShortDate } from '@/lib/time';
 import type { ResolvedDay } from '../logic';
 
 /**
- * Day tabs as plain links, not buttons, so the agenda works with no
- * JavaScript at all and each day can be bookmarked or shared.
+ * Day tabs. They are real links, so the agenda works with no JavaScript and
+ * each day can be bookmarked or shared; with JavaScript, onSelect switches
+ * the day in place at once, with no trip to the server.
  */
 export function DayTabs({
   days,
@@ -14,6 +17,7 @@ export function DayTabs({
   timezone,
   extraParams = '',
   showMine = false,
+  onSelect,
 }: {
   days: ResolvedDay[];
   /** A day id, or "mine" for the starred sessions. */
@@ -21,9 +25,16 @@ export function DayTabs({
   timezone: string;
   /** Carries a dev ?now= override across tab changes. */
   extraParams?: string;
-  /** Adds a "My agenda" tab at the end. */
+  /** Adds a "Favourites" tab at the end. */
   showMine?: boolean;
+  /** Switch in place instead of loading the page again. */
+  onSelect?: (dayId: string) => void;
 }) {
+  const choose = (dayId: string) => (event: React.MouseEvent<HTMLAnchorElement>) => {
+    if (!onSelect || event.metaKey || event.ctrlKey || event.shiftKey || event.button !== 0) return;
+    event.preventDefault();
+    onSelect(dayId);
+  };
   const mineSelected = selectedDayId === 'mine';
   return (
     <nav aria-label="Choose a day">
@@ -34,6 +45,7 @@ export function DayTabs({
             <li key={day.id} className="shrink-0">
               <Link
                 href={`/agenda?day=${day.id}${extraParams}`}
+                onClick={choose(day.id)}
                 aria-current={selected ? 'page' : undefined}
                 className={[
                   'block rounded-lg border px-2.5 py-2 text-sm no-underline',
@@ -56,6 +68,7 @@ export function DayTabs({
           <li className="shrink-0">
             <Link
               href={`/agenda?day=mine${extraParams}`}
+              onClick={choose('mine')}
               aria-current={mineSelected ? 'page' : undefined}
               className={[
                 'block rounded-lg border px-2.5 py-2 text-sm no-underline',
@@ -65,7 +78,7 @@ export function DayTabs({
               ].join(' ')}
             >
               <span className="block">
-                <span aria-hidden="true">★ </span>My agenda
+                <span aria-hidden="true">★ </span>Favourites
               </span>
               <span
                 className={['block text-xs', mineSelected ? 'opacity-90' : 'text-ink-soft'].join(

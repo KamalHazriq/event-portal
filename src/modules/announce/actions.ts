@@ -87,7 +87,7 @@ export async function sendTestToTeam(): Promise<void> {
   const operator = await assertAdmin();
   const result = await pushToTeam({
     title: `Team: ${getEventConfig().event.shortName}`,
-    body: `Test from ${operator}. Team alerts work on this phone.`,
+    body: `Test from ${operator}. Team alerts work on this device.`,
     url: '/admin',
     tag: 'test-team',
   });
@@ -125,14 +125,14 @@ export async function setFeedbackNudges(formData: FormData): Promise<void> {
   done();
 }
 
-/** Sends a test alert to this phone only, so nobody else is disturbed. */
+/** Sends a test alert to this device only, so nobody else is disturbed. */
 export async function sendTestAlert(): Promise<void> {
   await assertAdmin();
   const deviceId = readDeviceId((await cookies()).get(DEVICE_COOKIE)?.value);
   const result = deviceId
     ? await pushToDevice(deviceId, {
         title: `${getEventConfig().event.shortName}: test alert`,
-        body: 'Alerts work on this phone.',
+        body: 'Alerts work on this device.',
         url: '/',
         tag: 'test',
       })

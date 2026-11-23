@@ -16,7 +16,6 @@ const COVER_MS = 680;
 const REVEAL_MS = 700;
 
 const COLS = 10;
-const ROWS = 9;
 /** One hexagon in vw: width, height, and the vertical step between rows. */
 const W = 100 / (COLS - 1);
 const H = W * 1.1547;
@@ -26,25 +25,35 @@ const SPREAD_MS = 300;
 
 type Cell = { left: number; top: number; delay: number };
 
-/** Built once: cells in a honeycomb, each delayed by its distance from the centre. */
-const CELLS: Cell[] = (() => {
+/**
+ * A honeycomb big enough for this screen, whatever its shape: enough rows
+ * for its height (measured in vw, like the cells), plus one above and below.
+ * Each cell waits by its distance from the centre.
+ */
+function buildCells(heightInVw: number): Cell[] {
+  const rows = Math.ceil(heightInVw / STEP) + 3;
   const cells: Cell[] = [];
   const cx = 50;
-  const cy = (ROWS - 2) * STEP * 0.5;
-  let farthest = 0;
-  for (let row = 0; row < ROWS; row += 1) {
-    for (let col = 0; col < COLS; col += 1) {
-      const left = (col + (row % 2 ? 0.5 : 0) - 0.5) * W;
-      const top = (row - 1) * STEP;
-      const dx = left + W / 2 - cx;
-      const dy = top + H / 2 - cy;
-      const dist = Math.hypot(dx, dy * 1.2);
+  const cy = heightInVw / 2;
+  let farthest = 1;
+  for (let row = 0; row < rows; row += 1) {
+    for (let col = 0; col < COLS + 1; col += 1) {
+      const left = (col + (row % 2 ? 0.5 : 0) - 1) * W;
+      const top = (row - 1) * STEP - H / 4;
+      const dist = Math.hypot(left + W / 2 - cx, (top + H / 2 - cy) * 1.2);
       farthest = Math.max(farthest, dist);
       cells.push({ left, top, delay: dist });
     }
   }
   return cells.map((c) => ({ ...c, delay: Math.round((c.delay / farthest) * SPREAD_MS) }));
-})();
+}
+
+/** The screen's height in widths, without any scrollbar. */
+function screenHeightInVw(): number {
+  const width = document.documentElement.clientWidth || window.innerWidth || 1;
+  const height = document.documentElement.clientHeight || window.innerHeight;
+  return (height / width) * 100;
+}
 
 /**
  * One hexagon as a picture, in the event's own colours, read from the page.
@@ -63,25 +72,28 @@ function hexPicture(): string {
 
 function HexCells({ phase }: { phase: 'cover' | 'reveal' }) {
   const [picture] = useState(hexPicture);
+  const [cells] = useState(() => buildCells(screenHeightInVw()));
   return (
     <div
       aria-hidden="true"
-      className={`hex-wipe keep-motion pointer-events-none fixed inset-0 z-[60] overflow-hidden ${
+      className={`hex-wipe keep-motion pointer-events-none fixed inset-0 z-[60] overflow-hidden [container-type:size] ${
         phase === 'cover' ? 'hex-wipe-cover' : 'hex-wipe-reveal'
       }`}
-      style={{ '--cw': `${W}vw`, '--ch': `${H}vw`, '--hex-img': picture } as React.CSSProperties}
+      style={{ '--cw': `${W}cqw`, '--ch': `${H}cqw`, '--hex-img': picture } as React.CSSProperties}
     >
-      {CELLS.map((cell, i) => (
+      {cells.map((cell, i) => (
         <span
           key={i}
           className="hex-cell"
           style={{
-            left: `${cell.left}vw`,
-            top: `${cell.top}vw`,
+            left: `${cell.left}cqw`,
+            top: `${cell.top}cqw`,
             animationDelay: `${cell.delay}ms`,
           }}
         />
       ))}
+      {/* The logo, in the middle of the honeycomb while it covers the screen. */}
+      <span className="hex-wipe-logo" />
     </div>
   );
 }

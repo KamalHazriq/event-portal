@@ -78,7 +78,7 @@ export function cleanAnnouncementText(value: string): string {
 export type AlertSupport = 'unknown' | 'unsupported' | 'install-first' | 'blocked' | 'ready';
 
 /**
- * Whether this phone can turn on alerts. iPhones and iPads only allow it
+ * Whether this device can turn on alerts. iPhones and iPads only allow it
  * from the home screen (Share, Add to Home Screen), so they are told that
  * first rather than shown a button that does nothing.
  */

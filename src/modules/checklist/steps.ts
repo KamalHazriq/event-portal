@@ -92,9 +92,9 @@ export const TEST_PLAN: Part[] = [
           },
           {
             id: 'a-home-star',
-            do: 'Tap the star on two sessions, open My agenda, then close the browser and open it again.',
-            expect: 'Both sessions are listed under My agenda, and still there afterwards.',
-            links: [{ href: '/agenda', label: 'Agenda (My agenda is a tab on it)' }],
+            do: 'Tap the star on two sessions, open Favourites, then close the browser and open it again.',
+            expect: 'Both sessions are listed under Favourites, and still there afterwards.',
+            links: [{ href: '/agenda', label: 'Agenda (Favourites is a tab on it)' }],
           },
           {
             id: 'a-home-session',
@@ -202,7 +202,7 @@ export const TEST_PLAN: Part[] = [
           {
             id: 'a-alerts-on',
             do: 'On the home page tap Turn on alerts and allow it. (iPhone: Share, Add to Home Screen first, then open from the icon.)',
-            expect: 'It says alerts are on for this phone.',
+            expect: 'It says alerts are on for this device.',
             links: [{ href: '/', label: 'Home page' }],
           },
           {
@@ -314,7 +314,7 @@ export const TEST_PLAN: Part[] = [
           {
             id: 's-login-team',
             do: 'On every secretariat phone, tap Install, then Turn on team alerts (on the Announce page). iPhone: add to the home screen first and open from the icon.',
-            expect: 'It says team alerts are on for this phone.',
+            expect: 'It says team alerts are on for this device.',
             links: [{ href: '/admin/announce', label: 'Announce (team alerts)' }],
           },
           {
@@ -530,7 +530,7 @@ export const TEST_PLAN: Part[] = [
           },
           {
             id: 's-room-announce',
-            do: 'On Announce, post a message, then "Send a test to this phone", then Take it down.',
+            do: 'On Announce, post a message, then "Send a test to this device", then Take it down.',
             expect:
               'The banner appears on attendee phones and goes away. The test arrives on a phone with alerts on.',
             links: [

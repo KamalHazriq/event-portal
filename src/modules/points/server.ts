@@ -1,9 +1,10 @@
 /**
- * Gathers what the points are worked out from, and who this phone is.
+ * Gathers what the points are worked out from, and who this device is.
  * See logic.ts for the rules.
  */
 import { getData, type Attendee } from '@/data';
 import { getEventConfig } from '@/lib/config';
+import { isDivision } from '@/lib/departments';
 import { localDateTimeToInstant } from '@/lib/time';
 import { currentDeviceId } from '@/modules/backup/server';
 
@@ -82,11 +83,15 @@ export async function loadScoreboard(): Promise<Scoreboard> {
   return {
     scores,
     people: rankPeople(scores, attendees),
-    departments: rankDepartments(scores, attendees),
+    // The division (D&I) is over the departments, so it is not ranked as one.
+    departments: rankDepartments(
+      scores,
+      attendees.filter((a) => !isDivision(config, a.department)),
+    ),
   };
 }
 
-/** The person this phone is signed in as, or null. */
+/** The person this device is signed in as, or null. */
 export async function currentPlayer(): Promise<Attendee | null> {
   const deviceId = await currentDeviceId();
   if (!deviceId) return null;

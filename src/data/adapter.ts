@@ -225,9 +225,9 @@ export interface QuestionRepository {
   setStatus(id: string, status: QuestionStatus): Promise<boolean>;
   /** Pinning one question unpins any other in the same session. */
   setPinned(id: string, pinned: boolean): Promise<boolean>;
-  /** One vote per phone per question. False if this phone already voted. */
+  /** One vote per phone per question. False if this device already voted. */
   vote(questionId: string, deviceId: string): Promise<boolean>;
-  /** Which of a session's questions this phone has voted for. */
+  /** Which of a session's questions this device has voted for. */
   votedIds(sessionId: string, deviceId: string): Promise<string[]>;
   remove(id: string): Promise<boolean>;
 }
@@ -289,7 +289,7 @@ export interface CommentRepository {
   countByDevice(sessionId: string, deviceId: string): Promise<number>;
   setStatus(id: string, status: CommentStatus): Promise<boolean>;
   remove(id: string): Promise<boolean>;
-  /** False when this phone already liked it. */
+  /** False when this device already liked it. */
   like(commentId: string, deviceId: string): Promise<boolean>;
   likedIds(sessionId: string, deviceId: string): Promise<string[]>;
 }
@@ -314,12 +314,12 @@ export interface PushRepository {
 
 /** Phones signed in as people, for points and the leaderboard. */
 export interface PlayerRepository {
-  /** Signs this phone in as this person, replacing any earlier link. */
+  /** Signs this device in as this person, replacing any earlier link. */
   link(deviceId: string, attendeeId: string): Promise<void>;
   unlink(deviceId: string): Promise<void>;
   /** Signs every phone out of the leaderboard. Returns how many were signed in. */
   unlinkAll(): Promise<number>;
-  /** Who this phone belongs to, or null. */
+  /** Who this device belongs to, or null. */
   ownerOf(deviceId: string): Promise<string | null>;
   links(): Promise<DeviceLink[]>;
 }

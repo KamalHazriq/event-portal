@@ -6,7 +6,7 @@ import { SessionCard } from './SessionCard';
 
 /**
  * The starred sessions from every day, in agenda order. The list lives in
- * this phone's browser, so it is filtered here rather than on the server.
+ * this device's browser, so it is filtered here rather than on the server.
  */
 export function MyAgenda({
   days,
@@ -27,7 +27,7 @@ export function MyAgenda({
     return (
       <p className="rounded-lg border border-line bg-surface p-4 text-ink-soft">
         Nothing here yet. Tap the <span aria-hidden="true">☆</span> star on any session to add it to
-        your agenda. It is saved on this phone only.
+        your agenda. It is saved on this device only.
       </p>
     );
   }
@@ -52,7 +52,7 @@ export function MyAgenda({
           </ul>
         </section>
       ))}
-      <p className="text-sm text-ink-soft">Saved on this phone only.</p>
+      <p className="text-sm text-ink-soft">Saved on this device only.</p>
     </div>
   );
 }

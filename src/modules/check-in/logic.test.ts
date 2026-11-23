@@ -181,10 +181,10 @@ describe('scanOutcomeMessage', () => {
 });
 
 describe('kioskMessage', () => {
-  it('greets by first name only', () => {
+  it('greets by full name', () => {
     expect(kioskMessage('checked-in', 'Nurul Aisyah Hashim', 'Day 1')).toEqual({
       tone: 'good',
-      title: 'Welcome, Nurul!',
+      title: 'Welcome, Nurul Aisyah Hashim!',
       detail: 'You are checked in for Day 1.',
     });
     expect(kioskMessage('already-checked-in', 'Ali', 'Day 2').title).toBe('Welcome back, Ali');

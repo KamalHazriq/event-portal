@@ -33,7 +33,7 @@ import {
 } from '@/modules/schedule/logic';
 import { REACTIONS } from '@/modules/talk/logic';
 import { AlertsOptIn } from '@/modules/announce/components/AlertsOptIn';
-import { shortDepartment } from '@/lib/departments';
+import { isDivision, shortDepartment } from '@/lib/departments';
 import { InstallApp } from '@/components/InstallApp';
 
 const SECTION = 'pt-16 pb-12 lg:pt-24 lg:pb-16';
@@ -115,7 +115,7 @@ export async function RuledHome({
   const [departments, photos, liveTotals] = await Promise.all([
     data.attendees
       .departments()
-      .then((list) => list.filter((d) => !/secretariat/i.test(d)))
+      .then((list) => list.filter((d) => !/secretariat/i.test(d) && !isDivision(config, d)))
       .catch(() => [] as string[]),
     features.photoWall
       ? data.photos
@@ -131,44 +131,64 @@ export async function RuledHome({
   // One tile per department, by short name ("Cores" and "Corporate &
   // Engineering Services" are the same team).
   const teams = [...new Set(departments.map((d) => shortDepartment(config, d)))];
-  const sessionCount = config.days.reduce(
-    (n, d) => n + d.sessions.filter((s) => !s.hidden).length,
-    0,
-  );
-  const speakers = config.speakers.slice(0, 4);
+  // Every speaker set up on the Agenda page, in the order they were added.
+  const speakers = config.speakers.slice(0, 16);
   const dates = `${formatShortDate(event.startDate, tz)} to ${formatShortDate(event.endDate, tz)}`;
 
-  const faqs: [string, string][] = [
+  const faqs: [string, React.ReactNode][] = [
     [
-      'How do I check in?',
-      'Show the business card in your TNB app at the registration desk; the desk scans it. If it will not scan, they find you by name in seconds.',
+      'Where do I ask the speakers a question?',
+      slido ? (
+        <>
+          On Slido:{' '}
+          <a href={slido} target="_blank" rel="noopener noreferrer">
+            open Slido
+          </a>
+          {slidoCode ? (
+            <>
+              {' '}
+              and enter <strong className="text-ink">{slidoCode}</strong>
+            </>
+          ) : null}
+          . Each session page has a Join Slido button too.
+        </>
+      ) : (
+        <>
+          Open the session on the <Link href={`/agenda${linkSuffix}`}>agenda</Link>: sessions that
+          take questions have a button on their page during the talk.
+        </>
+      ),
     ],
-    slido
-      ? [
-          'Where do I ask the speakers a question?',
-          `On Slido. Tap Join Slido on the session's page, or go to slido.com and enter ${slidoCode}.`,
-        ]
-      : [
-          'Where do I ask the speakers a question?',
-          'Each session with questions has a button on its page during the talk.',
-        ],
     [
       'How do points work?',
-      'Join once with your staff number and first name. Arriving early, feedback, polls, photos and reactions then earn points for you and your department.',
+      features.leaderboard ? (
+        <>
+          Pick your name once on <Link href="/me">My points</Link>. Arriving early, feedback, polls,
+          photos and reactions then earn points for you and your department.
+        </>
+      ) : (
+        'There are no points at this event.'
+      ),
     ],
     [
       'Can I share photos?',
-      'Yes, from the Photos page. They appear on the big screen once the secretariat has approved them.',
+      <>
+        Yes, from the <Link href="/photos">Photos</Link> page. They appear on the big screen once
+        the secretariat has approved them.
+      </>,
     ],
     [
       'Is my feedback anonymous?',
       'Points only count that you sent a form, never what you wrote, and you choose whether to give your name.',
     ],
+    [
+      'Can I use it on my laptop too?',
+      'Yes. It works on any phone, tablet or laptop, and you can install it on each one.',
+    ],
     ['Who do I ask for help?', event.helpText || 'Anyone at the registration desk.'],
   ];
 
   const steps: [string, string][] = [
-    ['Check in', 'Show the business card in your TNB app at the desk.'],
     ['Follow the day', 'The agenda shows what is on now and what is next.'],
     ['Ask and react', 'Questions on Slido, reactions on the big screen.'],
     ['Share the moments', 'Photos go up on the wall once approved.'],
@@ -227,7 +247,7 @@ export async function RuledHome({
           <p className="mt-7 flex flex-wrap gap-x-6 gap-y-2 text-sm text-[#C7D8EE]">
             {[
               event.venue,
-              `${config.days.length} days, ${sessionCount} sessions`,
+              dates,
               branding.organisationName,
             ]
               .filter(Boolean)
@@ -355,8 +375,9 @@ export async function RuledHome({
         </div>
       </section>
 
-      <div className="mt-6 max-w-xl space-y-3">
-        <InstallApp />
+      {/* Side by side on a laptop, one under the other on a phone. */}
+      <div className="mt-6 grid items-stretch gap-3 md:grid-cols-[repeat(auto-fit,minmax(20rem,1fr))]">
+        <InstallApp className="h-full" />
         <AlertsOptIn />
       </div>
 
@@ -446,7 +467,7 @@ export async function RuledHome({
             lines={['Who you will', 'hear from']}
             control={{ href: `/agenda${linkSuffix}`, label: 'Agenda' }}
           />
-          <ul className="mx-auto mt-10 grid max-w-4xl grid-cols-2 gap-8 text-center lg:grid-cols-4">
+          <ul className="mx-auto mt-10 flex max-w-5xl flex-wrap justify-center gap-x-8 gap-y-10 text-center [&>li]:w-[calc(50%-1rem)] sm:[&>li]:w-40">
             {speakers.map((s) => (
               <li key={s.id}>
                 {s.photoPath ? (
@@ -483,8 +504,6 @@ export async function RuledHome({
         />
         <ol className="mt-8 border-t border-line">
           {config.days.map((day) => {
-            const visible = day.sessions.filter((s) => !s.hidden);
-            const talks = visible.filter((s) => s.type === 'talk' || s.type === 'panel').length;
             const isToday = nowAndNext.today?.id === day.id;
             return (
               <li key={day.id} className="border-b border-line">
@@ -508,8 +527,8 @@ export async function RuledHome({
                       <span className="mt-1 block text-ink-soft">{day.subtitle}</span>
                     ) : null}
                   </span>
-                  <span className="text-sm tabular-nums text-ink-soft">
-                    {visible.length} sessions, {talks} talks
+                  <span aria-hidden="true" className="text-xl text-ink-soft">
+                    →
                   </span>
                 </Link>
               </li>
@@ -518,11 +537,11 @@ export async function RuledHome({
         </ol>
       </section>
 
-      {/* 9. FAQ: all six answers open, in two columns. */}
+      {/* 9. General Q&A: every answer open, in two columns. */}
       <section aria-labelledby="faq" className={SECTION}>
         <Opener
           id="faq"
-          lines={['Good to', 'know']}
+          lines={['General', 'Q&A']}
           control={config.info ? { href: '/info', label: config.info.title } : null}
         />
         <dl className="mt-8 grid gap-x-12 gap-y-8 md:grid-cols-2">

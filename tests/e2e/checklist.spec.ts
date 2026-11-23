@@ -7,6 +7,9 @@ import { expect, test } from '@playwright/test';
 
 const PIN = process.env.E2E_ADMIN_PIN ?? '246810';
 
+// The last test signs every desk out, so these run one after another, in order.
+test.describe.configure({ mode: 'serial' });
+
 test('tick the plan, and clear test data behind a typed word', async ({ page }) => {
   await page.goto('/admin/test-plan');
   await expect(page).toHaveURL(/\/admin\/sign-in/);
@@ -60,6 +63,24 @@ test('tick the plan, and clear test data behind a typed word', async ({ page }) 
   expect(after.results.length).toBe(everyone.results.length);
 });
 
+test('every step has links, and they open in a new tab', async ({ page }) => {
+  await page.goto('/admin/sign-in');
+  await page.getByLabel('Which desk is this?').fill('plan-links');
+  await page.getByLabel('Admin PIN').fill(PIN);
+  await page.getByRole('button', { name: 'Sign in' }).click();
+  await page.goto('/admin/test-plan');
+
+  const nameTags = page.getByRole('link', { name: /^Name tags to print/ });
+  await expect(nameTags).toHaveAttribute('href', '/admin/name-tags');
+  await expect(nameTags).toHaveAttribute('target', '_blank');
+
+  // Clicking one opens the page beside the plan, and does not tick the step.
+  const [opened] = await Promise.all([page.context().waitForEvent('page'), nameTags.click()]);
+  await opened.waitForLoadState();
+  expect(new URL(opened.url()).pathname).toBe('/admin/name-tags');
+  await expect(page.getByRole('checkbox').first()).not.toBeChecked();
+});
+
 test('reset the leaderboard sign ins, then sign every desk out', async ({ page, browser }) => {
   // A phone joins the leaderboard by picking its name.
   const phone = await browser.newPage();
@@ -104,22 +125,4 @@ test('reset the leaderboard sign ins, then sign every desk out', async ({ page, 
   // The PIN itself still works.
   await signIn(page, 'desk-reset-1');
   await signIn(other, 'desk-reset-2');
-});
-
-test('every step has links, and they open in a new tab', async ({ page }) => {
-  await page.goto('/admin/sign-in');
-  await page.getByLabel('Which desk is this?').fill('plan-links');
-  await page.getByLabel('Admin PIN').fill(PIN);
-  await page.getByRole('button', { name: 'Sign in' }).click();
-  await page.goto('/admin/test-plan');
-
-  const nameTags = page.getByRole('link', { name: /^Name tags to print/ });
-  await expect(nameTags).toHaveAttribute('href', '/admin/name-tags');
-  await expect(nameTags).toHaveAttribute('target', '_blank');
-
-  // Clicking one opens the page beside the plan, and does not tick the step.
-  const [opened] = await Promise.all([page.context().waitForEvent('page'), nameTags.click()]);
-  await opened.waitForLoadState();
-  expect(new URL(opened.url()).pathname).toBe('/admin/name-tags');
-  await expect(page.getByRole('checkbox').first()).not.toBeChecked();
 });

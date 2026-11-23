@@ -93,7 +93,7 @@ export default async function FeedbackPage({ params, searchParams }: PageProps) 
 
       {state === 'duplicate' ? (
         <p role="status" className="rounded-lg border border-line bg-muted p-3 text-ink">
-          That one was already recorded from this phone.
+          That one was already recorded from this device.
         </p>
       ) : null}
 

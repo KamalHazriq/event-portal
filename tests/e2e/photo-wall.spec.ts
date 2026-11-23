@@ -69,7 +69,7 @@ async function runWall(admin: Page, browser: Browser): Promise<void> {
   await phone.goto('/photos');
   await phone.getByLabel(/A caption/).fill(caption);
   await phone.locator('input[type=file]').setInputFiles(PHOTO);
-  await expect(phone.getByText(/1 photo shared from this phone/)).toBeVisible({ timeout: 20_000 });
+  await expect(phone.getByText(/1 photo shared from this device/)).toBeVisible({ timeout: 20_000 });
 
   // The screen picks it up on its next refresh and shows it large first.
   const popup = screen.getByRole('status', { name: 'New photo on the wall' });

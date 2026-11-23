@@ -8,6 +8,16 @@ const projectRoot = import.meta.dirname;
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+
+  /**
+   * Pages here are built fresh for each visit, so by default the browser
+   * keeps none of them. Keeping a page for 30 seconds makes going back, or
+   * tapping between Agenda and Home, instant. The pages that change by the
+   * minute refresh themselves anyway (AutoRefresh), so nothing goes stale.
+   */
+  experimental: {
+    staleTimes: { dynamic: 30 },
+  },
   poweredByHeader: false,
 
   /**

@@ -22,7 +22,7 @@ export function departmentKey(name: string): string {
     .trim();
 }
 
-type Entry = { name: string; short: string };
+type Entry = { name: string; short: string; division?: boolean };
 
 /** By full name, and by the short name itself ("Cores" in an HR column is CORES). */
 function lookup(config: WithDepartments): Map<string, Entry> {
@@ -35,6 +35,17 @@ function lookup(config: WithDepartments): Map<string, Entry> {
 function findEntry(config: WithDepartments, name: string): Entry | null {
   if (!name.trim()) return null;
   return lookup(config).get(departmentKey(name)) ?? null;
+}
+
+/**
+ * Whether this is the division over the departments rather than a
+ * department: marked so in the list, or simply called a Division
+ * ("Digital & Information Division").
+ */
+export function isDivision(config: WithDepartments, name: string): boolean {
+  const entry = findEntry(config, name);
+  if (entry?.division) return true;
+  return /\bdivision\b/i.test(entry?.name ?? name);
 }
 
 /** The short name, or null when the department is not in the list. */

@@ -216,8 +216,10 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
             </section>
           ) : null}
 
-          <InstallApp />
-          <AlertsOptIn />
+          <div className="grid items-stretch gap-3 md:grid-cols-[repeat(auto-fit,minmax(20rem,1fr))]">
+            <InstallApp className="h-full" />
+            <AlertsOptIn />
+          </div>
 
           {config.info ? (
             <section className="rounded-xl border border-line bg-muted p-4">

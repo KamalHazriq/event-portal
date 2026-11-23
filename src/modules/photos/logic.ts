@@ -9,12 +9,14 @@
 
 export const PHOTO_LIMITS = {
   /** Longest side after shrinking in the browser. */
-  longestSide: 1600,
-  thumbLongestSide: 480,
+  /** Sharp on a 1080p projector, with room to spare. */
+  longestSide: 2048,
+  /** Tiles on the wall are up to a quarter of the screen wide. */
+  thumbLongestSide: 900,
   /** Generous ceilings, well above what the browser produces. */
-  maxImageBytes: 1_500_000,
-  maxThumbBytes: 250_000,
-  maxDimension: 2000,
+  maxImageBytes: 3_500_000,
+  maxThumbBytes: 700_000,
+  maxDimension: 2100,
   maxCaption: 120,
 } as const;
 
@@ -150,7 +152,32 @@ export function resolvePhotoLayout(stored: string | null): PhotoLayout {
 }
 
 /** How many photos each layout shows at once. */
-export const LAYOUT_COUNT: Record<PhotoLayout, number> = { slideshow: 80, grid: 12, mosaic: 9 };
+/**
+ * How many photos the wall loads. The grid and mosaic show a page at a time
+ * and turn the page every few seconds, so every photo gets its turn.
+ */
+export const LAYOUT_COUNT: Record<PhotoLayout, number> = {
+  slideshow: 300,
+  grid: 300,
+  mosaic: 300,
+};
+
+/** Photos on one page of the grid, and of the mosaic (one large and eight). */
+export const GRID_PAGE = 12;
+export const MOSAIC_PAGE = 9;
+/** How long each page of the wall stays up. */
+export const WALL_PAGE_MS = 12_000;
+
+/** The photos on one page, turning over every page in order. */
+export function wallPage<T>(
+  items: T[],
+  size: number,
+  tick: number,
+): { items: T[]; page: number; pages: number } {
+  const pages = Math.max(1, Math.ceil(items.length / size));
+  const page = ((tick % pages) + pages) % pages;
+  return { items: items.slice(page * size, page * size + size), page, pages };
+}
 
 /** How long a newly arrived photo stays up large before it joins the wall. */
 export const NEW_PHOTO_MS = 6_000;
