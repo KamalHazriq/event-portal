@@ -5,7 +5,8 @@ import { useCallback, useMemo, useSyncExternalStore } from 'react';
 
 import type { Part } from '../steps';
 
-const KEY = 'portal.testplan';
+// A new name for each round of testing, so every tick starts empty again.
+const KEY = 'portal.testplan.round-2';
 const EVENT = 'portal:testplan';
 
 function read(): string {
@@ -58,8 +59,15 @@ export function TestPlan({ parts }: { parts: Part[] }) {
     write(next);
   };
 
+  const changed = parts.flatMap((p) => p.groups.flatMap((g) => g.steps)).filter((st) => st.changed);
+
   return (
     <div className="space-y-10">
+      <p className="rounded-xl border border-accent bg-accent/10 p-4 text-ink print:hidden">
+        <strong>Round 2.</strong> All ticks start empty, so test everything again. {changed.length}{' '}
+        steps are marked <ChangedBadge />: new, or working differently since the last round. Look at
+        those closely.
+      </p>
       {parts.map((part) => {
         const ids = part.groups.flatMap((g) => g.steps.map((s) => s.id));
         const count = ids.filter((id) => done.has(id)).length;
@@ -96,6 +104,11 @@ export function TestPlan({ parts }: { parts: Part[] }) {
                         <span
                           className={`block font-semibold ${done.has(step.id) ? 'text-ink-soft line-through' : 'text-ink'}`}
                         >
+                          {step.changed ? (
+                            <>
+                              <ChangedBadge />{' '}
+                            </>
+                          ) : null}
                           {step.do}
                         </span>
                         <span className="mt-0.5 block text-ink-soft">
@@ -170,5 +183,13 @@ export function TestPlan({ parts }: { parts: Part[] }) {
         </button>
       </div>
     </div>
+  );
+}
+
+function ChangedBadge() {
+  return (
+    <span className="inline-block rounded-md bg-accent px-1.5 py-0.5 align-middle text-xs font-bold uppercase tracking-wide text-canvas no-underline">
+      Changed
+    </span>
   );
 }

@@ -14,6 +14,8 @@ export type Step = {
   expect: string;
   /** Pages that help with this step, opened in a new tab. */
   links?: StepLink[];
+  /** New or different since the last round of testing: shown with a badge. */
+  changed?: boolean;
 };
 
 export type StepGroup = { id: string; title: string; steps: Step[] };
@@ -38,7 +40,8 @@ export const TEST_PLAN: Part[] = [
         steps: [
           {
             id: 'a-prep-tester',
-            do: 'On this page, under Test as an attendee, press Add a test participant. On the phone, open My points, type Test and pick Test Participant.',
+            changed: true,
+            do: 'On this page, under Test as an attendee, press Add a test participant. On the phone, open My points and type the test staff number shown there.',
             expect: 'The phone is signed in as Test Participant and earns points as them.',
             links: [
               { href: '#tester', label: 'Test as an attendee (on this page)' },
@@ -75,15 +78,18 @@ export const TEST_PLAN: Part[] = [
           },
           {
             id: 'a-in-install',
+            changed: true,
             do: 'On the home page tap Install (Android and Chrome). On an iPhone, tap Share, then Add to Home Screen.',
-            expect: 'An icon appears on the home screen, and it opens full screen like an app.',
+            expect:
+              'An icon appears on the home screen and opens full screen like an app. On an iPhone the app asks for the event code once (it keeps its own sign in, apart from Safari): no white screen. If it was white before, delete the icon and add it again.',
             links: [{ href: '/', label: 'Home page' }],
           },
           {
             id: 'a-in-admin',
+            changed: true,
             do: 'Type /admin after the address.',
             expect:
-              'The Secretariat sign in page. A wrong PIN is refused. You cannot get past it. The same for /screen, /kiosk and /guide (the guide is for the secretariat only).',
+              'The Secretariat PIN page straight away, never the event code page first. A wrong PIN is refused. The same for /screen, /kiosk and /guide (the guide is for the secretariat only).',
             links: [
               { href: '/admin', label: '/admin' },
               { href: '/screen', label: '/screen' },
@@ -99,9 +105,10 @@ export const TEST_PLAN: Part[] = [
         steps: [
           {
             id: 'a-home-home',
+            changed: true,
             do: 'Look at the home page.',
             expect:
-              'Event name and dates, what is on now and next, the Join Slido button with its code, the alerts card, and the Know before you go link.',
+              'Event name and dates, what is on now and next, the Join Slido button with its code, the alerts card, and the Know before you go link. While a session is live (use the test clock), it has a React and comment button that opens it, and a Slides button if it has slides.',
             links: [{ href: '/', label: 'Home page' }],
           },
           {
@@ -119,9 +126,10 @@ export const TEST_PLAN: Part[] = [
           },
           {
             id: 'a-home-session',
+            changed: true,
             do: 'Open a session page.',
             expect:
-              'Description, speakers, the Slido button (it opens Slido and shows the code), and links to the previous and next session.',
+              'Description, speakers, the Slido button (it opens Slido and shows the code), Open the slides if the session has a slides link, and links to the previous and next session.',
             links: [{ href: '/agenda', label: 'Agenda (tap any session)' }],
           },
           {
@@ -162,9 +170,10 @@ export const TEST_PLAN: Part[] = [
           },
           {
             id: 'a-part-photo',
-            do: 'On the Photos page, share a photo from the camera.',
+            changed: true,
+            do: 'On the Photos page, take or choose ONE photo, write a caption, then press Share.',
             expect:
-              'It says "waiting for approval" (or "On the wall" if approval is off). Once approved it shows in "On the wall" and pops up on the big screen.',
+              'It says "waiting for approval" (or "On the wall" if approval is off). Once approved it shows in "On the wall" with your name, and pops up on the big screen photo wall.',
             links: [
               { href: '/photos', label: 'Photos' },
               { href: '/admin/photos', label: 'Approve it' },
@@ -189,7 +198,8 @@ export const TEST_PLAN: Part[] = [
         steps: [
           {
             id: 'a-points-join',
-            do: 'On My points, type your name, tap Find me, then tap your name.',
+            changed: true,
+            do: 'On My points, type your staff number and tap Find me.',
             expect:
               '"You are in." Your points show, and the leaderboard lists you and your department.',
             links: [
@@ -233,9 +243,10 @@ export const TEST_PLAN: Part[] = [
           },
           {
             id: 'a-alerts-get',
-            do: 'Ask the secretariat to post an announcement with the notification box ticked.',
+            changed: true,
+            do: 'Ask the secretariat to post an announcement with a link and "Also send it as a notification" ticked.',
             expect:
-              'The phone buzzes, tapping it opens the right page, and the message shows at the top of every page.',
+              'The phone buzzes, tapping it opens the page that was chosen, and the message shows at the top of every page.',
             links: [{ href: '/admin/announce', label: 'Announce' }],
           },
           {
@@ -326,9 +337,10 @@ export const TEST_PLAN: Part[] = [
           },
           {
             id: 's-login-app',
+            changed: true,
             do: 'On your laptop and phone, install the Secretariat app: the Install button on the dashboard (iPhone: Share, then Add to Home Screen).',
             expect:
-              'An icon called Secretariat appears, and it opens straight to the secretariat, separate from the attendee app.',
+              'An icon called Secretariat appears, with a small blue S on the D so it is easy to tell apart from the attendee app, and it opens straight to the secretariat. Already installed? Delete it and install again to get the new icon.',
             links: [{ href: '/admin', label: 'Secretariat' }],
           },
           {
@@ -339,8 +351,10 @@ export const TEST_PLAN: Part[] = [
           },
           {
             id: 's-login-team',
+            changed: true,
             do: 'On every secretariat phone, tap Install, then Turn on team alerts (on the Announce page). iPhone: add to the home screen first and open from the icon.',
-            expect: 'It says team alerts are on for this device.',
+            expect:
+              'It says team alerts are on for this device. Open "Devices with alerts on" at the bottom of Announce: each phone is listed as team or attendee, with the name of whoever signed in on it.',
             links: [{ href: '/admin/announce', label: 'Announce (team alerts)' }],
           },
           {
@@ -372,12 +386,30 @@ export const TEST_PLAN: Part[] = [
           },
           {
             id: 's-people-search',
-            do: 'Search a name, a staff number and a department.',
-            expect: 'Each finds the right people. Nobody has "No department" by mistake.',
+            changed: true,
+            do: 'Type part of a name, a staff number, a role and a department in the search box. Do not press anything.',
+            expect:
+              'The list filters as you type, and the buttons light up when you point at them. Nobody has "No department" by mistake.',
             links: [
               { href: '/admin/attendees', label: 'Attendees' },
               { href: '/admin/desk', label: 'Desk' },
             ],
+          },
+          {
+            id: 's-people-role',
+            changed: true,
+            do: 'Tap the No role filter. Pick one person, tap Edit, fill in the role (or fix the name or department), and Save.',
+            expect:
+              'No role lists everyone with an empty role. After saving, the list says Saved and shows the new role; name tags and the desk show it too. Fix the same row in the Excel, because uploading the list again overwrites hand edits.',
+            links: [{ href: '/admin/attendees', label: 'Attendees' }],
+          },
+          {
+            id: 's-people-secretariat',
+            changed: true,
+            do: 'Look at the Secretariat filter and the count on the Attendees page.',
+            expect:
+              'Everyone whose role, department or remark says Secretariat is marked by itself. Only open "The secretariat" box below the list if someone was missed.',
+            links: [{ href: '/admin/attendees', label: 'Attendees' }],
           },
         ],
       },
@@ -387,9 +419,10 @@ export const TEST_PLAN: Part[] = [
         steps: [
           {
             id: 's-content-agenda',
-            do: 'On Agenda, check each day against the official agenda. Fix a time or room, then Save.',
+            changed: true,
+            do: 'On Agenda, check each day against the official agenda. Open a session, change its time with the time picker (tap the clock), then Save.',
             expect:
-              'The change shows on a phone within a few seconds. If you set the end before the start by mistake, it is not saved and a red box tells you why.',
+              'The change shows on a phone within a few seconds. If you set the end before the start by mistake, nothing is saved and a red box says "it ends before it starts".',
             links: [
               { href: '/admin/agenda', label: 'Agenda editor' },
               { href: '/agenda', label: 'Agenda as attendees see it' },
@@ -397,26 +430,41 @@ export const TEST_PLAN: Part[] = [
           },
           {
             id: 's-content-speakers',
-            do: 'Fill in real speaker names and titles, and tick them on their sessions.',
-            expect: 'Session pages show the names.',
+            changed: true,
+            do: 'Fill in real speaker names and titles under Speakers. Then open a session, tap the Speakers dropdown and tick its speakers.',
+            expect: 'The dropdown closed shows the chosen names. Session pages show them.',
             links: [{ href: '/admin/agenda', label: 'Agenda editor' }],
           },
           {
-            id: 's-content-event',
-            do: 'On Event info, check the event name, venue, footer, Slido link and code, and fill in Transport, Parking, Hotel check in and Wi-Fi.',
+            id: 's-content-slides',
+            changed: true,
+            do: 'Open a session on Agenda, paste a OneDrive link (shared with the company only) into "Slides or handout link", and Save. Then empty the field and Save again.',
             expect:
-              'The Know before you go page has no "Coming soon" left. The Slido link opens Slido.',
+              'The session page on a phone shows Open the slides and it opens the file. After emptying the field the button is gone.',
             links: [
-              { href: '/admin/event-info', label: 'Event info' },
+              { href: '/admin/agenda', label: 'Agenda editor' },
+              { href: '/agenda', label: 'Agenda (open that session)' },
+            ],
+          },
+          {
+            id: 's-content-event',
+            changed: true,
+            do: 'On Event info, use the tabs at the top. Event details: check the name, venue, footer, Slido link and code. Know before you go: fill in Transport, Parking, Hotel check in and Wi-Fi.',
+            expect:
+              'Each tab shows only its part, and saving comes back to the same tab. The Know before you go page has no "Coming soon" left. The Slido link opens Slido.',
+            links: [
+              { href: '/admin/event-info?tab=info', label: 'Event info, Know before you go' },
               { href: '/info', label: 'Know before you go' },
             ],
           },
           {
             id: 's-content-resources',
-            do: 'Add the resource links.',
-            expect: 'Each shows on the Resources page and opens.',
+            changed: true,
+            do: 'On Event info, open the Resources tab and add the resource links (organisation-only OneDrive links for anything sensitive).',
+            expect:
+              'Each shows on the Resources page and opens. A link from a personal account or "Anyone with the link" is not used.',
             links: [
-              { href: '/admin/event-info', label: 'Event info' },
+              { href: '/admin/event-info?tab=resources', label: 'Event info, Resources' },
               { href: '/resources', label: 'Resources' },
             ],
           },
@@ -428,9 +476,10 @@ export const TEST_PLAN: Part[] = [
         steps: [
           {
             id: 's-print-tag',
+            changed: true,
             do: 'On Name tags choose White or Blue and print ONE page first (margins None, headers off, background graphics on for blue).',
             expect:
-              'Names fit, the D&I logo is there, and scanning the QR opens the portal without asking for the code.',
+              'Names fit, the D&I logo is there, AGENDA is printed under the QR (no "Scan for the agenda" line), and scanning the QR opens the portal without asking for the code.',
             links: [{ href: '/admin/name-tags', label: 'Name tags' }],
           },
           {
@@ -489,9 +538,10 @@ export const TEST_PLAN: Part[] = [
           },
           {
             id: 's-desk-kiosk',
-            do: '(Optional) On the Desk page open the kiosk: "Preview" on your own laptop, and "Open and lock this device" on the tablet. On the locked tablet, hold up a card, then try typing /admin.',
+            changed: true,
+            do: '(Optional) On the Desk page open the kiosk: "Preview" on your own laptop, and "Open and lock this device" on the tablet. On the locked tablet, hold up a card; then type three letters of a name and pick the person; then try typing /admin.',
             expect:
-              'Preview never locks your laptop. The locked tablet shows a big "Welcome", and typing /admin shows a "locked to the kiosk" page that needs the PIN.',
+              'Preview never locks your laptop. The locked tablet shows a big "Welcome" for the card and for the typed name (it asks to confirm the name first). Typing /admin shows a "locked to the kiosk" page that needs the PIN.',
             links: [
               { href: '/kiosk', label: 'Preview the kiosk' },
               { href: '/kiosk?lock=1', label: 'Open and lock (tablet only)' },
@@ -519,9 +569,10 @@ export const TEST_PLAN: Part[] = [
           },
           {
             id: 's-screen-views',
+            changed: true,
             do: 'From the Big screen page show each view in turn: Welcome, Now and next, Arrivals, Countdown, Lucky draw, Photo wall, Questions, Poll, Leaderboard, Comments.',
             expect:
-              'A hexagon wipe covers each change, then the new view appears within a few seconds. The Welcome QR scans. Arrivals counts everyone who has checked in.',
+              'A hexagon wipe covers each change, then the new view appears within a few seconds. The Welcome QR scans. Arrivals counts and welcomes everyone who has checked in, the secretariat included (they stay out of the leaderboard and the lucky draw). The Photo wall scrolls in the layout chosen on the Big screen page.',
             links: [
               { href: '/admin/big-screen', label: 'Big screen remote' },
               { href: '/screen', label: 'Big screen' },
@@ -556,9 +607,10 @@ export const TEST_PLAN: Part[] = [
           },
           {
             id: 's-room-announce',
-            do: 'On Announce, post a message, then "Send a test to this device", then Take it down.',
+            changed: true,
+            do: 'On Announce, write a message, choose "Tapping it opens" (try the dropdown: every option is readable), keep When: Now, and press Post or schedule. Then "Send a test to this device", then Take it down.',
             expect:
-              'The banner appears on attendee phones and goes away. The test arrives on a phone with alerts on.',
+              'The banner appears on attendee phones with the link, and goes away when taken down. The big screen never shows announcements. The test arrives on a phone with alerts on.',
             links: [
               { href: '/admin/announce', label: 'Announce' },
               { href: '/', label: 'Home page (as an attendee)' },
@@ -566,9 +618,10 @@ export const TEST_PLAN: Part[] = [
           },
           {
             id: 's-room-team',
+            changed: true,
             do: 'On Announce, under Test your alerts, press "Send a test to the team". Then send a message with "The secretariat team only" chosen. Then, from another phone, share a photo that needs approval.',
             expect:
-              'Each team phone gets the test and the team message, attendees see no banner, and a "Photo waiting" alert arrives (at most one every five minutes).',
+              'Each team phone gets the test and the team message, attendees see nothing (no banner, no alert), and a "Photo waiting" alert arrives (at most one every five minutes).',
             links: [
               { href: '/admin/announce', label: 'Announce' },
               { href: '/photos', label: 'Photos (from another phone)' },
@@ -576,9 +629,10 @@ export const TEST_PLAN: Part[] = [
           },
           {
             id: 's-room-remind',
-            do: 'On Announce, write a message for the secretariat team only, choose When: Later, at two minutes from now, and press Post or schedule. Wait.',
+            changed: true,
+            do: 'On Announce, write a message for everyone, pick a link, tick the notification box, choose When: Later, at two minutes from now (the calendar icon is white and opens a picker), and press Post or schedule. Wait.',
             expect:
-              'The team phones get it on the minute and the list shows Sent. If it stays Waiting, the scheduler is not set up (see the deploy notes); it still goes out while a big screen page is open.',
+              'It is listed under Scheduled, then goes out on the minute exactly like a Now message: banner, link and notification. The list shows Sent. If it stays Waiting, the scheduler is not set up; it still goes out while a big screen page is open.',
             links: [{ href: '/admin/announce', label: 'Announce, Scheduled reminders' }],
           },
           {
@@ -592,12 +646,24 @@ export const TEST_PLAN: Part[] = [
           },
           {
             id: 's-room-draw',
+            changed: true,
             do: 'On Lucky draw, draw one winner and then several. Mark one "Not here". Then Start over.',
             expect:
-              'The big screen spins with a ticking sound, then shows the winner with confetti and a short fanfare (click the projector screen once first so the browser allows sound). A winner whose phone joined the leaderboard gets a banner and an alert.',
+              'The big screen spins with a ticking sound (one name for one winner, three names side by side for several), then shows the winners with confetti and a short fanfare (click the projector screen once first so the browser allows sound). A winner whose phone joined the leaderboard gets a banner and an alert.',
             links: [
               { href: '/admin/lucky-draw', label: 'Lucky draw' },
               { href: '/screen', label: 'Big screen' },
+            ],
+          },
+          {
+            id: 's-room-points',
+            changed: true,
+            do: 'Open Points and look up the test participant.',
+            expect:
+              'Their points are broken down by what earned them (check in, reactions, feedback and so on), matching what the phone shows on My points.',
+            links: [
+              { href: '/admin/points', label: 'Points' },
+              { href: '/me', label: 'My points' },
             ],
           },
           {

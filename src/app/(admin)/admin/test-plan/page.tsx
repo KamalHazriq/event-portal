@@ -141,9 +141,10 @@ export default async function ChecklistPage({ searchParams }: { searchParams: Se
                 <a href="/me" target="_blank" rel="noopener">
                   My points
                 </a>
-                , type <strong className="text-ink">Test</strong>, tap Find me, then Test
-                Participant. Check them in on the Desk (search Test) to see check in points. Points
-                show on My points and the leaderboard.
+                , type the staff number{' '}
+                <strong className="font-mono text-ink">{TEST_STAFF_NO}</strong> and tap Find me.
+                Check them in on the Desk (search Test) to see check in points. Points show on My
+                points and the leaderboard.
               </p>
               <form action={removeTestParticipant}>
                 <FormPending label="Removing" />
