@@ -311,6 +311,20 @@ export function createPrismaAdapter(
       return deleted.count;
     },
 
+    async update(id, patch) {
+      const updated = await prisma.attendee.updateMany({
+        where: { id },
+        data: {
+          name: plainText(patch.name, 120),
+          title: plainText(patch.title, 120),
+          department: plainText(patch.department, 160),
+          remark: plainText(patch.remark, 300),
+          email: plainText(patch.email, 200).toLowerCase(),
+        },
+      });
+      return updated.count > 0;
+    },
+
     async setSecretariat(ids, value) {
       if (ids.length === 0) return 0;
       const updated = await prisma.attendee.updateMany({

@@ -54,11 +54,13 @@ test('post an announcement, see it on a phone, take it down', async ({ browser, 
   ).toBeVisible();
 
   await admin.goto('/admin/announce');
-  await expect(admin.getByText(/Also send it as a notification to \d+ phones?/)).toBeVisible();
+  await expect(
+    admin.getByText(/Also send it as a notification to the \d+ phones? that/),
+  ).toBeVisible();
   const text = `Buses leave at 7:30 ${Math.random().toString(36).slice(2, 6)}`;
   await admin.getByLabel('Message', { exact: true }).fill(text);
   await admin.getByLabel('Tapping it opens').selectOption('/agenda');
-  await admin.getByRole('button', { name: 'Post announcement' }).click();
+  await admin.getByRole('button', { name: 'Post or schedule' }).click();
   await expect(admin.getByRole('heading', { name: /^Showing now/ })).toBeVisible({
     timeout: 20_000,
   });
@@ -158,10 +160,19 @@ test('scheduled reminders: the scheduler call needs its secret, and a due one is
   await page.getByRole('button', { name: 'Sign in' }).click();
   await page.goto('/admin/announce');
 
+  // Written in the normal form, with When set to Later and the team chosen.
+  const schedule = async (message: string, at: string) => {
+    await page.goto('/admin/announce');
+    await page.getByLabel('Message', { exact: true }).fill(message);
+    await page.getByRole('radio', { name: /secretariat team only/ }).check();
+    await page.getByRole('radio', { name: 'Later, at' }).check();
+    await page.getByLabel('Send it at').fill(at);
+    await page.getByRole('button', { name: 'Post or schedule' }).click();
+    await expect(page.getByText(/^Scheduled\. It goes out/)).toBeVisible();
+  };
+
   const text = `Projector on ${Date.now()}`;
-  await page.getByLabel('Reminder time').fill('2020-01-01T07:00');
-  await page.getByLabel('Reminder message').fill(text);
-  await page.getByRole('button', { name: 'Add reminder' }).click();
+  await schedule(text, '2020-01-01T07:00');
   const row = page.getByRole('listitem').filter({ hasText: text });
   // A time that is long past is shown as missed, never sent late.
   await expect(row).toContainText('Missed');
@@ -170,9 +181,7 @@ test('scheduled reminders: the scheduler call needs its secret, and a due one is
   const soon = new Date(Date.now() - 60_000 + 8 * 3600_000); // a minute ago in KL (UTC+8)
   const local = soon.toISOString().slice(0, 16);
   const text2 = `Desks open ${Date.now()}`;
-  await page.getByLabel('Reminder time').fill(local);
-  await page.getByLabel('Reminder message').fill(text2);
-  await page.getByRole('button', { name: 'Add reminder' }).click();
+  await schedule(text2, local);
   const row2 = page.getByRole('listitem').filter({ hasText: text2 });
   // A big screen page left open elsewhere may send it first: also fine.
   await expect(row2).toContainText(/Waiting|Sent/);

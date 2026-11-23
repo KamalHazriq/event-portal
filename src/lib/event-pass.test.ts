@@ -6,6 +6,7 @@ import { proxy } from '@/proxy';
 import { displayUrl, isOpenPath, PASS_COOKIE, withPass } from './event-pass';
 import { digestMatches, passDigest } from './event-pass-server';
 import { resetRateLimits } from './rate-limit';
+import { ADMIN_COOKIE, createSessionValue } from './admin-session';
 
 const PASS = 'SUMMIT27';
 const request = (path: string, cookie?: string) =>
@@ -28,7 +29,8 @@ describe('the event pass gate', () => {
   it('shows the gate page, at the same address, to a phone without the pass', () => {
     vi.stubEnv('EVENT_PASS', PASS);
     const response = proxy(request('/agenda'));
-    expect(response.status).toBe(401);
+    // A normal page status, so an app on an iPhone home screen shows it.
+    expect(response.status).toBe(200);
     expect(response.headers.get('x-middleware-rewrite')).toBe('https://portal.example.com/pass');
   });
 
@@ -58,7 +60,6 @@ describe('the event pass gate', () => {
   it('says so when the code is wrong', () => {
     vi.stubEnv('EVENT_PASS', PASS);
     const response = proxy(request('/?pass=nope'));
-    expect(response.status).toBe(401);
     expect(response.headers.get('x-middleware-rewrite')).toContain('/pass?wrong=1');
   });
 
@@ -69,7 +70,9 @@ describe('the event pass gate', () => {
         headers: { 'x-forwarded-for': ip },
       });
     for (let i = 0; i < 30; i += 1) {
-      expect(proxy(from('203.0.113.9', `WRONG${i}`)).status).toBe(401);
+      expect(proxy(from('203.0.113.9', `WRONG${i}`)).headers.get('x-middleware-rewrite')).toContain(
+        '/pass?wrong=1',
+      );
     }
     // The next try is refused, even with the right code.
     expect(proxy(from('203.0.113.9', PASS)).status).toBe(429);
@@ -89,6 +92,24 @@ describe('the event pass gate', () => {
     }
   });
 
+  it('never asks the secretariat for the event code', () => {
+    vi.stubEnv('EVENT_PASS', PASS);
+    vi.stubEnv('ADMIN_PIN', '739218');
+    // The PIN page itself is open.
+    expect(proxy(request('/admin/sign-in')).headers.get('x-middleware-next')).toBe('1');
+    // A signed in desk gets the attendee pages and the APIs without the code.
+    const desk = createSessionValue('desk-1', '739218', Date.now() + 60_000);
+    const signedIn = new NextRequest('https://portal.example.com/agenda', {
+      headers: { cookie: `${ADMIN_COOKIE}=${desk}` },
+    });
+    expect(proxy(signedIn).headers.get('x-middleware-next')).toBe('1');
+    // A forged cookie does not.
+    const forged = new NextRequest('https://portal.example.com/agenda', {
+      headers: { cookie: `${ADMIN_COOKIE}=bogus.value` },
+    });
+    expect(proxy(forged).headers.get('x-middleware-rewrite')).toContain('/pass');
+  });
+
   it('lets a phone with the cookie in', () => {
     vi.stubEnv('EVENT_PASS', PASS);
     const response = proxy(request('/agenda', passDigest(PASS)));
@@ -97,7 +118,9 @@ describe('the event pass gate', () => {
 
   it('signs everyone out when the pass changes', () => {
     vi.stubEnv('EVENT_PASS', 'NEWCODE');
-    expect(proxy(request('/agenda', passDigest(PASS))).status).toBe(401);
+    expect(
+      proxy(request('/agenda', passDigest(PASS))).headers.get('x-middleware-rewrite'),
+    ).toContain('/pass');
   });
 
   it('never blocks the logo and the page scripts', () => {

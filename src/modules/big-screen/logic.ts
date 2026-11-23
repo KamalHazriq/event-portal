@@ -156,15 +156,15 @@ export function formatCountdownDigits(millisecondsLeft: number): string {
 }
 
 /**
- * The room count on the big screen: guests only. The desk headcount counts
- * the secretariat too, because everyone with a tag is expected at the desk,
- * but "42 / 78 arrived" on the projector is about the guests in the room.
+ * The room count on the big screen: everyone, the secretariat included (they
+ * are welcomed on the arrivals wall too; only the leaderboard and the lucky
+ * draw leave them out).
  */
 export function guestCount(
   attendees: { id: string; isSecretariat: boolean }[],
   checkedInIds: Iterable<string>,
 ): { arrived: number; expected: number } {
-  const guests = new Set(attendees.filter((a) => !a.isSecretariat).map((a) => a.id));
+  const guests = new Set(attendees.map((a) => a.id));
   let arrived = 0;
   for (const id of new Set(checkedInIds)) if (guests.has(id)) arrived += 1;
   return { arrived, expected: guests.size };
@@ -183,7 +183,6 @@ export function arrivalCards(
 ): ArrivalCard[] {
   if (hideNames) return [];
   return recent
-    .filter((row) => !row.attendee.isSecretariat)
     .slice(0, Math.max(0, limit))
     .map((row) => ({ key: row.id, name: row.attendee.name, department: row.attendee.department }));
 }

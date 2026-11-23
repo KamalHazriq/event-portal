@@ -389,7 +389,7 @@ export const TEST_PLAN: Part[] = [
             id: 's-content-agenda',
             do: 'On Agenda, check each day against the official agenda. Fix a time or room, then Save.',
             expect:
-              'The change shows on a phone within a few seconds. A backwards time is refused with the reason.',
+              'The change shows on a phone within a few seconds. If you set the end before the start by mistake, it is not saved and a red box tells you why.',
             links: [
               { href: '/admin/agenda', label: 'Agenda editor' },
               { href: '/agenda', label: 'Agenda as attendees see it' },
@@ -521,7 +521,7 @@ export const TEST_PLAN: Part[] = [
             id: 's-screen-views',
             do: 'From the Big screen page show each view in turn: Welcome, Now and next, Arrivals, Countdown, Lucky draw, Photo wall, Questions, Poll, Leaderboard, Comments.',
             expect:
-              'A hexagon wipe covers each change, then the new view appears within a few seconds. The Welcome QR scans. Arrivals counts guests only.',
+              'A hexagon wipe covers each change, then the new view appears within a few seconds. The Welcome QR scans. Arrivals counts everyone who has checked in.',
             links: [
               { href: '/admin/big-screen', label: 'Big screen remote' },
               { href: '/screen', label: 'Big screen' },
@@ -566,7 +566,7 @@ export const TEST_PLAN: Part[] = [
           },
           {
             id: 's-room-team',
-            do: 'On Announce, under Test your alerts, press "Send a test to the team". Then send a message with "The team only" chosen. Then, from another phone, share a photo that needs approval.',
+            do: 'On Announce, under Test your alerts, press "Send a test to the team". Then send a message with "The secretariat team only" chosen. Then, from another phone, share a photo that needs approval.',
             expect:
               'Each team phone gets the test and the team message, attendees see no banner, and a "Photo waiting" alert arrives (at most one every five minutes).',
             links: [
@@ -576,7 +576,7 @@ export const TEST_PLAN: Part[] = [
           },
           {
             id: 's-room-remind',
-            do: 'On Announce, add a scheduled reminder for two minutes from now, to the team only. Wait.',
+            do: 'On Announce, write a message for the secretariat team only, choose When: Later, at two minutes from now, and press Post or schedule. Wait.',
             expect:
               'The team phones get it on the minute and the list shows Sent. If it stays Waiting, the scheduler is not set up (see the deploy notes); it still goes out while a big screen page is open.',
             links: [{ href: '/admin/announce', label: 'Announce, Scheduled reminders' }],

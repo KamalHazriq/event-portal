@@ -55,7 +55,7 @@ test('edit a session, add one, and get a plain reason when it does not fit', asy
     await again.getByLabel('Ends').fill('11:00');
     await again.getByRole('button', { name: 'Save this session' }).click();
     const refused = page.getByRole('alert').filter({ hasText: 'That was not saved.' });
-    await expect(refused).toContainText('end time must be after start time');
+    await expect(refused).toContainText('ends before it starts');
 
     // Add a session to Day 1.
     await page.goto('/admin/agenda');
@@ -102,7 +102,7 @@ test('edit the event details, an info line and a resource', async ({ page, reque
     expect(info).toContain('The Test Hall');
 
     // An info line that read "Coming soon" now has its text.
-    await page.goto('/admin/event-info');
+    await page.goto('/admin/event-info?tab=info');
     const parking = page.locator('fieldset', { hasText: 'Getting there' });
     await parking.getByLabel('Text', { exact: true }).last().fill('Level 3 car park, free');
     await page.getByRole('button', { name: 'Save the info page' }).click();
@@ -110,13 +110,13 @@ test('edit the event details, an info line and a resource', async ({ page, reque
     expect(await (await request.get('/info')).text()).toContain('Level 3 car park, free');
 
     // A resource link is added, and a bad link is refused.
-    await page.goto('/admin/event-info');
+    await page.goto('/admin/event-info?tab=resources');
     const fresh = page.locator('fieldset', { hasText: 'Add a resource' }).first();
     await fresh.getByLabel('Title').fill('Summit slides');
     await fresh.getByLabel(/^Link/).fill('javascript:alert(1)');
     await page.getByRole('button', { name: 'Save the resources' }).click();
     await expect(page.getByRole('alert').filter({ hasText: 'That was not saved.' })).toBeVisible();
-    await page.goto('/admin/event-info');
+    await page.goto('/admin/event-info?tab=resources');
     const fresh2 = page.locator('fieldset', { hasText: 'Add a resource' }).first();
     await fresh2.getByLabel('Title').fill('Summit slides');
     await fresh2.getByLabel(/^Link/).fill('https://files.example.org/slides.pdf');

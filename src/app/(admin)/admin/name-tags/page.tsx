@@ -188,7 +188,6 @@ export default async function NameTagsPage({ searchParams }: { searchParams: Sea
                   {person.department ? (
                     <p className="tag-dept">{departmentWithShort(config, person.department)}</p>
                   ) : null}
-                  {personalQr ? null : <p className="tag-scan">Scan for the agenda</p>}
                 </div>
                 <div className="tag-side">
                   {logo ? (
@@ -206,7 +205,10 @@ export default async function NameTagsPage({ searchParams }: { searchParams: Sea
                       className="tag-qr"
                     />
                   ) : (
-                    <QrCode value={portalQr} label="Event portal" className="tag-qr" />
+                    <>
+                      <QrCode value={portalQr} label="Event portal" className="tag-qr" />
+                      <p className="tag-qr-caption">Agenda</p>
+                    </>
                   )}
                 </div>
               </>
@@ -221,7 +223,7 @@ export default async function NameTagsPage({ searchParams }: { searchParams: Sea
                   />
                 ) : null}
                 <QrCode value={portalQr} label="Event portal" className="tag-qr-back" />
-                <p className="tag-back-label">Scan for the agenda</p>
+                <p className="tag-back-label tag-qr-caption">Agenda</p>
                 <p className="tag-back-event">{config.event.shortName}</p>
               </div>
             )}

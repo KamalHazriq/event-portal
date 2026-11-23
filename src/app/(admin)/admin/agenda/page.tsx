@@ -270,10 +270,41 @@ export default async function AgendaEditorPage({ searchParams }: { searchParams:
                             className={input}
                           />
                         </label>
+                        <label className={label}>
+                          Slides or handout link (optional)
+                          <input
+                            name="slidesUrl"
+                            type="url"
+                            maxLength={600}
+                            defaultValue={s.slidesUrl ?? ''}
+                            placeholder="https://… (a OneDrive link shared inside the company)"
+                            className={input}
+                          />
+                          <span className="mt-1 block text-xs font-normal text-ink-soft">
+                            Shows as &ldquo;Open the slides&rdquo; on the session page. Leave empty
+                            to remove it.
+                          </span>
+                        </label>
 
-                        <fieldset>
-                          <legend className={label}>Speakers</legend>
-                          <div className="mt-1 grid gap-1 sm:grid-cols-2">
+                        <details className="group rounded-lg border border-line bg-canvas">
+                          <summary className="flex min-h-11 cursor-pointer items-center gap-2 px-3 text-sm text-ink">
+                            <span className="font-semibold">Speakers:</span>
+                            <span className="min-w-0 flex-1 truncate text-ink-soft">
+                              {s.speakerIds.length === 0
+                                ? 'None, tap to choose'
+                                : s.speakerIds
+                                    .map((sid) => config.speakers.find((p) => p.id === sid)?.name)
+                                    .filter(Boolean)
+                                    .join(', ')}
+                            </span>
+                            <span
+                              aria-hidden="true"
+                              className="transition-transform group-open:rotate-180"
+                            >
+                              ▾
+                            </span>
+                          </summary>
+                          <div className="grid max-h-64 gap-1 overflow-y-auto border-t border-line p-3 sm:grid-cols-2">
                             {config.speakers.map((p) => (
                               <label
                                 key={p.id}
@@ -295,7 +326,7 @@ export default async function AgendaEditorPage({ searchParams }: { searchParams:
                               </label>
                             ))}
                           </div>
-                        </fieldset>
+                        </details>
 
                         <div className="space-y-1">
                           <label className="flex min-h-11 items-center gap-3 text-ink">
@@ -314,7 +345,8 @@ export default async function AgendaEditorPage({ searchParams }: { searchParams:
                               defaultChecked={s.feedbackEnabled}
                               className="size-5"
                             />
-                            Ask for feedback after it
+                            Ask for feedback after it (a &ldquo;Rate this session&rdquo; button, and
+                            a reminder when it ends)
                           </label>
                           <label className="flex min-h-11 items-center gap-3 text-ink">
                             <input
@@ -323,7 +355,8 @@ export default async function AgendaEditorPage({ searchParams }: { searchParams:
                               defaultChecked={s.qaEnabled}
                               className="size-5"
                             />
-                            Questions and polls on this session
+                            Questions and polls on this session (shows the Slido button, or the
+                            backup Q&amp;A)
                           </label>
                         </div>
 

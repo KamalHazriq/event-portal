@@ -13,14 +13,15 @@ import { recordActivity } from '@/modules/admins/record';
 
 import {
   ANNOUNCE_KEYS,
-  HISTORY_SIZE,
   NUDGE_KEYS,
   cleanAnnouncementText,
-  parseHistory,
   safeHref,
-  type Announcement,
 } from './logic';
-import { pushToAll, pushToDevice, pushToTeam } from './push';
+import { pushToDevice, pushToTeam } from './push';
+import { publishAnnouncement } from './publish';
+import { loadReminders, saveReminders } from '@/modules/reminders/dispatch';
+import { isLocalDateTime, MAX_REMINDERS, type Reminder } from '@/modules/reminders/logic';
+import { localDateTimeToInstant } from '@/lib/time';
 import { TEAM_AUTO_KEY } from './team';
 
 async function assertAdmin(): Promise<string> {
@@ -35,50 +36,46 @@ function done(): void {
   revalidatePath('/', 'layout');
 }
 
-/** Shows a message on every attendee page, and sends it to phones if asked. */
+/**
+ * Posts a message now, or schedules it for later ("when" is "later" with a
+ * date and time). Shows on every attendee page and goes to phones if asked;
+ * for the secretariat team only, it goes to the team phones and shows nowhere.
+ */
 export async function postAnnouncement(formData: FormData): Promise<void> {
   const operator = await assertAdmin();
   const text = cleanAnnouncementText(String(formData.get('text') ?? ''));
   if (!text) return;
   const href = safeHref(String(formData.get('href') ?? ''));
   const teamOnly = formData.get('audience') === 'team';
-  // A team message is only ever a notification, so it always goes out.
-  const send = teamOnly || formData.get('push') === 'on';
 
-  let pushed: number | null = null;
-  if (send) {
-    const message = {
-      title: teamOnly
-        ? `Team: ${getEventConfig().event.shortName}`
-        : getEventConfig().event.shortName,
-      body: text,
-      url: href || (teamOnly ? '/admin' : '/'),
-      tag: teamOnly ? 'team-message' : 'announcement',
+  if (formData.get('when') === 'later') {
+    const at = String(formData.get('at') ?? '').trim();
+    const ok =
+      isLocalDateTime(at) && localDateTimeToInstant(at, getEventConfig().event.timezone) !== null;
+    if (!ok) redirect('/admin/announce?schedule=bad#compose');
+    const list = await loadReminders();
+    if (list.length >= MAX_REMINDERS) redirect('/admin/announce?schedule=full#compose');
+    const reminder: Reminder = {
+      id: newId(),
+      at,
+      text,
+      audience: teamOnly ? 'team' : 'everyone',
+      ...(href ? { href } : {}),
+      push: teamOnly || formData.get('push') === 'on',
     };
-    pushed = (teamOnly ? await pushToTeam(message) : await pushToAll(message)).sent;
+    await saveReminders([...list, reminder]);
+    await recordActivity(`Scheduled for ${at.replace('T', ' ')}: ${text}`, operator);
+    revalidatePath('/admin/announce');
+    redirect('/admin/announce?schedule=saved#reminders');
   }
 
-  const announcement: Announcement = {
-    id: newId(),
+  await publishAnnouncement({
     text,
     href,
-    at: new Date().toISOString(),
-    pushed,
-    ...(teamOnly ? { audience: 'team' as const } : {}),
-    screen: formData.get('screen') === 'on',
-  };
-  const data = getData();
-  const history = parseHistory(await data.settings.get(ANNOUNCE_KEYS.history));
-  // Attendees only ever see the banner for a message meant for them.
-  if (!teamOnly) await data.settings.set(ANNOUNCE_KEYS.current, JSON.stringify(announcement));
-  await data.settings.set(
-    ANNOUNCE_KEYS.history,
-    JSON.stringify([announcement, ...history].slice(0, HISTORY_SIZE)),
-  );
-  await recordActivity(
-    `${teamOnly ? 'Sent a team message' : 'Posted an announcement'}${pushed === null ? '' : ` to ${pushed} phones`}: ${text}`,
+    teamOnly,
+    push: formData.get('push') === 'on',
     operator,
-  );
+  });
   done();
 }
 

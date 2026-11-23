@@ -45,11 +45,11 @@ test.describe('the views', () => {
     await expect(page.getByText('Coffee break')).toBeVisible();
   });
 
-  test('arrivals counts guests, not the secretariat', async ({ page }) => {
+  test('arrivals counts everyone, the secretariat included', async ({ page }) => {
     await signIn(page);
     await page.goto('/screen/arrivals?now=2026-12-14T13:00');
-    await expect(page.getByText(/^Guests arrived,/)).toBeVisible();
-    await expect(page.getByText('/ 78')).toBeVisible();
+    await expect(page.getByText(/^Arrived,/)).toBeVisible();
+    await expect(page.getByText('/ 90')).toBeVisible();
   });
 
   test('fills a 1920 x 1080 screen without scrolling', async ({ page }) => {
@@ -110,13 +110,13 @@ test('the MC switches the projector from a phone', async ({ browser }, testInfo)
   );
 
   await projector.goto('/screen?now=2026-12-14T13:00');
-  await expect(projector.getByText(/^Guests arrived,/)).toBeVisible();
+  await expect(projector.getByText(/^Arrived,/)).toBeVisible();
 
   // Switch while the projector page stays open: it follows on its next poll.
   await phone.getByRole('button', { name: /^Now and next/ }).click();
   // A hexagon wipe covers the change, then clears.
   await expect(projector.locator('.hex-wipe')).toBeAttached({ timeout: 10_000 });
-  await expect(projector.getByText(/^Guests arrived,/)).toHaveCount(0, { timeout: 10_000 });
+  await expect(projector.getByText(/^Arrived,/)).toHaveCount(0, { timeout: 10_000 });
   await expect(projector.locator('.hex-wipe')).toHaveCount(0, { timeout: 5_000 });
 
   // Hide names, check, and put it back for whoever runs next.

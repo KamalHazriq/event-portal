@@ -24,3 +24,34 @@ export async function saveSecretariatList(formData: FormData): Promise<void> {
   revalidatePath('/', 'layout');
   redirect('/admin/attendees?secretariat=saved#secretariat');
 }
+
+/** Corrects one person's details. A new upload of the master list overwrites them again. */
+export async function saveAttendee(formData: FormData): Promise<void> {
+  const auth = await requireAdminApi();
+  if (!auth.ok) throw new Error('Not signed in.');
+  const id = String(formData.get('id') ?? '').slice(0, 64);
+  const name = String(formData.get('name') ?? '').trim();
+  if (!id || !name) redirect(`/admin/attendees/${id}?error=name`);
+  const data = getData();
+  const person = await data.attendees.get(id);
+  if (!person) redirect('/admin/attendees');
+  await data.attendees.update(id, {
+    name,
+    title: String(formData.get('title') ?? ''),
+    department: String(formData.get('department') ?? ''),
+    remark: String(formData.get('remark') ?? ''),
+    email: String(formData.get('email') ?? ''),
+  });
+  // Secretariat, by staff number in the list, so an upload keeps it.
+  const wantSecretariat = formData.get('secretariat') === 'on';
+  const list = parseStaffNos(await data.settings.get(SECRETARIAT_KEY));
+  const staffNo = person.staffNo.toUpperCase();
+  const next = wantSecretariat
+    ? [...new Set([...list, staffNo])]
+    : list.filter((s) => s !== staffNo);
+  await data.settings.set(SECRETARIAT_KEY, next.join('\n'));
+  await applySecretariatList();
+  await recordActivity(`Edited the details of ${name}`, auth.session.operator);
+  revalidatePath('/', 'layout');
+  redirect('/admin/attendees?edited=1#who');
+}

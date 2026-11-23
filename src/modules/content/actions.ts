@@ -38,7 +38,10 @@ async function begin(): Promise<{ operator: string; overlay: ConfigOverlay }> {
 }
 
 function back(path: string, params: Record<string, string>, anchor?: string): never {
-  const query = new URLSearchParams(params).toString();
+  // The Event info page is in tabs: come back to the one that was saved.
+  const withTab =
+    path === EVENT_PATH && anchor && anchor !== 'reset' ? { tab: anchor, ...params } : params;
+  const query = new URLSearchParams(withTab).toString();
   redirect(`${path}?${query}${anchor ? `#${anchor}` : ''}`);
 }
 
@@ -256,6 +259,12 @@ export async function saveResources(formData: FormData): Promise<void> {
 
 /* ------------------------------------------------------------------- agenda */
 
+/** Only an https link is kept, so a typo never breaks the agenda. */
+function slidesLink(value: FormDataEntryValue | null): string | undefined {
+  const url = plainText(value, 600);
+  return /^https:\/\/[^\s]+$/.test(url) ? url : undefined;
+}
+
 export async function saveSession(formData: FormData): Promise<void> {
   const { operator, overlay } = await begin();
   const id = plainText(formData.get('id'), 64);
@@ -274,13 +283,19 @@ export async function saveSession(formData: FormData): Promise<void> {
       .getAll('speaker')
       .map((v) => plainText(v, 64))
       .filter(Boolean),
+    slidesUrl: slidesLink(formData.get('slidesUrl')),
   };
+  if (!patch.slidesUrl) delete patch.slidesUrl;
+  const clearSlides = !slidesLink(formData.get('slidesUrl'));
 
   const added = overlay.addedSessions?.find((a) => a.session.id === id);
   if (added) {
     added.session = { ...added.session, ...patch } as typeof added.session;
+    if (clearSlides) delete added.session.slidesUrl;
   } else if (getEventConfig().days.some((d) => d.sessions.some((s) => s.id === id))) {
-    overlay.sessions = { ...overlay.sessions, [id]: { ...overlay.sessions?.[id], ...patch } };
+    const merged: SessionPatch = { ...overlay.sessions?.[id], ...patch };
+    if (clearSlides) delete merged.slidesUrl;
+    overlay.sessions = { ...overlay.sessions, [id]: merged };
   } else {
     back(AGENDA_PATH, { error: 'That session no longer exists.' });
   }

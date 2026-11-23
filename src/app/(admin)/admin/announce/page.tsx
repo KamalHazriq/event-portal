@@ -27,7 +27,7 @@ import {
 import { AlertsOptIn } from '@/modules/announce/components/AlertsOptIn';
 import { TEAM_AUTO_KEY, teamAutoOn } from '@/modules/announce/team';
 import { EVENT_FORM_SLUG } from '@/modules/feedback/logic';
-import { addReminder, deleteReminder } from '@/modules/reminders/actions';
+import { deleteReminder } from '@/modules/reminders/actions';
 import {
   parseReminders,
   REMINDERS_KEY,
@@ -94,6 +94,8 @@ export default async function AnnouncementsPage({ searchParams }: { searchParams
     allSubs,
     remindersRaw,
     pingRaw,
+    deviceLinks,
+    people,
   ] = await Promise.all([
     data.settings.get(ANNOUNCE_KEYS.current),
     data.settings.get(ANNOUNCE_KEYS.history),
@@ -103,7 +105,12 @@ export default async function AnnouncementsPage({ searchParams }: { searchParams
     data.push.list(),
     data.settings.get(REMINDERS_KEY),
     data.settings.get(REMINDERS_PING_KEY),
+    data.players.links(),
+    data.attendees.list(),
   ]);
+  // Whose phone is whose: the name a phone signed in as on My points, if any.
+  const nameOf = new Map(people.map((p) => [p.id, p.name]));
+  const ownerOf = new Map(deviceLinks.map((l) => [l.deviceId, nameOf.get(l.attendeeId) ?? '']));
   const teamAuto = teamAutoOn(teamAutoSetting);
   const nowDate = new Date();
   const toInstant = (local: string) => localDateTimeToInstant(local, tz);
@@ -169,9 +176,26 @@ export default async function AnnouncementsPage({ searchParams }: { searchParams
         </section>
       ) : null}
 
+      {params.schedule === 'saved' ? (
+        <p
+          role="status"
+          className="rounded-lg border border-success bg-success/10 p-3 font-semibold text-ink"
+        >
+          Scheduled. It goes out at the time you picked: see Scheduled below.
+        </p>
+      ) : params.schedule === 'bad' ? (
+        <p
+          role="alert"
+          className="rounded-lg border-2 border-warning bg-warning/10 p-3 font-semibold text-ink"
+        >
+          Pick a date and time for Later.
+        </p>
+      ) : null}
+
       <form
+        id="compose"
         action={postAnnouncement}
-        className="space-y-4 rounded-xl border border-line bg-surface p-4"
+        className="scroll-mt-24 space-y-4 rounded-xl border border-line bg-surface p-4"
       >
         <FormPending label="Posting" />
         <div>
@@ -206,7 +230,11 @@ export default async function AnnouncementsPage({ searchParams }: { searchParams
             </label>
             <label className="flex min-h-11 items-center gap-2 text-ink">
               <input type="radio" name="audience" value="team" className="size-5" />
-              The team only ({teamPhones} {teamPhones === 1 ? 'phone' : 'phones'}, no banner)
+              The secretariat team only
+              <span className="text-sm text-ink-soft">
+                (a notification to the {teamPhones} team {teamPhones === 1 ? 'phone' : 'phones'}{' '}
+                with team alerts on; attendees see nothing)
+              </span>
             </label>
           </div>
         </fieldset>
@@ -226,10 +254,33 @@ export default async function AnnouncementsPage({ searchParams }: { searchParams
             ))}
           </select>
         </div>
+        <fieldset>
+          <legend className="font-semibold text-ink">When</legend>
+          <div className="mt-1 flex flex-wrap items-center gap-x-6 gap-y-2">
+            <label className="flex min-h-11 items-center gap-2 text-ink">
+              <input type="radio" name="when" value="now" defaultChecked className="size-5" />
+              Now
+            </label>
+            <label className="flex min-h-11 items-center gap-2 text-ink">
+              <input type="radio" name="when" value="later" className="size-5" />
+              Later, at
+            </label>
+            <input
+              type="datetime-local"
+              name="at"
+              aria-label="Send it at"
+              className="min-h-11 rounded-lg border border-line bg-canvas px-3 text-ink"
+            />
+          </div>
+          <p className="mt-1 text-sm text-ink-soft">
+            Later: it is posted at that time (event time, {tz}), with everything set above.
+          </p>
+        </fieldset>
         <label className="flex items-start gap-3 text-ink">
           <input type="checkbox" name="push" defaultChecked className="mt-1 size-5" />
           <span>
-            Also send it as a notification to {phones} {phones === 1 ? 'phone' : 'phones'}
+            Also send it as a notification to the {phones} {phones === 1 ? 'phone' : 'phones'} that
+            turned on alerts
             <span className="block text-sm text-ink-soft">
               Use it for things people need to act on. Too many and they turn alerts off.
             </span>
@@ -239,7 +290,7 @@ export default async function AnnouncementsPage({ searchParams }: { searchParams
           type="submit"
           className="min-h-11 rounded-lg bg-primary px-5 font-bold text-on-primary"
         >
-          Post announcement
+          Post or schedule
         </button>
       </form>
 
@@ -249,11 +300,11 @@ export default async function AnnouncementsPage({ searchParams }: { searchParams
       >
         <div>
           <h2 id="reminders" className="text-lg font-bold text-ink">
-            Scheduled reminders
+            Scheduled
           </h2>
           <p className="text-ink-soft">
-            Write it now, it goes out at the time you pick (event time, {tz}). Good for early setup
-            calls like “Projector on, desks open”.
+            Messages set to go out later: write one above and pick Later. Good for early setup calls
+            like “Projector on, desks open” to the team.
           </p>
           <p className="mt-1 text-sm text-ink-soft">
             {schedulerOn
@@ -261,50 +312,8 @@ export default async function AnnouncementsPage({ searchParams }: { searchParams
               : 'The scheduler has not called in the last few minutes. Reminders still go out while a big screen page is open, otherwise set up the scheduler (see the deploy notes).'}
           </p>
         </div>
-        <form
-          action={addReminder}
-          className="grid gap-3 sm:grid-cols-[auto_1fr_auto_auto] sm:items-end"
-        >
-          <FormPending label="Saving the reminder" />
-          <label className="block text-sm font-medium text-ink">
-            Reminder time
-            <input
-              type="datetime-local"
-              name="at"
-              required
-              className="mt-1 block min-h-11 w-full rounded-lg border border-line bg-surface px-3 text-ink"
-            />
-          </label>
-          <label className="block text-sm font-medium text-ink">
-            Reminder message
-            <input
-              type="text"
-              name="text"
-              required
-              maxLength={200}
-              placeholder="Projector on, desks open"
-              className="mt-1 block min-h-11 w-full rounded-lg border border-line bg-surface px-3 text-ink"
-            />
-          </label>
-          <label className="block text-sm font-medium text-ink">
-            Send to
-            <select
-              name="audience"
-              className="mt-1 block min-h-11 w-full rounded-lg border border-line bg-surface px-3 text-ink"
-            >
-              <option value="team">Team only</option>
-              <option value="everyone">Everyone</option>
-            </select>
-          </label>
-          <button
-            type="submit"
-            className="min-h-11 rounded-lg bg-primary px-5 font-bold text-on-primary"
-          >
-            Add reminder
-          </button>
-        </form>
         {reminders.length === 0 ? (
-          <p className="text-ink-soft">No reminders yet.</p>
+          <p className="text-ink-soft">Nothing scheduled.</p>
         ) : (
           <ul className="divide-y divide-line">
             {reminders.map((r) => (
@@ -365,6 +374,35 @@ export default async function AnnouncementsPage({ searchParams }: { searchParams
             <strong>Turn on alerts</strong> there, then post an announcement here.
           </li>
         </ol>
+
+        <details className="rounded-lg border border-line p-3">
+          <summary className="cursor-pointer font-semibold text-ink">
+            Devices with alerts on ({allSubs.length}: {teamPhones} team,{' '}
+            {allSubs.length - teamPhones} attendee)
+          </summary>
+          {allSubs.length === 0 ? (
+            <p className="mt-2 text-sm text-ink-soft">None yet.</p>
+          ) : (
+            <ul className="mt-2 divide-y divide-line text-sm">
+              {allSubs.map((sub) => (
+                <li key={sub.endpoint} className="flex flex-wrap justify-between gap-x-4 py-1.5">
+                  <span className="text-ink">
+                    {ownerOf.get(sub.deviceId) ||
+                      (sub.deviceId === deviceId ? 'This device' : 'Not signed in on My points')}
+                  </span>
+                  <span className="text-ink-soft">
+                    {sub.team ? 'Secretariat team' : 'Attendee'} · since{' '}
+                    {localDateTime(sub.createdAt, tz).replace('T', ' ')}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+          <p className="mt-2 text-xs text-ink-soft">
+            A device shows a name once it has picked a name on My points. Signed in secretariat
+            desks are listed on the Admins page.
+          </p>
+        </details>
 
         <InstallApp />
         <AlertsOptIn team />

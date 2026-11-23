@@ -150,7 +150,7 @@ describe('validation', () => {
   it('refuses a session that ends before it starts', () => {
     const result = EventConfigSchema.safeParse(brokenConfig({ start: '15:00', end: '14:00' }));
     expect(result.success).toBe(false);
-    expect(JSON.stringify(result.error?.issues)).toContain('end time must be after start time');
+    expect(JSON.stringify(result.error?.issues)).toContain('ends before it starts');
   });
 
   it('refuses a day outside the event dates', () => {

@@ -7,6 +7,7 @@ import { requireAdmin } from '@/lib/admin-guard';
 import { FormPending } from '@/components/FormPending';
 import { saveSecretariatList } from '@/modules/attendees/actions';
 import { readSecretariatList } from '@/modules/attendees/secretariat';
+import { AttendeeTable, type AttendeeRow } from '@/modules/attendees/components/AttendeeTable';
 
 export const dynamic = 'force-dynamic';
 
@@ -43,14 +44,18 @@ export default async function AttendeesPage({ searchParams }: { searchParams: Se
   const params = await searchParams;
   const secretariatList = await readSecretariatList();
   const result = one(params.result);
-  const q = one(params.q).trim().toLowerCase();
-
   const everyone = await getData().attendees.list();
-  const shown = q
-    ? everyone.filter((p) =>
-        [p.name, p.staffNo, p.department, p.title].some((v) => v.toLowerCase().includes(q)),
-      )
-    : everyone;
+  const rows: AttendeeRow[] = everyone.map((p) => ({
+    id: p.id,
+    no: p.no,
+    name: p.name,
+    staffNo: p.staffNo,
+    title: p.title,
+    department: shortDepartment(config, p.department),
+    departmentFull: p.department,
+    remark: p.remark,
+    isSecretariat: p.isSecretariat,
+  }));
   const secretariat = everyone.filter((p) => p.isSecretariat).length;
   const departments = new Set(everyone.filter((p) => !p.isSecretariat).map((p) => p.department));
   const withEmail = everyone.filter((p) => p.email).length;
@@ -147,30 +152,14 @@ export default async function AttendeesPage({ searchParams }: { searchParams: Se
       </section>
 
       <section aria-labelledby="who">
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <h2 id="who" className="font-bold text-ink">
-            On the list{q ? `: ${shown.length} matching` : ''}
-          </h2>
-          <form method="get" className="flex gap-2">
-            <label htmlFor="list-search" className="sr-only">
-              Search the list
-            </label>
-            <input
-              id="list-search"
-              name="q"
-              type="search"
-              defaultValue={q}
-              placeholder="Name, staff no, department"
-              className="min-h-11 rounded-lg border border-line bg-canvas px-3 text-ink"
-            />
-            <button
-              type="submit"
-              className="min-h-11 rounded-lg border border-line px-4 font-semibold text-ink"
-            >
-              Search
-            </button>
-          </form>
-        </div>
+        <h2 id="who" className="font-bold text-ink">
+          On the list
+        </h2>
+        {params.edited === '1' ? (
+          <p role="status" className="mt-1 font-semibold text-ink">
+            Saved. The changes show everywhere now.
+          </p>
+        ) : null}
         <p className="mt-1 text-sm text-ink-soft">
           {withEmail} of {everyone.length} have an email for business card check in.
         </p>
@@ -180,57 +169,25 @@ export default async function AttendeesPage({ searchParams }: { searchParams: Se
             Nobody yet. Upload the participant list above.
           </p>
         ) : (
-          <div className="mt-3 overflow-x-auto rounded-xl border border-line">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-muted text-ink-soft">
-                <tr>
-                  <th className="px-3 py-2 font-semibold">No</th>
-                  <th className="px-3 py-2 font-semibold">Name</th>
-                  <th className="px-3 py-2 font-semibold">Staff no</th>
-                  <th className="px-3 py-2 font-semibold">Role</th>
-                  <th className="px-3 py-2 font-semibold">Dept</th>
-                  <th className="px-3 py-2 font-semibold">Remarks</th>
-                </tr>
-              </thead>
-              <tbody>
-                {shown.map((p) => (
-                  <tr key={p.id} className="border-t border-line bg-surface">
-                    <td className="px-3 py-2 tabular-nums text-ink-soft">{p.no ?? ''}</td>
-                    <td className="px-3 py-2 font-semibold text-ink">
-                      {p.name}
-                      {p.isSecretariat ? (
-                        <span className="ml-2 rounded bg-muted px-1.5 py-0.5 text-xs font-semibold text-ink-soft">
-                          Secretariat
-                        </span>
-                      ) : null}
-                    </td>
-                    <td className="px-3 py-2 font-mono text-ink">{p.staffNo}</td>
-                    <td className="px-3 py-2 text-ink">{p.title}</td>
-                    <td className="px-3 py-2 text-ink" title={p.department}>
-                      {shortDepartment(config, p.department)}
-                    </td>
-                    <td className="px-3 py-2 text-ink-soft">{p.remark}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="mt-3">
+            <AttendeeTable rows={rows} />
           </div>
         )}
       </section>
 
-      <section
+      <details
         id="secretariat"
-        aria-labelledby="secretariat-h"
         className="scroll-mt-24 rounded-xl border border-line bg-surface p-4"
+        open={params.secretariat === 'saved'}
       >
-        <h2 id="secretariat-h" className="text-lg font-bold text-ink">
-          The secretariat
-        </h2>
+        <summary className="cursor-pointer text-lg font-bold text-ink">
+          The secretariat ({secretariat} marked)
+        </summary>
         <p className="mt-1 text-sm text-ink-soft">
-          The secretariat are left out of the arrivals screen, the leaderboard and the lucky draw.
-          Anyone whose department, role or remark says Secretariat is found by itself. Paste the
-          staff numbers of anyone else: they stay marked when you upload the list again.{' '}
-          {secretariat} marked now.
+          The secretariat are left out of the leaderboard and the lucky draw (they are still
+          welcomed on the arrivals screen). Anyone whose department, role or remark says Secretariat
+          is found by itself, so there is nothing to do for them. Only if someone is missed, paste
+          their staff number here: it stays marked when you upload the list again.
         </p>
         {params.secretariat === 'saved' ? (
           <p role="status" className="mt-2 font-semibold text-ink">
@@ -256,7 +213,7 @@ export default async function AttendeesPage({ searchParams }: { searchParams: Se
             Save the secretariat list
           </button>
         </form>
-      </section>
+      </details>
 
       {everyone.length > 0 ? (
         <details className="rounded-xl border border-line bg-surface p-4">

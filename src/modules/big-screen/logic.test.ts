@@ -84,8 +84,8 @@ describe('arrival cards', () => {
     expect(arrivalCards([row('1'), row('2')], true)).toEqual([]);
   });
 
-  it('leaves the secretariat off the welcome wall', () => {
-    expect(arrivalCards([row('1', true), row('2')], false).map((c) => c.key)).toEqual(['2']);
+  it('welcomes the secretariat too', () => {
+    expect(arrivalCards([row('1', true), row('2')], false).map((c) => c.key)).toEqual(['1', '2']);
   });
 });
 
@@ -97,13 +97,13 @@ describe('corner clock', () => {
 });
 
 describe('guest count', () => {
-  it('leaves the secretariat out of both numbers', () => {
+  it('counts everyone, the secretariat included', () => {
     const people = [
       { id: 'a', isSecretariat: false },
       { id: 'b', isSecretariat: false },
       { id: 's', isSecretariat: true },
     ];
-    expect(guestCount(people, ['a', 's', 'a'])).toEqual({ arrived: 1, expected: 2 });
+    expect(guestCount(people, ['a', 's', 'a'])).toEqual({ arrived: 2, expected: 3 });
   });
 });
 

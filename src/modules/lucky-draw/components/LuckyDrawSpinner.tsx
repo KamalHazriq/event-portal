@@ -34,7 +34,8 @@ export function LuckyDrawSpinner({
   const [spinning, setSpinning] = useState(
     () => spinNames.length > 1 && shouldSpin(drawnAtMs, Date.now()),
   );
-  const [shown, setShown] = useState(spinNames[0] ?? '');
+  // Which step of the spin is showing; each drum picks its own name from it.
+  const [step, setStep] = useState(0);
   // Confetti only after a spin this screen actually showed.
   const [celebrate, setCelebrate] = useState(false);
   // True on the server, so the hint never flashes before the page knows.
@@ -54,7 +55,7 @@ export function LuckyDrawSpinner({
         playFanfare();
         return;
       }
-      setShown(spinNames[(i * 7 + 3) % spinNames.length] ?? '');
+      setStep(i);
       playTick();
       timer = window.setTimeout(tick, gaps[i]);
       i += 1;
@@ -66,6 +67,10 @@ export function LuckyDrawSpinner({
   }, []);
 
   const big = winners.length === 1;
+  // One drum for one winner; for more, three spin side by side.
+  const drums = big ? 1 : Math.min(3, winners.length);
+  const nameAt = (drum: number) =>
+    spinNames[(step * 7 + 3 + drum * 11) % Math.max(1, spinNames.length)] ?? '';
 
   return (
     <div className="relative flex h-full flex-col items-center justify-center overflow-hidden text-center">
@@ -81,19 +86,30 @@ export function LuckyDrawSpinner({
       </p>
 
       {spinning ? (
-        <div className="draw-drum mt-[3vh] w-full max-w-[80vw] rounded-[2vw] border-2 border-accent px-[3vw] py-[4vh]">
-          <p className="text-[clamp(0.9rem,1.6vw,2.2rem)] font-semibold tracking-[0.2em] text-ink-soft uppercase">
-            Drawing…
-          </p>
-          <p
-            // Keyed by the name, so each one flicks in from above.
-            key={shown}
-            className="draw-tick mt-[1.5vh] truncate text-[clamp(3rem,8vw,11rem)] font-bold leading-none text-ink"
-            aria-live="off"
-            suppressHydrationWarning
-          >
-            {shown}
-          </p>
+        <div
+          className={`mt-[3vh] grid w-full gap-[2vw] ${drums === 1 ? 'max-w-[80vw]' : 'max-w-[92vw] grid-cols-3'}`}
+        >
+          {Array.from({ length: drums }, (_, d) => (
+            <div
+              key={d}
+              className="draw-drum min-w-0 rounded-[2vw] border-2 border-accent px-[2vw] py-[4vh]"
+            >
+              <p className="text-[clamp(0.9rem,1.6vw,2.2rem)] font-semibold tracking-[0.2em] text-ink-soft uppercase">
+                Drawing…
+              </p>
+              <p
+                // Keyed by the name, so each one flicks in from above.
+                key={nameAt(d)}
+                className={`draw-tick mt-[1.5vh] truncate font-bold leading-none text-ink ${
+                  drums === 1 ? 'text-[clamp(3rem,8vw,11rem)]' : 'text-[clamp(1.4rem,3.4vw,5rem)]'
+                }`}
+                aria-live="off"
+                suppressHydrationWarning
+              >
+                {nameAt(d)}
+              </p>
+            </div>
+          ))}
         </div>
       ) : (
         <ol

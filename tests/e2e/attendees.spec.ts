@@ -60,8 +60,8 @@ test('an Excel list uploads, shows up, and a second upload duplicates nobody', a
   await upload();
   await expect(page.getByText('Uploaded: 2 added, 0 updated, 0 unchanged.')).toBeVisible();
 
+  // The list filters as you type: no button to press.
   await page.getByLabel('Search the list').fill(tag);
-  await page.getByRole('button', { name: 'Search' }).click();
   await expect(page.getByRole('cell', { name: `Uploaded Person ${tag}` })).toBeVisible();
   // Flagged as secretariat: the badge next to the name.
   await expect(
@@ -72,6 +72,15 @@ test('an Excel list uploads, shows up, and a second upload duplicates nobody', a
 
   await upload();
   await expect(page.getByText('Uploaded: 0 added, 0 updated, 2 unchanged.')).toBeVisible();
+
+  // A missing role is filled in by hand.
+  await page.getByLabel('Search the list').fill(tag);
+  await page.getByRole('link', { name: `Edit Uploaded Person ${tag}` }).click();
+  await page.getByLabel('Role').fill(`Fixed role ${tag}`);
+  await page.getByRole('button', { name: 'Save' }).click();
+  await expect(page.getByText('Saved. The changes show everywhere now.')).toBeVisible();
+  await page.getByLabel('Search the list').fill(tag);
+  await expect(page.getByRole('cell', { name: `Fixed role ${tag}` })).toBeVisible();
 });
 
 test('removing everyone needs the box ticked', async ({ page }) => {

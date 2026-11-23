@@ -60,6 +60,15 @@ function passGate(request: NextRequest) {
 
   const { pathname, searchParams } = request.nextUrl;
   if (isOpenPath(pathname)) return NextResponse.next();
+  // The secretariat never need the event code: their pages ask for the PIN,
+  // and a signed in desk (with a genuine, in date cookie) gets everything.
+  if (
+    pathname === '/admin/sign-in' ||
+    pathname === '/api/admin/sign-in' ||
+    readSessionValue(request.cookies.get(ADMIN_COOKIE)?.value)
+  ) {
+    return NextResponse.next();
+  }
 
   const expected = passDigest(pass);
   const offered = searchParams.get(PASS_PARAM);
@@ -115,7 +124,9 @@ function gate(request: NextRequest, wrong: boolean) {
   const url = request.nextUrl.clone();
   url.pathname = '/pass';
   url.search = wrong ? '?wrong=1' : '';
-  return NextResponse.rewrite(url, { status: 401 });
+  // A 200, not a 401: an app on an iPhone home screen can show a blank page
+  // for an error status, and this page is a normal page asking for the code.
+  return NextResponse.rewrite(url);
 }
 
 export const config = {

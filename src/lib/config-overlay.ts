@@ -38,6 +38,7 @@ export type SessionPatch = Partial<
     | 'feedbackEnabled'
     | 'qaEnabled'
     | 'speakerIds'
+    | 'slidesUrl'
   >
 >;
 

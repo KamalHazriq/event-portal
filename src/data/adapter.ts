@@ -76,6 +76,11 @@ export interface AttendeeRepository {
    * phone links and lucky draw wins go with them. Returns how many.
    */
   removeAll(): Promise<number>;
+  /** Corrects one person's details by hand. Their check ins and points stay. */
+  update(
+    id: string,
+    patch: { name: string; title: string; department: string; remark: string; email: string },
+  ): Promise<boolean>;
   /** Marks people as secretariat, or not. Returns how many changed. */
   setSecretariat(ids: string[], value: boolean): Promise<number>;
   /** Removes one person (the test participant), with their check ins and phone links. */

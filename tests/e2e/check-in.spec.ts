@@ -212,7 +212,7 @@ test.describe('printable assets', () => {
 
     const codes = page.getByRole('img', { name: 'Event portal' });
     expect(await codes.count()).toBeGreaterThan(50);
-    await expect(page.getByText('Scan for the agenda').first()).toBeVisible();
+    await expect(page.locator('.tag-qr-caption').first()).toHaveText('Agenda');
     await expect(page.getByRole('img', { name: /^Check in code for / })).toHaveCount(0);
     // No fronts and backs to line up.
     await expect(page.getByRole('link', { name: 'Backs' })).toHaveCount(0);

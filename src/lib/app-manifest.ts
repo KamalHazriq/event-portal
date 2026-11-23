@@ -14,6 +14,8 @@ export function appManifest(options: {
   short: string;
   about: string;
   display: 'standalone' | 'fullscreen';
+  /** Icon file names without the size, like d-icon or d-icon-admin. */
+  icon?: string;
 }): NextResponse {
   const result = tryLoadEventConfig();
   const base = {
@@ -35,8 +37,16 @@ export function appManifest(options: {
       background_color: colours.background,
       theme_color: colours.background,
       icons: [
-        { src: '/branding/d-icon-192.png', sizes: '192x192', type: 'image/png' },
-        { src: '/branding/d-icon-512.png', sizes: '512x512', type: 'image/png' },
+        {
+          src: `/branding/${options.icon ?? 'd-icon'}-192.png`,
+          sizes: '192x192',
+          type: 'image/png',
+        },
+        {
+          src: `/branding/${options.icon ?? 'd-icon'}-512.png`,
+          sizes: '512x512',
+          type: 'image/png',
+        },
       ],
     },
     { headers },

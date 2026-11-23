@@ -6,7 +6,17 @@ import { getEventConfig } from '@/lib/config';
 import { markFor, resolveTheme } from '@/lib/theme';
 
 /** The secretariat installs as its own app, opening at /admin. */
-export const metadata: Metadata = { manifest: '/admin/app.webmanifest' };
+export const metadata: Metadata = {
+  manifest: '/admin/app.webmanifest',
+  // The D with an S badge: the secretariat app and tab look different.
+  icons: {
+    icon: [
+      { url: '/branding/d-icon-admin-32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/branding/d-icon-admin-192.png', sizes: '192x192', type: 'image/png' },
+    ],
+    apple: [{ url: '/branding/d-icon-admin-apple-180.png' }],
+  },
+};
 
 /**
  * The shell for the secretariat.

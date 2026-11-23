@@ -132,7 +132,7 @@ describe('saved edits over the event file', () => {
   it('refuses what does not fit, with a plain reason, and keeps the file', () => {
     const backwards = merge({ sessions: { [firstSession.id]: { start: '12:00', end: '11:00' } } });
     expect(backwards.config).toBe(base);
-    expect(backwards.problems.join(' ')).toMatch(/end time must be after start time/);
+    expect(backwards.problems.join(' ')).toMatch(/ends before it starts/);
     expect(backwards.problems.join(' ')).toContain(firstSession.title);
 
     const unknownSpeaker = merge({

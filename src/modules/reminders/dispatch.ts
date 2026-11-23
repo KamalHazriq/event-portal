@@ -8,7 +8,7 @@
 import { getData } from '@/data';
 import { getEventConfig } from '@/lib/config';
 import { localDateTimeToInstant } from '@/lib/time';
-import { pushToAll, pushToTeam } from '@/modules/announce/push';
+import { publishAnnouncement } from '@/modules/announce/publish';
 
 import {
   dueReminders,
@@ -42,13 +42,15 @@ export async function dispatchDueReminders(now: Date = new Date()): Promise<numb
     // Mark first, then send.
     const ids = new Set(due.map((r) => r.id));
     await saveReminders(list.map((r) => (ids.has(r.id) ? { ...r, sentAt: now.toISOString() } : r)));
+    // Posted just like one sent by hand: a banner for everyone, a notification.
     for (const r of due) {
-      const message = {
-        title: r.audience === 'team' ? 'Team reminder' : 'Reminder',
-        body: r.text,
-        tag: `reminder-${r.id}`,
-      };
-      await (r.audience === 'team' ? pushToTeam(message) : pushToAll(message)).catch(() => null);
+      await publishAnnouncement({
+        text: r.text,
+        href: r.href ?? '',
+        teamOnly: r.audience === 'team',
+        push: r.push ?? true,
+        operator: 'scheduled',
+      }).catch(() => null);
     }
     return due.length;
   } finally {

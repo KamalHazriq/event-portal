@@ -225,7 +225,7 @@ export function ArrivalsView({
 
   const counter = (
     <div className={`relative ${hideNames ? 'text-center' : ''}`}>
-      <p className={LABEL}>Guests arrived, {dayLabel}</p>
+      <p className={LABEL}>Arrived, {dayLabel}</p>
       <p className="relative mt-[2vh] font-bold leading-none tabular-nums">
         <span className="inline-block text-[clamp(5rem,15vw,20rem)] text-ink">
           <RollingNumber value={arrived} />

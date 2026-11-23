@@ -9,5 +9,7 @@ export function GET() {
     short: 'Secretariat',
     about: 'The secretariat desk',
     display: 'standalone',
+    // The D with an S badge, so it is not mixed up with the attendee app.
+    icon: 'd-icon-admin',
   });
 }

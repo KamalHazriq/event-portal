@@ -179,11 +179,17 @@ export const SessionSchema = z
     feedbackEnabled: z.boolean().default(false),
     /** Overrides integrations.slido for this session only. */
     slido: SlidoRefSchema.optional(),
+    /** Slides or a handout to open from the agenda (an organisation-only OneDrive link is best). */
+    slidesUrl: z
+      .string()
+      .regex(/^https:\/\//, 'must start with https://')
+      .max(600)
+      .optional(),
     /** Set true to keep a session in the file but off the public agenda. */
     hidden: z.boolean().default(false),
   })
   .refine((session) => session.end > session.start, {
-    message: 'end time must be after start time',
+    message: 'it ends before it starts. Make the end time later than the start time',
     path: ['end'],
   });
 

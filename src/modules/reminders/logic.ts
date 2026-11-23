@@ -17,6 +17,10 @@ export type Reminder = {
   at: string;
   text: string;
   audience: 'team' | 'everyone';
+  /** Where tapping it goes, like /agenda. Empty for the home page. */
+  href?: string;
+  /** For everyone: send a notification as well as the banner. Defaults to yes. */
+  push?: boolean;
   /** When it was sent, as an ISO instant. */
   sentAt?: string;
 };
