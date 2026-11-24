@@ -5,12 +5,15 @@ import { getData } from '@/data';
 import { getEventConfig } from '@/lib/config';
 import { resolveEventNow } from '@/lib/time';
 
+const DEFAULT_IMAGE = '/door-gifts/massager.svg';
+
 import {
   CLAIM_PREFIX,
   DOOR_GIFT_KEY,
   givenCounts,
   parseClaim,
   parseDoorGiftConfig,
+  safeImage,
   pickGift,
   spinOpen,
   type DoorGiftConfig,
@@ -89,4 +92,35 @@ export async function removeAllClaims(): Promise<void> {
   await Promise.all(
     all.filter((s) => s.key.startsWith(CLAIM_PREFIX)).map((s) => data.settings.remove(s.key)),
   );
+}
+
+export type DeskGift =
+  | { state: 'spin'; items: { id: string; name: string; image: string }[] }
+  | { state: 'has'; item: { id: string; name: string; image: string }; collected: boolean };
+
+const shown = (i: GiftItem) => ({
+  id: i.id,
+  name: i.name,
+  image: safeImage(i.image) || DEFAULT_IMAGE,
+});
+
+/** What the desk should do about this person's door gift right after checking them in. */
+export async function deskGift(person: Attendee): Promise<DeskGift | null> {
+  if (!getEventConfig().features.doorGift) return null;
+  const state = await loadDoorGifts();
+  if (!giftFor(person, state)) return null;
+  const claim = state.claims.get(person.id);
+  const got = claim ? itemById(state, claim.item) : undefined;
+  if (got) return { state: 'has', item: shown(got), collected: claim?.collected ?? false };
+  if (!state.open) return null;
+  return { state: 'spin', items: state.config.items.map(shown) };
+}
+
+/** The desk handed the gift over. */
+export async function markCollected(person: Attendee): Promise<void> {
+  const key = `${CLAIM_PREFIX}${person.id}`;
+  const claim = parseClaim(await getData().settings.get(key));
+  if (claim && !claim.collected) {
+    await getData().settings.set(key, JSON.stringify({ ...claim, collected: true }));
+  }
 }

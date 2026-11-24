@@ -1,5 +1,3 @@
-import Link from 'next/link';
-
 import { getEventConfig } from '@/lib/config';
 import { currentPlayer } from '@/modules/points/server';
 
@@ -32,20 +30,16 @@ export async function DoorGiftCard() {
   }
   if (!state.open) return null;
   return (
-    <Link
-      href="/door-gift?next=/"
-      className="flex items-center gap-4 rounded-xl border-2 border-accent bg-surface p-4 no-underline transition hover:-translate-y-0.5"
-    >
+    <section className="flex items-center gap-4 rounded-xl border-2 border-accent bg-surface p-4">
       <span aria-hidden="true" className="text-4xl">
         🎁
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block text-lg font-bold text-ink">Spin for your door gift</span>
-        <span className="block text-sm text-ink-soft">One spin each. Tap to play.</span>
+        <span className="block text-lg font-bold text-ink">A door gift is waiting</span>
+        <span className="block text-sm text-ink-soft">
+          Spin for it at the registration desk when you check in.
+        </span>
       </span>
-      <span aria-hidden="true" className="font-bold text-accent">
-        →
-      </span>
-    </Link>
+    </section>
   );
 }

@@ -4,7 +4,6 @@ import { notFound } from 'next/navigation';
 
 import { getEventConfig } from '@/lib/config';
 import { safeImage } from '@/modules/door-gift/logic';
-import { GiftSpinner } from '@/modules/door-gift/components/GiftSpinner';
 import { giftFor, itemById, loadDoorGifts } from '@/modules/door-gift/server';
 import { safeNext } from '@/modules/identity/logic';
 import { currentPlayer } from '@/modules/points/server';
@@ -22,11 +21,6 @@ export default async function DoorGiftPage({
   if (!config.features.doorGift) notFound();
   const next = safeNext((await searchParams).next);
   const [me, state] = await Promise.all([currentPlayer(), loadDoorGifts()]);
-  const items = state.config.items.map((i) => ({
-    id: i.id,
-    name: i.name,
-    image: safeImage(i.image) || '/door-gifts/massager.svg',
-  }));
 
   const box = 'rounded-2xl border border-line bg-surface p-5 sm:p-8';
 
@@ -70,30 +64,17 @@ export default async function DoorGiftPage({
     );
   }
 
-  if (!state.open || !giftFor(me, state)) {
-    return (
-      <div className={box}>
-        <h1 className="text-2xl font-bold text-ink">Door gift</h1>
-        <p className="mt-2 text-ink-soft">
-          {!giftFor(me, state)
-            ? 'Door gifts are for participants.'
-            : 'The door gift spin is not open right now. It opens on the first day.'}
-        </p>
-        <Link href={next} className="mt-4 inline-block font-semibold text-primary">
-          Continue
-        </Link>
-      </div>
-    );
-  }
-
   return (
     <div className={box}>
-      <header className="mb-6 text-center">
-        <p className="eyebrow">Welcome, {me.name.split(' ')[0]}</p>
-        <h1 className="mt-1 text-2xl font-bold text-ink sm:text-3xl">Spin for your door gift</h1>
-        <p className="mt-2 text-ink-soft">One spin each. Whatever it lands on is yours.</p>
-      </header>
-      <GiftSpinner items={items} next={next} />
+      <h1 className="text-2xl font-bold text-ink">Door gift</h1>
+      <p className="mt-2 text-ink-soft">
+        {!giftFor(me, state)
+          ? 'Door gifts are not part of this event for you.'
+          : 'You spin for your door gift at the registration desk when you check in. Whatever it lands on is yours.'}
+      </p>
+      <Link href={next} className="mt-4 inline-block font-semibold text-primary">
+        Continue
+      </Link>
     </div>
   );
 }

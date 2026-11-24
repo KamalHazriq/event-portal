@@ -6,7 +6,7 @@ import { ADMIN_COOKIE, readSessionValue } from '@/lib/admin-session';
 import { getEventConfig } from '@/lib/config';
 import { currentPlayer } from '@/modules/points/server';
 
-import { ASK_FIRST_KEY, GUEST_COOKIE } from '../logic';
+import { ASK_FIRST_KEY } from '../logic';
 import { NameGateRedirect } from './NameGateRedirect';
 
 /** On attendee pages: asks a device who it is, once, unless it is switched off. */
@@ -14,7 +14,6 @@ export async function NameGate() {
   const config = getEventConfig();
   if (!config.features.askNameFirst || !config.features.leaderboard) return null;
   const jar = await cookies();
-  if (jar.has(GUEST_COOKIE)) return null;
   // The secretariat browsing as attendees are never asked.
   if (readSessionValue(jar.get(ADMIN_COOKIE)?.value)) return null;
   if ((await getData().settings.get(ASK_FIRST_KEY)) === 'off') return null;

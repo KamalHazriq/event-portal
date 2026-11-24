@@ -10,6 +10,7 @@
 import { z } from 'zod';
 
 import { requireAdminApi } from '@/lib/admin-guard';
+import { deskGift } from '@/modules/door-gift/server';
 import { getData, type Attendee } from '@/data';
 import { LIMITS, rateLimit } from '@/lib/rate-limit';
 import { matchBusinessCard, parseBusinessCard } from '@/modules/check-in/business-card';
@@ -153,6 +154,8 @@ export async function POST(request: Request): Promise<Response> {
     }
     return reply(alreadyCheckedIn ? 'already-checked-in' : 'checked-in', {
       attendee: deskFields(attendee),
+      // The door gift: spin for it now, or remind the desk what it was.
+      gift: await deskGift(attendee).catch(() => null),
       checkedInAt: checkIn.at,
       headcount: arrivalRate(headcount.arrived, headcount.expected),
     });

@@ -1,32 +1,60 @@
 'use client';
 
-import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
-type Item = { id: string; name: string; image: string };
+export type GiftItemView = { id: string; name: string; image: string };
+
+export type GiftOffer =
+  | { state: 'spin'; items: GiftItemView[] }
+  | { state: 'has'; item: GiftItemView; collected: boolean };
 
 /**
- * The door gift spin on a phone: a light runs round the gifts, slowing like
- * a wheel, and stops on the one the server chose.
+ * The door gift at the registration desk: a full screen card over the desk
+ * (or the kiosk) for the person just checked in. A light runs round the
+ * gifts, slows like a wheel and stops on the one the server chose; then the
+ * desk hands it over.
  */
-export function GiftSpinner({ items, next }: { items: Item[]; next: string }) {
+export function GiftSpinner({
+  attendeeId,
+  name,
+  offer,
+  onClose,
+  kiosk = false,
+}: {
+  attendeeId: string;
+  name: string;
+  offer: GiftOffer;
+  onClose: () => void;
+  /** On the self check in tablet: spins by itself, and closes by itself. */
+  kiosk?: boolean;
+}) {
+  const items = offer.state === 'spin' ? offer.items : [offer.item];
   const [lit, setLit] = useState<number | null>(null);
-  const [won, setWon] = useState<Item | null>(null);
+  const [won, setWon] = useState<GiftItemView | null>(offer.state === 'has' ? offer.item : null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const [handed, setHanded] = useState(offer.state === 'has' && offer.collected);
+  const started = useRef(false);
 
   const spin = async () => {
+    if (started.current) return;
+    started.current = true;
     setBusy(true);
     setError('');
-    let item: Item;
+    let item: GiftItemView;
     try {
-      const res = await fetch('/api/door-gift', { method: 'POST' });
-      const body = (await res.json()) as { item?: Item; message?: string };
+      const res = await fetch('/api/door-gift', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ attendeeId }),
+      });
+      const body = (await res.json()) as { item?: GiftItemView; message?: string };
       if (!res.ok || !body.item) throw new Error(body.message ?? 'That did not work.');
       item = body.item;
     } catch (e) {
       setError(e instanceof Error ? e.message : 'That did not work. Try again.');
       setBusy(false);
+      started.current = false;
       return;
     }
     const target = Math.max(
@@ -42,7 +70,10 @@ export function GiftSpinner({ items, next }: { items: Item[]; next: string }) {
       setLit(i % items.length);
       if (i >= steps) {
         setLit(target);
-        window.setTimeout(() => setWon(item), 450);
+        window.setTimeout(() => {
+          setWon(item);
+          setBusy(false);
+        }, 450);
         return;
       }
       i += 1;
@@ -52,60 +83,124 @@ export function GiftSpinner({ items, next }: { items: Item[]; next: string }) {
     tick();
   };
 
-  if (won) {
-    return (
-      <div className="winner-reveal text-center">
-        <p className="eyebrow">Your door gift</p>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={won.image} alt="" className="mx-auto mt-4 size-44 sm:size-56" />
-        <p className="mt-3 text-3xl font-bold text-ink" role="status">
-          {won.name}!
-        </p>
-        <p className="mt-2 text-ink-soft">
-          Collect it at the registration desk. It is saved, so you can show this page there.
-        </p>
-        <Link
-          href={next}
-          className="mt-6 inline-flex min-h-12 items-center gap-2 rounded-lg bg-primary px-6 font-bold text-on-primary no-underline"
-        >
-          Continue
-          <span aria-hidden="true">→</span>
-        </Link>
-      </div>
-    );
-  }
+  const handOver = async () => {
+    setHanded(true);
+    await fetch('/api/door-gift', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ attendeeId, action: 'collected' }),
+    }).catch(() => undefined);
+    onClose();
+  };
+
+  // The kiosk spins straight away, and goes back to waiting afterwards.
+  useEffect(() => {
+    if (!kiosk || offer.state !== 'spin') return;
+    const timer = window.setTimeout(() => void spin(), 600);
+    return () => window.clearTimeout(timer);
+    // Once, when it opens.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useEffect(() => {
+    if (!kiosk || !won) return;
+    const timer = window.setTimeout(onClose, 9000);
+    return () => window.clearTimeout(timer);
+  }, [kiosk, won, onClose]);
+
+  const first = name.split(' ')[0];
 
   return (
-    <div className="text-center">
-      <ul className="grid grid-cols-3 gap-3">
-        {items.map((item, idx) => (
-          <li
-            key={item.id}
-            className={`rounded-2xl border-2 bg-surface p-3 transition-all duration-100 ${
-              lit === idx
-                ? 'scale-105 border-accent shadow-[0_0_2rem_-0.25rem_var(--color-accent)]'
-                : 'border-line opacity-70'
-            }`}
-          >
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={`Door gift for ${name}`}
+      className="fixed inset-0 z-[90] flex items-center justify-center overflow-y-auto bg-canvas/95 p-4"
+    >
+      <div className="w-full max-w-xl rounded-2xl border-2 border-accent bg-surface p-5 text-center shadow-2xl sm:p-8">
+        <p className="eyebrow">Door gift</p>
+        <h2 className="mt-1 text-2xl font-bold text-ink sm:text-3xl">
+          {won ? `${first} gets` : `Spin for ${first}`}
+        </h2>
+        <p className="text-ink-soft">{name}</p>
+
+        {won ? (
+          <div className="winner-reveal mt-4">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={item.image} alt="" className="mx-auto aspect-square w-full" />
-            <p className="mt-2 text-sm font-semibold leading-tight text-ink">{item.name}</p>
-          </li>
-        ))}
-      </ul>
-      {error ? (
-        <p role="alert" className="mt-4 font-semibold text-warning">
-          {error}
-        </p>
-      ) : null}
-      <button
-        type="button"
-        onClick={spin}
-        disabled={busy}
-        className="btn-primary mt-6 min-h-14 rounded-xl bg-primary px-10 text-lg font-bold text-on-primary disabled:opacity-60"
-      >
-        {busy ? 'Spinning…' : 'Spin for my gift'}
-      </button>
+            <img src={won.image} alt="" className="mx-auto size-40 sm:size-52" />
+            <p className="mt-2 text-3xl font-bold text-ink" role="status">
+              {won.name}!
+            </p>
+            {kiosk ? (
+              <p className="mt-2 text-ink-soft">Collect it from the secretariat at the desk.</p>
+            ) : (
+              <div className="mt-5 flex flex-wrap justify-center gap-3">
+                {handed ? (
+                  <p className="font-semibold text-success">Already handed over.</p>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => void handOver()}
+                    className="btn-primary min-h-12 rounded-xl bg-primary px-6 font-bold text-on-primary"
+                  >
+                    Handed over
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="min-h-12 rounded-xl border border-line px-6 font-semibold text-ink"
+                >
+                  {handed ? 'Close' : 'Later'}
+                </button>
+              </div>
+            )}
+          </div>
+        ) : (
+          <>
+            <ul className="mt-5 grid grid-cols-3 gap-3">
+              {items.map((item, idx) => (
+                <li
+                  key={item.id}
+                  className={`rounded-2xl border-2 bg-canvas p-3 transition-all duration-100 ${
+                    lit === idx
+                      ? 'scale-105 border-accent shadow-[0_0_2rem_-0.25rem_var(--color-accent)]'
+                      : 'border-line opacity-70'
+                  }`}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={item.image} alt="" className="mx-auto aspect-square w-full" />
+                  <p className="mt-2 text-sm font-semibold leading-tight text-ink">{item.name}</p>
+                </li>
+              ))}
+            </ul>
+            {error ? (
+              <p role="alert" className="mt-4 font-semibold text-warning">
+                {error}
+              </p>
+            ) : null}
+            <div className="mt-6 flex flex-wrap justify-center gap-3">
+              <button
+                type="button"
+                onClick={() => void spin()}
+                disabled={busy}
+                className="btn-primary min-h-14 rounded-xl bg-primary px-10 text-lg font-bold text-on-primary disabled:opacity-60"
+              >
+                {busy ? 'Spinning…' : 'Spin for the gift'}
+              </button>
+              {kiosk ? null : (
+                <button
+                  type="button"
+                  onClick={onClose}
+                  disabled={busy}
+                  className="min-h-14 rounded-xl border border-line px-6 font-semibold text-ink"
+                >
+                  Later
+                </button>
+              )}
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 }

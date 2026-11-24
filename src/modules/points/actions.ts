@@ -1,6 +1,5 @@
 'use server';
 
-import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
 import { getData } from '@/data';
@@ -8,8 +7,7 @@ import { getEventConfig } from '@/lib/config';
 import { plainText } from '@/lib/text';
 import { LIMITS, rateLimit } from '@/lib/rate-limit';
 import { currentDeviceId, deviceIdOrNew } from '@/modules/backup/server';
-import { giftFor, loadDoorGifts } from '@/modules/door-gift/server';
-import { GUEST_COOKIE, safeNext } from '@/modules/identity/logic';
+import { safeNext } from '@/modules/identity/logic';
 
 /**
  * Signs this device in as a person, for points.
@@ -80,18 +78,7 @@ export async function joinAsPerson(formData: FormData): Promise<void> {
   await data.players.link(deviceId, person.id);
   if (!fromWelcome) redirect('/me?state=joined');
 
-  // First time in: spin for a door gift, if there is one to spin for.
-  const gifts = await loadDoorGifts();
-  if (gifts.open && giftFor(person, gifts) && !gifts.claims.has(person.id)) {
-    redirect(`/door-gift?next=${encodeURIComponent(next)}`);
-  }
   redirect(next);
-}
-
-/** Someone not on the list carries on without a name, for this visit. */
-export async function continueAsGuest(formData: FormData): Promise<void> {
-  (await cookies()).set(GUEST_COOKIE, '1', { httpOnly: true, sameSite: 'lax', path: '/' });
-  redirect(safeNext(formData.get('next')));
 }
 
 export async function leaveLeaderboard(): Promise<void> {

@@ -1,5 +1,5 @@
 /**
- * Door gifts: the first time someone signs in on their phone, they spin for
+ * Door gifts: the first time someone checks in at the registration desk, they spin for
  * one of a few gifts. The chance of each gift follows how many are left, so
  * the stock runs out evenly and never goes below zero.
  *
@@ -24,7 +24,7 @@ export type GiftMode = 'off' | 'first-day' | 'on';
 
 export type DoorGiftConfig = {
   mode: GiftMode;
-  /** The secretariat spin too. Off by default: gifts are for participants. */
+  /** The secretariat spin too. On by default: everyone gets a gift. */
   secretariat: boolean;
   items: GiftItem[];
 };
@@ -45,7 +45,7 @@ export const DEFAULT_GIFTS: GiftItem[] = [
 
 export const DEFAULT_DOOR_GIFT: DoorGiftConfig = {
   mode: 'first-day',
-  secretariat: false,
+  secretariat: true,
   items: DEFAULT_GIFTS,
 };
 
@@ -67,7 +67,7 @@ export function parseDoorGiftConfig(raw: string | null): DoorGiftConfig {
       : DEFAULT_GIFTS;
     return {
       mode: MODES.includes(v.mode as GiftMode) ? (v.mode as GiftMode) : DEFAULT_DOOR_GIFT.mode,
-      secretariat: v.secretariat === true,
+      secretariat: v.secretariat !== false,
       items: items.length > 0 ? items : DEFAULT_GIFTS,
     };
   } catch {

@@ -67,27 +67,36 @@ test('a new phone says who it is, spins for a door gift, and the desk can change
   await giftSettings(page, { mode: 'on', secretariat: true, stock: ['0', '0', '30'] });
 
   try {
+    // The phone says who it is: no spin there, only a note that one waits.
     const phone = await browser.newPage();
     await phone.goto('/welcome?next=/agenda');
     await expect(phone.getByRole('heading', { name: 'Welcome! Who are you?' })).toBeVisible();
+    await expect(phone.getByRole('button', { name: 'Continue without a name' })).toHaveCount(0);
     await phone.getByLabel('Type your name').fill(`doorprize${tag}`);
     await phone.getByRole('button', { name: 'Find me' }).click();
     await phone.getByRole('link', { name: `That is me: ${name}` }).click();
     await expect(phone.getByText(`${name}?`)).toBeVisible();
     await phone.getByRole('button', { name: 'Yes, that is me' }).click();
-
-    await expect(phone).toHaveURL(/\/door-gift\?next=%2Fagenda/);
-    await phone.getByRole('button', { name: 'Spin for my gift' }).click();
-    await expect(phone.getByText('Presentation pointer!')).toBeVisible({ timeout: 20_000 });
-    await phone.getByRole('link', { name: 'Continue' }).click();
     await expect(phone).toHaveURL(/\/agenda$/);
+    await phone.goto('/door-gift');
+    await expect(phone.getByText(/spin for your door gift at the registration desk/)).toBeVisible();
 
-    // Asking again gives the same gift, never a second spin.
+    // At the desk: checking them in opens the spin.
+    await page.goto('/admin/desk');
+    await page.getByLabel('Search for a name, staff number or department').fill(`G${tag}`);
+    await page.getByRole('button', { name: 'Check in' }).first().click();
+    const dialog = page.getByRole('dialog', { name: `Door gift for ${name}` });
+    await expect(dialog).toBeVisible();
+    await dialog.getByRole('button', { name: 'Spin for the gift' }).click();
+    await expect(dialog.getByText('Presentation pointer!')).toBeVisible({ timeout: 20_000 });
+    await dialog.getByRole('button', { name: 'Later' }).click();
+    await expect(
+      page.getByText(/Door gift: Presentation pointer, not handed over yet/),
+    ).toBeVisible();
+
+    // The phone now shows the gift; asking again never spins twice.
     await phone.goto('/door-gift');
     await expect(phone.getByRole('heading', { name: 'Presentation pointer' })).toBeVisible();
-    // And the welcome page knows this phone now.
-    await phone.goto('/welcome');
-    await expect(phone.getByText('Welcome back')).toBeVisible();
     await phone.close();
 
     // The desk sees it, changes it, and marks it collected.
@@ -105,15 +114,12 @@ test('a new phone says who it is, spins for a door gift, and the desk can change
     await page.getByLabel(`Gift for ${name}`).selectOption('');
     await expect(page.getByLabel(`Gift for ${name}`)).toHaveValue('');
   } finally {
-    await giftSettings(page, { mode: 'first-day', secretariat: false, stock: ['30', '30', '30'] });
+    await giftSettings(page, { mode: 'first-day', secretariat: true, stock: ['30', '30', '30'] });
   }
 });
 
-test('the welcome page says when a name is not on the list, and never leaves the portal', async ({
-  page,
-}) => {
+test('the welcome page says when a name is not on the list', async ({ page }) => {
   await page.goto('/welcome?find=zzzzzz&next=https://evil.example');
   await expect(page.getByText(/Nobody on the list has that name/)).toBeVisible();
-  await page.getByRole('button', { name: 'Continue without a name' }).click();
-  await expect(page).toHaveURL(/127\.0\.0\.1:\d+\/$/);
+  await expect(page.getByText(/Ask the registration desk to add you/)).toBeVisible();
 });

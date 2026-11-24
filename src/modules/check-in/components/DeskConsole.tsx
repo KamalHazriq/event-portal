@@ -6,6 +6,7 @@ import { looksLikeBusinessCard } from '../business-card';
 import { parseScanPayload, scanOutcomeMessage, type ScanOutcome } from '../logic';
 import { shouldQueue } from '../offline-queue';
 import { useCheckInQueue } from './useCheckInQueue';
+import { GiftSpinner, type GiftOffer } from '@/modules/door-gift/components/GiftSpinner';
 import { useQrScanner } from './useQrScanner';
 
 /**
@@ -50,6 +51,8 @@ type Result = {
   candidates?: DeskAttendee[];
   /** Saved on this device because there was no connection. */
   queued?: boolean;
+  /** The door gift: still to spin for, or what they got. */
+  gift?: GiftOffer | null;
 };
 
 /** Ignore the same tag for this long, so one tag held up does not spam. */
@@ -69,6 +72,10 @@ export function DeskConsole({
 }) {
   const [headcount, setHeadcount] = useState<Rate>(initialHeadcount);
   const [result, setResult] = useState<Result | null>(null);
+  // The door gift spin, over the whole desk, for the person just checked in.
+  const [giftOpen, setGiftOpen] = useState<{ id: string; name: string; offer: GiftOffer } | null>(
+    null,
+  );
   const [busy, setBusy] = useState(false);
   const [query, setQuery] = useState('');
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
@@ -182,7 +189,12 @@ export function DeskConsole({
           attendee: body.attendee,
           card: body.card,
           candidates: body.candidates,
+          gift: body.gift,
         });
+        // First time at the desk with no gift yet: straight to the spin.
+        if (body.gift?.state === 'spin' && body.attendee) {
+          setGiftOpen({ id: body.attendee.id, name: body.attendee.name, offer: body.gift });
+        }
         if (body.headcount) setHeadcount(body.headcount);
         // Not on the list: start the name search for the desk.
         if (body.outcome === 'card-not-found' && body.card?.name) setQuery(body.card.name);
@@ -332,6 +344,19 @@ export function DeskConsole({
 
   return (
     <div className="space-y-4">
+      {giftOpen ? (
+        <GiftSpinner
+          key={giftOpen.id}
+          attendeeId={giftOpen.id}
+          name={giftOpen.name}
+          offer={giftOpen.offer}
+          onClose={() => {
+            setGiftOpen(null);
+            // The result card shows the gift too, without asking the server again.
+            setResult((r) => (r ? { ...r, gift: null } : r));
+          }}
+        />
+      ) : null}
       {!offline.online || offline.queue.length > 0 || offline.review.length > 0 ? (
         <section
           role="status"
@@ -419,6 +444,34 @@ export function DeskConsole({
                 <p className="text-ink-soft">
                   {[result.attendee.title, result.attendee.department].filter(Boolean).join(', ')}
                 </p>
+                {result.gift && result.attendee ? (
+                  <p className="mt-2 flex flex-wrap items-center gap-2 text-ink">
+                    <span className="font-semibold">
+                      Door gift:{' '}
+                      {result.gift.state === 'has'
+                        ? `${result.gift.item.name}${result.gift.collected ? ' (handed over)' : ', not handed over yet'}`
+                        : 'not spun yet'}
+                    </span>
+                    {result.gift.state === 'spin' ||
+                    (result.gift.state === 'has' && !result.gift.collected) ? (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          result.attendee && result.gift
+                            ? setGiftOpen({
+                                id: result.attendee.id,
+                                name: result.attendee.name,
+                                offer: result.gift,
+                              })
+                            : undefined
+                        }
+                        className="min-h-11 rounded-lg border border-line bg-surface px-3 text-sm font-semibold"
+                      >
+                        {result.gift.state === 'spin' ? 'Spin now' : 'Show'}
+                      </button>
+                    ) : null}
+                  </p>
+                ) : null}
                 {result.attendee.remark ? (
                   <p className="mt-2 inline-block rounded bg-warning/20 px-2 py-1 text-sm font-semibold text-ink">
                     {result.attendee.remark}

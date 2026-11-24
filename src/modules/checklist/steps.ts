@@ -41,7 +41,7 @@ export const TEST_PLAN: Part[] = [
           {
             id: 'a-prep-tester',
             changed: true,
-            do: 'On this page, under Test as an attendee, press Add a test participant. On the door gifts page, set "When can people spin?" to "Now, any day" for testing.',
+            do: 'On this page, under Test as an attendee, press Add a test participant. On the Door gifts page, set "When can people spin?" to "Now, any day" for testing.',
             expect:
               'Test Participant is on the list, and the Door gifts page says the spin is open now.',
             links: [
@@ -82,18 +82,18 @@ export const TEST_PLAN: Part[] = [
             changed: true,
             do: 'Still in the private window, open any page (say the Agenda). Type "Test", tap Test Participant, then press "Yes, that is me".',
             expect:
-              'Before the page, it asks "Welcome! Who are you?". After a name is picked it asks "Are you Test Participant?". "No, that is not me" goes back. Once confirmed the phone goes on to the door gift spin, then to the page it was opening, and is never asked again.',
+              'Before the page, it asks "Welcome! Who are you?" (there is no way past it without a name). After a name is picked it asks "Are you Test Participant?". "No, that is not me" goes back. Once confirmed the phone goes on to the page it was opening, and is never asked again.',
             links: [{ href: '/agenda', label: 'Agenda (in a private window)' }],
           },
           {
             id: 'a-in-gift',
             changed: true,
-            do: 'On the door gift page press "Spin for my gift". Then open the home page, and the door gift page again.',
+            do: 'On the phone, open the home page and the door gift page. Then, at the desk, check Test Participant in (see S5).',
             expect:
-              'A light runs round the three gifts, slows down and stops on one, with its name. The home page shows "Your door gift" with it, and the gift page shows the same gift again: there is only one spin.',
+              'Before check in, the phone says a door gift is waiting, to spin for at the registration desk. After the desk spin, the home page shows "Your door gift" with it, and the door gift page shows the same gift.',
             links: [
-              { href: '/door-gift', label: 'Door gift' },
               { href: '/', label: 'Home page' },
+              { href: '/door-gift', label: 'Door gift' },
             ],
           },
           {
@@ -548,8 +548,10 @@ export const TEST_PLAN: Part[] = [
           },
           {
             id: 's-desk-find',
+            changed: true,
             do: 'Find someone by name, by department (type CORES), and from the Whole list tab.',
-            expect: 'Each finds them and a tap on Check in works.',
+            expect:
+              'Each finds them and a tap on Check in works. The first time someone is checked in, a door gift card covers the desk: press "Spin for the gift", it stops on one gift, then press "Handed over" (or "Later"). Checking them in again never spins twice: it shows which gift is theirs.',
             links: [{ href: '/admin/desk', label: 'Desk' }],
           },
           {
@@ -580,7 +582,7 @@ export const TEST_PLAN: Part[] = [
             changed: true,
             do: '(Optional) On the Desk page open the kiosk: "Preview" on your own laptop, and "Open and lock this device" on the tablet. On the locked tablet, hold up a card; then type three letters of a name and pick the person; then try typing /admin.',
             expect:
-              'Preview never locks your laptop. The locked tablet shows a big "Welcome" for the card and for the typed name (it asks to confirm the name first). Typing /admin shows a "locked to the kiosk" page that needs the PIN.',
+              'Preview never locks your laptop. The locked tablet shows a big "Welcome" for the card and for the typed name (it asks to confirm the name first), and spins the door gift by itself the first time, then goes back to waiting. Typing /admin shows a "locked to the kiosk" page that needs the PIN.',
             links: [
               { href: '/kiosk', label: 'Preview the kiosk' },
               { href: '/kiosk?lock=1', label: 'Open and lock (tablet only)' },
@@ -710,7 +712,7 @@ export const TEST_PLAN: Part[] = [
             changed: true,
             do: 'On Door gifts, set the real stock of each gift and save. Find Test Participant: change their gift with the dropdown, press Mark collected, then choose "No gift yet". Finally set "When can people spin?" back to "Only on the first day".',
             expect:
-              'Each gift shows how many are given, collected and left. The change saves at once and the phone shows the new gift. "No gift yet" lets them spin again. If the stock is less than the number of people, the page says how many short.',
+              'Each gift shows how many are given, collected and left. The change saves at once and the phone shows the new gift. "No gift yet" lets them spin again at the desk. Everyone on the list gets one, the secretariat included (untick it if not). If the stock is less than the number of people, the page says how many short.',
             links: [
               { href: '/admin/door-gifts', label: 'Door gifts' },
               { href: '/door-gift', label: 'Door gift (on the phone)' },

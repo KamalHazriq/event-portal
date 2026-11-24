@@ -1,5 +1,6 @@
 'use client';
 
+import { GiftSpinner, type GiftOffer } from '@/modules/door-gift/components/GiftSpinner';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { looksLikeBusinessCard } from '../business-card';
@@ -32,6 +33,8 @@ export function KioskConsole({
   eventName: string;
 }) {
   const [shown, setShown] = useState<Shown | null>(null);
+  // The door gift spin, on its own, for someone checking in the first time.
+  const [gift, setGift] = useState<{ id: string; name: string; offer: GiftOffer } | null>(null);
   const [confirm, setConfirm] = useState<Confirm | null>(null);
   // Typing your name instead of scanning.
   const [typing, setTyping] = useState(false);
@@ -79,7 +82,8 @@ export function KioskConsole({
         });
         const body = (await response.json()) as {
           outcome: ScanOutcome;
-          attendee?: { name: string };
+          attendee?: { id: string; name: string };
+          gift?: GiftOffer | null;
           card?: { name: string; email: string };
           candidates?: Candidate[];
         };
@@ -93,6 +97,9 @@ export function KioskConsole({
           return;
         }
         show(kioskMessage(body.outcome, body.attendee?.name, dayLabel));
+        if (body.gift?.state === 'spin' && body.attendee) {
+          setGift({ id: body.attendee.id, name: body.attendee.name, offer: body.gift });
+        }
         try {
           navigator.vibrate?.(body.outcome === 'checked-in' ? 40 : [60, 50, 60]);
         } catch {
@@ -229,6 +236,16 @@ export function KioskConsole({
 
   return (
     <div className="flex min-h-dvh flex-col items-center justify-center gap-6 p-6 text-center">
+      {gift ? (
+        <GiftSpinner
+          key={gift.id}
+          kiosk
+          attendeeId={gift.id}
+          name={gift.name}
+          offer={gift.offer}
+          onClose={() => setGift(null)}
+        />
+      ) : null}
       <p className="text-sm font-semibold tracking-[0.14em] text-ink-soft uppercase">
         {eventName} · {dayLabel}
       </p>

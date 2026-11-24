@@ -10,7 +10,7 @@ import { shortDepartment } from '@/lib/departments';
 import { DEVICE_COOKIE, readDeviceId } from '@/lib/device';
 import { LIMITS, rateLimit } from '@/lib/rate-limit';
 import { safeNext } from '@/modules/identity/logic';
-import { continueAsGuest, joinAsPerson } from '@/modules/points/actions';
+import { joinAsPerson } from '@/modules/points/actions';
 import { findByName } from '@/modules/points/logic';
 import { currentPlayer } from '@/modules/points/server';
 
@@ -85,9 +85,8 @@ export default async function WelcomePage({ searchParams }: { searchParams: Prom
         <p className="eyebrow">{config.event.shortName}</p>
         <h1 className="mt-1 text-3xl font-bold text-ink">Welcome! Who are you?</h1>
         <p className="mt-2 text-ink-soft">
-          Once, on this device. Then your points, photos, feedback
-          {config.features.doorGift ? ' and door gift' : ''} are all yours, with nothing more to
-          type.
+          Once, on this device. Then your points, photos and feedback are all yours, with nothing
+          more to type.
         </p>
       </header>
 
@@ -218,15 +217,9 @@ export default async function WelcomePage({ searchParams }: { searchParams: Prom
         </section>
       )}
 
-      <form action={continueAsGuest} className="text-center">
-        <input type="hidden" name="next" value={next} />
-        <p className="text-sm text-ink-soft">
-          Not on the list? Ask the registration desk to add you.{' '}
-          <button type="submit" className="font-semibold text-ink-soft underline">
-            Continue without a name
-          </button>
-        </p>
-      </form>
+      <p className="text-center text-sm text-ink-soft">
+        Cannot find your name? Ask the registration desk to add you to the list.
+      </p>
     </div>
   );
 }
