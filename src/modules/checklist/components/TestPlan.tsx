@@ -3,11 +3,13 @@
 import Link from 'next/link';
 import { useCallback, useMemo, useSyncExternalStore } from 'react';
 
-import type { Part } from '../steps';
+import { LATEST_REVISION, type Part } from '../steps';
 
 // A new name for each round of testing, so every tick starts empty again.
 const KEY = 'portal.testplan.round-2';
 const EVENT = 'portal:testplan';
+// The log of "I have checked everything", one line per time, newest last.
+const LOG_KEY = 'portal.testplan.log';
 
 function read(): string {
   try {
@@ -35,6 +37,44 @@ function parse(raw: string): string[] {
   }
 }
 
+type LogEntry = { at: string; steps: number; latest: number };
+
+function readLog(): string {
+  try {
+    return window.localStorage.getItem(LOG_KEY) ?? '[]';
+  } catch {
+    return '[]';
+  }
+}
+
+function parseLog(raw: string): LogEntry[] {
+  try {
+    const value: unknown = JSON.parse(raw);
+    if (!Array.isArray(value)) return [];
+    return value.filter(
+      (v): v is LogEntry =>
+        typeof v === 'object' &&
+        v !== null &&
+        typeof (v as LogEntry).at === 'string' &&
+        typeof (v as LogEntry).steps === 'number',
+    );
+  } catch {
+    return [];
+  }
+}
+
+function stamp(iso: string): string {
+  return new Intl.DateTimeFormat('en-GB', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+    .format(new Date(iso))
+    .replace(',', '');
+}
+
 /**
  * The test plan as a checklist. Ticks are kept in this browser only, so a
  * second person can run their own copy, and nothing is sent anywhere.
@@ -42,6 +82,8 @@ function parse(raw: string): string[] {
 export function TestPlan({ parts }: { parts: Part[] }) {
   const raw = useSyncExternalStore(subscribe, read, () => '[]');
   const done = useMemo(() => new Set(parse(raw)), [raw]);
+  const logRaw = useSyncExternalStore(subscribe, readLog, () => '[]');
+  const log = useMemo(() => parseLog(logRaw), [logRaw]);
 
   const write = useCallback((next: Set<string>) => {
     try {
@@ -59,14 +101,33 @@ export function TestPlan({ parts }: { parts: Part[] }) {
     write(next);
   };
 
-  const changed = parts.flatMap((p) => p.groups.flatMap((g) => g.steps)).filter((st) => st.changed);
+  const allSteps = parts.flatMap((p) => p.groups.flatMap((g) => g.steps));
+  const latest = allSteps.filter((st) => st.rev === LATEST_REVISION);
+  const total = allSteps.length;
+  const doneCount = allSteps.filter((st) => done.has(st.id)).length;
+  const latestDone = latest.filter((st) => done.has(st.id)).length;
+  const percent = total === 0 ? 0 : Math.round((doneCount / total) * 100);
+  const complete = total > 0 && doneCount === total;
+
+  const logAll = () => {
+    const next = [
+      ...parseLog(readLog()),
+      { at: new Date().toISOString(), steps: total, latest: latest.length },
+    ];
+    try {
+      window.localStorage.setItem(LOG_KEY, JSON.stringify(next));
+    } catch {
+      // Storage blocked: the line only shows until the page closes.
+    }
+    window.dispatchEvent(new Event(EVENT));
+  };
 
   return (
     <div className="space-y-10">
       <p className="rounded-xl border border-accent bg-accent/10 p-4 text-ink print:hidden">
-        <strong>Round 2.</strong> All ticks start empty, so test everything again. {changed.length}{' '}
-        steps are marked <ChangedBadge />: new, or working differently since the last round. Look at
-        those closely.
+        {latest.length} steps are marked <ChangedBadge />: new, or working differently in the latest
+        changes. Look at those closely. Your ticks stay in this browser; the bar at the bottom shows
+        how far you are, and when every step is ticked you can log that you checked all of it.
       </p>
       {parts.map((part) => {
         const ids = part.groups.flatMap((g) => g.steps.map((s) => s.id));
@@ -104,7 +165,7 @@ export function TestPlan({ parts }: { parts: Part[] }) {
                         <span
                           className={`block font-semibold ${done.has(step.id) ? 'text-ink-soft line-through' : 'text-ink'}`}
                         >
-                          {step.changed ? (
+                          {step.rev === LATEST_REVISION ? (
                             <>
                               <ChangedBadge />{' '}
                             </>
@@ -173,7 +234,39 @@ export function TestPlan({ parts }: { parts: Part[] }) {
         );
       })}
 
-      <div className="print:hidden">
+      <section className="space-y-3 print:hidden" aria-labelledby="check-log">
+        <h2 id="check-log" className="text-2xl font-bold text-ink">
+          Checked log
+        </h2>
+        <p className="text-ink-soft">
+          When every step above is ticked, press the button to log that you have checked all of it
+          on this day. The log stays in this browser, newest at the bottom.
+        </p>
+        <button
+          type="button"
+          onClick={logAll}
+          disabled={!complete}
+          className="min-h-11 rounded-lg bg-primary px-4 font-bold text-on-primary disabled:opacity-40"
+        >
+          I have checked all of this
+        </button>
+        {!complete ? (
+          <p className="text-sm text-ink-soft">
+            {total - doneCount} steps left before you can log it.
+          </p>
+        ) : null}
+        {log.length === 0 ? (
+          <p className="text-ink-soft">Nothing logged yet.</p>
+        ) : (
+          <ul className="space-y-1">
+            {log.map((entry, i) => (
+              <li key={`${entry.at}-${i}`} className="rounded-lg border border-line bg-surface p-3">
+                <strong className="text-ink">{stamp(entry.at)}</strong>: checked all {entry.steps}{' '}
+                steps, {entry.latest} of them marked Latest.
+              </li>
+            ))}
+          </ul>
+        )}
         <button
           type="button"
           onClick={() => write(new Set())}
@@ -181,7 +274,40 @@ export function TestPlan({ parts }: { parts: Part[] }) {
         >
           Clear all the ticks
         </button>
+      </section>
+
+      <div
+        className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-surface/95 px-4 py-2 backdrop-blur print:hidden"
+        role="status"
+        aria-live="polite"
+      >
+        <div className="mx-auto flex max-w-5xl items-center gap-3">
+          <span className="shrink-0 text-sm font-bold tabular-nums text-ink">
+            {doneCount} of {total}
+          </span>
+          <span
+            className="h-3 flex-1 overflow-hidden rounded-full bg-muted"
+            role="progressbar"
+            aria-valuemin={0}
+            aria-valuemax={total}
+            aria-valuenow={doneCount}
+            aria-label="Test plan progress"
+          >
+            <span
+              className="block h-full rounded-full bg-success transition-all"
+              style={{ width: `${percent}%` }}
+            />
+          </span>
+          <span className="shrink-0 text-sm tabular-nums text-ink-soft">
+            {percent}%
+            <span className="hidden sm:inline">
+              {' '}
+              · Latest {latestDone} of {latest.length}
+            </span>
+          </span>
+        </div>
       </div>
+      <div aria-hidden="true" className="h-10 print:hidden" />
     </div>
   );
 }
@@ -189,7 +315,7 @@ export function TestPlan({ parts }: { parts: Part[] }) {
 function ChangedBadge() {
   return (
     <span className="inline-block rounded-md bg-accent px-1.5 py-0.5 align-middle text-xs font-bold uppercase tracking-wide text-canvas no-underline">
-      Changed
+      Latest
     </span>
   );
 }

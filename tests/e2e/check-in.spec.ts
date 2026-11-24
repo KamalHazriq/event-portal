@@ -132,8 +132,8 @@ test.describe('the registration desk', () => {
     await signIn(page);
     await page.goto('/admin/desk');
 
-    await page.getByLabel(/handheld scanner/).fill('https://app.sli.do/event/abc123');
-    await page.getByLabel(/handheld scanner/).press('Enter');
+    await page.getByLabel(/handheld barcode scanner/).fill('https://app.sli.do/event/abc123');
+    await page.getByLabel(/handheld barcode scanner/).press('Enter');
 
     await expect(page.getByText('Could not read that code')).toBeVisible();
   });
@@ -145,8 +145,8 @@ test.describe('the digital business card in the TNB app', () => {
   // hands the server the vCard form; both go through the same code.
   async function scanCard(page: Page, card: string): Promise<void> {
     await page.goto('/admin/desk');
-    await page.getByLabel(/handheld scanner/).fill(card);
-    await page.getByLabel(/handheld scanner/).press('Enter');
+    await page.getByLabel(/handheld barcode scanner/).fill(card);
+    await page.getByLabel(/handheld barcode scanner/).press('Enter');
   }
 
   test('a card whose name matches checks the person straight in', async ({ page }) => {

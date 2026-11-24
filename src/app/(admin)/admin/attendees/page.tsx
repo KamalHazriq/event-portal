@@ -209,11 +209,12 @@ export default async function AttendeesPage({ searchParams }: { searchParams: Se
           The secretariat ({secretariat} marked)
         </summary>
         <p className="mt-1 text-sm text-ink-soft">
-          The secretariat are left out of the leaderboard and the lucky draw (they are still
-          welcomed on the arrivals screen). Anyone whose department, role or remark says Secretariat
-          is found by itself, so there is nothing to do for them. Only if someone is missed, paste
-          their staff number here: it stays marked when you upload the list again. Someone who is
-          secretariat and a participant too: press Edit on their row and untick Secretariat.
+          The secretariat are kept off the leaderboard only (they can still win the lucky draw and a
+          door gift, and are welcomed on the arrivals screen). Anyone whose department, role or
+          remark says Secretariat is found by itself, so there is nothing to do for them. Only if
+          someone is missed, paste their staff number here: it stays marked when you upload the list
+          again. Someone who is secretariat and a participant too: press Edit on their row and
+          untick Secretariat.
         </p>
         {params.secretariat === 'saved' ? (
           <p role="status" className="mt-2 font-semibold text-ink">

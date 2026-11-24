@@ -75,8 +75,8 @@ describe('exclusions', () => {
     { id: 's', isSecretariat: true },
   ];
 
-  it('keeps the secretariat out until an admin saves a list', () => {
-    expect([...resolveExclusions(null, people)]).toEqual(['s']);
+  it('leaves nobody out until an admin saves a list: the secretariat may win too', () => {
+    expect([...resolveExclusions(null, people)]).toEqual([]);
   });
 
   it('uses the saved list exactly, even if it lets the secretariat in', () => {
@@ -85,8 +85,8 @@ describe('exclusions', () => {
   });
 
   it('falls back to the default on a damaged setting', () => {
-    expect([...resolveExclusions('not json', people)]).toEqual(['s']);
-    expect([...resolveExclusions('{"a":1}', people)]).toEqual(['s']);
+    expect([...resolveExclusions('not json', people)]).toEqual([]);
+    expect([...resolveExclusions('{"a":1}', people)]).toEqual([]);
   });
 });
 

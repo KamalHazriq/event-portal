@@ -290,7 +290,14 @@ export interface ReactionRepository {
 
 /** Comments and take aways on talks. */
 export interface CommentRepository {
-  add(input: { sessionId: string; text: string; name: string; deviceId: string }): Promise<Comment>;
+  add(input: {
+    sessionId: string;
+    text: string;
+    name: string;
+    deviceId: string;
+    /** Defaults to waiting for approval. */
+    status?: CommentStatus;
+  }): Promise<Comment>;
   /** With like counts. Every status: callers filter. */
   listBySession(sessionId: string): Promise<Comment[]>;
   /** Approved comments across every talk, for points. */

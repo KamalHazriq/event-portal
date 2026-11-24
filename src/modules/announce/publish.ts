@@ -11,7 +11,13 @@ import { getEventConfig } from '@/lib/config';
 import { newId } from '@/lib/ids';
 import { recordActivity } from '@/modules/admins/record';
 
-import { ANNOUNCE_KEYS, HISTORY_SIZE, parseHistory, type Announcement } from './logic';
+import {
+  ANNOUNCE_KEYS,
+  DEFAULT_DURATION,
+  HISTORY_SIZE,
+  parseHistory,
+  type Announcement,
+} from './logic';
 import { pushToAll, pushToTeam } from './push';
 
 export async function publishAnnouncement(input: {
@@ -21,6 +27,8 @@ export async function publishAnnouncement(input: {
   /** Send a notification too. Always true for the team. */
   push: boolean;
   operator: string;
+  /** How long the banner stays up, in minutes (0: until taken down). */
+  minutes?: number;
 }): Promise<Announcement> {
   const { text, href, teamOnly, operator } = input;
   const send = teamOnly || input.push;
@@ -43,6 +51,7 @@ export async function publishAnnouncement(input: {
     href,
     at: new Date().toISOString(),
     pushed,
+    minutes: input.minutes ?? DEFAULT_DURATION,
     ...(teamOnly ? { audience: 'team' as const } : {}),
   };
   const data = getData();

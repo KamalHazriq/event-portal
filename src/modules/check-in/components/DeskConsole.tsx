@@ -555,7 +555,7 @@ export function DeskConsole({
               onClick={() => manualRef.current?.focus()}
               className="min-h-11 rounded-lg border border-line px-4 py-2 font-semibold text-ink"
             >
-              Type a code
+              Scanner or paste a code
             </button>
           </div>
 
@@ -591,7 +591,8 @@ export function DeskConsole({
             }}
           >
             <label htmlFor="manual-code" className="block text-sm font-semibold text-ink">
-              Or scan with a handheld scanner, or type the code
+              For a handheld barcode scanner (it types the code here), or to paste the text of a QR
+              code. Most people will not need this: use the camera, or Find someone below.
             </label>
             <input
               id="manual-code"

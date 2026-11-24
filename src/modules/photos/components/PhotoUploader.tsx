@@ -144,7 +144,8 @@ export function PhotoUploader({
           </p>
         ) : null}
         <p className="text-sm text-ink-soft">
-          By sharing a photo, you agree it may be shown on the big screen and kept by the organisers.
+          By sharing a photo, you agree it may be shown on the big screen and kept by the
+          organisers.
         </p>
       </div>
 

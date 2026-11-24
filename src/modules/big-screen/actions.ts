@@ -5,8 +5,11 @@ import { revalidatePath } from 'next/cache';
 import { getData } from '@/data';
 import { requireAdminApi } from '@/lib/admin-guard';
 
-import { isScreenView, SCREEN_KEYS, SCREEN_VIEW_INFO } from './logic';
+import { isScreenView, parsePodiumSize, SCREEN_KEYS, SCREEN_VIEW_INFO } from './logic';
 import { recordActivity } from '@/modules/admins/record';
+import { getEventConfig } from '@/lib/config';
+import { QA_KEYS } from '@/modules/qa/logic';
+import { COMMENT_KEYS } from '@/modules/talk/logic';
 
 /**
  * The big screen switches, used from /admin/big-screen.
@@ -47,5 +50,61 @@ export async function setHideNames(formData: FormData): Promise<void> {
   await recordActivity(
     hide ? 'Hid names on the arrivals screen' : 'Showed names on the arrivals screen',
   );
+  revalidatePath('/admin/big-screen');
+}
+
+/**
+ * Which talk the projector's comments and questions are about. "auto" (or
+ * nothing) follows the talk running now. Sets both views at once.
+ */
+export async function setScreenTalk(formData: FormData): Promise<void> {
+  await assertAdmin();
+  const data = getData();
+  const raw = String(formData.get('session') ?? 'auto');
+  const known = getEventConfig()
+    .days.flatMap((d) => d.sessions)
+    .some((s) => s.id === raw);
+  if (known) {
+    await data.settings.set(COMMENT_KEYS.screenSession, raw);
+    await data.settings.set(QA_KEYS.screenSession, raw);
+  } else {
+    await data.settings.remove(COMMENT_KEYS.screenSession);
+    await data.settings.remove(QA_KEYS.screenSession);
+  }
+  await recordActivity(
+    known
+      ? 'Chose the talk for the screen comments and questions'
+      : 'Screen talk: follow the talk on now',
+  );
+  revalidatePath('/admin/big-screen');
+  revalidatePath('/admin/comments');
+}
+
+/**
+ * The podium reveal. "size" picks top 3, 5 or 10 and starts again from the
+ * bottom; "next" reveals one more place; "all" shows everything; "reset"
+ * hides it again. The screen clamps the step to the places that exist.
+ */
+export async function podiumControl(formData: FormData): Promise<void> {
+  await assertAdmin();
+  const data = getData();
+  const action = String(formData.get('action') ?? '');
+  const current = Number((await data.settings.get(SCREEN_KEYS.podiumStep)) ?? 0) || 0;
+
+  if (action === 'size') {
+    const size = parsePodiumSize(formData.get('size'));
+    await data.settings.set(SCREEN_KEYS.podiumSize, String(size));
+    await data.settings.set(SCREEN_KEYS.podiumStep, '0');
+    await recordActivity(`Podium: top ${size}`);
+  } else if (action === 'next') {
+    await data.settings.set(SCREEN_KEYS.podiumStep, String(current + 1));
+  } else if (action === 'back') {
+    await data.settings.set(SCREEN_KEYS.podiumStep, String(Math.max(0, current - 1)));
+  } else if (action === 'all') {
+    await data.settings.set(SCREEN_KEYS.podiumStep, '99');
+  } else if (action === 'reset') {
+    await data.settings.set(SCREEN_KEYS.podiumStep, '0');
+  }
+  await data.settings.set(SCREEN_KEYS.view, 'podium');
   revalidatePath('/admin/big-screen');
 }

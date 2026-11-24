@@ -29,5 +29,13 @@ export async function POST(request: Request): Promise<Response> {
   if (!comment || comment.status !== 'approved') return backToComments(sessionId, 'gone', now);
 
   const counted = await data.comments.like(commentId, deviceId);
+  // The page's own script asks for JSON, so a like never reloads the page.
+  if ((request.headers.get('accept') ?? '').includes('application/json')) {
+    return Response.json({
+      ok: true,
+      liked: counted,
+      likes: comment.likes + (counted ? 1 : 0),
+    });
+  }
   return backToComments(sessionId, counted ? 'liked' : 'already', now);
 }

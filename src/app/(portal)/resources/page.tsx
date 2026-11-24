@@ -76,23 +76,51 @@ export default function ResourcesPage() {
                 ) : null}
               </li>
             ) : (
-              <li key={resource.id}>
+              <li key={resource.id} className="rounded-lg border border-line bg-surface">
                 <a
                   href={resource.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block rounded-lg border border-line bg-surface p-4 no-underline hover:border-primary focus-visible:border-primary"
+                  className="block rounded-lg p-4 no-underline hover:bg-muted/40 focus-visible:bg-muted/40"
                 >
                   <span className="flex items-baseline justify-between gap-3">
                     <span className="font-bold text-ink">{resource.title}</span>
                     <span className="shrink-0 text-xs font-semibold uppercase text-ink-soft">
-                      {resource.kind === 'file' ? 'Download' : 'Link'}
+                      {resource.files.length > 0
+                        ? 'Everything in one go'
+                        : resource.kind === 'file'
+                          ? 'Download'
+                          : 'Link'}
                     </span>
                   </span>
                   {resource.description ? (
                     <span className="mt-1 block text-sm text-ink-soft">{resource.description}</span>
                   ) : null}
                 </a>
+                {resource.files.length > 0 ? (
+                  <details className="border-t border-line">
+                    <summary className="cursor-pointer px-4 py-3 text-sm font-semibold text-ink">
+                      Or one at a time ({resource.files.length})
+                    </summary>
+                    <ul className="divide-y divide-line px-4 pb-2">
+                      {resource.files.map((f) => (
+                        <li key={`${f.title}-${f.url}`}>
+                          <a
+                            href={f.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center justify-between gap-3 py-2.5 text-ink no-underline hover:text-primary"
+                          >
+                            <span className="min-w-0">{f.title}</span>
+                            <span aria-hidden="true" className="shrink-0 text-ink-soft">
+                              ↗
+                            </span>
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </details>
+                ) : null}
               </li>
             ),
           )}

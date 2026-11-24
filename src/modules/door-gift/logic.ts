@@ -52,7 +52,7 @@ export const GUEST_PREFIX = 'guest-';
 
 export const DEFAULT_GIFTS: GiftItem[] = [
   { id: 'massager', name: 'Massager', stock: 30, image: '/door-gifts/massager.svg' },
-  { id: 'printer', name: 'Thermal printer', stock: 30, image: '/door-gifts/printer.svg' },
+  { id: 'headphones', name: 'Headphones', stock: 30, image: '/door-gifts/headphones.svg' },
   { id: 'pointer', name: 'Presentation pointer', stock: 30, image: '/door-gifts/pointer.svg' },
 ];
 
@@ -73,9 +73,15 @@ export function parseDoorGiftConfig(raw: string | null): DoorGiftConfig {
           .filter((i): i is GiftItem => typeof i?.id === 'string' && typeof i?.name === 'string')
           .map((i) => ({
             id: i.id,
-            name: i.name,
+            // The old thermal printer is the headphones now: same stock and spins.
+            name: i.id === 'printer' && i.name === 'Thermal printer' ? 'Headphones' : i.name,
             stock: Math.max(0, Math.floor(Number(i.stock) || 0)),
-            image: typeof i.image === 'string' ? i.image : '',
+            image:
+              typeof i.image === 'string'
+                ? i.image === '/door-gifts/printer.svg'
+                  ? '/door-gifts/headphones.svg'
+                  : i.image
+                : '',
             ...(typeof i.description === 'string' && i.description
               ? { description: i.description.slice(0, MAX_GIFT_DESCRIPTION) }
               : {}),

@@ -401,6 +401,8 @@ export function NamePickerView({
     id: string;
     title: string;
     atMs: number;
+    /** Confetti and sound, or a quiet reveal. */
+    fun: boolean;
     people: { key: string; name: string; department: string }[];
   } | null;
   spinNames: string[];
@@ -420,7 +422,7 @@ export function NamePickerView({
       key={latest.id}
       prize={latest.title}
       heading="Who's next?"
-      calm
+      calm={!latest.fun}
       drawnAtMs={latest.atMs}
       winners={latest.people}
       spinNames={[...new Set([...spinNames, ...latest.people.map((p) => p.name)])]}
@@ -635,11 +637,61 @@ export function CommentsView({
   sessionTitle,
   comments,
   commentUrl,
+  layout = 'list',
 }: {
   sessionTitle: string;
   comments: { id: string; text: string; name: string; likes: number }[];
   commentUrl: string;
+  layout?: 'list' | 'bubbles';
 }) {
+  if (layout === 'bubbles') {
+    // Bubbles, like a word cloud: the more a comment is liked, the bigger it floats.
+    const most = Math.max(1, ...comments.map((c) => c.likes));
+    return (
+      <div className="screen-fade grid h-full gap-[3vw] lg:grid-cols-[1fr_auto]">
+        <section className="min-h-0">
+          <p className="text-[clamp(0.9rem,1.4vw,2rem)] font-semibold text-ink-soft">
+            {sessionTitle}
+          </p>
+          <h2 className="text-[clamp(1.6rem,3vw,4.2rem)] font-bold text-ink">
+            What people are saying
+          </h2>
+          {comments.length === 0 ? (
+            <p className="mt-[3vh] text-[clamp(1.2rem,2.2vw,3rem)] text-ink-soft">
+              No comments yet. Scan to add yours.
+            </p>
+          ) : (
+            <ul className="bubble-cloud mt-[2vh]">
+              {comments.map((c, i) => (
+                <li
+                  key={c.id}
+                  className="bubble"
+                  style={
+                    {
+                      '--grow': 1 + (c.likes / most) * 0.9,
+                      '--delay': `${(i * 0.7) % 5}s`,
+                      '--hue': `${(i * 47) % 360}`,
+                    } as React.CSSProperties
+                  }
+                >
+                  <span className="bubble-text">{c.text}</span>
+                  <span className="bubble-name">
+                    {c.name}
+                    {c.likes > 0 ? ` · 👍 ${c.likes}` : ''}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+        <ScanTile
+          url={commentUrl}
+          label="QR code that opens the talk to comment"
+          caption="Scan to comment"
+        />
+      </div>
+    );
+  }
   return (
     <div className="screen-fade grid h-full gap-[3vw] lg:grid-cols-[1fr_auto]">
       <section className="min-h-0">
@@ -664,7 +716,7 @@ export function CommentsView({
                   {c.text}
                 </p>
                 <p className="mt-[0.6vh] flex justify-between text-[clamp(0.8rem,1.2vw,1.6rem)] text-ink-soft">
-                  <span>{c.name || 'Anonymous'}</span>
+                  <span>{c.name}</span>
                   <span className="tabular-nums">👍 {c.likes}</span>
                 </p>
               </li>

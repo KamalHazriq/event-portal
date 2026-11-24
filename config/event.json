@@ -200,13 +200,6 @@
       "bio": ""
     },
     {
-      "id": "sp-emcee",
-      "name": "Emcee",
-      "title": "Master of ceremonies",
-      "organisation": "",
-      "bio": ""
-    },
-    {
       "id": "sp-datuk",
       "name": "Datuk Suhaimi Sulaiman",
       "title": "External speaker",
@@ -227,7 +220,7 @@
           "end": "11:00",
           "title": "Arrival and registration",
           "type": "logistics",
-          "room": "Classroom hall",
+          "room": "Main hall",
           "description": "Scan the QR on your name tag at the registration desk."
         },
         {
@@ -237,9 +230,9 @@
           "end": "11:10",
           "title": "Welcome and doa",
           "type": "talk",
-          "room": "Classroom hall",
+          "room": "Main hall",
           "description": "Opening of Power Summit 2027.",
-          "speakerIds": ["sp-emcee"]
+          "speakerIds": []
         },
         {
           "id": "d1-ice-breaker",
@@ -247,9 +240,9 @@
           "end": "11:30",
           "title": "Bingo ice breaker",
           "type": "activity",
-          "room": "Classroom hall",
+          "room": "Main hall",
           "description": "Find the people who match your bingo card. Mix with someone from another department.",
-          "speakerIds": ["sp-emcee"]
+          "speakerIds": []
         },
         {
           "id": "d1-reflection",
@@ -257,7 +250,7 @@
           "end": "12:30",
           "title": "2026 reflection: setting the context",
           "type": "panel",
-          "room": "Classroom hall",
+          "room": "Main hall",
           "description": "A podcast style conversation looking back at 2026 and setting the context for the next three days.",
           "objectives": [
             "Understand where we stand at the end of 2026",
@@ -282,7 +275,7 @@
           "end": "14:10",
           "title": "Secretariat sharing: SVC",
           "type": "talk",
-          "room": "Classroom hall",
+          "room": "Main hall",
           "description": "The biggest decisions and guidance from the SVC committee this year.",
           "speakerIds": ["sp-secretariat"]
         },
@@ -292,7 +285,7 @@
           "end": "14:40",
           "title": "Sharing 1: Value",
           "type": "talk",
-          "room": "Classroom hall",
+          "room": "Main hall",
           "description": "How our work creates value for the business.",
           "speakerIds": ["sp-domain"],
           "qaEnabled": true,
@@ -304,7 +297,7 @@
           "end": "14:50",
           "title": "Secretariat sharing: DLC",
           "type": "talk",
-          "room": "Classroom hall",
+          "room": "Main hall",
           "description": "The biggest decisions and guidance from the DLC committee this year.",
           "speakerIds": ["sp-secretariat"]
         },
@@ -314,7 +307,7 @@
           "end": "15:20",
           "title": "Sharing 2: Comms Network",
           "type": "talk",
-          "room": "Classroom hall",
+          "room": "Main hall",
           "description": "Where the communications network stands and where it is heading.",
           "speakerIds": ["sp-domain"],
           "qaEnabled": true,
@@ -333,7 +326,7 @@
           "end": "15:50",
           "title": "Secretariat sharing: ATC",
           "type": "talk",
-          "room": "Classroom hall",
+          "room": "Main hall",
           "description": "The biggest decisions and guidance from the ATC committee this year.",
           "speakerIds": ["sp-secretariat"]
         },
@@ -343,7 +336,7 @@
           "end": "16:20",
           "title": "Sharing 3: Data Centre and Cloud",
           "type": "talk",
-          "room": "Classroom hall",
+          "room": "Main hall",
           "description": "Our data centre and cloud direction.",
           "speakerIds": ["sp-domain"],
           "qaEnabled": true,
@@ -355,7 +348,7 @@
           "end": "16:30",
           "title": "Secretariat sharing: OTC",
           "type": "talk",
-          "room": "Classroom hall",
+          "room": "Main hall",
           "description": "The biggest decisions and guidance from the OTC committee this year.",
           "speakerIds": ["sp-secretariat"]
         },
@@ -365,7 +358,7 @@
           "end": "17:00",
           "title": "Sharing 4: Procurement",
           "type": "talk",
-          "room": "Classroom hall",
+          "room": "Main hall",
           "description": "What is changing in procurement, and what it means for your projects.",
           "speakerIds": ["sp-domain"],
           "qaEnabled": true,
@@ -393,7 +386,7 @@
           "type": "activity",
           "room": "Majestic 2 ballroom",
           "description": "A team activity for everyone, participants and secretariat together.",
-          "speakerIds": ["sp-emcee"],
+          "speakerIds": [],
           "feedbackEnabled": true
         }
       ]
@@ -556,29 +549,181 @@
       "id": "res-posters",
       "title": "Session summary posters (test link)",
       "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
-      "description": "One poster per session with the key points, to keep and share with your team. Published after each day.",
-      "kind": "file"
+      "description": "One poster per session with the key points. Take them all in one go, or one at a time. Published after each day.",
+      "kind": "file",
+      "files": [
+        {
+          "title": "Day 1: Welcome and doa",
+          "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+        },
+        {
+          "title": "Day 1: Bingo ice breaker",
+          "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+        },
+        {
+          "title": "Day 1: 2026 reflection: setting the context",
+          "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+        },
+        {
+          "title": "Day 1: Secretariat sharing: SVC",
+          "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+        },
+        {
+          "title": "Day 1: Sharing 1: Value",
+          "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+        },
+        {
+          "title": "Day 1: Secretariat sharing: DLC",
+          "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+        },
+        {
+          "title": "Day 1: Sharing 2: Comms Network",
+          "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+        },
+        {
+          "title": "Day 1: Secretariat sharing: ATC",
+          "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+        },
+        {
+          "title": "Day 1: Sharing 3: Data Centre and Cloud",
+          "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+        },
+        {
+          "title": "Day 1: Secretariat sharing: OTC",
+          "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+        },
+        {
+          "title": "Day 1: Sharing 4: Procurement",
+          "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+        },
+        {
+          "title": "Day 1: Synergy Night",
+          "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+        },
+        {
+          "title": "Day 2: Setting the stage: our next S-curve",
+          "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+        },
+        {
+          "title": "Day 2: Breakout 1: Sustain, Strengthen and Step Up",
+          "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+        },
+        {
+          "title": "Day 2: M-level session (HODs)",
+          "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+        },
+        {
+          "title": "Day 2: Breakout 2: From Issues to Interventions",
+          "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+        },
+        {
+          "title": "Day 2: Shaping our next S-curve: group presentations",
+          "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+        },
+        {
+          "title": "Day 3: Morning wellness: Pound, Zumba or Yoga",
+          "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+        },
+        {
+          "title": "Day 3: External speaker: Datuk Suhaimi Sulaiman",
+          "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+        },
+        {
+          "title": "Day 3: Recap video",
+          "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+        },
+        {
+          "title": "Day 3: CDIO closing remarks",
+          "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+        }
+      ]
     },
     {
       "id": "res-sharing-slides",
       "title": "Day 1 sharing slides (test link)",
       "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
-      "description": "The slides from the four domain sharings and the committee secretariat updates.",
-      "kind": "file"
+      "description": "The slides from the domain sharings and the committee secretariat updates.",
+      "kind": "file",
+      "files": [
+        {
+          "title": "Welcome and doa",
+          "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+        },
+        {
+          "title": "2026 reflection: setting the context",
+          "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+        },
+        {
+          "title": "Secretariat sharing: SVC",
+          "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+        },
+        {
+          "title": "Sharing 1: Value",
+          "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+        },
+        {
+          "title": "Secretariat sharing: DLC",
+          "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+        },
+        {
+          "title": "Sharing 2: Comms Network",
+          "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+        },
+        {
+          "title": "Secretariat sharing: ATC",
+          "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+        },
+        {
+          "title": "Sharing 3: Data Centre and Cloud",
+          "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+        },
+        {
+          "title": "Secretariat sharing: OTC",
+          "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+        },
+        {
+          "title": "Sharing 4: Procurement",
+          "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+        }
+      ]
+    },
+    {
+      "id": "res-day2-slides",
+      "title": "Day 2 sharing slides (test link)",
+      "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+      "description": "The slides from the Day 2 presentations.",
+      "kind": "file",
+      "files": [
+        {
+          "title": "Setting the stage: our next S-curve",
+          "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+        },
+        {
+          "title": "Shaping our next S-curve: group presentations",
+          "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+        }
+      ]
     },
     {
       "id": "res-breakouts",
       "title": "Breakout outputs (test link)",
       "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
       "description": "What each Day 2 group proposed, as presented in the afternoon.",
-      "kind": "file"
-    },
-    {
-      "id": "res-photos",
-      "title": "Event photos (test link)",
-      "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
-      "description": "Photos from all three days, including the Day 1 group photo.",
-      "kind": "link"
+      "kind": "file",
+      "files": [
+        {
+          "title": "Breakout 1: Sustain, Strengthen and Step Up",
+          "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+        },
+        {
+          "title": "M-level session (HODs)",
+          "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+        },
+        {
+          "title": "Breakout 2: From Issues to Interventions",
+          "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+        }
+      ]
     }
   ],
   "surprise": {
@@ -621,7 +766,7 @@
         "items": [
           {
             "label": "Registration",
-            "text": "Day 1 from 10:00 am in the Classroom hall."
+            "text": "Day 1 from 10:00 am in the Main hall."
           },
           {
             "label": "Hotel check in",

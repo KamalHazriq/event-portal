@@ -82,7 +82,10 @@ export function GiftSpinner({
       started.current = false;
       return;
     }
-    const target = Math.max(0, items.findIndex((i) => i.id === item.id));
+    const target = Math.max(
+      0,
+      items.findIndex((i) => i.id === item.id),
+    );
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const gaps = reduce ? [] : spinSchedule(SPIN_MS);
     // Start where the last flick lands on the gift that was won.
@@ -146,14 +149,30 @@ export function GiftSpinner({
             won ? 'border-success' : 'border-accent'
           }`}
         >
-          <div key={step} className={spinning ? 'draw-tick' : won ? 'winner-reveal' : ''}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={current.image} alt="" className="mx-auto size-40 object-contain sm:size-52" />
-            <p className="mt-2 text-xl font-bold text-ink">{current.name}</p>
-            {current.description && !spinning ? (
-              <p className="mt-0.5 text-sm text-ink-soft">{current.description}</p>
-            ) : null}
-          </div>
+          {spinning || won ? (
+            <div key={step} className={spinning ? 'draw-tick' : 'winner-reveal'}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={current.image}
+                alt=""
+                className="mx-auto size-40 object-contain sm:size-52"
+              />
+              <p className="mt-2 text-xl font-bold text-ink">{current.name}</p>
+              {current.description && !spinning ? (
+                <p className="mt-0.5 text-sm text-ink-soft">{current.description}</p>
+              ) : null}
+            </div>
+          ) : (
+            <div className="mystery-bob">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/door-gifts/mystery.svg"
+                alt="A mystery gift box"
+                className="mx-auto size-40 object-contain sm:size-52"
+              />
+              <p className="mt-2 text-xl font-bold text-ink">What will be your mystery gift?</p>
+            </div>
+          )}
         </div>
 
         {won ? (
@@ -197,21 +216,6 @@ export function GiftSpinner({
           </div>
         ) : (
           <>
-            {spinning ? null : (
-              <ul className="mt-4 flex justify-center gap-2" aria-label="The gifts">
-                {items.map((item) => (
-                  <li key={item.id} className="w-20 text-center">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={item.image}
-                      alt=""
-                      className="mx-auto size-12 rounded-lg border border-line bg-canvas object-contain"
-                    />
-                    <p className="mt-1 text-[11px] leading-tight text-ink-soft">{item.name}</p>
-                  </li>
-                ))}
-              </ul>
-            )}
             {error ? (
               <p role="alert" className="mt-4 font-semibold text-warning">
                 {error}

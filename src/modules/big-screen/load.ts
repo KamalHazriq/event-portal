@@ -16,6 +16,7 @@ import {
   reactionEmoji,
   SCREEN_COMMENTS,
   SCREEN_REACTION_WINDOW_MS,
+  resolveCommentLayout,
 } from '@/modules/talk/logic';
 import { loadScoreboard } from '@/modules/points/server';
 import { logoFor, resolveTheme } from '@/lib/theme';
@@ -36,7 +37,10 @@ import { buildAgenda, findNowAndNext, type ResolvedSession } from '@/modules/sch
 
 import {
   arrivalCards,
+  clampPodiumStep,
   guestCount,
+  parsePodiumSize,
+  podiumGroups,
   SCREEN_KEYS,
   resolveScreenSettings,
   type ScreenSettings,
@@ -57,6 +61,7 @@ import type {
   WelcomeView,
 } from './components/ScreenViews';
 import type { ComponentProps } from 'react';
+import type { PodiumView } from './components/PodiumView';
 
 /**
  * Reaction taps from the last few seconds, for the floating reactions over
@@ -113,7 +118,8 @@ export type ScreenPayload =
   | { view: 'qa'; props: ComponentProps<typeof QuestionsView> }
   | { view: 'poll'; props: ComponentProps<typeof PollView> }
   | { view: 'leaderboard'; props: ComponentProps<typeof LeaderboardView> }
-  | { view: 'comments'; props: ComponentProps<typeof CommentsView> };
+  | { view: 'comments'; props: ComponentProps<typeof CommentsView> }
+  | { view: 'podium'; props: ComponentProps<typeof PodiumView> };
 
 export async function loadScreenView(
   view: ScreenView,
@@ -218,9 +224,7 @@ export async function loadScreenView(
 
       // Names to spin through: whoever could have been drawn, shuffled, plus
       // the winners, so the spin feels like the real hat.
-      const hat = checkIns
-        .map((c) => c.attendee)
-        .filter((a) => !excluded.has(a.id) && !a.isSecretariat);
+      const hat = checkIns.map((c) => c.attendee).filter((a) => !excluded.has(a.id));
       const spinNames = hat
         .map((a) => ({ a, k: Math.random() }))
         .sort((x, y) => x.k - y.k)
@@ -267,6 +271,7 @@ export async function loadScreenView(
             ? {
                 id: latest.id,
                 title: latest.title,
+                fun: latest.fun !== false,
                 atMs: new Date(latest.at).getTime(),
                 people: latest.people.map((p) => ({
                   key: p.id,
@@ -368,6 +373,7 @@ export async function loadScreenView(
         view,
         props: {
           sessionTitle: session?.title ?? '',
+          layout: resolveCommentLayout(await data.settings.get(COMMENT_KEYS.screenLayout)),
           comments: list.map((c) => ({
             id: c.id,
             text: c.text,
@@ -404,6 +410,35 @@ export async function loadScreenView(
             average: row.average,
           })),
           joinUrl: passLink(`${config.event.portalUrl.replace(/\/$/, '')}/me`),
+        },
+      };
+    }
+
+    case 'podium': {
+      if (!config.features.leaderboard) return loadScreenView('welcome', now, settings);
+      const data = getData();
+      const [board, sizeRaw, stepRaw] = await Promise.all([
+        loadScoreboard(),
+        data.settings.get(SCREEN_KEYS.podiumSize),
+        data.settings.get(SCREEN_KEYS.podiumStep),
+      ]);
+      const size = parsePodiumSize(sizeRaw);
+      const groups = podiumGroups(board.people, size);
+      return {
+        view,
+        props: {
+          size,
+          calm: settings.calm,
+          revealed: clampPodiumStep(Number(stepRaw ?? 0), groups.length),
+          places: groups.map((g) => ({
+            rank: g.rank,
+            points: g.points,
+            people: g.people.map((p) => ({
+              id: p.attendeeId,
+              name: settings.hideNames ? shortName(p.name) : p.name,
+              department: shortDepartment(config, p.department),
+            })),
+          })),
         },
       };
     }

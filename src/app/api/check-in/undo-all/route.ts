@@ -8,6 +8,7 @@ import { z } from 'zod';
 import { getData } from '@/data';
 import { requireAdminApi } from '@/lib/admin-guard';
 import { getEventConfig } from '@/lib/config';
+import { checkedInIds, releaseAfterUndo } from '@/modules/check-in/undo-links';
 import { recordActivity } from '@/modules/admins/record';
 
 const BodySchema = z.object({
@@ -36,7 +37,10 @@ export async function POST(request: Request): Promise<Response> {
     );
   }
 
+  const affected = await checkedInIds(dayId === 'all' ? undefined : [dayId]);
   const removed = await getData().checkIns.clear(dayId === 'all' ? undefined : dayId);
+  // Gifts and lucky draw wins go with the attendance they hung on.
+  await releaseAfterUndo(affected, { includeGuests: dayId === 'all' });
   await recordActivity(
     `Undid ALL check ins (${dayId === 'all' ? 'every day' : dayId}): ${removed} removed`,
     auth.session.operator,

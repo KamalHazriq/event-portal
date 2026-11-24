@@ -91,6 +91,9 @@ test('a new phone says who it is, spins for a door gift, and the desk can change
     await page.getByRole('button', { name: 'Check in' }).first().click();
     const dialog = page.getByRole('dialog', { name: `Door gift for ${name}` });
     await expect(dialog).toBeVisible();
+    // Before the spin: only a mystery box, never the list of gifts.
+    await expect(dialog.getByText('What will be your mystery gift?')).toBeVisible();
+    await expect(dialog.getByText('Massager')).toHaveCount(0);
     await dialog.getByRole('button', { name: 'Spin!' }).click();
     await expect(dialog.getByText('Your door gift is the Presentation pointer!')).toBeVisible({
       timeout: 20_000,
@@ -142,7 +145,7 @@ test('the desk gives a guest who is not on the list a spin too', async ({ page }
     await page.getByRole('button', { name: 'Spin a door gift' }).click();
     const dialog = page.getByRole('dialog', { name: 'Door gift for Walk In Visitor' });
     await dialog.getByRole('button', { name: 'Spin!' }).click();
-    await expect(dialog.getByText('Your door gift is the Thermal printer!')).toBeVisible({
+    await expect(dialog.getByText('Your door gift is the Headphones!')).toBeVisible({
       timeout: 20_000,
     });
     await dialog.getByRole('button', { name: 'Handed over' }).click();

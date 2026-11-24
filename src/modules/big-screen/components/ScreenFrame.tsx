@@ -1,3 +1,4 @@
+import { PodiumView } from './PodiumView';
 import { AutoRefresh } from '@/components/AutoRefresh';
 
 import { SCREEN_POLL_MS } from '../logic';
@@ -105,6 +106,7 @@ export function ScreenFrame({
           {payload.view === 'poll' ? <PollView {...payload.props} /> : null}
           {payload.view === 'leaderboard' ? <LeaderboardView {...payload.props} /> : null}
           {payload.view === 'comments' ? <CommentsView {...payload.props} /> : null}
+          {payload.view === 'podium' ? <PodiumView {...payload.props} /> : null}
         </div>
       </ViewTransition>
       {banner ? (

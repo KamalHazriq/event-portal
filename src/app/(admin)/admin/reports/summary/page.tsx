@@ -1,8 +1,11 @@
+import { BackLink } from '@/components/BackLink';
 import type { Metadata } from 'next';
 import { findShortName } from '@/lib/departments';
-import Link from 'next/link';
 
+import { getData } from '@/data';
 import { requireAdmin } from '@/lib/admin-guard';
+import { isInteractiveType } from '@/modules/talk/logic';
+import { loadScoreboard } from '@/modules/points/server';
 import { PrintButton } from '@/modules/reports/components/PrintButton';
 import { buildReportSummary, localDateTime } from '@/modules/reports/logic';
 import { loadReportInput } from '@/modules/reports/load';
@@ -20,8 +23,9 @@ const stars = (n: number | null) => (n === null ? 'No ratings' : `${n.toFixed(1)
  * the browser: "Save as PDF" in the print dialog makes the file. Same choice
  * as the name tags: no PDF library, and a layout change is a CSS edit.
  *
- * Counts and averages only. No names, so the PDF can travel further than
- * the Excel file.
+ * Counts and averages, plus the room's own highlights: the most liked comments
+ * and the leaderboard top five, which carry names (as they do on the big
+ * screen). No staff numbers or emails.
  */
 export default async function ReportSummaryPage() {
   await requireAdmin('/admin/reports/summary');
@@ -33,6 +37,34 @@ export default async function ReportSummaryPage() {
   const rated = s.sessions.filter((x) => x.average !== null);
   const top = [...rated].sort((a, b) => (b.average ?? 0) - (a.average ?? 0)).slice(0, 3);
 
+  // The room's own highlights: most liked comments, the leaderboard, reactions.
+  const photos = input.photos ?? { approved: 0, total: 0 };
+  const data = getData();
+  const titleOf = new Map(
+    config.days.flatMap((d) => d.sessions).map((x) => [x.id, x.title] as const),
+  );
+  const interactive = config.days
+    .flatMap((d) => d.sessions)
+    .filter((x) => isInteractiveType(x.type));
+  const [allComments, board, reactionTotals] = await Promise.all([
+    config.features.comments ? data.comments.listAll() : Promise.resolve([]),
+    config.features.leaderboard ? loadScoreboard() : Promise.resolve(null),
+    config.features.reactions
+      ? Promise.all(
+          interactive.map(async (x) => ({ id: x.id, totals: await data.reactions.totals(x.id) })),
+        )
+      : Promise.resolve([]),
+  ]);
+  const likedComments = allComments
+    .filter((c) => c.status === 'approved')
+    .sort((a, b) => b.likes - a.likes)
+    .slice(0, 3);
+  const reactionSum = (t: Record<string, number>) => Object.values(t).reduce((n, v) => n + v, 0);
+  const totalReactions = reactionTotals.reduce((n, r) => n + reactionSum(r.totals), 0);
+  const mostReacted = [...reactionTotals].sort(
+    (a, b) => reactionSum(b.totals) - reactionSum(a.totals),
+  )[0];
+
   const th = 'border-b border-line py-1 pr-3 text-left font-semibold text-ink-soft';
   const td = 'border-b border-line py-1 pr-3 align-top text-ink';
   const num = 'border-b border-line py-1 pr-3 text-right tabular-nums text-ink';
@@ -41,24 +73,107 @@ export default async function ReportSummaryPage() {
   return (
     <div className="mx-auto max-w-3xl">
       <div className="mb-5 flex flex-wrap items-center gap-3 print:hidden">
+        <BackLink href="/admin/reports">Reports</BackLink>
         <PrintButton />
-        <Link href="/admin/reports" className="text-sm font-semibold text-primary">
-          Back to reports
-        </Link>
         <p className="w-full text-sm text-ink-soft">
           In the print dialog, choose Save as PDF and A4. It fits on two or three pages.
         </p>
       </div>
 
       <article className="text-sm leading-snug">
-        <div className="border-b-2 border-primary pb-3">
-          <p className="text-xs font-bold uppercase tracking-wide text-ink-soft">Event report</p>
-          <h1 className="text-2xl font-bold text-ink">{config.event.name}</h1>
-          <p className="text-ink-soft">
-            {config.event.venue}. Made{' '}
-            {localDateTime(input.generatedAt.toISOString(), config.event.timezone)}.
-          </p>
+        <div className="flex items-start justify-between gap-4 border-b-2 border-primary pb-3">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-wide text-ink-soft">Event report</p>
+            <h1 className="text-2xl font-bold text-ink">{config.event.name}</h1>
+            <p className="text-ink-soft">
+              {config.event.venue}. Made{' '}
+              {localDateTime(input.generatedAt.toISOString(), config.event.timezone)}.
+            </p>
+          </div>
+          {config.branding.organisationLogoPath ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={config.branding.organisationLogoPath}
+              alt={config.branding.organisationName || 'Organiser logo'}
+              className="h-12 w-auto shrink-0"
+            />
+          ) : null}
         </div>
+
+        <h2 className={h2}>Highlights</h2>
+        <ul className="mt-1 list-disc space-y-1 pl-5 text-ink">
+          <li>
+            {s.guestsAttendedAny} of {s.guests} guests came on at least one day
+            {pct(s.guestsAttendedAny, s.guests)}.
+          </li>
+          {totalReactions > 0 ? (
+            <li>
+              {totalReactions} reactions were tapped
+              {mostReacted && reactionSum(mostReacted.totals) > 0
+                ? `, most during "${titleOf.get(mostReacted.id) ?? mostReacted.id}"`
+                : ''}
+              .
+            </li>
+          ) : null}
+          <li>
+            {photos.approved} photos shared on the wall
+            {photos.total > photos.approved ? ` (${photos.total} sent)` : ''}.
+          </li>
+          {likedComments.length > 0 ? <li>{allComments.length} comments from the room.</li> : null}
+        </ul>
+
+        {likedComments.length > 0 ? (
+          <>
+            <h2 className={h2}>Most liked comments</h2>
+            <ol className="mt-1 space-y-2">
+              {likedComments.map((c) => (
+                <li key={c.id} className="break-inside-avoid border-l-4 border-primary pl-3">
+                  <p className="text-ink">&ldquo;{c.text}&rdquo;</p>
+                  <p className="text-sm text-ink-soft">
+                    {c.name}, on {titleOf.get(c.sessionId) ?? c.sessionId}. {c.likes}{' '}
+                    {c.likes === 1 ? 'like' : 'likes'}
+                  </p>
+                </li>
+              ))}
+            </ol>
+          </>
+        ) : null}
+
+        {board && board.people.length > 0 ? (
+          <>
+            <h2 className={h2}>Leaderboard</h2>
+            <div className="mt-1 grid grid-cols-2 gap-x-6 text-ink">
+              <div>
+                <p className="text-sm font-semibold text-ink-soft">Top 5 people</p>
+                <ol className="mt-1 space-y-0.5">
+                  {board.people
+                    .filter((r) => r.rank <= 5)
+                    .map((r) => (
+                      <li key={r.attendeeId} className="flex justify-between gap-2">
+                        <span>
+                          {r.rank}. {r.name}
+                        </span>
+                        <span className="tabular-nums">{r.points}</span>
+                      </li>
+                    ))}
+                </ol>
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-ink-soft">Top 3 departments</p>
+                <ol className="mt-1 space-y-0.5">
+                  {board.departments.slice(0, 3).map((d) => (
+                    <li key={d.department} className="flex justify-between gap-2">
+                      <span>
+                        {d.rank}. {findShortName(config, d.department)}
+                      </span>
+                      <span className="tabular-nums">{d.average.toFixed(1)} avg</span>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            </div>
+          </>
+        ) : null}
 
         <h2 className={h2}>Attendance</h2>
         <p className="mt-1 text-ink">

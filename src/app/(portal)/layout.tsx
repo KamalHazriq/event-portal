@@ -1,5 +1,6 @@
 import Link from 'next/link';
 
+import { EventEndedBanner } from '@/components/EventEndedBanner';
 import { OfflineSupport } from '@/components/OfflineSupport';
 import { NameGate } from '@/modules/identity/components/NameGate';
 import { SiteHeader } from '@/components/SiteHeader';
@@ -33,6 +34,7 @@ export default async function PortalLayout({ children }: { children: React.React
         >
           {/* Room below a banner: the home page hero tucks up under the header. */}
           <div className="mb-8 empty:hidden lg:mb-12">
+            <EventEndedBanner />
             <AnnouncementBanner />
             <LuckyWinBanner />
           </div>
@@ -60,6 +62,7 @@ export default async function PortalLayout({ children }: { children: React.React
         // opt out to use a wide screen. See their root class names.
         className="mx-auto w-full max-w-[96rem] flex-1 px-4 pb-16 pt-6 sm:px-6 lg:px-10 lg:pt-10 [&>*]:mx-auto [&>*]:w-full [&>*]:max-w-3xl"
       >
+        <EventEndedBanner />
         <AnnouncementBanner />
         <LuckyWinBanner />
         {children}

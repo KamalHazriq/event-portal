@@ -11,7 +11,7 @@ import { DEVICE_COOKIE, readDeviceId } from '@/lib/device';
 import { newId } from '@/lib/ids';
 import { recordActivity } from '@/modules/admins/record';
 
-import { ANNOUNCE_KEYS, NUDGE_KEYS, cleanAnnouncementText, safeHref } from './logic';
+import { ANNOUNCE_KEYS, NUDGE_KEYS, cleanAnnouncementText, parseDuration, safeHref } from './logic';
 import { pushToDevice, pushToTeam } from './push';
 import { publishAnnouncement } from './publish';
 import { loadReminders, saveReminders } from '@/modules/reminders/dispatch';
@@ -57,6 +57,7 @@ export async function postAnnouncement(formData: FormData): Promise<void> {
       audience: teamOnly ? 'team' : 'everyone',
       ...(href ? { href } : {}),
       push: teamOnly || formData.get('push') === 'on',
+      minutes: parseDuration(formData.get('minutes')),
     };
     await saveReminders([...list, reminder]);
     await recordActivity(`Scheduled for ${at.replace('T', ' ')}: ${text}`, operator);
@@ -70,6 +71,7 @@ export async function postAnnouncement(formData: FormData): Promise<void> {
     teamOnly,
     push: formData.get('push') === 'on',
     operator,
+    minutes: parseDuration(formData.get('minutes')),
   });
   done();
 }

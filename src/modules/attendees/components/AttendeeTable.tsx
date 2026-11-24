@@ -84,27 +84,27 @@ export function AttendeeTable({ rows }: { rows: AttendeeRow[] }) {
           Nobody matches.
         </p>
       ) : (
-        <div className="max-h-[70vh] max-w-full overflow-auto rounded-xl border border-line [contain:inline-size]">
-          <table className="w-full min-w-[62rem] table-fixed text-left text-sm">
+        <div className="relative max-w-full overflow-x-auto rounded-xl border border-line">
+          <table className="w-full min-w-[44rem] table-fixed text-left text-sm lg:min-w-0">
             {/* Fixed widths, so the columns stay put as the list filters. */}
             <colgroup>
-              <col className="w-14" />
-              <col className="w-[30%]" />
-              <col className="w-28" />
-              <col className="w-[20%]" />
+              <col className="w-10" />
+              <col className="w-[27%]" />
               <col className="w-24" />
-              <col className="w-[18%]" />
-              <col className="w-24" />
+              <col className="w-[21%]" />
+              <col className="w-20" />
+              <col className="w-[15%]" />
+              <col className="w-16" />
             </colgroup>
-            <thead className="sticky top-0 z-10 bg-muted text-ink-soft">
+            <thead className="bg-muted text-ink-soft">
               <tr>
-                <th className="px-3 py-2 font-semibold">No</th>
-                <th className="px-3 py-2 font-semibold">Name</th>
-                <th className="px-3 py-2 font-semibold">Staff no</th>
-                <th className="px-3 py-2 font-semibold">Role</th>
-                <th className="px-3 py-2 font-semibold">Dept</th>
-                <th className="px-3 py-2 font-semibold">Remarks</th>
-                <th className="px-3 py-2 font-semibold">
+                <th className="px-2 py-2 font-semibold">No</th>
+                <th className="px-2 py-2 font-semibold">Name</th>
+                <th className="px-2 py-2 font-semibold">Staff no</th>
+                <th className="px-2 py-2 font-semibold">Role</th>
+                <th className="px-2 py-2 font-semibold">Dept</th>
+                <th className="px-2 py-2 font-semibold">Remarks</th>
+                <th className="px-2 py-2 font-semibold">
                   <span className="sr-only">Edit</span>
                 </th>
               </tr>
@@ -112,8 +112,8 @@ export function AttendeeTable({ rows }: { rows: AttendeeRow[] }) {
             <tbody>
               {shown.map((p) => (
                 <tr key={p.id} className="border-t border-line bg-surface hover:bg-muted/40">
-                  <td className="px-3 py-2 tabular-nums text-ink-soft">{p.no ?? ''}</td>
-                  <td className="break-words px-3 py-2 font-semibold text-ink">
+                  <td className="px-2 py-2 tabular-nums text-ink-soft">{p.no ?? ''}</td>
+                  <td className="break-words px-2 py-2 font-semibold text-ink">
                     {p.name}
                     {p.isSecretariat ? (
                       <span className="ml-2 rounded bg-muted px-1.5 py-0.5 text-xs font-semibold text-ink-soft">
@@ -121,19 +121,19 @@ export function AttendeeTable({ rows }: { rows: AttendeeRow[] }) {
                       </span>
                     ) : null}
                   </td>
-                  <td className="px-3 py-2 font-mono text-ink">{p.staffNo}</td>
-                  <td className="break-words px-3 py-2 text-ink">
+                  <td className="px-2 py-2 font-mono text-ink">{p.staffNo}</td>
+                  <td className="break-words px-2 py-2 text-ink">
                     {p.title || <span className="text-warning">No role</span>}
                   </td>
-                  <td className="truncate px-3 py-2 text-ink" title={p.departmentFull}>
+                  <td className="truncate px-2 py-2 text-ink" title={p.departmentFull}>
                     {p.department}
                   </td>
-                  <td className="break-words px-3 py-2 text-ink-soft">{p.remark}</td>
-                  <td className="px-3 py-2">
+                  <td className="break-words px-2 py-2 text-ink-soft">{p.remark}</td>
+                  <td className="px-2 py-2">
                     <Link
                       href={`/admin/attendees/${p.id}`}
                       aria-label={`Edit ${p.name}`}
-                      className="inline-flex min-h-9 items-center rounded-lg border border-line px-3 text-sm font-semibold text-ink no-underline transition-colors hover:border-primary hover:text-primary"
+                      className="inline-flex min-h-9 items-center rounded-lg border border-line px-2 text-sm font-semibold text-ink no-underline transition-colors hover:border-primary hover:text-primary"
                     >
                       Edit
                     </Link>

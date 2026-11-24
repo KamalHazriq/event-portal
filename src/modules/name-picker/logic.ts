@@ -17,7 +17,7 @@ export type Picked = { id: string; name: string; department: string };
 
 export type PickerState = {
   /** The latest pick, shown on the big screen. */
-  latest: { id: string; title: string; at: string; people: Picked[] } | null;
+  latest: { id: string; title: string; at: string; people: Picked[]; fun?: boolean } | null;
   /** Everyone picked so far, so nobody is picked twice until a reset. */
   pickedIds: string[];
 };
@@ -34,6 +34,7 @@ export function parsePickerState(raw: string | null): PickerState {
             id: String(v.latest.id ?? ''),
             title: String(v.latest.title ?? ''),
             at: String(v.latest.at ?? ''),
+            fun: v.latest.fun !== false,
             people: v.latest.people
               .filter((p): p is Picked => typeof p?.id === 'string' && typeof p?.name === 'string')
               .map((p) => ({ id: p.id, name: p.name, department: String(p.department ?? '') })),

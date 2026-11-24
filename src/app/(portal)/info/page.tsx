@@ -67,7 +67,10 @@ export default function InfoPage() {
  * with the day in bold. Anything else stays as written.
  */
 function InfoText({ text }: { text: string }) {
-  const parts = text.split(/(?=\bDay \d+\s*:)/).map((p) => p.trim()).filter(Boolean);
+  const parts = text
+    .split(/(?=\bDay \d+\s*:)/)
+    .map((p) => p.trim())
+    .filter(Boolean);
   if (parts.length < 2) return <>{text}</>;
   return (
     <ul className="space-y-1.5">

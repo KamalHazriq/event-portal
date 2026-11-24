@@ -119,6 +119,10 @@ export default async function NamePickerPage() {
             Include the secretariat
           </label>
           <label className="flex min-h-11 items-center gap-3 text-ink">
+            <input type="checkbox" name="fun" defaultChecked className="size-5" />
+            Make it fun: confetti and a fanfare
+          </label>
+          <label className="flex min-h-11 items-center gap-3 text-ink">
             <input type="checkbox" name="showOnScreen" defaultChecked className="size-5" />
             Spin it on the big screen
           </label>

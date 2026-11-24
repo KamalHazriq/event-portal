@@ -15,6 +15,7 @@ import {
   saveSpeaker,
 } from '@/modules/content/actions';
 import { sessionTypeLabel } from '@/modules/schedule/logic';
+import { SpeakerPicker } from '@/modules/content/components/SpeakerPicker';
 import { FormPending } from '@/components/FormPending';
 
 export const dynamic = 'force-dynamic';
@@ -299,47 +300,14 @@ export default async function AgendaEditorPage({ searchParams }: { searchParams:
                           </span>
                         </label>
 
-                        <details className="group rounded-lg border border-line bg-canvas">
-                          <summary className="flex min-h-11 cursor-pointer items-center gap-2 px-3 text-sm text-ink">
-                            <span className="font-semibold">Speakers:</span>
-                            <span className="min-w-0 flex-1 truncate text-ink-soft">
-                              {s.speakerIds.length === 0
-                                ? 'None, tap to choose'
-                                : s.speakerIds
-                                    .map((sid) => config.speakers.find((p) => p.id === sid)?.name)
-                                    .filter(Boolean)
-                                    .join(', ')}
-                            </span>
-                            <span
-                              aria-hidden="true"
-                              className="transition-transform group-open:rotate-180"
-                            >
-                              ▾
-                            </span>
-                          </summary>
-                          <div className="grid max-h-64 gap-1 overflow-y-auto border-t border-line p-3 sm:grid-cols-2">
-                            {config.speakers.map((p) => (
-                              <label
-                                key={p.id}
-                                className="flex min-h-9 items-center gap-3 text-sm text-ink"
-                              >
-                                <input
-                                  type="checkbox"
-                                  name="speaker"
-                                  value={p.id}
-                                  defaultChecked={s.speakerIds.includes(p.id)}
-                                  className="size-5"
-                                />
-                                <span>
-                                  {p.name}
-                                  {p.title ? (
-                                    <span className="text-ink-soft">, {p.title}</span>
-                                  ) : null}
-                                </span>
-                              </label>
-                            ))}
-                          </div>
-                        </details>
+                        <SpeakerPicker
+                          options={config.speakers.map((p) => ({
+                            id: p.id,
+                            name: p.name,
+                            title: p.title,
+                          }))}
+                          chosen={s.speakerIds}
+                        />
 
                         <div className="space-y-1">
                           <label className="flex min-h-11 items-center gap-3 text-ink">

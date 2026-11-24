@@ -117,6 +117,7 @@ describe('saved edits over the event file', () => {
           url: 'https://files.example.org/s.pdf',
           description: '',
           kind: 'file',
+          files: [],
         },
       ],
       departments: [{ name: 'Corporate & Engineering Services', short: 'CORES' }],
@@ -152,7 +153,14 @@ describe('saved edits over the event file', () => {
 
     const badLink = merge({
       resources: [
-        { id: 'a', title: 'A', url: 'javascript:alert(1)', description: '', kind: 'link' },
+        {
+          id: 'a',
+          title: 'A',
+          url: 'javascript:alert(1)',
+          description: '',
+          kind: 'link',
+          files: [],
+        },
       ],
     });
     expect(badLink.problems.length).toBeGreaterThan(0);

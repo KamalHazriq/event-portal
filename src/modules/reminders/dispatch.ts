@@ -49,6 +49,7 @@ export async function dispatchDueReminders(now: Date = new Date()): Promise<numb
         href: r.href ?? '',
         teamOnly: r.audience === 'team',
         push: r.push ?? true,
+        minutes: r.minutes,
         operator: 'scheduled',
       }).catch(() => null);
     }

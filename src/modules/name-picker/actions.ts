@@ -70,7 +70,13 @@ export async function pickPeople(formData: FormData): Promise<void> {
   await data.settings.set(
     PICKER_KEY,
     JSON.stringify({
-      latest: { id: newId(), title, at: new Date().toISOString(), people: picked },
+      latest: {
+        id: newId(),
+        title,
+        at: new Date().toISOString(),
+        people: picked,
+        fun: formData.get('fun') === 'on',
+      },
       pickedIds: [...new Set([...state.pickedIds, ...picked.map((p) => p.id)])],
     }),
   );

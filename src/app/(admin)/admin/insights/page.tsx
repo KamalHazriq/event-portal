@@ -242,7 +242,7 @@ export default async function InsightsPage({ searchParams }: { searchParams: Sea
             No reactions, comments or ratings yet.
           </p>
         ) : (
-          <div className="overflow-x-auto rounded-xl border border-line bg-surface">
+          <div className="relative overflow-x-auto rounded-xl border border-line bg-surface">
             <table className="w-full min-w-[34rem] text-left text-sm tabular-nums">
               <thead className="text-ink-soft">
                 <tr>

@@ -49,7 +49,27 @@ export const MAX_COMMENTS_PER_DEVICE = 5;
 /** How many comments the projector shows at once. */
 export const SCREEN_COMMENTS = 5;
 
+/** Registration, meals, breaks and free time: nothing to react to or comment on. */
+export function isInteractiveType(type: string): boolean {
+  return !['logistics', 'meal', 'break'].includes(type);
+}
+
+/** Comments wait for approval only when the secretariat turn that on. Off by default: every comment carries a name. */
+export function commentsNeedApproval(stored: string | null): boolean {
+  return stored === 'on';
+}
+
+export const COMMENT_LAYOUTS = ['list', 'bubbles'] as const;
+export type CommentLayout = (typeof COMMENT_LAYOUTS)[number];
+export function resolveCommentLayout(stored: string | null): CommentLayout {
+  return stored === 'bubbles' ? 'bubbles' : 'list';
+}
+
 export const COMMENT_KEYS = {
+  /** "on": comments wait for approval. Otherwise they show at once. */
+  approval: 'comments.approval',
+  /** list or bubbles on the projector. */
+  screenLayout: 'comments.screenLayout',
   /** Which talk the projector shows comments for. */
   screenSession: 'comments.screenSession',
   /** "off" stops reactions floating up on the projector. */
@@ -74,6 +94,7 @@ export const COMMENT_MESSAGES: Record<string, { text: string; good: boolean }> =
     text: 'Thanks. Your comment is below, waiting for the secretariat to approve it.',
     good: true,
   },
+  live: { text: 'Thanks. Your comment is up.', good: true },
   liked: { text: 'Liked.', good: true },
   who: { text: 'Say who you are first, so your comment carries your name.', good: false },
   already: { text: 'You already liked that one.', good: true },

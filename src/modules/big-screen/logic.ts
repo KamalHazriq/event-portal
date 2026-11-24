@@ -22,6 +22,7 @@ export const SCREEN_VIEWS = [
   'poll',
   'leaderboard',
   'comments',
+  'podium',
 ] as const;
 export type ScreenView = (typeof SCREEN_VIEWS)[number];
 
@@ -30,6 +31,9 @@ export const SCREEN_KEYS = {
   hideNames: 'bigscreen.hideNames',
   /** Calm mode: no moving background and no hexagon wipe, for a weak projector laptop. */
   calm: 'bigscreen.calm',
+  /** The podium: how many places (3, 5 or 10) and how many the MC has revealed so far. */
+  podiumSize: 'bigscreen.podium.size',
+  podiumStep: 'bigscreen.podium.step',
 } as const;
 
 export const DEFAULT_SCREEN_VIEW: ScreenView = 'welcome';
@@ -99,6 +103,12 @@ export const SCREEN_VIEW_INFO: Record<
     description: 'The most liked approved comments on a talk, with a QR to add one.',
     whenToUse: 'After a talk, or while people are reacting',
   },
+  podium: {
+    title: 'Podium reveal',
+    description:
+      'The top 3, 5 or 10, revealed one place at a time from the bottom up, with confetti. The MC taps Reveal next.',
+    whenToUse: 'The closing, when the winners are announced',
+  },
   leaderboard: {
     title: 'Leaderboard',
     description: 'The top eight people and the department ranking, with a QR to join.',
@@ -133,6 +143,7 @@ export function availableScreenViews(features: {
       (view !== 'qa' || features.qa) &&
       (view !== 'poll' || features.polls) &&
       (view !== 'leaderboard' || features.leaderboard === true) &&
+      (view !== 'podium' || features.leaderboard === true) &&
       (view !== 'comments' || features.comments === true),
   );
 }
@@ -210,4 +221,41 @@ export function arrivalMilestone(percent: number): { at: number; text: string } 
   if (percent >= 50) return { at: 50, text: 'Halfway there!' };
   if (percent >= 25) return { at: 25, text: 'A quarter of us are here' };
   return null;
+}
+
+/* ------------------------------------------------------------------ podium */
+
+export const PODIUM_SIZES = [3, 5, 10] as const;
+export type PodiumSize = (typeof PODIUM_SIZES)[number];
+
+export function parsePodiumSize(value: unknown): PodiumSize {
+  const n = Number(value);
+  return (PODIUM_SIZES as readonly number[]).includes(n) ? (n as PodiumSize) : 3;
+}
+
+export type PodiumGroup<T> = { rank: number; points: number; people: T[] };
+
+/**
+ * The places on the podium. Equal points share a place, so a tie at the
+ * cut-off shows everyone tied rather than dropping someone by luck: the top 3
+ * with two people tied for 3rd shows four names. Places run best first.
+ */
+export function podiumGroups<T extends { rank: number; points: number }>(
+  rows: T[],
+  size: number,
+): PodiumGroup<T>[] {
+  const groups: PodiumGroup<T>[] = [];
+  for (const row of rows) {
+    if (row.rank > size) continue;
+    const last = groups[groups.length - 1];
+    if (last && last.rank === row.rank) last.people.push(row);
+    else groups.push({ rank: row.rank, points: row.points, people: [row] });
+  }
+  return groups;
+}
+
+/** Places shown so far: clamped, so a stale step never overruns. */
+export function clampPodiumStep(step: number, groups: number): number {
+  if (!Number.isFinite(step)) return 0;
+  return Math.max(0, Math.min(groups, Math.floor(step)));
 }

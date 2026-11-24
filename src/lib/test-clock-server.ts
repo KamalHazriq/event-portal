@@ -18,3 +18,9 @@ export async function testClockOn(): Promise<boolean> {
   if (!timeOverrideAllowed()) return false;
   return readTestClock((await cookies()).get(TEST_CLOCK_COOKIE)?.value) !== null;
 }
+
+/** The moment saved on this device, or null when the test clock is off. */
+export async function testClockMoment(): Promise<string | null> {
+  if (!timeOverrideAllowed()) return null;
+  return readTestClock((await cookies()).get(TEST_CLOCK_COOKIE)?.value);
+}

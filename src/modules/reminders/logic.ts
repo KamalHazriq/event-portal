@@ -21,6 +21,8 @@ export type Reminder = {
   href?: string;
   /** For everyone: send a notification as well as the banner. Defaults to yes. */
   push?: boolean;
+  /** How long its banner stays up, in minutes (0: until taken down). */
+  minutes?: number;
   /** When it was sent, as an ISO instant. */
   sentAt?: string;
 };

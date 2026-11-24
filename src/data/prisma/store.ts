@@ -1206,6 +1206,7 @@ export function createPrismaAdapter(
           text: input.text,
           name: plainText(input.name, 60),
           deviceId: input.deviceId,
+          ...(input.status ? { status: input.status } : {}),
         },
         include: { _count: { select: { likes: true } } },
       });

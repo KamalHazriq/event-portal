@@ -217,6 +217,14 @@ export const ResourceSchema = z.object({
   description: z.string().max(400).default(''),
   /** "file" shows a download hint in the UI. */
   kind: z.enum(['link', 'file']).default('link'),
+  /**
+   * The same thing, one file at a time (for example one poster per session).
+   * The link above is then "everything in one go": a folder or a zip.
+   */
+  files: z
+    .array(z.object({ title: z.string().min(1).max(160), url: link }))
+    .max(80)
+    .default([]),
 });
 
 /**

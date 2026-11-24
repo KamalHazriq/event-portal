@@ -12,6 +12,9 @@ import {
   SCREEN_VIEW_INFO,
   SCREEN_VIEWS,
   arrivalMilestone,
+  clampPodiumStep,
+  parsePodiumSize,
+  podiumGroups,
 } from './logic';
 
 describe('screen settings', () => {
@@ -114,5 +117,26 @@ describe('arrivalMilestone', () => {
     expect(arrivalMilestone(64)?.text).toBe('Halfway there!');
     expect(arrivalMilestone(99)?.at).toBe(75);
     expect(arrivalMilestone(100)?.text).toContain('Everyone');
+  });
+});
+
+describe('podium', () => {
+  const row = (rank: number, points: number) => ({ rank, points });
+
+  it('groups equal points into one place and keeps a tie at the cut-off together', () => {
+    const rows = [row(1, 90), row(2, 80), row(3, 70), row(3, 70), row(5, 60)];
+    const groups = podiumGroups(rows, 3);
+    expect(groups.map((g) => [g.rank, g.people.length])).toEqual([
+      [1, 1],
+      [2, 1],
+      [3, 2],
+    ]);
+  });
+
+  it('clamps the reveal step and falls back to top 3', () => {
+    expect(clampPodiumStep(99, 3)).toBe(3);
+    expect(clampPodiumStep(-2, 3)).toBe(0);
+    expect(parsePodiumSize('7')).toBe(3);
+    expect(parsePodiumSize('10')).toBe(10);
   });
 });

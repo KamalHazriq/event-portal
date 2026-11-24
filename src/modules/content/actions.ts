@@ -214,6 +214,20 @@ export async function saveInfo(formData: FormData): Promise<void> {
 
 /* ----------------------------------------------------------------- resources */
 
+/** "Title | https://link", one per line. A line with no link is kept out. */
+function parseResourceFiles(text: unknown): { title: string; url: string }[] {
+  const out: { title: string; url: string }[] = [];
+  for (const line of String(text ?? '').split(/\r?\n/)) {
+    const cut = line.lastIndexOf('|');
+    if (cut < 0) continue;
+    const title = plainText(line.slice(0, cut), 160);
+    const url = plainText(line.slice(cut + 1), 600);
+    if (title && url) out.push({ title, url });
+    if (out.length >= 80) break;
+  }
+  return out;
+}
+
 export async function saveResources(formData: FormData): Promise<void> {
   const { operator, overlay } = await begin();
   const taken = new Set<string>();
@@ -223,6 +237,7 @@ export async function saveResources(formData: FormData): Promise<void> {
     url: string;
     description: string;
     kind: 'link' | 'file';
+    files: { title: string; url: string }[];
   }[] = [];
 
   for (let j = 0; j < 80; j += 1) {
@@ -239,6 +254,7 @@ export async function saveResources(formData: FormData): Promise<void> {
       url,
       description: plainText(formData.get(`r${j}.description`), 400),
       kind: formData.get(`r${j}.kind`) === 'file' ? 'file' : 'link',
+      files: parseResourceFiles(formData.get(`r${j}.files`)),
     });
   }
   for (let j = 0; j < 5; j += 1) {
@@ -251,6 +267,7 @@ export async function saveResources(formData: FormData): Promise<void> {
       url,
       description: plainText(formData.get(`n${j}.description`), 400),
       kind: formData.get(`n${j}.kind`) === 'file' ? 'file' : 'link',
+      files: parseResourceFiles(formData.get(`n${j}.files`)),
     });
   }
   overlay.resources = kept;
@@ -290,6 +307,31 @@ export async function saveSession(formData: FormData): Promise<void> {
   if (!patch.slidesLabel) delete patch.slidesLabel;
   const clearLabel = !plainText(formData.get('slidesLabel'), 40);
   const clearSlides = !slidesLink(formData.get('slidesUrl'));
+
+  // "Other": names typed in. Someone already on the list is just ticked; a new
+  // name becomes a speaker of their own, ready to tick on other sessions too.
+  const typed = String(formData.get('otherSpeaker') ?? '')
+    .split(',')
+    .map((n) => plainText(n, 120))
+    .filter(Boolean);
+  if (typed.length > 0) {
+    const known = [...getEventConfig().speakers, ...(overlay.addedSpeakers ?? [])];
+    const takenIds = new Set(known.map((sp) => sp.id));
+    for (const name of typed) {
+      const match = known.find((sp) => sp.name.toLowerCase() === name.toLowerCase());
+      if (match) {
+        patch.speakerIds = [...new Set([...(patch.speakerIds ?? []), match.id])];
+        continue;
+      }
+      const speakerId = uniqueId(name, takenIds);
+      overlay.addedSpeakers = [
+        ...(overlay.addedSpeakers ?? []),
+        { id: speakerId, name, title: '', organisation: '', bio: '' },
+      ];
+      known.push({ id: speakerId, name, title: '', organisation: '', bio: '' });
+      patch.speakerIds = [...new Set([...(patch.speakerIds ?? []), speakerId])];
+    }
+  }
 
   const added = overlay.addedSessions?.find((a) => a.session.id === id);
   if (added) {

@@ -18,7 +18,7 @@ const day = {
   id: 'day-1',
   label: 'Day 1',
   date: '2026-12-14',
-  sessions: [session({ id: 'reg', title: 'Arrival and registration', room: 'Classroom hall' })],
+  sessions: [session({ id: 'reg', title: 'Arrival and registration', room: 'Main hall' })],
 } as unknown as ResolvedDay;
 const event = { name: 'Power Summit 2027', startDate: '2026-12-14', endDate: '2026-12-16' };
 const f = { clock: (t: string) => t, shortDate: () => 'Mon 14 Dec' };
@@ -34,7 +34,7 @@ describe('the announcement line', () => {
   it('before the event: when and where it starts, and how to check in', () => {
     const a = announcement(base, event, '2026-11-20', f);
     expect(a.strong).toBe('Day 1, Mon 14 Dec.');
-    expect(a.text).toBe('Arrival and registration from 10:00 in the Classroom hall.');
+    expect(a.text).toBe('Arrival and registration from 10:00 in the Main hall.');
     expect(a.link.href).toBe('/agenda');
   });
 

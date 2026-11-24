@@ -11,10 +11,37 @@ import {
   resolvePhotoLayout,
 } from '@/modules/photos/logic';
 import { getData } from '@/data';
-import { setHideNames, setScreenCalm, setScreenView } from '@/modules/big-screen/actions';
+import {
+  podiumControl,
+  setHideNames,
+  setScreenCalm,
+  setScreenTalk,
+  setScreenView,
+} from '@/modules/big-screen/actions';
+import { buildAgenda } from '@/modules/schedule/logic';
+import { AutoRefresh } from '@/components/AutoRefresh';
+import { pageNowParam } from '@/lib/test-clock-server';
+import { resolveEventNow } from '@/lib/time';
+import { suggestScreenView } from '@/modules/big-screen/suggest';
+import {
+  COMMENT_KEYS,
+  commentsNeedApproval,
+  isInteractiveType,
+  resolveCommentLayout,
+} from '@/modules/talk/logic';
+import { setCommentApproval, setCommentLayout } from '@/modules/talk/actions';
 import { ScaledPreview } from '@/modules/big-screen/components/ScaledPreview';
 import { readScreenSettings } from '@/modules/big-screen/load';
-import { availableScreenViews, SCREEN_VIEW_INFO } from '@/modules/big-screen/logic';
+import {
+  availableScreenViews,
+  clampPodiumStep,
+  parsePodiumSize,
+  PODIUM_SIZES,
+  podiumGroups,
+  SCREEN_KEYS,
+  SCREEN_VIEW_INFO,
+} from '@/modules/big-screen/logic';
+import { loadScoreboard } from '@/modules/points/server';
 
 export const dynamic = 'force-dynamic';
 
@@ -27,17 +54,83 @@ export default async function BigScreenControlPage() {
   const settings = await readScreenSettings();
   const views = availableScreenViews(config.features);
   const photoLayout = resolvePhotoLayout(await getData().settings.get(PHOTO_KEYS.layout));
+  const [chosenRaw, commentLayoutRaw, approvalRaw] = await Promise.all([
+    getData().settings.get(COMMENT_KEYS.screenSession),
+    getData().settings.get(COMMENT_KEYS.screenLayout),
+    getData().settings.get(COMMENT_KEYS.approval),
+  ]);
+  const talks = buildAgenda(config).sessions.filter((s) => isInteractiveType(s.type));
+  const chosenTalk = talks.some((t) => t.id === chosenRaw) ? (chosenRaw as string) : 'auto';
+  const commentLayout = resolveCommentLayout(commentLayoutRaw);
+  const commentsApproval = commentsNeedApproval(approvalRaw);
 
   if (!config.features.bigScreen) notFound();
 
+  // The podium: places and ties, so the MC knows what they are about to reveal.
+  const podiumSize = parsePodiumSize(await getData().settings.get(SCREEN_KEYS.podiumSize));
+  const podiumGroupsNow = config.features.leaderboard
+    ? podiumGroups((await loadScoreboard()).people, podiumSize)
+    : [];
+  const podiumStep = clampPodiumStep(
+    Number((await getData().settings.get(SCREEN_KEYS.podiumStep)) ?? 0),
+    podiumGroupsNow.length,
+  );
+  const podiumTies = podiumGroupsNow.filter((g) => g.people.length > 1);
+
+  // A nudge from the clock and the agenda. The device test clock applies here too,
+  // so it can be tried before the day.
+  const now = resolveEventNow({
+    timezone: config.event.timezone,
+    overrideParam: await pageNowParam(null),
+  });
+  const suggestion = suggestScreenView(buildAgenda(config), now, views);
+
   return (
     <div className="space-y-5">
+      <AutoRefresh intervalMs={30_000} />
       <header>
         <h1 className="text-2xl font-bold text-ink">Big screen</h1>
         <p className="mt-1 text-ink-soft">
           Pick what the ballroom projector shows. It changes within a few seconds.
         </p>
       </header>
+
+      {suggestion ? (
+        <section
+          aria-label="Suggestion"
+          className={`rounded-xl border-2 p-4 ${
+            suggestion.view === settings.view
+              ? 'border-success bg-success/10'
+              : 'border-accent bg-accent/10'
+          }`}
+        >
+          <p className="text-xs font-bold uppercase tracking-wide text-ink-soft">
+            Suggestion for {formatClockMinutes(now.minutes)}
+          </p>
+          <p className="mt-1 font-semibold text-ink">{suggestion.reason}</p>
+          {suggestion.view === settings.view ? (
+            <p className="mt-1 text-success">
+              Already on the screen: {SCREEN_VIEW_INFO[suggestion.view].title}. Nothing to do.
+            </p>
+          ) : (
+            <>
+              <p className="mt-1 text-sm text-ink-soft">
+                The projector shows {SCREEN_VIEW_INFO[settings.view].title} now. Only change it if
+                there is no other reason for what is up.
+              </p>
+              <form action={setScreenView} className="mt-2">
+                <input type="hidden" name="view" value={suggestion.view} />
+                <button
+                  type="submit"
+                  className="min-h-11 rounded-lg bg-primary px-4 font-bold text-on-primary"
+                >
+                  Put {SCREEN_VIEW_INFO[suggestion.view].title} on the screen
+                </button>
+              </form>
+            </>
+          )}
+        </section>
+      ) : null}
 
       <section>
         <h2 className="mb-2 text-sm font-bold uppercase tracking-wide text-ink-soft">
@@ -82,6 +175,70 @@ export default async function BigScreenControlPage() {
         })}
       </ul>
 
+      {config.features.leaderboard ? (
+        <section className="rounded-xl border border-line bg-surface p-4">
+          <h2 className="text-sm font-bold uppercase tracking-wide text-ink-soft">Podium reveal</h2>
+          <p className="mt-1 text-sm text-ink-soft">
+            Reveals the winners one place at a time, from the bottom up, with confetti and a fanfare
+            for the winner. Pick how many places, then tap Reveal next on stage. People with the
+            same points share a place, and a tie at the cut-off shows everyone tied.
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label="How many places">
+            {PODIUM_SIZES.map((n) => (
+              <form key={n} action={podiumControl}>
+                <input type="hidden" name="action" value="size" />
+                <input type="hidden" name="size" value={n} />
+                <button
+                  type="submit"
+                  aria-pressed={n === podiumSize}
+                  className={[
+                    'min-h-11 rounded-lg px-4 font-bold',
+                    n === podiumSize
+                      ? 'bg-primary text-on-primary'
+                      : 'border border-line bg-surface text-ink',
+                  ].join(' ')}
+                >
+                  Top {n}
+                </button>
+              </form>
+            ))}
+          </div>
+          <p className="mt-3 text-sm text-ink">
+            {podiumGroupsNow.length === 0
+              ? 'Nobody has points yet.'
+              : `${podiumStep} of ${podiumGroupsNow.length} places revealed.`}
+          </p>
+          {podiumTies.length > 0 ? (
+            <p className="mt-1 text-sm text-ink-soft">
+              Tied:{' '}
+              {podiumTies
+                .map((g) => `${g.people.length} people share place ${g.rank} (${g.points} points)`)
+                .join('; ')}
+              . To settle it, spin the Name picker among their names, or let them share the place.
+            </p>
+          ) : null}
+          <div className="mt-3 flex flex-wrap gap-2">
+            {[
+              ['next', 'Reveal next', 'bg-primary text-on-primary'],
+              ['back', 'Hide last', 'border border-line bg-surface text-ink'],
+              ['all', 'Show all', 'border border-line bg-surface text-ink'],
+              ['reset', 'Start again', 'border border-line bg-surface text-ink'],
+            ].map(([action, label, look]) => (
+              <form key={action} action={podiumControl}>
+                <input type="hidden" name="action" value={action} />
+                <button type="submit" className={`min-h-11 rounded-lg px-4 font-bold ${look}`}>
+                  {label}
+                </button>
+              </form>
+            ))}
+          </div>
+          <p className="mt-2 text-xs text-ink-soft">
+            Every button also puts the podium on the projector. Click the projector screen once
+            beforehand so the browser allows sound.
+          </p>
+        </section>
+      ) : null}
+
       {config.features.photoWall ? (
         <section className="rounded-xl border border-line bg-surface p-4">
           <h2 className="text-sm font-bold uppercase tracking-wide text-ink-soft">
@@ -122,6 +279,65 @@ export default async function BigScreenControlPage() {
       ) : null}
 
       <section className="rounded-xl border border-line bg-surface p-4">
+        <h2 className="text-sm font-bold uppercase tracking-wide text-ink-soft">
+          Comments, questions and reactions
+        </h2>
+        <form action={setScreenTalk} className="mt-2 flex flex-wrap items-end gap-2">
+          <label className="min-w-0 flex-1 text-sm font-semibold text-ink">
+            Which talk the comments and questions are about
+            <select
+              name="session"
+              defaultValue={chosenTalk}
+              className="mt-1 block min-h-11 w-full rounded-lg border border-line bg-canvas px-3 font-normal text-ink"
+            >
+              <option value="auto">Automatic: the talk that is on now</option>
+              {talks.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.dayLabel}, {t.start}: {t.title}
+                </option>
+              ))}
+            </select>
+          </label>
+          <button
+            type="submit"
+            className="min-h-11 rounded-lg bg-primary px-4 font-bold text-on-primary"
+          >
+            Use this talk
+          </button>
+        </form>
+        <p className="mt-2 text-sm text-ink-soft">
+          Each question and comment is sent from one talk&apos;s page, so it belongs to that talk.
+          The screen shows the ones of the talk chosen here, or of the talk running now when this is
+          on Automatic. Lunch, breaks and registration are not on the list: they have none.
+        </p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <form action={setCommentLayout}>
+            <input
+              type="hidden"
+              name="layout"
+              value={commentLayout === 'bubbles' ? 'list' : 'bubbles'}
+            />
+            <button
+              type="submit"
+              className="min-h-11 rounded-lg border border-line px-4 text-sm font-semibold text-ink"
+            >
+              Comments look: {commentLayout === 'bubbles' ? 'bubbles' : 'a list'} (switch to{' '}
+              {commentLayout === 'bubbles' ? 'a list' : 'bubbles'})
+            </button>
+          </form>
+          <form action={setCommentApproval}>
+            <input type="hidden" name="mode" value={commentsApproval ? 'off' : 'on'} />
+            <button
+              type="submit"
+              className="min-h-11 rounded-lg border border-line px-4 text-sm font-semibold text-ink"
+            >
+              Comments need approval: {commentsApproval ? 'on' : 'off'}
+            </button>
+          </form>
+        </div>
+      </section>
+
+      <section className="rounded-xl border border-line bg-surface p-4">
         <h2 className="text-sm font-bold uppercase tracking-wide text-ink-soft">Effects</h2>
         <p className="mt-1 text-ink">
           Moving background and hexagon wipe are{' '}
@@ -147,7 +363,7 @@ export default async function BigScreenControlPage() {
           <span className="font-bold">{settings.hideNames ? 'hidden' : 'shown'}</span>.
           {settings.hideNames
             ? ' Only the counter is on screen.'
-            : ' The secretariat never get a card.'}
+            : ' Everyone who checks in gets a card.'}
         </p>
         <form action={setHideNames} className="mt-3">
           <input type="hidden" name="hideNames" value={settings.hideNames ? 'false' : 'true'} />
@@ -212,4 +428,10 @@ export default async function BigScreenControlPage() {
       </section>
     </div>
   );
+}
+
+function formatClockMinutes(minutes: number): string {
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
 }

@@ -16,7 +16,15 @@ import {
   setScreenReactions,
   showCommentsOnScreen,
 } from '@/modules/talk/actions';
-import { COMMENT_KEYS, COMMENT_STATUS_LABEL, rankComments, REACTIONS } from '@/modules/talk/logic';
+import {
+  COMMENT_KEYS,
+  COMMENT_STATUS_LABEL,
+  commentsNeedApproval,
+  isInteractiveType,
+  rankComments,
+  REACTIONS,
+} from '@/modules/talk/logic';
+import { setCommentApproval } from '@/modules/talk/actions';
 
 export const dynamic = 'force-dynamic';
 
@@ -34,7 +42,8 @@ export default async function CommentsPage({ searchParams }: { searchParams: Sea
 
   const params = await searchParams;
   const agenda = buildAgenda(config);
-  const sessions = agenda.sessions;
+  // Lunch, breaks and registration have no comments: they are not on the list.
+  const sessions = agenda.sessions.filter((s) => isInteractiveType(s.type));
 
   // The asked for talk, else the one running now, else the first.
   const live = findNowAndNext(agenda, resolveEventNow({ timezone: config.event.timezone })).live;
@@ -49,12 +58,14 @@ export default async function CommentsPage({ searchParams }: { searchParams: Sea
     : 'pending';
 
   const data = getData();
-  const [all, totals, screenReactions] = await Promise.all([
+  const [all, totals, screenReactions, approvalRaw] = await Promise.all([
     // Every talk in one list: no picking a session to moderate.
     config.features.comments ? data.comments.listAll() : Promise.resolve([]),
     session && config.features.reactions ? data.reactions.totals(session.id) : null,
     data.settings.get(COMMENT_KEYS.screenReactions),
+    data.settings.get(COMMENT_KEYS.approval),
   ]);
+  const approvalOn = commentsNeedApproval(approvalRaw);
   const reactionsOnScreen = screenReactions !== 'off';
   const counts = { pending: 0, approved: 0, hidden: 0 };
   for (const c of all) counts[c.status] += 1;
@@ -86,8 +97,9 @@ export default async function CommentsPage({ searchParams }: { searchParams: Sea
       <div>
         <h1 className="text-2xl font-bold text-ink">Comments and reactions</h1>
         <p className="mt-1 text-ink-soft">
-          Comments from every talk wait here, in one list, for approval before anyone sees them.
-          Reactions need no approval.
+          Comments from every talk are in one list. With approval on, each waits here before anyone
+          sees it; with approval off (the default) they go straight up, always with the
+          writer&apos;s name, and you can hide any of them here. Reactions need no approval.
         </p>
       </div>
 
@@ -142,6 +154,17 @@ export default async function CommentsPage({ searchParams }: { searchParams: Sea
                     className="min-h-11 rounded-lg bg-primary px-4 text-sm font-bold text-on-primary"
                   >
                     Show comments on the big screen
+                  </button>
+                </form>
+              ) : null}
+              {config.features.comments ? (
+                <form action={setCommentApproval}>
+                  <input type="hidden" name="mode" value={approvalOn ? 'off' : 'on'} />
+                  <button
+                    type="submit"
+                    className="min-h-11 rounded-lg border border-line px-4 text-sm font-semibold text-ink"
+                  >
+                    Comments need approval: {approvalOn ? 'on' : 'off'}
                   </button>
                 </form>
               ) : null}

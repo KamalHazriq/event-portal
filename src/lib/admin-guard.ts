@@ -33,14 +33,27 @@ async function notePresence(operator: string, page: string): Promise<void> {
   }
 }
 
-/** The current sign in round: 0 until someone presses "Sign everyone out". */
-export async function currentGeneration(): Promise<number> {
-  try {
-    const stored = Number(await getData().settings.get(GENERATION_KEY));
-    return Number.isInteger(stored) && stored > 0 ? stored : 0;
-  } catch {
-    return 0;
+/**
+ * The current sign in round: 0 until someone presses "Sign everyone out".
+ * Null when the database could not be asked (waking up, a dropped
+ * connection): callers must not treat that as round 0, or everyone is
+ * signed out by a blip.
+ */
+export async function currentGenerationOrNull(): Promise<number | null> {
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      const stored = Number(await getData().settings.get(GENERATION_KEY));
+      return Number.isInteger(stored) && stored > 0 ? stored : 0;
+    } catch {
+      // Try once more, then give up without guessing.
+    }
   }
+  return null;
+}
+
+/** For signing in: the round, asking again if the database is slow to answer. */
+export async function currentGeneration(): Promise<number> {
+  return (await currentGenerationOrNull()) ?? 0;
 }
 
 /** Returns the signed in operator, or null. Never throws. */
@@ -48,8 +61,10 @@ export async function getAdminSession(): Promise<AdminSession | null> {
   const store = await cookies();
   const session = readSessionValue(store.get(ADMIN_COOKIE)?.value);
   if (!session) return null;
-  // A cookie from before the last "Sign everyone out" is no longer good.
-  return session.generation === (await currentGeneration()) ? session : null;
+  // A cookie from before the last "Sign everyone out" is no longer good. If the
+  // round cannot be read right now, the signed, unexpired cookie is trusted.
+  const round = await currentGenerationOrNull();
+  return round === null || session.generation === round ? session : null;
 }
 
 /**

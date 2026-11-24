@@ -1,6 +1,6 @@
 'use server';
 
-import { cookies } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import { TEST_CLOCK_COOKIE, TEST_CLOCK_HOURS, testClockValue } from '@/lib/test-clock';
 import { timeOverrideAllowed } from '@/lib/time';
 
@@ -85,7 +85,7 @@ export async function clearAllButPhotos(formData: FormData): Promise<void> {
       .trim()
       .toUpperCase() !== 'CLEAR'
   ) {
-    redirect('/admin/admins?cleared=confirm#clear-all');
+    redirect(`${safeBack(formData)}?cleared=confirm#clear-all`);
   }
   const data = getData();
   await data.clearActivity({ keepPhotos: true });
@@ -100,7 +100,7 @@ export async function clearAllButPhotos(formData: FormData): Promise<void> {
     auth.session.operator,
   );
   revalidatePath('/', 'layout');
-  redirect('/admin/admins?cleared=1#clear-all');
+  redirect(`${safeBack(formData)}?cleared=all#clear-all`);
 }
 
 /** Saves a moment on this device, so every attendee page on it pretends it is then. */
@@ -122,5 +122,24 @@ export async function setTestClock(formData: FormData): Promise<void> {
 export async function clearTestClock(formData: FormData): Promise<void> {
   (await cookies()).delete(TEST_CLOCK_COOKIE);
   const back = String(formData.get('back') ?? '');
+  if (back === 'here') {
+    const from = (await headers()).get('referer') ?? '';
+    const path = (() => {
+      try {
+        return new URL(from).pathname;
+      } catch {
+        return '';
+      }
+    })();
+    redirect(path.startsWith('/admin') ? path : '/admin');
+  }
   redirect(back === 'plan' ? '/admin/test-plan?clock=cleared#test-clock' : '/');
+}
+
+/** Where "Clear everything except photos" came from: only a secretariat page. */
+function safeBack(formData: FormData): string {
+  const back = String(formData.get('back') ?? '');
+  return ['/admin/admins', '/admin/test-plan', '/admin/photos'].includes(back)
+    ? back
+    : '/admin/admins';
 }

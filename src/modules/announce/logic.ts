@@ -22,7 +22,24 @@ export type Announcement = {
   audience?: 'team';
   /** Also shown as a banner on the big screen. Older announcements, with no value, count as yes. */
   screen?: boolean;
+  /** How long the banner stays up, in minutes. 0: until it is taken down. Older ones: 12 hours. */
+  minutes?: number;
 };
+
+/** The choices on the Announce page: how long a banner stays up. */
+export const DURATION_CHOICES = [
+  { minutes: 15, label: '15 minutes' },
+  { minutes: 30, label: '30 minutes' },
+  { minutes: 60, label: '1 hour' },
+  { minutes: 120, label: '2 hours' },
+  { minutes: 0, label: 'Until I take it down' },
+] as const;
+export const DEFAULT_DURATION = 60;
+
+export function parseDuration(value: unknown): number {
+  const n = Number(value);
+  return DURATION_CHOICES.some((c) => c.minutes === n) ? n : DEFAULT_DURATION;
+}
 
 /** Only paths inside the portal, never another site. */
 export function safeHref(value: string): string {
@@ -61,11 +78,22 @@ export function parseHistory(raw: string | null): Announcement[] {
   }
 }
 
-/** Still showing: posted less than ANNOUNCE_HOURS ago. */
+/** Still showing: posted less than its duration ago (12 hours if none was set). */
 export function isLive(a: Announcement | null, now: Date): a is Announcement {
   if (!a) return false;
   const at = Date.parse(a.at);
-  return Number.isFinite(at) && now.getTime() - at < ANNOUNCE_HOURS * 60 * 60 * 1000;
+  if (!Number.isFinite(at)) return false;
+  if (a.minutes === 0) return true;
+  const minutes = a.minutes ?? ANNOUNCE_HOURS * 60;
+  return now.getTime() - at < minutes * 60 * 1000;
+}
+
+/** Minutes left on the banner, or null when it stays until taken down. */
+export function minutesLeft(a: Announcement, now: Date): number | null {
+  if (a.minutes === 0) return null;
+  const at = Date.parse(a.at);
+  const minutes = a.minutes ?? ANNOUNCE_HOURS * 60;
+  return Math.max(0, Math.ceil((at + minutes * 60_000 - now.getTime()) / 60_000));
 }
 
 /** Tidies what was typed: one line of plain text, cut to the limit. */

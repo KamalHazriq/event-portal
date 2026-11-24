@@ -29,12 +29,21 @@ export function SessionCard({
   const starrable = !quiet && session.type !== 'meal';
 
   return (
-    <li className="relative">
+    <li className="relative lg:grid lg:grid-cols-[9rem_1fr] lg:items-stretch lg:gap-5">
+      {/* On a laptop the time stands on the left, the session on the right. */}
+      <div className="hidden pt-4 text-right lg:block">
+        <p className="font-mono text-base font-bold tabular-nums text-ink">
+          {formatTimeRange(session.start, session.end).split(' to ')[0]}
+        </p>
+        <p className="font-mono text-sm tabular-nums text-ink-soft">
+          {formatTimeRange(session.start, session.end).split(' to ')[1] ?? ''}
+        </p>
+      </div>
       <Link
         href={`/session/${session.id}${linkSuffix}`}
         className={[
           // The same height for every card, so the grid reads evenly.
-          'flex h-full min-h-[7.5rem] flex-col rounded-lg border bg-surface p-3 no-underline sm:p-4',
+          'flex h-full min-h-[5.5rem] flex-col rounded-lg border bg-surface p-3 no-underline sm:p-4',
           'hover:border-primary focus-visible:border-primary',
           status === 'live'
             ? 'session-live border-live'
@@ -44,7 +53,7 @@ export function SessionCard({
         ].join(' ')}
       >
         <div className={`flex flex-wrap items-center gap-2 ${starrable ? 'pr-10' : ''}`}>
-          <span className="font-mono text-sm font-semibold text-ink-soft">
+          <span className="font-mono text-sm font-semibold text-ink-soft lg:hidden">
             {formatTimeRange(session.start, session.end)}
           </span>
           {/* Studio's code label: day and start time, like D1·1450. */}
@@ -90,14 +99,11 @@ export function SessionList({
   statusOf,
   linkSuffix = '',
   emptyMessage = 'Nothing scheduled.',
-  columns = 1,
 }: {
   sessions: ResolvedSession[];
   statusOf: (session: ResolvedSession) => SessionStatus;
   linkSuffix?: string;
   emptyMessage?: string;
-  /** 2 lays the list out in two columns on wide screens. */
-  columns?: 1 | 2;
 }) {
   if (sessions.length === 0) {
     return (
@@ -106,9 +112,7 @@ export function SessionList({
   }
 
   return (
-    <ul
-      className={columns === 2 ? 'stagger grid gap-2 lg:grid-cols-2 lg:gap-3' : 'stagger space-y-2'}
-    >
+    <ul className="stagger space-y-2 lg:space-y-3">
       {sessions.map((session) => (
         <SessionCard
           key={session.id}

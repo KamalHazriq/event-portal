@@ -29,6 +29,10 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   const data = getData();
+  // Nothing is anonymous: a question carries the name this phone signed in with.
+  const ownerId = await data.players.ownerOf(deviceId);
+  const owner = ownerId ? await data.attendees.get(ownerId) : null;
+  if (!owner) return respond(request, page, 'who', false, 401);
   // One more than the limit, so "too long" is reported rather than cut off.
   const text = multilineText(form.get('text'), MAX_QUESTION + 1).replace(/\s*\n\s*/g, ' ');
   const checked = validateQuestion({
@@ -41,8 +45,7 @@ export async function POST(request: Request): Promise<Response> {
   await data.questions.add({
     sessionId,
     text: text.trim(),
-    // Each person chooses: a name, or blank to stay anonymous.
-    name: plainText(form.get('name'), MAX_QUESTION_NAME),
+    name: owner.name.slice(0, MAX_QUESTION_NAME),
     deviceId,
     status: waits ? 'pending' : 'approved',
   });

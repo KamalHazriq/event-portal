@@ -57,7 +57,7 @@ export default async function PointsPage() {
           Nobody has points yet.
         </p>
       ) : (
-        <div className="overflow-x-auto rounded-xl border border-line">
+        <div className="relative overflow-x-auto rounded-xl border border-line">
           <table className="w-full text-left text-sm">
             <thead className="bg-muted text-ink-soft">
               <tr>

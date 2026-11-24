@@ -69,7 +69,7 @@ export function DoorGiftTable({
         {chip('waiting', `To collect (${rows.filter((r) => r.item && !r.collected).length})`)}
         {chip('none', `No gift yet (${rows.filter((r) => !r.item).length})`)}
       </div>
-      <ul className="max-h-[70vh] divide-y divide-line overflow-y-auto rounded-xl border border-line bg-surface">
+      <ul className="divide-y divide-line rounded-xl border border-line bg-surface">
         {shown.map((r) => (
           <li key={r.id} className="flex flex-wrap items-center gap-x-3 gap-y-2 px-3 py-2">
             <span className="min-w-0 flex-1">

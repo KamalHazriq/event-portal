@@ -1,3 +1,4 @@
+import { readBackupMode } from '@/modules/backup/server';
 import { pageNowParam } from '@/lib/test-clock-server';
 import Link from 'next/link';
 
@@ -48,6 +49,7 @@ export async function RuledHeader({ config, mark }: { config: EventConfig; mark:
   });
   const items = portalNavItems(config);
   const slido = slidoLink(config);
+  const portalPolls = config.features.polls && (await readBackupMode().catch(() => false));
 
   return (
     <>
@@ -86,7 +88,15 @@ export async function RuledHeader({ config, mark }: { config: EventConfig; mark:
                   My points
                 </Link>
               ) : null}
-              {slido ? (
+              {portalPolls ? (
+                // Slido is down: the portal's own polls and questions stand in for it.
+                <Link
+                  href="/poll"
+                  className="inline-flex min-h-10 items-center rounded-lg bg-primary px-3.5 text-sm font-semibold text-on-primary no-underline"
+                >
+                  Vote in the poll
+                </Link>
+              ) : slido ? (
                 <a
                   href={slido}
                   target="_blank"

@@ -1,6 +1,11 @@
 'use client';
 
-import { GiftSpinner, type GiftOffer } from '@/modules/door-gift/components/GiftSpinner';
+import {
+  GiftSpinner,
+  type GiftItemView,
+  type GiftOffer,
+} from '@/modules/door-gift/components/GiftSpinner';
+import { GuestGift } from '@/modules/door-gift/components/GuestGift';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { looksLikeBusinessCard } from '../business-card';
@@ -27,10 +32,13 @@ export function KioskConsole({
   dayId,
   dayLabel,
   eventName,
+  guestItems = [],
 }: {
   dayId: string;
   dayLabel: string;
   eventName: string;
+  /** The door gifts, when the spin is open: a guest not on the list can still spin. */
+  guestItems?: GiftItemView[];
 }) {
   const [shown, setShown] = useState<Shown | null>(null);
   // The door gift spin, on its own, for someone checking in the first time.
@@ -396,6 +404,8 @@ export function KioskConsole({
           No card? Type your name
         </button>
       ) : null}
+
+      {!typing && !confirm && guestItems.length > 0 ? <GuestGift kiosk items={guestItems} /> : null}
     </div>
   );
 }

@@ -1,3 +1,4 @@
+import { ClearAllButPhotos } from '@/modules/checklist/components/ClearAllButPhotos';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -272,6 +273,12 @@ export default async function PhotosAdminPage({ searchParams }: { searchParams: 
           </a>
         </div>
       </section>
+
+      <ClearAllButPhotos
+        back="/admin/photos"
+        cleared={params.cleared === 'all'}
+        confirmProblem={params.cleared === 'confirm'}
+      />
     </div>
   );
 }

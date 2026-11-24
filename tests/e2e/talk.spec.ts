@@ -51,8 +51,18 @@ test('reactions are closed before the talk starts', async ({ page, request }) =>
 test('a comment waits for approval, then shows, can be liked, and reaches the projector', async ({
   page,
   browser,
-}) => {
+}, testInfo) => {
+  // The approval switch is shared by the whole portal, so only one project flips it.
+  test.skip(testInfo.project.name !== 'desktop', 'one project at a time flips the shared switch');
   const text = `Loved the practical examples ${Date.now()}`;
+
+  // Approval is off by default; this test is about the approval flow, so turn it on.
+  const admin = await (await browser.newContext()).newPage();
+  await signIn(admin);
+  await admin.goto('/admin/comments');
+  const approvalSwitch = admin.getByRole('button', { name: /Comments need approval/ });
+  if (/off/.test((await approvalSwitch.textContent()) ?? '')) await approvalSwitch.click();
+  await expect(admin.getByRole('button', { name: 'Comments need approval: on' })).toBeVisible();
 
   // An attendee posts, under the name they signed in with: there is no name box.
   await asAttendee(page);
@@ -73,8 +83,6 @@ test('a comment waits for approval, then shows, can be liked, and reaches the pr
   await other.close();
 
   // The secretariat approves it and puts it on the big screen.
-  const admin = await (await browser.newContext()).newPage();
-  await signIn(admin);
   await admin.goto('/admin/comments?session=d1-panel&status=pending');
   const row = admin.locator('li', { hasText: text });
   await row.getByRole('button', { name: 'Approve' }).click();
@@ -86,13 +94,28 @@ test('a comment waits for approval, then shows, can be liked, and reaches the pr
   const mine = page.locator('li', { hasText: text });
   await expect(mine).toBeVisible();
   await mine.getByRole('button', { name: 'Like, 0 so far' }).click();
-  await expect(page.getByText('Liked.')).toBeVisible();
+  await expect(page.locator('li', { hasText: text }).getByRole('button')).toHaveAccessibleName(
+    'Like, 1 so far',
+  );
   await expect(page.locator('li', { hasText: text }).getByRole('button')).toBeDisabled();
 
   await admin.goto('/screen/comments');
   await expect(admin.getByRole('heading', { name: 'What people are saying' })).toBeVisible();
   await expect(admin.getByText(text)).toBeVisible();
   await expect(admin.getByText('Scan to comment')).toBeVisible();
+
+  // Put the default back: no approval.
+  await admin.goto('/admin/comments');
+  await admin.getByRole('button', { name: 'Comments need approval: on' }).click();
+  await expect(admin.getByRole('button', { name: 'Comments need approval: off' })).toBeVisible();
+
+  // With approval off (the default) the next comment shows at once, under the name.
+  const straight = `Straight up ${Date.now()}`;
+  await page.goto('/session/d1-panel');
+  await page.getByLabel('Your comment').fill(straight);
+  await page.getByRole('button', { name: 'Post comment' }).click();
+  await expect(page.locator('li', { hasText: straight })).toBeVisible();
+  await expect(page.locator('li', { hasText: straight })).not.toContainText('waiting for approval');
 });
 
 test('the comments page needs the PIN', async ({ page }) => {

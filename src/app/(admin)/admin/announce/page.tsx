@@ -35,8 +35,11 @@ import {
   reminderStatus,
   sortReminders,
 } from '@/modules/reminders/logic';
-import { localDateTime } from '@/modules/reports/logic';
+import { localClock, localDateTime } from '@/modules/reports/logic';
+import { ALERT_LOG_KEY, parseAlertLog } from '@/modules/announce/alert-log';
 import { localDateTimeToInstant } from '@/lib/time';
+import { WhenPicker } from '@/modules/announce/components/WhenPicker';
+import { DEFAULT_DURATION, DURATION_CHOICES } from '@/modules/announce/logic';
 import { FormPending } from '@/components/FormPending';
 
 export const dynamic = 'force-dynamic';
@@ -96,6 +99,7 @@ export default async function AnnouncementsPage({ searchParams }: { searchParams
     pingRaw,
     deviceLinks,
     people,
+    alertLogRaw,
   ] = await Promise.all([
     data.settings.get(ANNOUNCE_KEYS.current),
     data.settings.get(ANNOUNCE_KEYS.history),
@@ -107,7 +111,9 @@ export default async function AnnouncementsPage({ searchParams }: { searchParams
     data.settings.get(REMINDERS_PING_KEY),
     data.players.links(),
     data.attendees.list(),
+    data.settings.get(ALERT_LOG_KEY),
   ]);
+  const alertLog = parseAlertLog(alertLogRaw);
   // Whose phone is whose: the name a phone signed in as on My points, if any.
   const nameOf = new Map(people.map((p) => [p.id, p.name]));
   const ownerOf = new Map(deviceLinks.map((l) => [l.deviceId, nameOf.get(l.attendeeId) ?? '']));
@@ -254,28 +260,28 @@ export default async function AnnouncementsPage({ searchParams }: { searchParams
             ))}
           </select>
         </div>
-        <fieldset>
-          <legend className="font-semibold text-ink">When</legend>
-          <div className="mt-1 flex flex-wrap items-center gap-x-6 gap-y-2">
-            <label className="flex min-h-11 items-center gap-2 text-ink">
-              <input type="radio" name="when" value="now" defaultChecked className="size-5" />
-              Now
-            </label>
-            <label className="flex min-h-11 items-center gap-2 text-ink">
-              <input type="radio" name="when" value="later" className="size-5" />
-              Later, at
-            </label>
-            <input
-              type="datetime-local"
-              name="at"
-              aria-label="Send it at"
-              className="min-h-11 rounded-lg border border-line bg-canvas px-3 text-ink"
-            />
-          </div>
+        <div>
+          <label htmlFor="announce-minutes" className="block font-semibold text-ink">
+            How long the banner stays up
+          </label>
+          <select
+            id="announce-minutes"
+            name="minutes"
+            defaultValue={DEFAULT_DURATION}
+            className="mt-1 min-h-11 w-full rounded-lg border border-line bg-canvas px-3 text-ink"
+          >
+            {DURATION_CHOICES.map((c) => (
+              <option key={c.minutes} value={c.minutes}>
+                {c.label}
+              </option>
+            ))}
+          </select>
           <p className="mt-1 text-sm text-ink-soft">
-            Later: it is posted at that time (event time, {tz}), with everything set above.
+            Then it goes by itself. An hour suits most things; choose &ldquo;Until I take it
+            down&rdquo; for something that must stay.
           </p>
-        </fieldset>
+        </div>
+        <WhenPicker timezone={tz} />
         <label className="flex items-start gap-3 text-ink">
           <input type="checkbox" name="push" defaultChecked className="mt-1 size-5" />
           <span>
@@ -377,6 +383,36 @@ export default async function AnnouncementsPage({ searchParams }: { searchParams
 
         <details className="rounded-lg border border-line p-3">
           <summary className="cursor-pointer font-semibold text-ink">
+            Alert log: what was sent, and to whom ({alertLog.length})
+          </summary>
+          {alertLog.length === 0 ? (
+            <p className="mt-2 text-sm text-ink-soft">Nothing sent yet.</p>
+          ) : (
+            <ul className="mt-2 divide-y divide-line">
+              {alertLog.map((e) => (
+                <li key={`${e.at}-${e.tag}`} className="py-2 text-sm">
+                  <p className="font-semibold text-ink">
+                    {localClock(e.at, tz)} · {e.title}
+                    <span className="ml-2 font-normal text-ink-soft">
+                      to {e.sent} {e.sent === 1 ? 'phone' : 'phones'}
+                      {e.failed > 0 ? `, ${e.failed} failed` : ''}
+                    </span>
+                  </p>
+                  <p className="text-ink-soft">{e.body}</p>
+                  <p className="text-ink">
+                    {e.names.length > 0 ? e.names.join(', ') : 'No names'}
+                    {e.unnamed > 0
+                      ? `${e.names.length > 0 ? ', plus ' : ' · '}${e.unnamed} not signed in on My points`
+                      : ''}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          )}
+        </details>
+
+        <details className="rounded-lg border border-line p-3">
+          <summary className="cursor-pointer font-semibold text-ink">
             Devices with alerts on ({allSubs.length}: {teamPhones} team,{' '}
             {allSubs.length - teamPhones} attendee)
           </summary>
@@ -443,10 +479,12 @@ export default async function AnnouncementsPage({ searchParams }: { searchParams
           <input type="hidden" name="mode" value={teamAuto ? 'off' : 'on'} />
           <p className="min-w-0 flex-1 text-ink">
             <span className="font-bold">
-              Alert the team when photos or comments wait: {teamAuto ? 'on' : 'off'}.
+              Tell the team when something is waiting for approval: {teamAuto ? 'on' : 'off'}.
             </span>{' '}
             <span className="text-ink-soft">
-              One alert at most every five minutes for each, only to phones with team alerts on.
+              When a photo (or a comment, if comments need approval) arrives, the secretariat phones
+              with team alerts on get one notification. After one, the next of the same kind waits
+              at least five minutes, so a burst of photos is one buzz, not twenty.
             </span>
           </p>
           <button

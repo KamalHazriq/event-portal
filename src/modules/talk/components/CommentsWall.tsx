@@ -1,5 +1,7 @@
 import Link from 'next/link';
 
+import { LikeButton } from './LikeButton';
+
 import type { Comment } from '@/data/types';
 
 import { COMMENT_MESSAGES, MAX_COMMENT, publicComments } from '../logic';
@@ -69,20 +71,13 @@ export function CommentsWall({
               <p className="text-ink">{c.text}</p>
               <div className="mt-2 flex items-center justify-between gap-2">
                 <span className="text-sm text-ink-soft">{c.name}</span>
-                <form action="/api/comments/like" method="post">
-                  <input type="hidden" name="sessionId" value={sessionId} />
-                  <input type="hidden" name="commentId" value={c.id} />
-                  {nowParam ? <input type="hidden" name="now" value={nowParam} /> : null}
-                  <button
-                    type="submit"
-                    disabled={liked.has(c.id)}
-                    aria-label={`Like, ${c.likes} so far`}
-                    className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-line px-3 text-sm font-semibold text-ink disabled:border-primary disabled:text-primary"
-                  >
-                    <span aria-hidden="true">👍</span>
-                    <span className="tabular-nums">{c.likes}</span>
-                  </button>
-                </form>
+                <LikeButton
+                  sessionId={sessionId}
+                  commentId={c.id}
+                  likes={c.likes}
+                  liked={liked.has(c.id)}
+                  nowParam={nowParam}
+                />
               </div>
             </li>
           ))}

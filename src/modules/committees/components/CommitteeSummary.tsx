@@ -7,7 +7,7 @@ const FIRST_ROWS = 12;
 
 function Table({ headers, rows }: { headers: string[]; rows: string[][] }) {
   return (
-    <div className="overflow-x-auto">
+    <div className="relative overflow-x-auto">
       <table className="w-full min-w-[36rem] text-left text-sm">
         <thead>
           <tr className="border-b border-line text-ink-soft">

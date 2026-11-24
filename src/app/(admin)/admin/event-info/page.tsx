@@ -374,6 +374,7 @@ export default async function EventInfoEditorPage({
                   url: '',
                   description: '',
                   kind: 'link' as const,
+                  files: [] as { title: string; url: string }[],
                   key: `n${j}`,
                   isNew: true,
                 })),
@@ -403,6 +404,20 @@ export default async function EventInfoEditorPage({
                       />
                     </label>
                   </div>
+                  <label className={label}>
+                    Files one by one (optional): Title | link, one per line
+                    <textarea
+                      name={`${r.key}.files`}
+                      rows={Math.min(8, Math.max(3, r.files.length + 1))}
+                      defaultValue={r.files.map((f) => `${f.title} | ${f.url}`).join('\n')}
+                      placeholder={'Opening remarks | https://…\nKeynote | https://…'}
+                      className={`${input} font-mono text-sm`}
+                    />
+                    <span className="mt-1 block text-xs font-normal text-ink-soft">
+                      The main link above is then &ldquo;everything in one go&rdquo;, a folder or a
+                      zip. These are the files one at a time. Put the link after the last |.
+                    </span>
+                  </label>
                   <label className={label}>
                     Description
                     <input

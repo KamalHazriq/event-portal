@@ -105,13 +105,15 @@ test('imports Slido results into the report, leaving out participant lists', asy
   expect(JSON.stringify(sheets)).not.toContain('someone@example.com');
 });
 
-test('the summary is ready to print, with no names in it', async ({ page }) => {
+test('the summary is ready to print, with highlights and no staff numbers', async ({ page }) => {
   await signIn(page);
   await page.goto('/admin/reports/summary');
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Power Summit');
   await expect(page.getByRole('heading', { name: 'Attendance' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Feedback', exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Print or save as PDF' })).toBeVisible();
-  // The sample list's first person should not appear: the summary is counts only.
-  await expect(page.getByText('Maria Rahman')).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: 'Highlights' })).toBeVisible();
+  // Names may show (comments, leaderboard) but never staff numbers or emails.
+  await expect(page.getByText(/D100\d\d/)).toHaveCount(0);
+  await expect(page.getByText('@')).toHaveCount(0);
 });

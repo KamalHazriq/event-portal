@@ -1,3 +1,5 @@
+import { currentPlayer } from '@/modules/points/server';
+import Link from 'next/link';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
@@ -39,6 +41,7 @@ export default async function PollPage({ searchParams }: { searchParams: SearchP
     null;
 
   const deviceId = await currentDeviceId();
+  const me = await currentPlayer();
   const hasVoted = poll && deviceId ? await data.polls.hasVoted(poll.id, deviceId) : false;
   const results = poll?.revealed ? tallyPoll(poll, await data.polls.votes(poll.id)) : null;
   const canVote = poll?.status === 'open' && !hasVoted;
@@ -75,7 +78,25 @@ export default async function PollPage({ searchParams }: { searchParams: SearchP
             </p>
           ) : null}
 
-          {canVote ? (
+          {canVote && !me ? (
+            <p className="rounded-xl border border-line bg-surface p-4 text-ink">
+              Votes carry your name.{' '}
+              <Link href="/welcome?next=/poll" className="font-semibold text-primary">
+                Say who you are
+              </Link>{' '}
+              to vote.
+            </p>
+          ) : null}
+          {state === 'who' ? (
+            <p
+              role="status"
+              className="rounded-lg border border-warning p-3 text-sm font-semibold text-warning"
+            >
+              Say who you are first, so your vote carries your name.
+            </p>
+          ) : null}
+
+          {canVote && me ? (
             <form method="post" action="/api/polls/vote" className="space-y-3">
               <input type="hidden" name="pollId" value={poll.id} />
               {poll.kind === 'wordcloud' ? (

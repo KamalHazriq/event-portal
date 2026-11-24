@@ -1,5 +1,5 @@
+import { BackLink } from '@/components/BackLink';
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import { FormPending } from '@/components/FormPending';
@@ -31,12 +31,7 @@ export default async function EditAttendeePage({ params, searchParams }: Props) 
 
   return (
     <div className="max-w-2xl space-y-5">
-      <Link href="/admin/attendees#who" className="nav-pill" aria-label="Back to the list">
-        <span aria-hidden="true" className="nav-arrow nav-arrow-back">
-          ←
-        </span>
-        Attendees
-      </Link>
+      <BackLink href="/admin/attendees#who">Attendees</BackLink>
       <header>
         <h1 className="text-2xl font-bold text-ink">{person.name}</h1>
         <p className="mt-1 text-ink-soft">
@@ -100,11 +95,11 @@ export default async function EditAttendeePage({ params, searchParams }: Props) 
             defaultChecked={person.isSecretariat}
             className="size-5"
           />
-          Secretariat (left out of the leaderboard and the lucky draw)
+          Secretariat (kept off the leaderboard only)
         </label>
         <p className="-mt-2 text-sm text-ink-soft">
-          Secretariat and a participant too? Untick it: they are ranked and can win, even if their
-          role says Secretariat. It stays that way when the list is uploaded again.
+          Secretariat and a participant too? Untick it: they are ranked on the leaderboard, even if
+          their role says Secretariat. It stays that way when the list is uploaded again.
         </p>
         <button
           type="submit"

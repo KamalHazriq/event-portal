@@ -16,6 +16,7 @@ import {
   POLL_KIND_LABEL,
   POLL_KINDS,
   tallyPoll,
+  POLL_VOTER_PREFIX,
 } from '@/modules/polls/logic';
 import { FormPending } from '@/components/FormPending';
 
@@ -36,9 +37,31 @@ export default async function PollsAdminPage() {
 
   const data = getData();
   const [backupOn, polls] = await Promise.all([readBackupMode(), data.polls.list()]);
-  const results = await Promise.all(
-    polls.map(async (poll) => tallyPoll(poll, await data.polls.votes(poll.id))),
-  );
+  const allVotes = await Promise.all(polls.map((poll) => data.polls.votes(poll.id)));
+  const results = polls.map((poll, i) => tallyPoll(poll, allVotes[i] ?? []));
+  // Nothing is anonymous: who voted, and for what.
+  const voters = new Map<string, string>();
+  for (const row of await data.settings.getAll()) {
+    if (!row.key.startsWith(POLL_VOTER_PREFIX)) continue;
+    try {
+      voters.set(
+        row.key.slice(POLL_VOTER_PREFIX.length),
+        (JSON.parse(row.value) as { name: string }).name,
+      );
+    } catch {
+      // Skip a damaged row.
+    }
+  }
+  const whoVoted = (pollIndex: number) => {
+    const poll = polls[pollIndex]!;
+    return (allVotes[pollIndex] ?? []).map((v) => ({
+      name: voters.get(`${poll.id}.${v.deviceId}`) ?? 'Name not recorded',
+      said:
+        poll.kind === 'wordcloud'
+          ? (v.choices[0] ?? '')
+          : v.choices.map((c) => poll.options[Number(c)] ?? c).join(', '),
+    }));
+  };
   const loaded = new Set(polls.map((p) => p.id));
   const notLoaded = config.polls.filter((p) => !loaded.has(`config-${p.id}`)).length;
   const anyOpen = polls.some((p) => p.status === 'open');
@@ -120,6 +143,24 @@ export default async function PollsAdminPage() {
                 <div className="mt-3 flex-1">
                   {r ? <PollResultsView kind={poll.kind} results={r} /> : null}
                 </div>
+
+                <details className="mt-3 rounded-lg border border-line p-3">
+                  <summary className="cursor-pointer text-sm font-semibold text-ink">
+                    Who voted what ({r?.voters ?? 0})
+                  </summary>
+                  {whoVoted(i).length === 0 ? (
+                    <p className="mt-2 text-sm text-ink-soft">No votes yet.</p>
+                  ) : (
+                    <ul className="mt-2 divide-y divide-line text-sm">
+                      {whoVoted(i).map((v, k) => (
+                        <li key={k} className="flex flex-wrap justify-between gap-2 py-1.5">
+                          <span className="font-semibold text-ink">{v.name}</span>
+                          <span className="text-ink-soft">{v.said}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </details>
 
                 <div className="mt-4 flex flex-wrap gap-2">
                   {poll.status === 'open'

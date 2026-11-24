@@ -2399,3 +2399,63 @@ select:focus-visible {
     transform: none;
   }
 }
+
+/* The mystery box rocks gently while it waits to be opened. */
+@media (prefers-reduced-motion: no-preference) {
+  .mystery-bob {
+    animation: mystery-bob 2.4s ease-in-out infinite alternate;
+  }
+}
+@keyframes mystery-bob {
+  from {
+    transform: translateY(0) rotate(-2deg);
+  }
+  to {
+    transform: translateY(-8px) rotate(2deg);
+  }
+}
+
+/* -- Comments as bubbles on the projector: bigger with more likes, floating. */
+.bubble-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  justify-content: center;
+  gap: 1.6vh 1.4vw;
+}
+.bubble {
+  --grow: 1;
+  --hue: 210;
+  display: flex;
+  max-width: calc(26vw * var(--grow));
+  flex-direction: column;
+  gap: 0.4vh;
+  border-radius: 2.6vw;
+  border: 0.15vw solid color-mix(in srgb, hsl(var(--hue) 80% 62%) 55%, transparent);
+  background: color-mix(in srgb, hsl(var(--hue) 70% 50%) 16%, var(--c-surface));
+  padding: calc(1.2vh * var(--grow)) calc(1.4vw * var(--grow));
+  font-size: calc(1.05vw * var(--grow) + 0.5vh);
+  box-shadow: 0 1vh 3vh -1.5vh color-mix(in srgb, hsl(var(--hue) 80% 55%) 55%, transparent);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .bubble {
+    animation: bubble-float 6s ease-in-out var(--delay, 0s) infinite alternate;
+  }
+}
+.bubble-text {
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--c-text);
+}
+.bubble-name {
+  font-size: 0.6em;
+  color: var(--c-text-muted);
+}
+@keyframes bubble-float {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-1.4vh);
+  }
+}

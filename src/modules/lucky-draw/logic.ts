@@ -52,9 +52,8 @@ export const DRAW_COUNTS = [1, 2, 3, 5, 10] as const;
 export const MAX_PRIZE = 80;
 
 /**
- * Who is kept out of the hat. Until an admin saves a list, that is the
- * secretariat, as the brief suggests. Once saved, the list is exactly what
- * the admin chose, so un-ticking a secretariat member really lets them in.
+ * Who is kept out of the hat. Until an admin saves a list, nobody is. Once
+ * saved, the list is exactly what the admin chose.
  */
 export function resolveExclusions(
   stored: string | null,
@@ -70,7 +69,10 @@ export function resolveExclusions(
       // Fall through to the default.
     }
   }
-  return new Set(people.filter((p) => p.isSecretariat).map((p) => p.id));
+  // Nobody is left out until the secretariat say so: the secretariat are only
+  // kept off the leaderboard, and may win like anyone else.
+  void people;
+  return new Set<string>();
 }
 
 /** A count from the form, clamped to what the page offers. */

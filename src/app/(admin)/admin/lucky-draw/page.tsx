@@ -202,8 +202,9 @@ export default async function LuckyDrawPage() {
           Who can win ({excluded.size} left out)
         </summary>
         <p className="mt-2 text-sm text-ink-soft">
-          Untick anyone who should not win, such as the CDIO or the secretariat, then save. The
-          secretariat start unticked. Only people checked in that day are ever drawn.
+          Untick anyone who should not win, such as the CDIO, then save. The secretariat can win
+          too: they are only kept off the leaderboard. Only people checked in that day are ever
+          drawn.
         </p>
         <form action={saveExclusions} className="mt-2">
           <FormPending label="Saving" />

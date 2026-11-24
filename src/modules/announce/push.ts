@@ -7,6 +7,7 @@
  * A phone that has gone away (the push service answers 404 or 410) is
  * forgotten.
  */
+import { logAlert } from './alert-log';
 import webpush from 'web-push';
 
 import { getData } from '@/data';
@@ -97,6 +98,7 @@ async function sendTo(all: PushSubscriptionRecord[], message: PushMessage): Prom
       }),
     );
   }
+  await logAlert(subs, message, result);
   return result;
 }
 

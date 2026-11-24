@@ -66,7 +66,6 @@ export default async function AgendaPage({ searchParams }: { searchParams: Searc
             </summary>
             <div className="px-2 pb-2">
               <SessionList
-                columns={2}
                 sessions={earlier}
                 statusOf={(session) => sessionStatus(session, now)}
                 linkSuffix={linkSuffix}
@@ -76,7 +75,6 @@ export default async function AgendaPage({ searchParams }: { searchParams: Searc
         ) : null}
 
         <SessionList
-          columns={2}
           sessions={upcoming}
           statusOf={(session) => sessionStatus(session, now)}
           linkSuffix={linkSuffix}

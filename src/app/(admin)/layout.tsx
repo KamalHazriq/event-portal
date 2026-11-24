@@ -1,3 +1,4 @@
+import { AdminClockBar } from '@/components/AdminClockBar';
 import { hiddenAdminPages } from '@/components/admin-pages';
 import type { Metadata } from 'next';
 
@@ -66,6 +67,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             operator ? 'mx-auto max-w-[96rem]' : 'mx-auto max-w-5xl',
           ].join(' ')}
         >
+          {operator ? <AdminClockBar /> : null}
           {children}
         </main>
       </div>

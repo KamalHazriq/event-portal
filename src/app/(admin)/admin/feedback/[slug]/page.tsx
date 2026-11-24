@@ -1,5 +1,5 @@
+import { BackLink } from '@/components/BackLink';
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
 import { getData } from '@/data';
@@ -71,9 +71,7 @@ export default async function FeedbackDetailPage({ params }: PageProps) {
   return (
     <div className="space-y-5">
       <nav>
-        <Link href="/admin/feedback" className="text-sm font-semibold text-primary">
-          Back to all feedback
-        </Link>
+        <BackLink href="/admin/feedback">All feedback</BackLink>
       </nav>
 
       <header>

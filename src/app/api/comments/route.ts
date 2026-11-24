@@ -4,7 +4,13 @@ import { getEventConfig } from '@/lib/config';
 import { LIMITS, rateLimit } from '@/lib/rate-limit';
 import { multilineText, plainText } from '@/lib/text';
 import { deviceIdOrNew } from '@/modules/backup/server';
-import { MAX_COMMENT, MAX_COMMENT_NAME, validateComment } from '@/modules/talk/logic';
+import {
+  COMMENT_KEYS,
+  commentsNeedApproval,
+  MAX_COMMENT,
+  MAX_COMMENT_NAME,
+  validateComment,
+} from '@/modules/talk/logic';
 import { backToComments, findSession } from '@/modules/talk/server';
 import { after } from 'next/server';
 import { notifyTeamWaiting } from '@/modules/announce/team';
@@ -37,12 +43,14 @@ export async function POST(request: Request): Promise<Response> {
   });
   if (!checked.ok) return backToComments(sessionId, checked.problem, now);
 
+  const waits = commentsNeedApproval(await data.settings.get(COMMENT_KEYS.approval));
   await data.comments.add({
     sessionId,
     text: text.trim(),
+    status: waits ? 'pending' : 'approved',
     name: owner.name.slice(0, MAX_COMMENT_NAME),
     deviceId,
   });
-  after(() => notifyTeamWaiting('comment').catch(() => undefined));
-  return backToComments(sessionId, 'posted', now);
+  if (waits) after(() => notifyTeamWaiting('comment').catch(() => undefined));
+  return backToComments(sessionId, waits ? 'posted' : 'live', now);
 }

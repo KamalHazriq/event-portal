@@ -8,7 +8,7 @@ import { plainText } from '@/lib/text';
 import { recordActivity } from '@/modules/admins/record';
 import { SCREEN_KEYS } from '@/modules/big-screen/logic';
 
-import { COMMENT_KEYS } from './logic';
+import { COMMENT_KEYS, resolveCommentLayout } from './logic';
 import { findSession } from './server';
 
 /**
@@ -73,5 +73,25 @@ export async function setScreenReactions(formData: FormData): Promise<void> {
   await recordActivity(
     on ? 'Turned on reactions on the big screen' : 'Turned off reactions on the big screen',
   );
+  done();
+}
+
+/** Comments wait for approval, or go straight up (names are always shown). */
+export async function setCommentApproval(formData: FormData): Promise<void> {
+  await assertAdmin();
+  const on = formData.get('mode') === 'on';
+  await getData().settings.set(COMMENT_KEYS.approval, on ? 'on' : 'off');
+  await recordActivity(
+    on ? 'Turned comment approval on' : 'Turned comment approval off: comments go straight up',
+  );
+  done();
+}
+
+/** How the projector shows comments: a list, or floating bubbles sized by likes. */
+export async function setCommentLayout(formData: FormData): Promise<void> {
+  await assertAdmin();
+  const layout = resolveCommentLayout(String(formData.get('layout') ?? ''));
+  await getData().settings.set(COMMENT_KEYS.screenLayout, layout);
+  await recordActivity(`Set the comments screen to ${layout}`);
   done();
 }

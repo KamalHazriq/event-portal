@@ -72,6 +72,9 @@ export function pollInputMessage(problem: PollInputProblem): string {
 
 /* -------------------------------------------------------------- voting */
 
+/** Who cast each vote, kept beside it: pollvoter.<poll>.<device> holds the name. */
+export const POLL_VOTER_PREFIX = 'pollvoter.';
+
 export type VoteProblem =
   'closed' | 'nothing-chosen' | 'not-an-option' | 'word-too-long' | 'already';
 

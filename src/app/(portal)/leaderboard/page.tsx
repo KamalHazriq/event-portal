@@ -12,14 +12,13 @@ export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = { title: 'Leaderboard' };
 
-const TOP = 10;
-
 export default async function LeaderboardPage() {
   const config = getEventConfig();
   if (!config.features.leaderboard) notFound();
 
   const [board, me] = await Promise.all([loadScoreboard(), currentPlayer()]);
-  const top = board.people.filter((row) => row.rank <= TOP);
+  // Everyone with points, in order. Ties share a rank.
+  const top = board.people;
   const mine = me ? board.people.find((row) => row.attendeeId === me.id) : undefined;
   const mineShownAlready = mine ? top.some((row) => row.attendeeId === mine.attendeeId) : false;
 
@@ -48,7 +47,7 @@ export default async function LeaderboardPage() {
           id="people"
           className="mb-3 text-xs font-bold uppercase tracking-[0.16em] text-ink-soft"
         >
-          Top people
+          Everyone, by points
         </h2>
         {top.length === 0 ? (
           <p className="rounded-xl border border-line bg-surface p-4 text-ink-soft">
@@ -73,7 +72,14 @@ export default async function LeaderboardPage() {
                   {row.rank}
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate font-bold text-ink">{row.name}</span>
+                  <span className="block truncate font-bold text-ink">
+                    {row.name}
+                    {board.people.filter((r) => r.rank === row.rank).length > 1 ? (
+                      <span className="ml-2 rounded bg-muted px-1.5 py-0.5 align-middle text-xs font-semibold text-ink-soft">
+                        tied
+                      </span>
+                    ) : null}
+                  </span>
                   <span className="block text-sm text-ink-soft">
                     {shortDepartment(config, row.department)}
                   </span>

@@ -1,3 +1,4 @@
+import { currentPlayer } from '@/modules/points/server';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -9,7 +10,6 @@ import { currentDeviceId, readBackupMode } from '@/modules/backup/server';
 import {
   isPublic,
   MAX_QUESTION,
-  MAX_QUESTION_NAME,
   MAX_QUESTIONS_PER_DEVICE,
   questionProblemMessage,
   rankQuestions,
@@ -34,6 +34,8 @@ function notice(state: string | null): { ok: boolean; text: string } | null {
   if (state === 'already') return { ok: true, text: 'You have already voted for that one.' };
   if (state === 'slow-down')
     return { ok: false, text: 'That was a lot at once. Wait a minute and try again.' };
+  if (state === 'who')
+    return { ok: false, text: 'Say who you are first, so your question carries your name.' };
   if (state === 'gone') return { ok: false, text: 'That question is no longer on the list.' };
   if (PROBLEMS.includes(state))
     return { ok: false, text: questionProblemMessage(state as QuestionProblem) };
@@ -57,6 +59,7 @@ export default async function QuestionsPage({
 
   const data = getData();
   const deviceId = await currentDeviceId();
+  const me = await currentPlayer();
   const [all, voted] = await Promise.all([
     data.questions.listBySession(session.id),
     deviceId ? data.questions.votedIds(session.id, deviceId) : Promise.resolve([]),
@@ -110,16 +113,22 @@ export default async function QuestionsPage({
               className="mt-1 block w-full rounded-lg border border-line bg-canvas px-3 py-2 font-normal text-ink"
             />
           </label>
-          <label className="block text-sm font-semibold text-ink">
-            Your name (optional, leave blank to stay anonymous)
-            <input
-              name="name"
-              type="text"
-              maxLength={MAX_QUESTION_NAME}
-              autoComplete="name"
-              className="mt-1 block min-h-11 w-full rounded-lg border border-line bg-canvas px-3 font-normal text-ink"
-            />
-          </label>
+          {me ? (
+            <p className="text-sm text-ink-soft">
+              Asked as <strong className="text-ink">{me.name}</strong>.
+            </p>
+          ) : (
+            <p className="text-sm text-ink">
+              Questions carry your name.{' '}
+              <Link
+                href={`/welcome?next=${encodeURIComponent(`/qa/${session.id}`)}`}
+                className="font-semibold text-primary"
+              >
+                Say who you are
+              </Link>{' '}
+              to ask one.
+            </p>
+          )}
           <div className="flex flex-wrap items-center justify-between gap-3">
             <button
               type="submit"

@@ -25,6 +25,7 @@ import { buildAgenda } from '@/modules/schedule/logic';
 import { timeOverrideAllowed } from '@/lib/time';
 import { TestPlan } from '@/modules/checklist/components/TestPlan';
 import { TEST_PLAN } from '@/modules/checklist/steps';
+import { ClearAllButPhotos } from '@/modules/checklist/components/ClearAllButPhotos';
 import { FormPending } from '@/components/FormPending';
 
 export const dynamic = 'force-dynamic';
@@ -192,6 +193,14 @@ export default async function ChecklistPage({ searchParams }: { searchParams: Se
               The test clock is switched off on this server.
             </p>
           ) : null}
+          <p
+            role="status"
+            className={`rounded-lg border-2 p-3 font-bold ${
+              clockOn ? 'border-warning bg-warning/10 text-ink' : 'border-line text-ink-soft'
+            }`}
+          >
+            Test clock on this device: {clockOn ? 'ON (pretending)' : 'OFF (real time)'}
+          </p>
           {clockOn ? (
             <form action={clearTestClock}>
               <input type="hidden" name="back" value="plan" />
@@ -199,7 +208,7 @@ export default async function ChecklistPage({ searchParams }: { searchParams: Se
                 type="submit"
                 className="min-h-11 rounded-lg border-2 border-warning px-4 font-semibold text-ink"
               >
-                Test clock is on for this device: back to real time
+                Turn the test clock off: back to real time
               </button>
             </form>
           ) : null}
@@ -217,7 +226,7 @@ export default async function ChecklistPage({ searchParams }: { searchParams: Se
           When all testing is done, wipe what the testing left behind, so the event starts clean.
         </p>
 
-        {params.cleared ? (
+        {params.cleared === '1' ? (
           <p
             role="status"
             className="mt-3 rounded-lg border border-success bg-success/10 p-3 font-semibold text-ink"
@@ -278,6 +287,13 @@ export default async function ChecklistPage({ searchParams }: { searchParams: Se
             Clear all test data
           </button>
         </form>
+        <div className="mt-4">
+          <ClearAllButPhotos
+            back="/admin/test-plan"
+            cleared={params.cleared === 'all'}
+            confirmProblem={params.cleared === 'confirm'}
+          />
+        </div>
       </section>
     </div>
   );

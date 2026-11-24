@@ -62,7 +62,7 @@ export function LuckyDrawSpinner({
         return;
       }
       setStep(i);
-      playTick();
+      if (!calm) playTick();
       timer = window.setTimeout(tick, gaps[i]);
       i += 1;
     };
