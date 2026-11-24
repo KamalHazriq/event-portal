@@ -2,6 +2,7 @@
  * Everything a /screen page does, in one place, so /screen and
  * /screen/<view> cannot drift apart.
  */
+import { pageNowParam } from '@/lib/test-clock-server';
 import { notFound } from 'next/navigation';
 import { after } from 'next/server';
 
@@ -33,7 +34,7 @@ export async function renderScreen(options: {
 
   const now = resolveEventNow({
     timezone: config.event.timezone,
-    overrideParam: readNowParam(options.nowParam),
+    overrideParam: await pageNowParam(readNowParam(options.nowParam)),
   });
   // Automatic feedback reminders ride on the projector's regular refresh.
   after(() => runFeedbackNudges(now).catch(() => 0));

@@ -1,3 +1,4 @@
+import { pageNowParam } from '@/lib/test-clock-server';
 import Link from 'next/link';
 
 import type { EventConfig } from '@/lib/event-schema';
@@ -36,8 +37,11 @@ export function slidoLink(config: EventConfig): string | null {
  * matters now, then the brand, menu and actions in a solid bar inset from
  * the page edges. On a phone the menu runs under the bar.
  */
-export function RuledHeader({ config, mark }: { config: EventConfig; mark: string | null }) {
-  const now = resolveEventNow({ timezone: config.event.timezone });
+export async function RuledHeader({ config, mark }: { config: EventConfig; mark: string | null }) {
+  const now = resolveEventNow({
+    timezone: config.event.timezone,
+    overrideParam: await pageNowParam(null),
+  });
   const line = announcement(findNowAndNext(buildAgenda(config), now), config.event, now.date, {
     clock: formatClock,
     shortDate: (d) => formatShortDate(d, config.event.timezone),

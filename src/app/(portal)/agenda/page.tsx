@@ -1,3 +1,4 @@
+import { pageNowParam } from '@/lib/test-clock-server';
 import type { Metadata } from 'next';
 
 import { getEventConfig } from '@/lib/config';
@@ -28,7 +29,7 @@ export default async function AgendaPage({ searchParams }: { searchParams: Searc
 
   const now = resolveEventNow({
     timezone: config.event.timezone,
-    overrideParam: readNowParam(params.now),
+    overrideParam: await pageNowParam(readNowParam(params.now)),
   });
 
   const agenda = buildAgenda(config);

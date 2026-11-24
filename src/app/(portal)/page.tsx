@@ -1,3 +1,4 @@
+import { pageNowParam } from '@/lib/test-clock-server';
 import Link from 'next/link';
 
 import { getData } from '@/data';
@@ -37,7 +38,7 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
 
   const now = resolveEventNow({
     timezone: config.event.timezone,
-    overrideParam: readNowParam(params.now),
+    overrideParam: await pageNowParam(readNowParam(params.now)),
   });
 
   const agenda = buildAgenda(config);

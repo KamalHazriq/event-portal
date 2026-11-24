@@ -1,3 +1,4 @@
+import { pageNowParam } from '@/lib/test-clock-server';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -42,13 +43,13 @@ export default async function SessionPage({ params, searchParams }: PageProps) {
 
   const now = resolveEventNow({
     timezone: config.event.timezone,
-    overrideParam: readNowParam(query.now),
+    overrideParam: await pageNowParam(readNowParam(query.now)),
   });
 
   const status = sessionStatus(session, now);
   const linkSuffix = nowLinkSuffix(now);
   // Passed back with each reaction and comment, so a test clock agrees.
-  const nowParam = now.isOverride ? (readNowParam(query.now) ?? null) : null;
+  const nowParam = now.isOverride ? await pageNowParam(readNowParam(query.now)) : null;
   const state = typeof query.state === 'string' ? query.state : null;
 
   const data = getData();
@@ -115,6 +116,16 @@ export default async function SessionPage({ params, searchParams }: PageProps) {
     </>
   );
 
+  const commentsWall = config.features.comments ? (
+    <CommentsWall
+      sessionId={session.id}
+      comments={comments}
+      likedIds={likedIds}
+      state={state}
+      nowParam={nowParam}
+    />
+  ) : null;
+
   return (
     <article className="space-y-5">
       <AutoRefresh enabled={!now.isOverride} />
@@ -161,12 +172,17 @@ export default async function SessionPage({ params, searchParams }: PageProps) {
       {/* While the talk is on, what people want is at the top. */}
       {isLive ? takePart : null}
 
+      {/* Comments come next, so taking part is all in one place. */}
+      {isLive ? commentsWall : null}
+
       {session.description ? (
         <section>
           <h2 className="sr-only">About this session</h2>
           <p className="text-ink">{session.description}</p>
         </section>
       ) : null}
+
+      {isLive ? null : commentsWall}
 
       {session.objectives.length > 0 ? (
         <section className="rounded-lg border border-line bg-muted p-4">
@@ -205,16 +221,6 @@ export default async function SessionPage({ params, searchParams }: PageProps) {
             Rate this session
           </Link>
         </section>
-      ) : null}
-
-      {config.features.comments ? (
-        <CommentsWall
-          sessionId={session.id}
-          comments={comments}
-          likedIds={likedIds}
-          state={state}
-          nowParam={nowParam}
-        />
       ) : null}
 
       <nav

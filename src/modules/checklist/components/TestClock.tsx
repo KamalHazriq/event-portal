@@ -1,5 +1,6 @@
 'use client';
 
+import { setTestClock } from '../actions';
 import { useMemo, useState } from 'react';
 
 type ClockSession = {
@@ -31,6 +32,16 @@ export function TestClock({ sessions, allowed }: { sessions: ClockSession[]; all
   const days = useMemo(() => [...new Set(sessions.map((s) => s.dayLabel))], [sessions]);
 
   if (!session) return null;
+  // Before each day starts, and after it ends: the whole day as past or future.
+  const jumps = days.flatMap((day) => {
+    const ofDay = sessions.filter((s) => s.dayLabel === day);
+    const first = ofDay.reduce((a, b) => (b.start < a.start ? b : a), ofDay[0]!);
+    const last = ofDay.reduce((a, b) => (b.end > a.end ? b : a), ofDay[0]!);
+    return [
+      { label: `${day}, before it starts`, moment: `${first.date}T${shift(first.start, -15)}` },
+      { label: `${day}, after it ends`, moment: `${last.date}T${shift(last.end, 30)}` },
+    ];
+  });
   const moment = `${session.date}T${when === 'during' ? shift(session.start, 5) : shift(session.end, 2)}`;
   const q = `now=${moment}`;
   const links = [
@@ -110,6 +121,38 @@ export function TestClock({ sessions, allowed }: { sessions: ClockSession[]; all
             ? ' The session has just finished, so its feedback form is open.'
             : ' This session does not ask for feedback; pick a talk for that.'}
       </p>
+      <form action={setTestClock} className="flex flex-wrap items-center gap-3">
+        <input type="hidden" name="moment" value={moment} />
+        <button
+          type="submit"
+          disabled={!allowed}
+          className="min-h-11 rounded-lg bg-primary px-5 font-bold text-on-primary disabled:opacity-50"
+        >
+          Use this time on this device
+        </button>
+        <span className="text-sm text-ink-soft">
+          Every attendee page on this phone or laptop then pretends, wherever you tap: Home, Agenda,
+          sessions and the big screen. Nobody else is affected.
+        </span>
+      </form>
+      <div>
+        <p className="text-sm font-semibold text-ink">Or jump to a moment on this device</p>
+        <div className="mt-1 flex flex-wrap gap-2">
+          {jumps.map((jump) => (
+            <form key={jump.moment} action={setTestClock}>
+              <input type="hidden" name="moment" value={jump.moment} />
+              <button
+                type="submit"
+                disabled={!allowed}
+                className="min-h-10 rounded-lg border border-line px-3 text-sm font-semibold text-ink hover:border-primary disabled:opacity-50"
+              >
+                {jump.label}
+              </button>
+            </form>
+          ))}
+        </div>
+      </div>
+      <p className="text-sm font-semibold text-ink">Or open one tab at that time</p>
       <div className="flex flex-wrap gap-2">
         {links.map((link) => (
           <a

@@ -14,11 +14,13 @@ import { checkInDays } from '@/modules/check-in/logic';
 import { UndoAllButton } from '@/modules/check-in/components/UndoAllButton';
 import {
   addTestParticipant,
+  clearTestClock,
   clearTestData,
   removeTestParticipant,
 } from '@/modules/checklist/actions';
 import { TestClock } from '@/modules/checklist/components/TestClock';
 import { TEST_STAFF_NO } from '@/modules/checklist/test-participant';
+import { testClockOn } from '@/lib/test-clock-server';
 import { buildAgenda } from '@/modules/schedule/logic';
 import { timeOverrideAllowed } from '@/lib/time';
 import { TestPlan } from '@/modules/checklist/components/TestPlan';
@@ -34,6 +36,7 @@ type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 export default async function ChecklistPage({ searchParams }: { searchParams: SearchParams }) {
   await requireAdmin('/admin/test-plan');
   const params = await searchParams;
+  const clockOn = await testClockOn();
   const data = getData();
   const [attendees, subs, remindersRaw, pingRaw] = await Promise.all([
     data.attendees.count(),
@@ -176,6 +179,30 @@ export default async function ChecklistPage({ searchParams }: { searchParams: Se
             open the links: those tabs pretend it is that moment. Use them on the attendee phone,
             and open the big screen link on the laptop to see reactions float up.
           </p>
+          {params.clock === 'on' ? (
+            <p role="status" className="font-semibold text-ink">
+              This device now pretends it is that time. Open the attendee pages here to see it.
+            </p>
+          ) : params.clock === 'cleared' ? (
+            <p role="status" className="font-semibold text-ink">
+              Back to the real time on this device.
+            </p>
+          ) : params.clock === 'off' ? (
+            <p role="alert" className="font-semibold text-warning">
+              The test clock is switched off on this server.
+            </p>
+          ) : null}
+          {clockOn ? (
+            <form action={clearTestClock}>
+              <input type="hidden" name="back" value="plan" />
+              <button
+                type="submit"
+                className="min-h-11 rounded-lg border-2 border-warning px-4 font-semibold text-ink"
+              >
+                Test clock is on for this device: back to real time
+              </button>
+            </form>
+          ) : null}
           <TestClock sessions={clockSessions} allowed={timeOverrideAllowed()} />
         </div>
       </section>

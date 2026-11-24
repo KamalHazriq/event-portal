@@ -25,7 +25,7 @@ test('the home page shows the event and what is coming up', async ({ page }) => 
   await expect(page.getByText('Registration and light lunch').first()).toBeVisible();
 
   // The test mode banner has to be obvious, or a wrong clock looks like a bug.
-  await expect(page.getByText('Test mode: pretending it is now')).toBeVisible();
+  await expect(page.getByText('Test clock: pretending it is now')).toBeVisible();
 });
 
 test('the home page highlights the session happening now', async ({ page }) => {
@@ -185,4 +185,32 @@ test('the portal can be added to a home screen', async ({ request }) => {
   expect(manifest.display).toBe('standalone');
   expect(manifest.start_url).toBe('/');
   expect(manifest.icons.length).toBeGreaterThan(0);
+});
+
+test('the test clock set on this device follows every attendee page', async ({
+  page,
+}, testInfo) => {
+  test.skip(testInfo.project.name !== 'desktop', 'One run is enough.');
+  await page.goto('/admin/sign-in');
+  await page.getByLabel('Which desk is this?').fill('clock-test');
+  await page.getByLabel('Admin PIN').fill(process.env.E2E_ADMIN_PIN ?? '246810');
+  await page.getByRole('button', { name: 'Sign in' }).click();
+  await expect(
+    page.getByRole('heading', { name: /^Good (morning|afternoon|evening)/, level: 1 }),
+  ).toBeVisible();
+  await page.goto('/admin/test-plan');
+  await page.getByRole('button', { name: 'Day 1, after it ends' }).click();
+  await expect(page.getByText('This device now pretends it is that time.')).toBeVisible();
+
+  // No ?now= anywhere: the pages follow the device clock by themselves.
+  for (const path of ['/', '/agenda']) {
+    await page.goto(path);
+    await expect(page.getByText('Test clock: pretending it is now')).toBeVisible();
+  }
+  await page.getByRole('button', { name: 'Back to real time' }).click();
+  // The button leads home, at the real time.
+  await expect(page).toHaveURL(/127\.0\.0\.1:\d+\/$/);
+  await expect(page.getByText('Test clock: pretending it is now')).toHaveCount(0);
+  await page.goto('/agenda');
+  await expect(page.getByText('Test clock: pretending it is now')).toHaveCount(0);
 });

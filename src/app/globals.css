@@ -2338,3 +2338,33 @@ select:focus-visible {
 [data-look='studio'] .ruled-footer {
   background: color-mix(in srgb, var(--c-background) 70%, black);
 }
+
+/* -- Back and next buttons: one solid colour, the arrow part of the label,
+ *    not a separate circle. */
+.nav-pill,
+.nav-step {
+  border-color: var(--c-primary);
+  background: var(--c-primary);
+  color: var(--c-primary-text);
+}
+.nav-pill:hover,
+.nav-step:hover,
+.nav-pill:focus-visible,
+.nav-step:focus-visible {
+  border-color: color-mix(in srgb, var(--c-primary) 82%, black);
+  background: color-mix(in srgb, var(--c-primary) 82%, black);
+}
+.nav-pill .nav-arrow,
+.nav-step .nav-arrow {
+  width: auto;
+  height: auto;
+  background: none;
+  color: inherit;
+  font-size: 1.1em;
+}
+.nav-step :is(.text-ink, .text-ink-soft) {
+  color: inherit;
+}
+.nav-step .text-ink-soft {
+  opacity: 0.8;
+}

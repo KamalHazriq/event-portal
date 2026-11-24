@@ -1,5 +1,9 @@
 'use server';
 
+import { cookies } from 'next/headers';
+import { TEST_CLOCK_COOKIE, TEST_CLOCK_HOURS, testClockValue } from '@/lib/test-clock';
+import { timeOverrideAllowed } from '@/lib/time';
+
 import { removeAllClaims } from '@/modules/door-gift/server';
 import { forgetImages } from '@/modules/photos/image-cache';
 import { PICKER_KEY } from '@/modules/name-picker/logic';
@@ -97,4 +101,26 @@ export async function clearAllButPhotos(formData: FormData): Promise<void> {
   );
   revalidatePath('/', 'layout');
   redirect('/admin/admins?cleared=1#clear-all');
+}
+
+/** Saves a moment on this device, so every attendee page on it pretends it is then. */
+export async function setTestClock(formData: FormData): Promise<void> {
+  const auth = await requireAdminApi();
+  if (!auth.ok) throw new Error('Not signed in.');
+  const value = testClockValue(String(formData.get('moment') ?? ''));
+  if (!value || !timeOverrideAllowed()) redirect('/admin/test-plan?clock=off#test-clock');
+  (await cookies()).set(TEST_CLOCK_COOKIE, value, {
+    httpOnly: true,
+    sameSite: 'lax',
+    path: '/',
+    maxAge: TEST_CLOCK_HOURS * 3600,
+  });
+  redirect('/admin/test-plan?clock=on#test-clock');
+}
+
+/** Back to the real time on this device. Open to anyone: it only clears their own clock. */
+export async function clearTestClock(formData: FormData): Promise<void> {
+  (await cookies()).delete(TEST_CLOCK_COOKIE);
+  const back = String(formData.get('back') ?? '');
+  redirect(back === 'plan' ? '/admin/test-plan?clock=cleared#test-clock' : '/');
 }

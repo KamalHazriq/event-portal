@@ -51,8 +51,10 @@ export const TEST_PLAN: Part[] = [
           },
           {
             id: 'a-prep-clock',
-            do: 'For the steps that need a live session (reactions, the live highlight, feedback), use the test clock on this page: pick a session and open its links on the phone.',
-            expect: 'The session shows as Happening now, with a Test mode notice at the top.',
+            changed: true,
+            do: 'On this page, under Test clock, pick a session and press "Use this time on this device" (or a quick jump such as "Day 1, after it ends"). Then open the attendee pages on the same device and tap around: Home, Agenda, a session.',
+            expect:
+              'Every page shows the yellow "Test clock" bar and behaves as if it were that moment: the home page shows what is on now and next, earlier sessions are done, reactions and comments open. "Back to real time" ends it; other devices never see it.',
             links: [{ href: '#test-clock', label: 'Test clock (on this page)' }],
           },
         ],
@@ -158,7 +160,7 @@ export const TEST_PLAN: Part[] = [
             changed: true,
             do: 'Open a session page.',
             expect:
-              'Description, speakers, the Slido button (it opens Slido and shows the code), Open the slides if the session has a slides link, and links to the previous and next session.',
+              'Description, speakers, the Slido button (it opens Slido and shows the code), Open the slides if the session has a slides link, and links to the previous and next session. Comments sit right under the reactions while the session is on. The back and next buttons are one solid blue colour, arrow included.',
             links: [{ href: '/agenda', label: 'Agenda (tap any session)' }],
           },
           {
