@@ -125,12 +125,12 @@ export const TEST_PLAN: Part[] = [
             rev: 2,
             do: 'Type /admin after the address.',
             expect:
-              'The Secretariat PIN page straight away, never the event code page first. A wrong PIN is refused. The same for /screen, /kiosk and /guide (the guide is for the secretariat only).',
+              'The Secretariat PIN page straight away, never the event code page first. A wrong PIN is refused. The same for /screen, /kiosk and /admin/tour (the tour is for the secretariat only; the old /guide address now leads there).',
             links: [
               { href: '/admin', label: '/admin' },
               { href: '/screen', label: '/screen' },
               { href: '/kiosk', label: '/kiosk' },
-              { href: '/guide', label: '/guide' },
+              { href: '/admin/tour', label: 'Tour' },
             ],
           },
         ],
@@ -402,6 +402,14 @@ export const TEST_PLAN: Part[] = [
         id: 's-ready',
         title: 'S0. Is the portal ready?',
         steps: [
+          {
+            id: 's-ready-tour',
+            rev: 3,
+            do: 'Open Tour (under Set up). Use "Add the test participant" and one of the pretend time buttons, then go down the demo steps, opening each link.',
+            expect:
+              'The page lists what to bring (laptop, projector, one phone with a QR to scan), shows the pretend time as ON or OFF, and every demo step opens the right page in a new tab.',
+            links: [{ href: '/admin/tour', label: 'Tour' }],
+          },
           {
             id: 's-ready-clock',
             rev: 3,

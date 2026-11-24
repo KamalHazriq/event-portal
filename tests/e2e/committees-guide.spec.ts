@@ -37,18 +37,28 @@ function committeeFile(): Buffer {
   ]);
 }
 
-test('the guide needs the PIN, then explains the portal', async ({ page, request }) => {
+test('the tour needs the PIN, then demos and explains the portal', async ({ page, request }) => {
   // Attendees cannot read it: it names the secretariat pages.
-  const stranger = await request.get('/guide', { maxRedirects: 0 });
-  expect([302, 303, 307, 308]).toContain(stranger.status());
-  expect(stranger.headers().location).toContain('/admin/sign-in');
+  for (const path of ['/admin/tour', '/guide']) {
+    const stranger = await request.get(path, { maxRedirects: 0 });
+    expect([302, 303, 307, 308]).toContain(stranger.status());
+  }
+  expect((await request.get('/admin/tour', { maxRedirects: 0 })).headers().location).toContain(
+    '/admin/sign-in',
+  );
 
   await signIn(page);
+  // The old address leads to the new page.
   await page.goto('/guide');
-  await expect(page.getByRole('heading', { level: 1 })).toContainText('portal works');
+  await expect(page).toHaveURL(/\/admin\/tour/);
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Demo the portal');
+  await expect(page.getByRole('heading', { name: '1. What to bring' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '2. Get ready' })).toBeVisible();
+  await expect(
+    page.getByRole('heading', { name: '3. The demo, in the order of the day' }),
+  ).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Three kinds of screen' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'An event day, start to finish' })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Lucky draw' })).toBeVisible();
+  await expect(page.getByRole('link', { name: /^Lucky draw/ }).first()).toBeVisible();
 });
 
 test('the committee pages are shut by default', async ({ page, request }) => {

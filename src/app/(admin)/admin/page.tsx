@@ -467,16 +467,17 @@ export default async function AdminHomePage() {
 
       <section className="grid gap-3 md:grid-cols-[2fr_1fr]">
         <Link
-          href="/guide"
+          href="/admin/tour"
           className="card-hover group flex items-center gap-4 rounded-xl border border-line bg-surface p-5 no-underline"
         >
           <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-accent/15 text-accent">
             <Icon name="book" />
           </span>
           <span>
-            <span className="block font-bold text-ink">How the portal works</span>
+            <span className="block font-bold text-ink">Tour: demo the portal</span>
             <span className="block text-sm text-ink-soft">
-              A one page tour of the whole portal, written for showing the team.
+              One page to demo everything from: what to bring, quick setup, then each step with what
+              to say.
             </span>
           </span>
         </Link>

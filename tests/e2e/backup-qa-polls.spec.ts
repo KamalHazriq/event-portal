@@ -1,5 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 
+import { asAttendee } from './as-attendee';
+
 /**
  * Modules 2 and 3, the backup for Slido.
  *
@@ -60,6 +62,8 @@ test('Slido fails: the portal takes over Q&A and polls, then hands back', async 
   const admin = await browser.newPage();
   const phone = await browser.newPage({ viewport: { width: 375, height: 812 } });
   await signIn(admin, 'mc');
+  // Questions and votes carry a name, so this phone says who it is first.
+  await asAttendee(phone, 'D10013');
 
   // Off by default: attendees have Slido, and the backup pages do not exist.
   expect((await phone.request.get('/poll')).status()).toBe(404);

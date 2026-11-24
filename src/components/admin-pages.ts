@@ -149,6 +149,14 @@ export const ADMIN_GROUPS: AdminGroup[] = [
         icon: 'users',
       },
       {
+        href: '/admin/tour',
+        label: 'Tour',
+        title: 'Tour',
+        description:
+          'Demo the whole portal from one page: what to bring, two clicks of setup, then the demo in order.',
+        icon: 'book',
+      },
+      {
         href: '/admin/test-plan',
         label: 'Test plan',
         title: 'Test plan',

@@ -47,7 +47,7 @@ describe('the test plan', () => {
       '/welcome',
       '/screen',
       '/kiosk',
-      '/guide',
+      '/admin/tour',
       '/api/health',
     ]);
     const anchors = new Set(['#ready-h', '#clean', '#tester', '#test-clock']);

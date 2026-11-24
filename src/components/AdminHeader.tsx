@@ -95,11 +95,11 @@ export function AdminSidebar({
       <AdminSidebarNav hidden={hidden} />
       <div className="space-y-3 border-t border-line px-6 py-4">
         <Link
-          href="/guide"
+          href="/admin/tour"
           className="flex items-center gap-2 text-sm font-semibold text-ink-soft no-underline hover:text-ink"
         >
           <Icon name="book" className="size-4" />
-          How the portal works
+          Tour (demo the portal)
         </Link>
         <Link
           href="/"

@@ -64,7 +64,7 @@ test('post an announcement, see it on a phone, take it down', async ({ browser, 
   await expect(admin.getByRole('heading', { name: /^Showing now/ })).toBeVisible({
     timeout: 20_000,
   });
-  await expect(admin.getByText(text).first()).toBeVisible();
+  await expect(admin.locator('p:visible', { hasText: text }).first()).toBeVisible();
 
   const phone = await browser.newPage({ viewport: { width: 375, height: 812 } });
   await phone.goto('/');
@@ -80,7 +80,7 @@ test('post an announcement, see it on a phone, take it down', async ({ browser, 
 
   await admin.getByRole('button', { name: 'Take it down' }).click();
   await expect(admin.getByRole('heading', { name: /^Showing now/ })).toHaveCount(0);
-  await expect(admin.getByText(text)).toBeVisible(); // still in "Sent before"
+  await expect(admin.locator('p:visible', { hasText: text }).first()).toBeVisible(); // still in "Sent before"
   await phone.goto('/');
   await expect(phone.getByRole('status', { name: 'Announcement' })).toHaveCount(0);
 

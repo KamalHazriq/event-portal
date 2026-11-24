@@ -126,13 +126,13 @@ test('edit the event details, an info line and a resource', async ({ page, reque
     // A resource link is added, and a bad link is refused.
     await page.goto('/admin/event-info?tab=resources');
     const fresh = page.locator('fieldset', { hasText: 'Add a resource' }).first();
-    await fresh.getByLabel('Title').fill('Summit slides');
+    await fresh.getByLabel('Title', { exact: true }).fill('Summit slides');
     await fresh.getByLabel(/^Link/).fill('javascript:alert(1)');
     await page.getByRole('button', { name: 'Save the resources' }).click();
     await expect(page.getByRole('alert').filter({ hasText: 'That was not saved.' })).toBeVisible();
     await page.goto('/admin/event-info?tab=resources');
     const fresh2 = page.locator('fieldset', { hasText: 'Add a resource' }).first();
-    await fresh2.getByLabel('Title').fill('Summit slides');
+    await fresh2.getByLabel('Title', { exact: true }).fill('Summit slides');
     await fresh2.getByLabel(/^Link/).fill('https://files.example.org/slides.pdf');
     await page.getByRole('button', { name: 'Save the resources' }).click();
     await expect(page.getByText('Saved. It is live now.')).toBeVisible();

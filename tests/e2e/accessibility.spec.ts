@@ -25,7 +25,7 @@ const pages = [
   '/admin/runbook',
   '/admin/name-tags',
   '/admin/headcount',
-  '/guide',
+  '/admin/tour',
   '/kiosk',
   '/screen/welcome',
 ];

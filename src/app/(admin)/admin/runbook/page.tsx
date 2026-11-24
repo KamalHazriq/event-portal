@@ -395,7 +395,7 @@ export default async function RunbookPage() {
               body: (
                 <>
                   When the reports are safe, delete the Neon project and the Firebase backend. See{' '}
-                  <Link href="/guide">the guide</Link> for what each page did.
+                  <Link href="/admin/tour">the tour</Link> for what each page did.
                 </>
               ),
             },
