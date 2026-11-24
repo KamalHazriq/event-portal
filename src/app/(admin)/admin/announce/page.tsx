@@ -404,7 +404,7 @@ export default async function AnnouncementsPage({ searchParams }: { searchParams
           </p>
         </details>
 
-        <InstallApp />
+        <InstallApp laptopSteps />
         <AlertsOptIn team />
 
         <div className="flex flex-wrap gap-3">

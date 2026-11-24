@@ -49,6 +49,7 @@ export type InstallState =
   | 'ios-steps'
   | 'samsung-steps'
   | 'android-steps'
+  | 'desktop-steps'
   | 'unavailable';
 
 function isStandalone(): boolean {
@@ -74,6 +75,9 @@ export function installSnapshot(): InstallState {
   const ua = navigator.userAgent;
   if (/SamsungBrowser/i.test(ua)) return 'samsung-steps';
   if (/Android/i.test(ua)) return 'android-steps';
+  // A laptop in Chrome or Edge with no prompt: usually because another app of
+  // this site is installed already. The browser menu still installs it.
+  if (/Chrome|Edg\//.test(ua)) return 'desktop-steps';
   return 'unavailable';
 }
 

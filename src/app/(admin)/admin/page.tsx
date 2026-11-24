@@ -286,7 +286,7 @@ export default async function AdminHomePage() {
 
       {/* This phone: install it, and get team alerts (set-up reminders, things waiting). */}
       <div className="grid gap-3 md:grid-cols-2 empty:hidden">
-        <InstallApp />
+        <InstallApp laptopSteps />
         <AlertsOptIn team />
       </div>
 

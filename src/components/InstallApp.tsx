@@ -24,7 +24,14 @@ function sharePosition(): 'bottom' | 'top' {
   return otherBrowser || iPad ? 'top' : 'bottom';
 }
 
-export function InstallApp({ className = '' }: { className?: string }) {
+export function InstallApp({
+  className = '',
+  laptopSteps = false,
+}: {
+  className?: string;
+  /** Also show the menu steps on a laptop where the browser offers no button (the secretariat). */
+  laptopSteps?: boolean;
+}) {
   const state = useSyncExternalStore<InstallState>(
     subscribeInstall,
     installSnapshot,
@@ -33,6 +40,35 @@ export function InstallApp({ className = '' }: { className?: string }) {
   const [pointing, setPointing] = useState(false);
 
   if (state === 'unknown' || state === 'unavailable' || state === 'installed') return null;
+
+  if (state === 'desktop-steps') {
+    if (!laptopSteps) return null;
+    const edge = /Edg\//.test(navigator.userAgent);
+    return (
+      <section
+        aria-label="Install the app"
+        className={`rounded-xl border border-line bg-surface p-4 ${className}`}
+      >
+        <p className="font-bold text-ink">Install it as an app on this laptop</p>
+        <p className="mt-1 text-sm text-ink-soft">
+          {edge ? (
+            <>
+              Open the menu <strong className="text-ink">⋯</strong> (top right), then{' '}
+              <strong className="text-ink">Apps</strong>, then{' '}
+              <strong className="text-ink">Install this site as an app</strong>.
+            </>
+          ) : (
+            <>
+              Open the menu <strong className="text-ink">⋮</strong> (top right), then{' '}
+              <strong className="text-ink">Cast, save and share</strong>, then{' '}
+              <strong className="text-ink">Install page as app</strong>. Name it Secretariat.
+            </>
+          )}{' '}
+          It then opens in its own window from the desktop or taskbar.
+        </p>
+      </section>
+    );
+  }
 
   if (state === 'samsung-steps' || state === 'android-steps') {
     const samsung = state === 'samsung-steps';
