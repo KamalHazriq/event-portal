@@ -7,8 +7,7 @@ import { getEventConfig } from '@/lib/config';
 import { formatShortDate, resolveEventNow } from '@/lib/time';
 import { DeskConsole } from '@/modules/check-in/components/DeskConsole';
 import { GuestGift } from '@/modules/door-gift/components/GuestGift';
-import { safeImage } from '@/modules/door-gift/logic';
-import { loadDoorGifts } from '@/modules/door-gift/server';
+import { giftView, loadDoorGifts } from '@/modules/door-gift/server';
 import { UndoAllButton } from '@/modules/check-in/components/UndoAllButton';
 import { arrivalRate, checkInDays, resolveCheckInDay } from '@/modules/check-in/logic';
 
@@ -116,15 +115,7 @@ export default async function DeskPage({ searchParams }: { searchParams: SearchP
         initialHeadcount={arrivalRate(headcount.arrived, headcount.expected)}
       />
 
-      {gifts.open ? (
-        <GuestGift
-          items={gifts.config.items.map((i) => ({
-            id: i.id,
-            name: i.name,
-            image: safeImage(i.image) || '/door-gifts/massager.svg',
-          }))}
-        />
-      ) : null}
+      {gifts.open ? <GuestGift items={gifts.config.items.map(giftView)} /> : null}
 
       <p className="text-sm text-ink-soft">
         Checked the wrong person in? Undo it on the{' '}

@@ -9,7 +9,7 @@ import { plainText } from '@/lib/text';
 import { recordActivity } from '@/modules/admins/record';
 import { newId } from '@/lib/ids';
 import { GUEST_PREFIX } from '@/modules/door-gift/logic';
-import { claimDoorGift, markCollected } from '@/modules/door-gift/server';
+import { claimDoorGift, giftView, markCollected } from '@/modules/door-gift/server';
 
 export async function POST(request: Request): Promise<Response> {
   const auth = await requireAdminApi();
@@ -28,10 +28,7 @@ export async function POST(request: Request): Promise<Response> {
       );
     }
     await recordActivity(`Door gift spin for a guest: ${item.name}`, auth.session.operator);
-    return Response.json({
-      claimId: id,
-      item: { id: item.id, name: item.name, image: item.image },
-    });
+    return Response.json({ claimId: id, item: giftView(item) });
   }
 
   const attendeeId = plainText(body?.attendeeId, 64);
@@ -57,5 +54,5 @@ export async function POST(request: Request): Promise<Response> {
     );
   }
   await recordActivity(`Door gift spin: ${item.name}`, auth.session.operator);
-  return Response.json({ item: { id: item.id, name: item.name, image: item.image } });
+  return Response.json({ item: giftView(item) });
 }

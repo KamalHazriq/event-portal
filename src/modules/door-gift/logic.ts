@@ -15,9 +15,17 @@ export type GiftItem = {
   name: string;
   /** How many there are in total. */
   stock: number;
-  /** A picture in /public, or an https link. */
+  /** A picture: an uploaded photo, one in /public, or an https link. */
   image: string;
+  /** A line under the name, such as "Rechargeable, four heads". */
+  description?: string;
 };
+
+/** Uploaded gift photos are kept under this key plus the gift id. */
+export const GIFT_IMAGE_PREFIX = 'doorGift.image.';
+export const MAX_GIFT_DESCRIPTION = 120;
+/** A shrunk JPEG as a data address: well under this. */
+export const MAX_GIFT_IMAGE_CHARS = 900_000;
 
 /** off: nobody spins. first-day: only on the first event day. on: any day (for testing). */
 export type GiftMode = 'off' | 'first-day' | 'on';
@@ -68,6 +76,9 @@ export function parseDoorGiftConfig(raw: string | null): DoorGiftConfig {
             name: i.name,
             stock: Math.max(0, Math.floor(Number(i.stock) || 0)),
             image: typeof i.image === 'string' ? i.image : '',
+            ...(typeof i.description === 'string' && i.description
+              ? { description: i.description.slice(0, MAX_GIFT_DESCRIPTION) }
+              : {}),
           }))
       : DEFAULT_GIFTS;
     return {
@@ -137,5 +148,18 @@ export function spinOpen(mode: GiftMode, todayIsFirstDay: boolean): boolean {
 /** A safe image address: one of ours, or https. */
 export function safeImage(value: string): string {
   const v = value.trim();
-  return /^\/[\w./-]+$/.test(v) || /^https:\/\/[^\s"'<>]+$/.test(v) ? v : '';
+  return /^\/[\w./-]+$/.test(v) ||
+    /^\/api\/door-gift\/image\/[\w-]+\?v=\d+$/.test(v) ||
+    /^https:\/\/[^\s"'<>]+$/.test(v)
+    ? v
+    : '';
+}
+
+/** An uploaded photo, shrunk on the device: a JPEG, PNG or WebP data address. */
+export function giftImageData(value: unknown): string | null {
+  const v = typeof value === 'string' ? value.trim() : '';
+  return /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(v) &&
+    v.length <= MAX_GIFT_IMAGE_CHARS
+    ? v
+    : null;
 }

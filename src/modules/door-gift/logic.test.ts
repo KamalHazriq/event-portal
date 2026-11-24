@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   DEFAULT_GIFTS,
+  giftImageData,
   givenCounts,
   parseDoorGiftConfig,
   pickGift,
@@ -61,6 +62,15 @@ describe('door gifts', () => {
     expect(spinOpen('first-day', false)).toBe(false);
     expect(spinOpen('on', false)).toBe(true);
     expect(spinOpen('off', true)).toBe(false);
+  });
+
+  it('takes an uploaded photo, and nothing else, as a picture', () => {
+    expect(safeImage('/api/door-gift/image/massager?v=123')).toBe(
+      '/api/door-gift/image/massager?v=123',
+    );
+    expect(giftImageData('data:image/jpeg;base64,AAAA')).toBe('data:image/jpeg;base64,AAAA');
+    expect(giftImageData('data:text/html;base64,AAAA')).toBeNull();
+    expect(giftImageData('javascript:alert(1)')).toBeNull();
   });
 
   it('only keeps safe picture addresses', () => {

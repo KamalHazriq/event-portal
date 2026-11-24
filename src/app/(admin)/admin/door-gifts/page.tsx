@@ -12,7 +12,14 @@ import {
   setDoorGift,
   toggleCollected,
 } from '@/modules/door-gift/actions';
-import { givenCounts, GUEST_PREFIX, remaining, safeImage } from '@/modules/door-gift/logic';
+import {
+  givenCounts,
+  GUEST_PREFIX,
+  MAX_GIFT_DESCRIPTION,
+  remaining,
+  safeImage,
+} from '@/modules/door-gift/logic';
+import { GiftPhotoInput } from '@/modules/door-gift/components/GiftPhotoInput';
 import { giftFor, loadDoorGifts } from '@/modules/door-gift/server';
 import { DoorGiftTable, type GiftRow } from '@/modules/door-gift/components/DoorGiftTable';
 
@@ -108,6 +115,9 @@ export default async function DoorGiftsPage({
               <img src={safeImage(item.image)} alt="" className="size-14 shrink-0" />
               <div className="min-w-0">
                 <p className="font-bold text-ink">{item.name}</p>
+                {item.description ? (
+                  <p className="text-sm text-ink-soft">{item.description}</p>
+                ) : null}
                 <p className="text-sm text-ink-soft">
                   {given.get(item.id) ?? 0} given, {collectedBy.get(item.id) ?? 0} collected
                 </p>
@@ -226,54 +236,68 @@ export default async function DoorGiftsPage({
             />
             The secretariat spin too
           </label>
-          {[...state.config.items, { id: '', name: '', stock: 0, image: '' }].map((item, j) => (
-            <fieldset
-              key={item.id || 'new'}
-              className="grid gap-3 rounded-lg border border-line p-3 sm:grid-cols-[2fr_1fr_2fr_auto]"
-            >
-              <legend className="px-1 text-sm font-semibold text-ink">
-                {item.id ? item.name : 'Add a gift'}
-              </legend>
-              <input type="hidden" name={`g${j}.id`} value={item.id} />
-              <label className="text-sm font-semibold text-ink">
-                Name
-                <input
-                  name={`g${j}.name`}
-                  defaultValue={item.name}
-                  maxLength={60}
-                  className={input}
-                />
-              </label>
-              <label className="text-sm font-semibold text-ink">
-                Stock
-                <input
-                  name={`g${j}.stock`}
-                  type="number"
-                  min={0}
-                  max={9999}
-                  defaultValue={item.id ? item.stock : ''}
-                  className={input}
-                />
-              </label>
-              <label className="text-sm font-semibold text-ink">
-                Picture (address)
-                <input
-                  name={`g${j}.image`}
-                  defaultValue={item.image}
-                  placeholder="/door-gifts/printer.svg or https://…"
-                  className={input}
-                />
-              </label>
-              {item.id ? (
-                <label className="flex min-h-11 items-center gap-2 self-end text-sm text-ink">
-                  <input type="checkbox" name={`g${j}.remove`} className="size-5" />
-                  Remove
+          {[...state.config.items, { id: '', name: '', stock: 0, image: '', description: '' }].map(
+            (item, j) => (
+              <fieldset
+                key={item.id || 'new'}
+                className="grid gap-3 rounded-lg border border-line p-3 sm:grid-cols-[2fr_1fr_auto]"
+              >
+                <legend className="px-1 text-sm font-semibold text-ink">
+                  {item.id ? item.name : 'Add a gift'}
+                </legend>
+                <input type="hidden" name={`g${j}.id`} value={item.id} />
+                <label className="text-sm font-semibold text-ink">
+                  Name
+                  <input
+                    name={`g${j}.name`}
+                    defaultValue={item.name}
+                    maxLength={60}
+                    className={input}
+                  />
                 </label>
-              ) : (
-                <span />
-              )}
-            </fieldset>
-          ))}
+                <label className="text-sm font-semibold text-ink">
+                  Stock
+                  <input
+                    name={`g${j}.stock`}
+                    type="number"
+                    min={0}
+                    max={9999}
+                    defaultValue={item.id ? item.stock : ''}
+                    className={input}
+                  />
+                </label>
+                <div className="text-sm font-semibold text-ink sm:col-span-2">
+                  Photo
+                  <input type="hidden" name={`g${j}.image`} value={item.image} />
+                  <div className="mt-1">
+                    <GiftPhotoInput
+                      name={`g${j}.upload`}
+                      current={item.id ? safeImage(item.image) : ''}
+                      label={item.name || 'the new gift'}
+                    />
+                  </div>
+                </div>
+                <label className="text-sm font-semibold text-ink sm:col-span-2">
+                  Short description (optional)
+                  <input
+                    name={`g${j}.description`}
+                    defaultValue={item.description ?? ''}
+                    maxLength={MAX_GIFT_DESCRIPTION}
+                    placeholder="For example: Rechargeable, four massage heads"
+                    className={input}
+                  />
+                </label>
+                {item.id ? (
+                  <label className="flex min-h-11 items-center gap-2 self-end text-sm text-ink">
+                    <input type="checkbox" name={`g${j}.remove`} className="size-5" />
+                    Remove
+                  </label>
+                ) : (
+                  <span />
+                )}
+              </fieldset>
+            ),
+          )}
           <button
             type="submit"
             className="min-h-11 rounded-lg bg-primary px-5 font-bold text-on-primary"

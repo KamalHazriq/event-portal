@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 
-export type GiftItemView = { id: string; name: string; image: string };
+export type GiftItemView = { id: string; name: string; image: string; description?: string };
 
 export type GiftOffer =
   | { state: 'spin'; items: GiftItemView[] }
@@ -143,6 +143,7 @@ export function GiftSpinner({
             <p className="mt-2 text-3xl font-bold text-ink" role="status">
               {won.name}!
             </p>
+            {won.description ? <p className="mt-1 text-ink-soft">{won.description}</p> : null}
             {kiosk ? (
               <p className="mt-2 text-ink-soft">Collect it from the secretariat at the desk.</p>
             ) : (
@@ -183,6 +184,9 @@ export function GiftSpinner({
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={item.image} alt="" className="mx-auto aspect-square w-full" />
                   <p className="mt-2 text-sm font-semibold leading-tight text-ink">{item.name}</p>
+                  {item.description ? (
+                    <p className="mt-0.5 text-xs leading-snug text-ink-soft">{item.description}</p>
+                  ) : null}
                 </li>
               ))}
             </ul>

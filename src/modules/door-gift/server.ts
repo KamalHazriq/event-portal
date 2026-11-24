@@ -99,14 +99,19 @@ export async function removeAllClaims(): Promise<void> {
 }
 
 export type DeskGift =
-  | { state: 'spin'; items: { id: string; name: string; image: string }[] }
-  | { state: 'has'; item: { id: string; name: string; image: string }; collected: boolean };
+  { state: 'spin'; items: GiftView[] } | { state: 'has'; item: GiftView; collected: boolean };
+
+export type GiftView = { id: string; name: string; image: string; description: string };
 
 const shown = (i: GiftItem) => ({
   id: i.id,
   name: i.name,
   image: safeImage(i.image) || DEFAULT_IMAGE,
+  description: i.description ?? '',
 });
+
+/** For any screen that shows the gifts. */
+export const giftView = shown;
 
 /** What the desk should do about this person's door gift right after checking them in. */
 export async function deskGift(person: Attendee): Promise<DeskGift | null> {

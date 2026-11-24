@@ -52,6 +52,7 @@ export default async function DoorGiftPage({
           className="mx-auto mt-4 size-44"
         />
         <h1 className="mt-3 text-3xl font-bold text-ink">{got.name}</h1>
+        {got.description ? <p className="mt-1 text-ink-soft">{got.description}</p> : null}
         <p className="mt-2 text-ink-soft">
           {claim?.collected
             ? 'Collected. Enjoy it!'

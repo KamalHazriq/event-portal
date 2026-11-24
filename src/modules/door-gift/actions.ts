@@ -12,6 +12,9 @@ import { removeAllClaims } from './server';
 import {
   CLAIM_PREFIX,
   DOOR_GIFT_KEY,
+  GIFT_IMAGE_PREFIX,
+  giftImageData,
+  MAX_GIFT_DESCRIPTION,
   GUEST_PREFIX,
   parseClaim,
   parseDoorGiftConfig,
@@ -57,11 +60,20 @@ export async function saveDoorGiftSettings(formData: FormData): Promise<void> {
     let id = plainText(formData.get(`g${j}.id`), 40) || slug(name);
     while (taken.has(id)) id = `${id}-2`;
     taken.add(id);
+    // A new photo, shrunk on the device: kept on its own, served from one address.
+    let image = safeImage(String(formData.get(`g${j}.image`) ?? '')) || '/door-gifts/massager.svg';
+    const upload = giftImageData(formData.get(`g${j}.upload`));
+    if (upload) {
+      await data.settings.set(`${GIFT_IMAGE_PREFIX}${id}`, upload);
+      image = `/api/door-gift/image/${id}?v=${Date.now()}`;
+    }
+    const description = plainText(formData.get(`g${j}.description`), MAX_GIFT_DESCRIPTION);
     items.push({
       id,
       name,
       stock: Math.max(0, Math.min(9999, Math.floor(Number(formData.get(`g${j}.stock`)) || 0))),
-      image: safeImage(String(formData.get(`g${j}.image`) ?? '')) || '/door-gifts/massager.svg',
+      image,
+      ...(description ? { description } : {}),
     });
   }
   await data.settings.set(

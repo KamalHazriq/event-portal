@@ -26,6 +26,7 @@ export async function DoorGiftCard() {
         <div className="min-w-0">
           <p className="text-sm font-semibold text-ink-soft">Your door gift</p>
           <p className="text-lg font-bold text-ink">{got.name}</p>
+          {got.description ? <p className="text-sm text-ink-soft">{got.description}</p> : null}
           <p className="text-sm text-ink-soft">Collect it at the registration desk.</p>
         </div>
       </section>

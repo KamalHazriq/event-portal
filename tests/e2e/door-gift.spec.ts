@@ -151,3 +151,30 @@ test('the desk gives a guest who is not on the list a spin too', async ({ page }
     await giftSettings(page, { mode: 'first-day', secretariat: true, stock: ['30', '30', '30'] });
   }
 });
+
+test('a gift gets an uploaded photo and a short description', async ({ page }) => {
+  await signIn(page);
+  await page.goto('/admin/door-gifts');
+  await page.getByRole('link', { name: 'Edit stock, gifts and when to spin' }).click();
+  // A small red square, made here, stands in for a photo from the phone.
+  const png = Buffer.from(
+    'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAAGUlEQVR4nGM8ISfHQApgIkn1qIZRDUNKAwBPHwEkcYw1mAAAAABJRU5ErkJggg==',
+    'base64',
+  );
+  await page.getByLabel('Photo of Massager').setInputFiles({
+    name: 'gift.png',
+    mimeType: 'image/png',
+    buffer: png,
+  });
+  await expect(page.getByText('New photo ready. Press Save to keep it.')).toBeVisible();
+  await page.locator('input[name="g0.description"]').fill('Rechargeable, four heads');
+  await page.getByRole('button', { name: 'Save the door gifts' }).click();
+
+  const tile = page.getByRole('region', { name: 'Stock' });
+  await expect(tile.getByText('Rechargeable, four heads')).toBeVisible();
+  const src = await tile.locator('img').first().getAttribute('src');
+  expect(src).toMatch(/^\/api\/door-gift\/image\/massager\?v=\d+$/);
+  const image = await page.request.get(src!);
+  expect(image.status()).toBe(200);
+  expect(image.headers()['content-type']).toBe('image/jpeg');
+});
