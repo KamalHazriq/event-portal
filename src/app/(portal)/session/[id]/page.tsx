@@ -99,7 +99,7 @@ export default async function SessionPage({ params, searchParams }: PageProps) {
           rel="noopener noreferrer"
           className="btn-ghost inline-flex min-h-11 items-center gap-2 rounded-lg border border-line px-4 py-2.5 font-semibold text-ink no-underline hover:border-primary"
         >
-          Open the slides
+          {session.slidesLabel || 'Open the slides'}
           <span aria-hidden="true">↗</span>
         </a>
       ) : null}

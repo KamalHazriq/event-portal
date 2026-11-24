@@ -284,17 +284,22 @@ export async function saveSession(formData: FormData): Promise<void> {
       .map((v) => plainText(v, 64))
       .filter(Boolean),
     slidesUrl: slidesLink(formData.get('slidesUrl')),
+    slidesLabel: plainText(formData.get('slidesLabel'), 40),
   };
   if (!patch.slidesUrl) delete patch.slidesUrl;
+  if (!patch.slidesLabel) delete patch.slidesLabel;
+  const clearLabel = !plainText(formData.get('slidesLabel'), 40);
   const clearSlides = !slidesLink(formData.get('slidesUrl'));
 
   const added = overlay.addedSessions?.find((a) => a.session.id === id);
   if (added) {
     added.session = { ...added.session, ...patch } as typeof added.session;
     if (clearSlides) delete added.session.slidesUrl;
+    if (clearLabel) delete added.session.slidesLabel;
   } else if (getEventConfig().days.some((d) => d.sessions.some((s) => s.id === id))) {
     const merged: SessionPatch = { ...overlay.sessions?.[id], ...patch };
     if (clearSlides) delete merged.slidesUrl;
+    if (clearLabel) delete merged.slidesLabel;
     overlay.sessions = { ...overlay.sessions, [id]: merged };
   } else {
     back(AGENDA_PATH, { error: 'That session no longer exists.' });

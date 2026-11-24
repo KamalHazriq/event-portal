@@ -281,8 +281,21 @@ export default async function AgendaEditorPage({ searchParams }: { searchParams:
                             className={input}
                           />
                           <span className="mt-1 block text-xs font-normal text-ink-soft">
-                            Shows as &ldquo;Open the slides&rdquo; on the session page. Leave empty
-                            to remove it.
+                            Shows as a button on the session page. Leave empty to remove it.
+                          </span>
+                        </label>
+                        <label className={label}>
+                          Button label (optional)
+                          <input
+                            name="slidesLabel"
+                            maxLength={40}
+                            defaultValue={s.slidesLabel ?? ''}
+                            placeholder="Open the slides"
+                            className={input}
+                          />
+                          <span className="mt-1 block text-xs font-normal text-ink-soft">
+                            For example &ldquo;Open the report&rdquo;. Empty shows &ldquo;Open the
+                            slides&rdquo;.
                           </span>
                         </label>
 

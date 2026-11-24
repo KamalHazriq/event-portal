@@ -45,6 +45,20 @@ test('edit a session, add one, and get a plain reason when it does not fit', asy
     const agenda = await request.get('/agenda?day=day-1');
     expect(await agenda.text()).toContain('Opening, edited by the secretariat');
 
+    // A report link with its own button words.
+    await page.goto('/admin/agenda');
+    const withLink = page
+      .locator('details', { hasText: 'Opening, edited by the secretariat' })
+      .first();
+    await withLink.locator(':scope > summary').click();
+    await withLink.getByLabel(/Slides or handout link/).fill('https://example.org/report.pdf');
+    await withLink.getByLabel(/Button label/).fill('Open the report');
+    await withLink.getByRole('button', { name: 'Save this session' }).click();
+    await expect(page.getByText('Saved. It is live now.')).toBeVisible();
+    const sessionHtml = await (await request.get('/session/d1-opening')).text();
+    expect(sessionHtml).toContain('Open the report');
+    expect(sessionHtml).toContain('https://example.org/report.pdf');
+
     // Backwards times are refused, in plain words, and nothing is saved.
     await page.goto('/admin/agenda');
     const again = page

@@ -185,6 +185,8 @@ export const SessionSchema = z
       .regex(/^https:\/\//, 'must start with https://')
       .max(600)
       .optional(),
+    /** The words on that link's button, such as "Open the report". Empty: "Open the slides". */
+    slidesLabel: z.string().max(40).optional(),
     /** Set true to keep a session in the file but off the public agenda. */
     hidden: z.boolean().default(false),
   })

@@ -72,7 +72,12 @@ export function NowNextPanel({
                         rel="noopener noreferrer"
                         className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-line px-4 font-semibold text-ink no-underline hover:border-primary"
                       >
-                        Slides <span aria-hidden="true">↗</span>
+                        {session.slidesLabel
+                          ? session.slidesLabel
+                              .replace(/^Open the /i, '')
+                              .replace(/^./, (c) => c.toUpperCase())
+                          : 'Slides'}{' '}
+                        <span aria-hidden="true">↗</span>
                       </a>
                     ) : null}
                   </div>

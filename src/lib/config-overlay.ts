@@ -39,6 +39,7 @@ export type SessionPatch = Partial<
     | 'qaEnabled'
     | 'speakerIds'
     | 'slidesUrl'
+    | 'slidesLabel'
   >
 >;
 
