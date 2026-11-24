@@ -1,5 +1,6 @@
 'use server';
 
+import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
 import { getData } from '@/data';
@@ -7,7 +8,7 @@ import { getEventConfig } from '@/lib/config';
 import { plainText } from '@/lib/text';
 import { LIMITS, rateLimit } from '@/lib/rate-limit';
 import { currentDeviceId, deviceIdOrNew } from '@/modules/backup/server';
-import { safeNext } from '@/modules/identity/logic';
+import { GUEST_COOKIE, safeNext } from '@/modules/identity/logic';
 
 /**
  * Signs this device in as a person, for points.
@@ -85,4 +86,10 @@ export async function leaveLeaderboard(): Promise<void> {
   const deviceId = await currentDeviceId();
   if (deviceId) await getData().players.unlink(deviceId);
   redirect('/me?state=left');
+}
+
+/** The backup: someone not on the list carries on without a name, for this visit. */
+export async function continueAsGuest(formData: FormData): Promise<void> {
+  (await cookies()).set(GUEST_COOKIE, '1', { httpOnly: true, sameSite: 'lax', path: '/' });
+  redirect(safeNext(formData.get('next')));
 }

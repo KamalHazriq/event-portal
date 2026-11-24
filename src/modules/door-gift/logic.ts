@@ -35,7 +35,12 @@ export type GiftClaim = {
   /** "spin", or the desk that set it by hand. */
   by: string;
   collected: boolean;
+  /** Someone not on the list: the name the desk typed, if any. */
+  guest?: string;
 };
+
+/** Claims for people not on the list are kept under ids starting with this. */
+export const GUEST_PREFIX = 'guest-';
 
 export const DEFAULT_GIFTS: GiftItem[] = [
   { id: 'massager', name: 'Massager', stock: 30, image: '/door-gifts/massager.svg' },
@@ -85,6 +90,7 @@ export function parseClaim(raw: string | null): GiftClaim | null {
       at: String(v.at ?? ''),
       by: String(v.by ?? 'spin'),
       collected: v.collected === true,
+      ...(typeof v.guest === 'string' ? { guest: v.guest } : {}),
     };
   } catch {
     return null;

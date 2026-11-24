@@ -12,6 +12,7 @@ import { removeAllClaims } from './server';
 import {
   CLAIM_PREFIX,
   DOOR_GIFT_KEY,
+  GUEST_PREFIX,
   parseClaim,
   parseDoorGiftConfig,
   safeImage,
@@ -81,6 +82,15 @@ export async function setDoorGift(formData: FormData): Promise<void> {
   const data = getData();
   const attendeeId = plainText(formData.get('attendeeId'), 64);
   const item = plainText(formData.get('item'), 40);
+  // A guest not on the list: their gift can only be taken back.
+  if (attendeeId.startsWith(GUEST_PREFIX)) {
+    if (!item) {
+      await data.settings.remove(`${CLAIM_PREFIX}${attendeeId}`);
+      await recordActivity('Took back the door gift of a guest', operator);
+      done();
+    }
+    return;
+  }
   const person = attendeeId ? await data.attendees.get(attendeeId) : null;
   if (!person) return;
   const key = `${CLAIM_PREFIX}${person.id}`;

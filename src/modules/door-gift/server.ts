@@ -44,7 +44,7 @@ export async function loadDoorGifts(): Promise<DoorGiftState> {
 }
 
 /** Whether this person spins (or has spun) for a gift at all. */
-export function giftFor(person: Attendee, state: DoorGiftState): boolean {
+export function giftFor(person: Pick<Attendee, 'isSecretariat'>, state: DoorGiftState): boolean {
   return getEventConfig().features.doorGift && (!person.isSecretariat || state.config.secretariat);
 }
 
@@ -60,7 +60,10 @@ let queue: Promise<unknown> = Promise.resolve();
  * Spins for this person, once. Returns what they got (the same thing again
  * if they already spun), or null when the spin is closed or all gone.
  */
-export function claimDoorGift(person: Attendee): Promise<GiftItem | null> {
+export function claimDoorGift(
+  person: Pick<Attendee, 'id' | 'isSecretariat'>,
+  guest?: string,
+): Promise<GiftItem | null> {
   const run = queue.then(async () => {
     const state = await loadDoorGifts();
     const had = state.claims.get(person.id);
@@ -77,6 +80,7 @@ export function claimDoorGift(person: Attendee): Promise<GiftItem | null> {
       at: new Date().toISOString(),
       by: 'spin',
       collected: false,
+      ...(guest !== undefined ? { guest } : {}),
     };
     await getData().settings.set(`${CLAIM_PREFIX}${person.id}`, JSON.stringify(claim));
     return item;
@@ -117,7 +121,7 @@ export async function deskGift(person: Attendee): Promise<DeskGift | null> {
 }
 
 /** The desk handed the gift over. */
-export async function markCollected(person: Attendee): Promise<void> {
+export async function markCollected(person: Pick<Attendee, 'id'>): Promise<void> {
   const key = `${CLAIM_PREFIX}${person.id}`;
   const claim = parseClaim(await getData().settings.get(key));
   if (claim && !claim.collected) {

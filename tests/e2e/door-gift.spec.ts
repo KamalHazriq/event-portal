@@ -9,6 +9,9 @@ import { writeXlsx } from '../../src/lib/xlsx/write';
 
 const PIN = process.env.E2E_ADMIN_PIN ?? '246810';
 
+// The tests change the same gift stock, so they take turns.
+test.describe.configure({ mode: 'serial' });
+
 async function signIn(page: Page): Promise<void> {
   await page.goto('/admin/sign-in');
   await page.getByLabel('Which desk is this?').fill('gift-test');
@@ -71,7 +74,8 @@ test('a new phone says who it is, spins for a door gift, and the desk can change
     const phone = await browser.newPage();
     await phone.goto('/welcome?next=/agenda');
     await expect(phone.getByRole('heading', { name: 'Welcome! Who are you?' })).toBeVisible();
-    await expect(phone.getByRole('button', { name: 'Continue without a name' })).toHaveCount(0);
+    // The backup for someone not on the list is there, but small.
+    await expect(phone.getByRole('button', { name: 'continue without a name' })).toBeVisible();
     await phone.getByLabel('Type your name').fill(`doorprize${tag}`);
     await phone.getByRole('button', { name: 'Find me' }).click();
     await phone.getByRole('link', { name: `That is me: ${name}` }).click();
@@ -122,4 +126,28 @@ test('the welcome page says when a name is not on the list', async ({ page }) =>
   await page.goto('/welcome?find=zzzzzz&next=https://evil.example');
   await expect(page.getByText(/Nobody on the list has that name/)).toBeVisible();
   await expect(page.getByText(/Ask the registration desk to add you/)).toBeVisible();
+  await page.getByRole('button', { name: 'continue without a name' }).click();
+  await expect(page).toHaveURL(/127\.0\.0\.1:\d+\/$/);
+});
+
+test('the desk gives a guest who is not on the list a spin too', async ({ page }) => {
+  await signIn(page);
+  await giftSettings(page, { mode: 'on', secretariat: true, stock: ['0', '30', '0'] });
+  try {
+    await page.goto('/admin/desk');
+    await page.getByText('Not on the list? Door gift for a guest').click();
+    await page.getByLabel('Guest name (optional)').fill('Walk In Visitor');
+    await page.getByRole('button', { name: 'Spin a door gift' }).click();
+    const dialog = page.getByRole('dialog', { name: 'Door gift for Walk In Visitor' });
+    await dialog.getByRole('button', { name: 'Spin for the gift' }).click();
+    await expect(dialog.getByText('Thermal printer!')).toBeVisible({ timeout: 20_000 });
+    await dialog.getByRole('button', { name: 'Handed over' }).click();
+    await page.goto('/admin/door-gifts');
+    const guest = page.locator('li', { hasText: 'Walk In Visitor' });
+    await expect(guest.getByRole('button', { name: '✓ Collected' })).toBeVisible();
+    await guest.getByRole('button', { name: 'Remove' }).click();
+    await expect(page.locator('li', { hasText: 'Walk In Visitor' })).toHaveCount(0);
+  } finally {
+    await giftSettings(page, { mode: 'first-day', secretariat: true, stock: ['30', '30', '30'] });
+  }
 });

@@ -6,6 +6,9 @@ import { requireAdmin } from '@/lib/admin-guard';
 import { getEventConfig } from '@/lib/config';
 import { formatShortDate, resolveEventNow } from '@/lib/time';
 import { DeskConsole } from '@/modules/check-in/components/DeskConsole';
+import { GuestGift } from '@/modules/door-gift/components/GuestGift';
+import { safeImage } from '@/modules/door-gift/logic';
+import { loadDoorGifts } from '@/modules/door-gift/server';
 import { UndoAllButton } from '@/modules/check-in/components/UndoAllButton';
 import { arrivalRate, checkInDays, resolveCheckInDay } from '@/modules/check-in/logic';
 
@@ -35,7 +38,7 @@ export default async function DeskPage({ searchParams }: { searchParams: SearchP
   }
 
   const data = getData();
-  const headcount = await data.checkIns.headcount(day.id);
+  const [headcount, gifts] = await Promise.all([data.checkIns.headcount(day.id), loadDoorGifts()]);
 
   return (
     <div className="space-y-4">
@@ -112,6 +115,16 @@ export default async function DeskPage({ searchParams }: { searchParams: SearchP
         dayLabel={day.label}
         initialHeadcount={arrivalRate(headcount.arrived, headcount.expected)}
       />
+
+      {gifts.open ? (
+        <GuestGift
+          items={gifts.config.items.map((i) => ({
+            id: i.id,
+            name: i.name,
+            image: safeImage(i.image) || '/door-gifts/massager.svg',
+          }))}
+        />
+      ) : null}
 
       <p className="text-sm text-ink-soft">
         Checked the wrong person in? Undo it on the{' '}

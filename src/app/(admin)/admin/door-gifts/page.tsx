@@ -12,7 +12,7 @@ import {
   setDoorGift,
   toggleCollected,
 } from '@/modules/door-gift/actions';
-import { givenCounts, remaining, safeImage } from '@/modules/door-gift/logic';
+import { givenCounts, GUEST_PREFIX, remaining, safeImage } from '@/modules/door-gift/logic';
 import { giftFor, loadDoorGifts } from '@/modules/door-gift/server';
 import { DoorGiftTable, type GiftRow } from '@/modules/door-gift/components/DoorGiftTable';
 
@@ -33,6 +33,7 @@ export default async function DoorGiftsPage() {
   for (const c of state.claims.values())
     if (c.collected) collectedBy.set(c.item, (collectedBy.get(c.item) ?? 0) + 1);
   const eligible = people.filter((p) => giftFor(p, state));
+  const guests = [...state.claims].filter(([id]) => id.startsWith(GUEST_PREFIX));
   const totalStock = state.config.items.reduce((n, i) => n + i.stock, 0);
 
   const rows: GiftRow[] = eligible
@@ -72,8 +73,9 @@ export default async function DoorGiftsPage() {
           {state.open ? 'The spin is open now.' : 'The spin is closed right now.'}
         </p>
         <p className="text-sm text-ink-soft">
-          {state.claims.size} of {eligible.length} people have a gift. {totalStock} gifts in stock
-          in all
+          {state.claims.size - guests.length} of {eligible.length} people have a gift
+          {guests.length > 0 ? `, plus ${guests.length} guests not on the list` : ''}. {totalStock}{' '}
+          gifts in stock in all
           {totalStock < eligible.length
             ? `, which is ${eligible.length - totalStock} short of everyone`
             : ''}
@@ -122,6 +124,49 @@ export default async function DoorGiftsPage() {
           />
         </div>
       </section>
+
+      {guests.length > 0 ? (
+        <section aria-labelledby="guests" className="rounded-xl border border-line bg-surface p-4">
+          <h2 id="guests" className="font-bold text-ink">
+            Guests not on the list ({guests.length})
+          </h2>
+          <ul className="mt-2 divide-y divide-line">
+            {guests.map(([id, claim]) => (
+              <li key={id} className="flex flex-wrap items-center gap-3 py-2">
+                <span className="min-w-0 flex-1 text-ink">
+                  <span className="font-semibold">{claim.guest || 'Guest, no name given'}</span>{' '}
+                  <span className="text-sm text-ink-soft">
+                    {state.config.items.find((i) => i.id === claim.item)?.name ?? claim.item}
+                  </span>
+                </span>
+                <form action={toggleCollected}>
+                  <input type="hidden" name="attendeeId" value={id} />
+                  <button
+                    type="submit"
+                    className={`min-h-11 rounded-lg border px-3 text-sm font-semibold ${
+                      claim.collected
+                        ? 'border-success bg-success/15 text-ink'
+                        : 'border-line text-ink'
+                    }`}
+                  >
+                    {claim.collected ? '✓ Collected' : 'Mark collected'}
+                  </button>
+                </form>
+                <form action={setDoorGift}>
+                  <input type="hidden" name="attendeeId" value={id} />
+                  <input type="hidden" name="item" value="" />
+                  <button
+                    type="submit"
+                    className="min-h-11 rounded-lg border border-line px-3 text-sm font-semibold text-ink"
+                  >
+                    Remove
+                  </button>
+                </form>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       <details className="rounded-xl border border-line bg-surface p-4" open={false}>
         <summary className="cursor-pointer text-lg font-bold text-ink">

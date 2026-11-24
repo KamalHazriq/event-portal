@@ -20,13 +20,18 @@ export function GiftSpinner({
   offer,
   onClose,
   kiosk = false,
+  guest = false,
 }: {
+  /** The person checked in, or empty for a guest not on the list. */
   attendeeId: string;
   name: string;
   offer: GiftOffer;
-  onClose: () => void;
+  /** Closes the card, saying what was won and whether it was handed over. */
+  onClose: (outcome?: { item: GiftItemView; collected: boolean }) => void;
   /** On the self check in tablet: spins by itself, and closes by itself. */
   kiosk?: boolean;
+  /** Someone not on the list: the spin makes a guest entry. */
+  guest?: boolean;
 }) {
   const items = offer.state === 'spin' ? offer.items : [offer.item];
   const [lit, setLit] = useState<number | null>(null);
@@ -35,6 +40,8 @@ export function GiftSpinner({
   const [error, setError] = useState('');
   const [handed, setHanded] = useState(offer.state === 'has' && offer.collected);
   const started = useRef(false);
+  // For a guest, the id the server made, so "Handed over" finds it.
+  const claimId = useRef(attendeeId);
 
   const spin = async () => {
     if (started.current) return;
@@ -46,11 +53,16 @@ export function GiftSpinner({
       const res = await fetch('/api/door-gift', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ attendeeId }),
+        body: JSON.stringify(guest ? { guest: true, guestName: name } : { attendeeId }),
       });
-      const body = (await res.json()) as { item?: GiftItemView; message?: string };
+      const body = (await res.json()) as {
+        item?: GiftItemView;
+        claimId?: string;
+        message?: string;
+      };
       if (!res.ok || !body.item) throw new Error(body.message ?? 'That did not work.');
       item = body.item;
+      if (body.claimId) claimId.current = body.claimId;
     } catch (e) {
       setError(e instanceof Error ? e.message : 'That did not work. Try again.');
       setBusy(false);
@@ -88,9 +100,10 @@ export function GiftSpinner({
     await fetch('/api/door-gift', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ attendeeId, action: 'collected' }),
+      body: JSON.stringify({ attendeeId: claimId.current, action: 'collected' }),
     }).catch(() => undefined);
-    onClose();
+    if (won) onClose({ item: won, collected: true });
+    else onClose();
   };
 
   // The kiosk spins straight away, and goes back to waiting afterwards.
@@ -103,17 +116,17 @@ export function GiftSpinner({
   }, []);
   useEffect(() => {
     if (!kiosk || !won) return;
-    const timer = window.setTimeout(onClose, 9000);
+    const timer = window.setTimeout(() => onClose({ item: won, collected: false }), 9000);
     return () => window.clearTimeout(timer);
   }, [kiosk, won, onClose]);
 
-  const first = name.split(' ')[0];
+  const first = name.split(' ')[0] || 'our guest';
 
   return (
     <div
       role="dialog"
       aria-modal="true"
-      aria-label={`Door gift for ${name}`}
+      aria-label={`Door gift for ${name || 'a guest'}`}
       className="fixed inset-0 z-[90] flex items-center justify-center overflow-y-auto bg-canvas/95 p-4"
     >
       <div className="w-full max-w-xl rounded-2xl border-2 border-accent bg-surface p-5 text-center shadow-2xl sm:p-8">
@@ -121,7 +134,7 @@ export function GiftSpinner({
         <h2 className="mt-1 text-2xl font-bold text-ink sm:text-3xl">
           {won ? `${first} gets` : `Spin for ${first}`}
         </h2>
-        <p className="text-ink-soft">{name}</p>
+        <p className="text-ink-soft">{name || 'Not on the list'}</p>
 
         {won ? (
           <div className="winner-reveal mt-4">
@@ -147,7 +160,7 @@ export function GiftSpinner({
                 )}
                 <button
                   type="button"
-                  onClick={onClose}
+                  onClick={() => onClose({ item: won, collected: handed })}
                   className="min-h-12 rounded-xl border border-line px-6 font-semibold text-ink"
                 >
                   {handed ? 'Close' : 'Later'}
@@ -190,7 +203,7 @@ export function GiftSpinner({
               {kiosk ? null : (
                 <button
                   type="button"
-                  onClick={onClose}
+                  onClick={() => onClose()}
                   disabled={busy}
                   className="min-h-14 rounded-xl border border-line px-6 font-semibold text-ink"
                 >

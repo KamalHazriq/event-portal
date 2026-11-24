@@ -350,10 +350,19 @@ export function DeskConsole({
           attendeeId={giftOpen.id}
           name={giftOpen.name}
           offer={giftOpen.offer}
-          onClose={() => {
+          onClose={(outcome) => {
             setGiftOpen(null);
-            // The result card shows the gift too, without asking the server again.
-            setResult((r) => (r ? { ...r, gift: null } : r));
+            // The result card now says which gift, without asking the server again.
+            if (outcome) {
+              setResult((r) =>
+                r
+                  ? {
+                      ...r,
+                      gift: { state: 'has', item: outcome.item, collected: outcome.collected },
+                    }
+                  : r,
+              );
+            }
           }}
         />
       ) : null}

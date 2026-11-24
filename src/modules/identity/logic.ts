@@ -4,6 +4,9 @@
  * person by themselves. Pure functions only. See logic.test.ts.
  */
 
+/** Set for this visit when someone not on the list carries on without a name. */
+export const GUEST_COOKIE = 'ep_guest';
+
 /** The setting the secretariat can turn the question off with on the day. */
 export const ASK_FIRST_KEY = 'identity.askFirst';
 

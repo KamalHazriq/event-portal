@@ -10,7 +10,7 @@ import { shortDepartment } from '@/lib/departments';
 import { DEVICE_COOKIE, readDeviceId } from '@/lib/device';
 import { LIMITS, rateLimit } from '@/lib/rate-limit';
 import { safeNext } from '@/modules/identity/logic';
-import { joinAsPerson } from '@/modules/points/actions';
+import { continueAsGuest, joinAsPerson } from '@/modules/points/actions';
 import { findByName } from '@/modules/points/logic';
 import { currentPlayer } from '@/modules/points/server';
 
@@ -217,9 +217,17 @@ export default async function WelcomePage({ searchParams }: { searchParams: Prom
         </section>
       )}
 
-      <p className="text-center text-sm text-ink-soft">
-        Cannot find your name? Ask the registration desk to add you to the list.
-      </p>
+      <form action={continueAsGuest} className="text-center text-sm text-ink-soft">
+        <input type="hidden" name="next" value={next} />
+        <p>Cannot find your name? Ask the registration desk to add you to the list.</p>
+        <p className="mt-2">
+          Only if that is not possible:{' '}
+          <button type="submit" className="font-semibold text-ink-soft underline">
+            continue without a name
+          </button>
+          . The desk still gives you a door gift spin.
+        </p>
+      </form>
     </div>
   );
 }

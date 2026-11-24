@@ -82,7 +82,7 @@ export const TEST_PLAN: Part[] = [
             changed: true,
             do: 'Still in the private window, open any page (say the Agenda). Type "Test", tap Test Participant, then press "Yes, that is me".',
             expect:
-              'Before the page, it asks "Welcome! Who are you?" (there is no way past it without a name). After a name is picked it asks "Are you Test Participant?". "No, that is not me" goes back. Once confirmed the phone goes on to the page it was opening, and is never asked again.',
+              'Before the page, it asks "Welcome! Who are you?" (a small "continue without a name" link is only a backup for someone not on the list). After a name is picked it asks "Are you Test Participant?". "No, that is not me" goes back. Once confirmed the phone goes on to the page it was opening, and is never asked again.',
             links: [{ href: '/agenda', label: 'Agenda (in a private window)' }],
           },
           {
