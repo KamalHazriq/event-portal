@@ -80,3 +80,20 @@ test('on a phone the tab you are on is brought into view', async ({ page }, test
     .getByRole('link', { name: 'More', exact: true });
   await expect(tab).toBeInViewport({ ratio: 0.9 });
 });
+
+test('the secretariat finds a page by typing a word', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'desktop', 'One run is enough.');
+  await page.goto('/admin/sign-in');
+  await page.getByLabel('Which desk is this?').fill('search-test');
+  await page.getByLabel('Admin PIN').fill(process.env.E2E_ADMIN_PIN ?? '246810');
+  await page.getByRole('button', { name: 'Sign in' }).click();
+  await expect(
+    page.getByRole('heading', { name: /^Good (morning|afternoon|evening)/, level: 1 }),
+  ).toBeVisible();
+  await page.keyboard.press('/');
+  await page.keyboard.type('stock');
+  const results = page.getByRole('listbox', { name: 'Pages that match' }).filter({ visible: true });
+  await expect(results.getByRole('option').first()).toContainText('Door gifts');
+  await page.keyboard.press('Enter');
+  await expect(page).toHaveURL(/\/admin\/door-gifts$/);
+});

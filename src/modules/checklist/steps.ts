@@ -109,7 +109,7 @@ export const TEST_PLAN: Part[] = [
             changed: true,
             do: 'On the home page tap Install (Android and Chrome). On an iPhone, tap Share, then Add to Home Screen.',
             expect:
-              'An icon appears on the home screen and opens full screen like an app. On an iPhone the app asks for the event code once (it keeps its own sign in, apart from Safari): no white screen. If it was white before, delete the icon and add it again.',
+              'An icon appears on the home screen and opens full screen like an app. On an iPhone the app asks for the event code once (no white screen). On a Samsung tablet or phone in Samsung Internet, the home page shows the three menu steps (☰, Add page to, Home screen) instead of an Install button.',
             links: [{ href: '/', label: 'Home page' }],
           },
           {
@@ -141,9 +141,10 @@ export const TEST_PLAN: Part[] = [
           },
           {
             id: 'a-home-agenda',
+            changed: true,
             do: 'Open the Agenda and go through Day 1, Day 2 and Day 3.',
             expect:
-              'Every time, title, room and speaker matches the official agenda. On an event day, finished sessions fold into "Earlier today".',
+              'Every time, title, room and speaker matches the official agenda. The Day 1, Day 2 and Day 3 tabs are all the same width. On an event day, finished sessions fold into "Earlier today".',
             links: [{ href: '/agenda', label: 'Agenda' }],
           },
           {
@@ -399,6 +400,14 @@ export const TEST_PLAN: Part[] = [
               'The Storage card says the database is ready. "Needs attention" and "Still to fill in" list only what you expect.',
             links: [{ href: '/admin', label: 'Dashboard' }],
           },
+          {
+            id: 's-login-search',
+            changed: true,
+            do: 'On a laptop press / (or tap the "Find a page" box on a phone) and type "stock", then "report", then "clear".',
+            expect:
+              'Each shows the matching secretariat pages as you type (Door gifts, Reports, Admins). Enter or a tap opens the first. Committees never shows: it is switched off.',
+            links: [{ href: '/admin', label: 'Secretariat' }],
+          },
         ],
       },
       {
@@ -477,9 +486,9 @@ export const TEST_PLAN: Part[] = [
           {
             id: 's-content-slides',
             changed: true,
-            do: 'Open a session on Agenda, paste a OneDrive link (shared with the company only) into "Slides or handout link", and Save. Then empty the field and Save again.',
+            do: 'Open d1-svc, d1-atc and d1-otc on Agenda. Paste each report\'s organisation-only OneDrive link into "Slides or handout link", type "Open the report" in "Button label", and Save.',
             expect:
-              'The session page on a phone shows Open the slides and it opens the file. After emptying the field the button is gone.',
+              'Each session page shows an "Open the report" button that opens the file for signed in staff only. While the session is live the home page shows a "Report" button. An empty label shows "Open the slides"; an empty link removes the button.',
             links: [
               { href: '/admin/agenda', label: 'Agenda editor' },
               { href: '/agenda', label: 'Agenda (open that session)' },
@@ -553,6 +562,17 @@ export const TEST_PLAN: Part[] = [
             expect:
               'Each finds them and a tap on Check in works. The first time someone is checked in, a door gift card covers the desk: press "Spin for the gift", it stops on one gift, then press "Handed over" (or "Later"). Checking them in again never spins twice: it shows which gift is theirs.',
             links: [{ href: '/admin/desk', label: 'Desk' }],
+          },
+          {
+            id: 's-desk-guest',
+            changed: true,
+            do: 'On Desk, open "Not on the list? Door gift for a guest", type a name and press "Spin a door gift". Then on a phone choose "continue without a name" on the welcome page.',
+            expect:
+              'The guest gets the same spin, and Door gifts lists them under "Guests not on the list". The phone carries on without a name for that visit only.',
+            links: [
+              { href: '/admin/desk', label: 'Desk' },
+              { href: '/admin/door-gifts', label: 'Door gifts' },
+            ],
           },
           {
             id: 's-desk-head',
@@ -710,12 +730,23 @@ export const TEST_PLAN: Part[] = [
           {
             id: 's-room-gifts',
             changed: true,
-            do: 'On Door gifts, set the real stock of each gift and save. Find Test Participant: change their gift with the dropdown, press Mark collected, then choose "No gift yet". Finally set "When can people spin?" back to "Only on the first day".',
+            do: 'On Door gifts, press "Edit stock, gifts and when to spin", set the real stock of each gift and save. Find Test Participant: change their gift with the dropdown, press Mark collected, then choose "No gift yet". Finally set "When can people spin?" back to "Only on the first day".',
             expect:
               'Each gift shows how many are given, collected and left. The change saves at once and the phone shows the new gift. "No gift yet" lets them spin again at the desk. Everyone on the list gets one, the secretariat included (untick it if not). If the stock is less than the number of people, the page says how many short.',
             links: [
               { href: '/admin/door-gifts', label: 'Door gifts' },
               { href: '/door-gift', label: 'Door gift (on the phone)' },
+            ],
+          },
+          {
+            id: 's-room-look',
+            changed: true,
+            do: 'On the Secretariat overview, under Portal style, choose Studio and open the home page and the agenda on a phone and a laptop. Then choose Ruled again (or keep Studio).',
+            expect:
+              'Studio: big light title, square tiles, small mono code labels, the four number tiles and a floating glass hexagon on a laptop, and a dark square with the D on the main buttons. Ruled comes back in one tap.',
+            links: [
+              { href: '/admin', label: 'Portal style' },
+              { href: '/', label: 'Home page' },
             ],
           },
           {
@@ -787,6 +818,14 @@ export const TEST_PLAN: Part[] = [
             expect:
               'Headcount shows nobody arrived, the leaderboard and lucky draw are empty, and no test comments or photos remain. The participant list, your agenda edits and the settings stay. The Undo all attendance button next to it clears only the check ins.',
             links: [{ href: '#clean', label: 'Clear test data (bottom of this page)' }],
+          },
+          {
+            id: 's-clean-allbutphotos',
+            changed: true,
+            do: 'After the last rehearsal, if you want to keep the rehearsal photos: on Admins, under Resets, type CLEAR and press "Clear everything except photos".',
+            expect:
+              'Check ins, points, comments, reactions, feedback, lucky draw, votes, sign ins, door gift spins, name picker turns and announcements are gone. The photos, the participant list, your agenda edits, the stock and the settings stay.',
+            links: [{ href: '/admin/admins', label: 'Admins, Resets' }],
           },
           {
             id: 's-clean-board',

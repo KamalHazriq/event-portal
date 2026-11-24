@@ -42,7 +42,14 @@ export function subscribeInstall(onChange: () => void): () => void {
   return () => listeners.delete(onChange);
 }
 
-export type InstallState = 'unknown' | 'installed' | 'can-prompt' | 'ios-steps' | 'unavailable';
+export type InstallState =
+  | 'unknown'
+  | 'installed'
+  | 'can-prompt'
+  | 'ios-steps'
+  | 'samsung-steps'
+  | 'android-steps'
+  | 'unavailable';
 
 function isStandalone(): boolean {
   const nav = navigator as Navigator & { standalone?: boolean };
@@ -62,6 +69,11 @@ export function installSnapshot(): InstallState {
   if (installed || isStandalone()) return 'installed';
   if (deferred) return 'can-prompt';
   if (isIos()) return 'ios-steps';
+  // Android with no prompt: Samsung Internet never offers one, and Chrome stays
+  // quiet when the app is already installed. Show the menu steps instead.
+  const ua = navigator.userAgent;
+  if (/SamsungBrowser/i.test(ua)) return 'samsung-steps';
+  if (/Android/i.test(ua)) return 'android-steps';
   return 'unavailable';
 }
 

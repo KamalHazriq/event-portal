@@ -1,6 +1,7 @@
 import Link from 'next/link';
 
 import { AdminSidebarNav, AdminTabs } from './AdminNav';
+import { AdminSearch } from './AdminSearch';
 import { Icon } from './icons';
 
 type Props = {
@@ -66,6 +67,11 @@ export function AdminHeader({ shortName, operator, mark = null, hidden = [] }: P
           </Link>
         )}
       </div>
+      {operator ? (
+        <div className="px-4 pb-2">
+          <AdminSearch hidden={hidden} />
+        </div>
+      ) : null}
       {operator ? <AdminTabs hidden={hidden} /> : null}
     </header>
   );
@@ -82,6 +88,9 @@ export function AdminSidebar({
     <aside className="admin-sidebar sticky top-0 hidden h-dvh flex-col border-r border-line lg:flex print:hidden">
       <div className="px-6 pb-5 pt-6">
         <Brand shortName={shortName} mark={mark} />
+        <div className="mt-4">
+          <AdminSearch hidden={hidden} />
+        </div>
       </div>
       <AdminSidebarNav hidden={hidden} />
       <div className="space-y-3 border-t border-line px-6 py-4">

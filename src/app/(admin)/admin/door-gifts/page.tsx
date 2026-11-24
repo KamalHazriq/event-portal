@@ -23,7 +23,12 @@ export const metadata: Metadata = { title: 'Door gifts' };
 const input =
   'mt-1 block min-h-11 w-full rounded-lg border border-line bg-canvas px-3 text-ink focus:border-primary focus:outline-none';
 
-export default async function DoorGiftsPage() {
+export default async function DoorGiftsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ edit?: string }>;
+}) {
+  const editing = (await searchParams).edit === 'stock';
   await requireAdmin('/admin/door-gifts');
   const config = getEventConfig();
   const [state, people] = await Promise.all([loadDoorGifts(), getData().attendees.list()]);
@@ -86,6 +91,15 @@ export default async function DoorGiftsPage() {
         </p>
       </section>
 
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="font-bold text-ink">Stock</h2>
+        <Link
+          href="/admin/door-gifts?edit=stock#stock"
+          className="inline-flex min-h-11 items-center rounded-lg border border-line px-4 font-semibold text-ink no-underline hover:border-primary"
+        >
+          Edit stock, gifts and when to spin
+        </Link>
+      </div>
       <section className="grid gap-3 sm:grid-cols-3" aria-label="Stock">
         {state.config.items.map((item) => (
           <div key={item.id} className="rounded-xl border border-line bg-surface p-4">
@@ -168,10 +182,18 @@ export default async function DoorGiftsPage() {
         </section>
       ) : null}
 
-      <details className="rounded-xl border border-line bg-surface p-4" open={false}>
+      <details
+        id="stock"
+        className="scroll-mt-24 rounded-xl border border-line bg-surface p-4"
+        open={editing}
+      >
         <summary className="cursor-pointer text-lg font-bold text-ink">
           Gifts, stock and when to spin
         </summary>
+        <p className="mt-2 text-sm text-ink-soft">
+          Stock is the total of each gift you have. &ldquo;Left&rdquo; is worked out from it, so
+          change it any time, even after people have spun.
+        </p>
         <form action={saveDoorGiftSettings} className="mt-3 space-y-4">
           <FormPending label="Saving" />
           <fieldset className="space-y-1">

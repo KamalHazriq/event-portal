@@ -34,6 +34,49 @@ export function InstallApp({ className = '' }: { className?: string }) {
 
   if (state === 'unknown' || state === 'unavailable' || state === 'installed') return null;
 
+  if (state === 'samsung-steps' || state === 'android-steps') {
+    const samsung = state === 'samsung-steps';
+    return (
+      <section
+        aria-label="Add to home screen"
+        className={`rounded-xl border border-line bg-surface p-4 ${className}`}
+      >
+        <p className="font-bold text-ink">Put it on your home screen</p>
+        <p className="mt-1 text-sm text-ink-soft">
+          {samsung
+            ? 'In Samsung Internet it takes three taps:'
+            : 'Your browser has no install button here, so use its menu:'}
+        </p>
+        <ol className="mt-1 list-decimal space-y-0.5 pl-5 text-sm text-ink-soft">
+          {samsung ? (
+            <>
+              <li>
+                Tap the <strong className="text-ink">menu</strong> (☰, three lines, at the bottom
+                right or top right).
+              </li>
+              <li>
+                Choose <strong className="text-ink">Add page to</strong>, then{' '}
+                <strong className="text-ink">Home screen</strong>, then Add.
+              </li>
+            </>
+          ) : (
+            <>
+              <li>
+                Tap the <strong className="text-ink">menu</strong> (⋮, three dots, at the top
+                right).
+              </li>
+              <li>
+                Choose <strong className="text-ink">Install app</strong> or{' '}
+                <strong className="text-ink">Add to Home screen</strong>.
+              </li>
+            </>
+          )}
+          <li>Open it from the new icon. Already there? Just open it from the icon.</li>
+        </ol>
+      </section>
+    );
+  }
+
   if (state === 'ios-steps') {
     const top = sharePosition() === 'top';
     return (
