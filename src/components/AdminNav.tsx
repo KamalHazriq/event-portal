@@ -22,7 +22,7 @@ function activeGroup(pathname: string) {
  * The phone tab row: Overview, one tab per section (each opens a page that
  * lists its pages), and the page you are on when it is inside a section.
  */
-function tabPages(pathname: string): AdminPage[] {
+function tabPages(pathname: string, hidden: string[]): AdminPage[] {
   const overview: AdminPage = {
     href: '/admin',
     label: 'Overview',
@@ -37,12 +37,14 @@ function tabPages(pathname: string): AdminPage[] {
     description: '',
     icon: g.slug === 'more' ? 'folder' : g.pages[0]!.icon,
   }));
-  const current = ADMIN_PAGES.find((page) => isActive(pathname, page.href));
+  const current = ADMIN_PAGES.find(
+    (page) => !hidden.includes(page.href) && isActive(pathname, page.href),
+  );
   return [overview, ...sections, ...(current ? [current] : [])];
 }
 
 /** Phones and tablets: one swipeable row of tabs under the header. */
-export function AdminTabs() {
+export function AdminTabs({ hidden = [] }: { hidden?: string[] }) {
   const pathname = usePathname();
   const row = useRef<HTMLUListElement>(null);
 
@@ -58,7 +60,7 @@ export function AdminTabs() {
   return (
     <nav aria-label="Secretariat" className="px-2 lg:hidden">
       <ul ref={row} className="no-scrollbar relative flex gap-1 overflow-x-auto">
-        {tabPages(pathname).map((page) => {
+        {tabPages(pathname, hidden).map((page) => {
           const active =
             page.href === '/admin' ? pathname === '/admin' : isActive(pathname, page.href);
           return (
@@ -85,7 +87,7 @@ export function AdminTabs() {
 }
 
 /** Laptops and up: a sidebar with the pages grouped by when they are used. */
-export function AdminSidebarNav() {
+export function AdminSidebarNav({ hidden = [] }: { hidden?: string[] }) {
   const pathname = usePathname();
   return (
     <nav aria-label="Secretariat" className="flex-1 overflow-y-auto px-3 pb-4">
@@ -121,24 +123,26 @@ export function AdminSidebarNav() {
             </Link>
             {here ? (
               <ul className="mt-0.5 space-y-0.5 border-l border-line pl-2 ml-3">
-                {group.pages.map((page) => {
-                  const active = isActive(pathname, page.href);
-                  return (
-                    <li key={page.href}>
-                      <Link
-                        href={page.href}
-                        aria-current={active ? 'page' : undefined}
-                        className={[
-                          'side-link flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-semibold no-underline',
-                          active ? 'is-active' : '',
-                        ].join(' ')}
-                      >
-                        <Icon name={page.icon} />
-                        {page.label}
-                      </Link>
-                    </li>
-                  );
-                })}
+                {group.pages
+                  .filter((page) => !hidden.includes(page.href))
+                  .map((page) => {
+                    const active = isActive(pathname, page.href);
+                    return (
+                      <li key={page.href}>
+                        <Link
+                          href={page.href}
+                          aria-current={active ? 'page' : undefined}
+                          className={[
+                            'side-link flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-semibold no-underline',
+                            active ? 'is-active' : '',
+                          ].join(' ')}
+                        >
+                          <Icon name={page.icon} />
+                          {page.label}
+                        </Link>
+                      </li>
+                    );
+                  })}
               </ul>
             ) : null}
           </div>

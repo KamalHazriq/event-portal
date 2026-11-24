@@ -160,3 +160,25 @@ test('reset the leaderboard sign ins, then sign every desk out', async ({ page, 
   await signIn(page, 'desk-reset-1');
   await signIn(other, 'desk-reset-2');
 });
+
+test('clear everything except the photos needs the typed word, then clears', async ({ page }) => {
+  await page.goto('/admin/sign-in');
+  await page.getByLabel('Which desk is this?').fill('desk-clear');
+  await page.getByLabel('Admin PIN').fill(PIN);
+  await page.getByRole('button', { name: 'Sign in' }).click();
+  await expect(
+    page.getByRole('heading', { name: /^Good (morning|afternoon|evening)/, level: 1 }),
+  ).toBeVisible();
+
+  await page.goto('/admin/admins');
+  const form = page.locator('#clear-all');
+  await form.getByLabel('Type CLEAR to confirm').fill('nope');
+  await form.getByRole('button', { name: 'Clear everything except photos' }).click();
+  await expect(page.locator('#clear-all').getByRole('alert')).toHaveText('Type CLEAR to confirm.');
+  await page.locator('#clear-all').getByLabel('Type CLEAR to confirm').fill('clear');
+  await page
+    .locator('#clear-all')
+    .getByRole('button', { name: 'Clear everything except photos' })
+    .click();
+  await expect(page.getByText(/^Cleared\. Everything starts again/)).toBeVisible();
+});

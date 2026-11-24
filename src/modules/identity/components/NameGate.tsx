@@ -18,8 +18,13 @@ export async function NameGate() {
   if (jar.has(GUEST_COOKIE)) return null;
   // The secretariat browsing as attendees are never asked.
   if (readSessionValue(jar.get(ADMIN_COOKIE)?.value)) return null;
-  if ((await getData().settings.get(ASK_FIRST_KEY)) === 'off') return null;
-  if (await currentPlayer()) return null;
+  // If the database cannot be reached, never block the page over a name.
+  try {
+    if ((await getData().settings.get(ASK_FIRST_KEY)) === 'off') return null;
+    if (await currentPlayer()) return null;
+  } catch {
+    return null;
+  }
   return (
     <Suspense fallback={null}>
       <NameGateRedirect />

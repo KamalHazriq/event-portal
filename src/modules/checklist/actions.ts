@@ -3,6 +3,8 @@
 import { removeAllClaims } from '@/modules/door-gift/server';
 import { forgetImages } from '@/modules/photos/image-cache';
 import { PICKER_KEY } from '@/modules/name-picker/logic';
+import { ANNOUNCE_KEYS } from '@/modules/announce/logic';
+import { REMINDERS_KEY } from '@/modules/reminders/logic';
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
@@ -62,4 +64,37 @@ export async function removeTestParticipant(): Promise<void> {
   await recordActivity('Removed the test participant', auth.session.operator);
   revalidatePath('/', 'layout');
   redirect('/admin/test-plan?tester=removed#tester');
+}
+
+/**
+ * Clears everything people did, except the photos, and keeps the participant
+ * list and every setting. For a fresh start once testing is over: check ins,
+ * points, comments, reactions, feedback, the lucky draw, Q&A and poll votes,
+ * phone sign ins, door gift spins, name picker turns, announcements and
+ * scheduled messages all go. Needs the PIN session and the word CLEAR.
+ */
+export async function clearAllButPhotos(formData: FormData): Promise<void> {
+  const auth = await requireAdminApi();
+  if (!auth.ok) throw new Error('Not signed in.');
+  if (
+    String(formData.get('confirm') ?? '')
+      .trim()
+      .toUpperCase() !== 'CLEAR'
+  ) {
+    redirect('/admin/admins?cleared=confirm#clear-all');
+  }
+  const data = getData();
+  await data.clearActivity({ keepPhotos: true });
+  await removeAllClaims();
+  await Promise.all(
+    [PICKER_KEY, ANNOUNCE_KEYS.current, ANNOUNCE_KEYS.history, REMINDERS_KEY].map((key) =>
+      data.settings.remove(key),
+    ),
+  );
+  await recordActivity(
+    'Cleared everything except the photos and the participant list',
+    auth.session.operator,
+  );
+  revalidatePath('/', 'layout');
+  redirect('/admin/admins?cleared=1#clear-all');
 }

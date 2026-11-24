@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 
-import { ADMIN_GROUPS } from '@/components/admin-pages';
+import { ADMIN_GROUPS, hiddenAdminPages } from '@/components/admin-pages';
 import { AutoRefresh } from '@/components/AutoRefresh';
 import { Icon, type IconName } from '@/components/icons';
 import { getData } from '@/data';
@@ -109,6 +109,7 @@ export default async function AdminHomePage() {
   const session = await requireAdmin('/admin');
 
   const config = getEventConfig();
+  const hidden = hiddenAdminPages(config.features);
   const now = resolveEventNow({ timezone: config.event.timezone });
   const day = resolveCheckInDay(config.days, now);
   const live = findNowAndNext(buildAgenda(config), now);
@@ -369,28 +370,30 @@ export default async function AdminHomePage() {
             {group.name}
           </h2>
           <ul className="stagger grid gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-            {group.pages.map((page) => (
-              <li key={page.href}>
-                <Link
-                  href={page.href}
-                  className="card-hover group flex h-full gap-4 rounded-xl border border-line bg-surface p-4 no-underline"
-                >
-                  <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary transition-colors group-hover:bg-primary group-hover:text-on-primary">
-                    <Icon name={page.icon} />
-                  </span>
-                  <span className="min-w-0">
-                    <span className="flex items-center gap-1.5 font-bold text-ink">
-                      {page.title}
-                      <Icon
-                        name="arrow"
-                        className="size-4 -translate-x-1 text-primary opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100"
-                      />
+            {group.pages
+              .filter((page) => !hidden.includes(page.href))
+              .map((page) => (
+                <li key={page.href}>
+                  <Link
+                    href={page.href}
+                    className="card-hover group flex h-full gap-4 rounded-xl border border-line bg-surface p-4 no-underline"
+                  >
+                    <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary transition-colors group-hover:bg-primary group-hover:text-on-primary">
+                      <Icon name={page.icon} />
                     </span>
-                    <span className="mt-1 block text-sm text-ink-soft">{page.description}</span>
-                  </span>
-                </Link>
-              </li>
-            ))}
+                    <span className="min-w-0">
+                      <span className="flex items-center gap-1.5 font-bold text-ink">
+                        {page.title}
+                        <Icon
+                          name="arrow"
+                          className="size-4 -translate-x-1 text-primary opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100"
+                        />
+                      </span>
+                      <span className="mt-1 block text-sm text-ink-soft">{page.description}</span>
+                    </span>
+                  </Link>
+                </li>
+              ))}
           </ul>
         </section>
       ))}
@@ -404,20 +407,22 @@ export default async function AdminHomePage() {
             More tools
           </h2>
           <ul className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
-            {group.pages.map((page) => (
-              <li key={page.href}>
-                <Link
-                  href={page.href}
-                  className="flex items-center gap-3 rounded-lg border border-line bg-surface px-3 py-2.5 no-underline hover:border-primary"
-                >
-                  <Icon name={page.icon} className="size-4 shrink-0 text-primary" />
-                  <span className="min-w-0">
-                    <span className="block text-sm font-semibold text-ink">{page.title}</span>
-                    <span className="block text-xs text-ink-soft">{page.description}</span>
-                  </span>
-                </Link>
-              </li>
-            ))}
+            {group.pages
+              .filter((page) => !hidden.includes(page.href))
+              .map((page) => (
+                <li key={page.href}>
+                  <Link
+                    href={page.href}
+                    className="flex items-center gap-3 rounded-lg border border-line bg-surface px-3 py-2.5 no-underline hover:border-primary"
+                  >
+                    <Icon name={page.icon} className="size-4 shrink-0 text-primary" />
+                    <span className="min-w-0">
+                      <span className="block text-sm font-semibold text-ink">{page.title}</span>
+                      <span className="block text-xs text-ink-soft">{page.description}</span>
+                    </span>
+                  </Link>
+                </li>
+              ))}
           </ul>
         </section>
       ))}

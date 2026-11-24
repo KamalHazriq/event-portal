@@ -80,6 +80,9 @@ async function makePreviewConfig(): Promise<ReturnType<typeof EventConfigSchema.
   features.polls = false;
   features.reactions = false;
   features.comments = false;
+  // A snapshot has nobody to ask a name of, and no desk to spin a gift at.
+  features.askNameFirst = false;
+  features.doorGift = false;
 
   const preview = { ...source, features };
   await writeFile(PREVIEW_CONFIG, JSON.stringify(preview, null, 2), 'utf8');

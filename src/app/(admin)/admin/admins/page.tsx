@@ -13,6 +13,7 @@ import {
 } from '@/modules/admins/logic';
 import { resetLeaderboardSignIns, signEveryoneOut } from '@/modules/admins/actions';
 import { localClock } from '@/modules/reports/logic';
+import { clearAllButPhotos } from '@/modules/checklist/actions';
 import { FormPending } from '@/components/FormPending';
 
 export const dynamic = 'force-dynamic';
@@ -109,6 +110,46 @@ export default async function AdminsPage({ searchParams }: { searchParams: Searc
             Tick the box to confirm.
           </p>
         ) : null}
+
+        <form
+          id="clear-all"
+          action={clearAllButPhotos}
+          className="scroll-mt-24 space-y-3 rounded-xl border-2 border-live bg-surface p-4"
+        >
+          <FormPending label="Clearing" />
+          <p className="font-bold text-ink">
+            Clear everything except the photos and the participant list
+          </p>
+          <p className="text-ink-soft">
+            For a fresh start after testing. It clears check ins, points and the leaderboard,
+            comments, reactions, feedback, lucky draw winners, Q&amp;A and poll votes, phone sign
+            ins, door gift spins, name picker turns, announcements and scheduled messages.
+          </p>
+          <p className="text-ink-soft">
+            It keeps the photos, the participant list, the agenda and event info edits, the door
+            gift stock and every setting. It cannot be undone.
+          </p>
+          {params.cleared === '1' ? (
+            <p role="status" className="font-semibold text-success">
+              Cleared. Everything starts again; the photos and the list are still there.
+            </p>
+          ) : params.cleared === 'confirm' ? (
+            <p role="alert" className="font-semibold text-warning">
+              Type CLEAR to confirm.
+            </p>
+          ) : null}
+          <label className="block text-sm font-semibold text-ink">
+            Type CLEAR to confirm
+            <input
+              name="confirm"
+              autoComplete="off"
+              className="mt-1 block min-h-11 w-full max-w-xs rounded-lg border border-line bg-canvas px-3 font-mono text-ink"
+            />
+          </label>
+          <button type="submit" className="min-h-11 rounded-lg bg-live px-5 font-bold text-canvas">
+            Clear everything except photos
+          </button>
+        </form>
 
         <form
           action={signEveryoneOut}

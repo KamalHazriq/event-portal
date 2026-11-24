@@ -7,9 +7,12 @@ import { giftFor, itemById, loadDoorGifts } from '../server';
 /** On the home page: spin for your door gift, or which one is yours. */
 export async function DoorGiftCard() {
   if (!getEventConfig().features.doorGift) return null;
-  const me = await currentPlayer();
-  if (!me) return null;
-  const state = await loadDoorGifts();
+  // A card is never worth breaking the home page for.
+  const [me, state] = await Promise.all([
+    currentPlayer().catch(() => null),
+    loadDoorGifts().catch(() => null),
+  ]);
+  if (!me || !state) return null;
   if (!giftFor(me, state)) return null;
   const claim = state.claims.get(me.id);
   const got = claim ? itemById(state, claim.item) : undefined;

@@ -2,7 +2,8 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
-import { ADMIN_GROUPS, findGroup } from '@/components/admin-pages';
+import { ADMIN_GROUPS, findGroup, hiddenAdminPages } from '@/components/admin-pages';
+import { getEventConfig } from '@/lib/config';
 import { Icon } from '@/components/icons';
 import { requireAdmin } from '@/lib/admin-guard';
 
@@ -40,22 +41,24 @@ export default async function AdminGroupPage({ params }: Props) {
         <p className="mt-2 text-lg text-ink-soft">{INTRO[group.slug] ?? ''}</p>
       </header>
       <ul className="stagger grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-        {group.pages.map((page) => (
-          <li key={page.href}>
-            <Link
-              href={page.href}
-              className="card-hover group flex h-full gap-4 rounded-xl border border-line bg-surface p-4 no-underline"
-            >
-              <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary transition-colors group-hover:bg-primary group-hover:text-on-primary">
-                <Icon name={page.icon} />
-              </span>
-              <span className="min-w-0">
-                <span className="block font-bold text-ink">{page.title}</span>
-                <span className="mt-1 block text-sm text-ink-soft">{page.description}</span>
-              </span>
-            </Link>
-          </li>
-        ))}
+        {group.pages
+          .filter((page) => !hiddenAdminPages(getEventConfig().features).includes(page.href))
+          .map((page) => (
+            <li key={page.href}>
+              <Link
+                href={page.href}
+                className="card-hover group flex h-full gap-4 rounded-xl border border-line bg-surface p-4 no-underline"
+              >
+                <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-primary transition-colors group-hover:bg-primary group-hover:text-on-primary">
+                  <Icon name={page.icon} />
+                </span>
+                <span className="min-w-0">
+                  <span className="block font-bold text-ink">{page.title}</span>
+                  <span className="mt-1 block text-sm text-ink-soft">{page.description}</span>
+                </span>
+              </Link>
+            </li>
+          ))}
       </ul>
       <p className="text-sm text-ink-soft">
         Other sections:{' '}

@@ -1,3 +1,4 @@
+import { hiddenAdminPages } from '@/components/admin-pages';
 import type { Metadata } from 'next';
 
 import { AdminHeader, AdminSidebar } from '@/components/AdminHeader';
@@ -43,11 +44,21 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       ].join(' ')}
     >
       {operator ? (
-        <AdminSidebar shortName={config.event.shortName} operator={operator} mark={mark} />
+        <AdminSidebar
+          shortName={config.event.shortName}
+          operator={operator}
+          mark={mark}
+          hidden={hiddenAdminPages(config.features)}
+        />
       ) : null}
 
       <div className="flex min-h-dvh min-w-0 flex-col">
-        <AdminHeader shortName={config.event.shortName} operator={operator} mark={mark} />
+        <AdminHeader
+          shortName={config.event.shortName}
+          operator={operator}
+          mark={mark}
+          hidden={hiddenAdminPages(config.features)}
+        />
         <main
           id="main"
           className={[

@@ -347,7 +347,7 @@ export interface DataAdapter {
    * keeps what was SET UP (the attendee list, settings, polls, imports).
    * For wiping test activity before the event.
    */
-  clearActivity(): Promise<void>;
+  clearActivity(options?: { keepPhotos?: boolean }): Promise<void>;
   close(): Promise<void>;
 
   readonly attendees: AttendeeRepository;

@@ -1397,7 +1397,7 @@ export function createPrismaAdapter(
       await prisma.adminPresence.deleteMany();
     },
 
-    async clearActivity() {
+    async clearActivity(clear) {
       // Child rows first, so foreign keys stay happy.
       await prisma.deviceLink.deleteMany();
       await prisma.commentLike.deleteMany();
@@ -1406,7 +1406,7 @@ export function createPrismaAdapter(
       await prisma.luckyDrawWinner.deleteMany();
       await prisma.feedback.deleteMany();
       await prisma.checkIn.deleteMany();
-      await prisma.photo.deleteMany();
+      if (!clear?.keepPhotos) await prisma.photo.deleteMany();
       await prisma.questionVote.deleteMany();
       await prisma.question.deleteMany();
       await prisma.pollVote.deleteMany();

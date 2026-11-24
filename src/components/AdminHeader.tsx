@@ -3,7 +3,13 @@ import Link from 'next/link';
 import { AdminSidebarNav, AdminTabs } from './AdminNav';
 import { Icon } from './icons';
 
-type Props = { shortName: string; operator: string | null; mark?: string | null };
+type Props = {
+  shortName: string;
+  operator: string | null;
+  mark?: string | null;
+  /** Pages switched off in the event file. */
+  hidden?: string[];
+};
 
 function Brand({ shortName, mark }: { shortName: string; mark: string | null }) {
   return (
@@ -42,7 +48,7 @@ function SignOut({ operator }: { operator: string }) {
 }
 
 /** Phones and tablets: a sticky header with the tab row. Hidden from laptop width. */
-export function AdminHeader({ shortName, operator, mark = null }: Props) {
+export function AdminHeader({ shortName, operator, mark = null, hidden = [] }: Props) {
   return (
     <header
       className={[
@@ -60,19 +66,24 @@ export function AdminHeader({ shortName, operator, mark = null }: Props) {
           </Link>
         )}
       </div>
-      {operator ? <AdminTabs /> : null}
+      {operator ? <AdminTabs hidden={hidden} /> : null}
     </header>
   );
 }
 
 /** Laptops and up: a fixed sidebar with the brand, the pages and the desk. */
-export function AdminSidebar({ shortName, operator, mark = null }: Props & { operator: string }) {
+export function AdminSidebar({
+  shortName,
+  operator,
+  mark = null,
+  hidden = [],
+}: Props & { operator: string }) {
   return (
     <aside className="admin-sidebar sticky top-0 hidden h-dvh flex-col border-r border-line lg:flex print:hidden">
       <div className="px-6 pb-5 pt-6">
         <Brand shortName={shortName} mark={mark} />
       </div>
-      <AdminSidebarNav />
+      <AdminSidebarNav hidden={hidden} />
       <div className="space-y-3 border-t border-line px-6 py-4">
         <Link
           href="/guide"

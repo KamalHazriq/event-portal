@@ -87,7 +87,7 @@
     "arrivalWall": true,
     "luckyDraw": true,
     "photoWall": true,
-    "committees": true,
+    "committees": false,
     "qa": true,
     "polls": true,
     "leaderboard": true,

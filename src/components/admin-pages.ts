@@ -255,3 +255,11 @@ export const EVERYDAY_PAGES: AdminPage[] = ADMIN_GROUPS.filter((g) => !g.folded)
 export function findGroup(slug: string): AdminGroup | undefined {
   return ADMIN_GROUPS.find((g) => g.slug === slug);
 }
+
+/** Pages of modules switched off in the event file: kept out of every menu. */
+export function hiddenAdminPages(features: { committees: boolean; doorGift: boolean }): string[] {
+  return [
+    ...(features.committees ? [] : ['/admin/committees']),
+    ...(features.doorGift ? [] : ['/admin/door-gifts']),
+  ];
+}

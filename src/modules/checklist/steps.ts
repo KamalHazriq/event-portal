@@ -741,13 +741,6 @@ export const TEST_PLAN: Part[] = [
             ],
           },
           {
-            id: 's-room-committee',
-            do: '(If you use it) On Committees, upload a committee Excel and choose who can see its summary. Open the summary link on a phone.',
-            expect:
-              'The summary shows the right numbers, and only the people you chose can open it.',
-            links: [{ href: '/admin/committees', label: 'Committees' }],
-          },
-          {
             id: 's-room-insights',
             do: 'Open Insights.',
             expect:

@@ -48,7 +48,8 @@ export function DayTabs({
                 onClick={choose(day.id)}
                 aria-current={selected ? 'page' : undefined}
                 className={[
-                  'block rounded-lg border px-2.5 py-2 text-sm no-underline',
+                  // One width for every day, whichever is selected (bold is wider).
+                  'block w-[5rem] rounded-lg border px-2 py-2 text-center text-sm no-underline',
                   selected
                     ? 'border-primary bg-primary font-bold text-on-primary'
                     : 'border-line bg-surface font-semibold text-ink hover:border-primary',
