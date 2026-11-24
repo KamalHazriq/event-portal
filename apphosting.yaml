@@ -14,7 +14,7 @@ runConfig:
   maxInstances: 4
   concurrency: 80
   cpu: 1
-  memoryMiB: 512
+  memoryMiB: 1024
 
 env:
   # The hosted store: Postgres (a free Neon database).

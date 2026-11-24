@@ -1,6 +1,7 @@
 'use server';
 
 import { removeAllClaims } from '@/modules/door-gift/server';
+import { forgetImages } from '@/modules/photos/image-cache';
 import { PICKER_KEY } from '@/modules/name-picker/logic';
 
 import { revalidatePath } from 'next/cache';
@@ -31,6 +32,7 @@ export async function clearTestData(formData: FormData): Promise<void> {
   await getData().clearActivity();
   // Door gift spins and name picker turns live in settings: they go too.
   await removeAllClaims();
+  forgetImages();
   await getData().settings.remove(PICKER_KEY);
   await recordActivity(
     'Cleared all test data (activity only; the list and settings kept)',

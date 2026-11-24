@@ -8,6 +8,7 @@ import { getEventConfig } from '@/lib/config';
 import { plainText } from '@/lib/text';
 import { SCREEN_KEYS } from '@/modules/big-screen/logic';
 import { PHOTO_KEYS, PHOTO_LAYOUT_INFO, resolvePhotoLayout } from '@/modules/photos/logic';
+import { forgetImages } from './image-cache';
 import { recordActivity } from '@/modules/admins/record';
 
 /**
@@ -30,6 +31,8 @@ export async function reviewPhoto(formData: FormData): Promise<void> {
   const id = plainText(formData.get('id'), 64);
   const decision = formData.get('decision');
   const data = getData();
+  // Whatever happens to it, this server stops serving it from memory.
+  forgetImages([id]);
   if (decision === 'delete') {
     await data.photos.remove(id);
     await recordActivity('Deleted a photo', operator);

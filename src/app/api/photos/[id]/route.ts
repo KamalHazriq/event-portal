@@ -6,20 +6,32 @@
 import { getData } from '@/data';
 import { getAdminSession } from '@/lib/admin-guard';
 import { plainText } from '@/lib/text';
+import { cachedImage, keepImage } from '@/modules/photos/image-cache';
 
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ): Promise<Response> {
-  const { id } = await params;
+  const { id: raw } = await params;
+  const id = plainText(raw, 64);
   const size = new URL(request.url).searchParams.get('size') === 'thumb' ? 'thumb' : 'full';
-  const found = await getData().photos.image(plainText(id, 64), size);
+
+  // An approved photo many phones are looking at: from memory, not the database.
+  const kept = cachedImage(id, size);
+  if (kept) return send(kept, true);
+
+  const found = await getData().photos.image(id, size);
   if (!found) return new Response('Not found', { status: 404 });
 
   const approved = found.photo.status === 'approved';
   if (!approved && !(await getAdminSession())) return new Response('Not found', { status: 404 });
+  const bytes = new Uint8Array(found.bytes);
+  if (approved) keepImage(id, size, bytes);
+  return send(bytes, approved);
+}
 
-  return new Response(new Uint8Array(found.bytes), {
+function send(bytes: Uint8Array, approved: boolean): Response {
+  return new Response(new Uint8Array(bytes), {
     headers: {
       'Content-Type': 'image/jpeg',
       'X-Content-Type-Options': 'nosniff',
