@@ -81,5 +81,7 @@ async function runWall(admin: Page, browser: Browser): Promise<void> {
   await expect(popup).toBeVisible({ timeout: 15_000 });
   await expect(popup).toContainText(caption);
   await expect(popup).toBeHidden({ timeout: 15_000 });
-  await expect(screen.locator('[data-layout="grid"] figure', { hasText: caption })).toBeVisible();
+  await expect(
+    screen.locator('[data-layout="grid"] figure', { hasText: caption }).first(),
+  ).toBeVisible();
 }
