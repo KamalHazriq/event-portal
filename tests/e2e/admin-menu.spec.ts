@@ -90,8 +90,7 @@ test('the secretariat finds a page by typing a word', async ({ page }, testInfo)
   await expect(
     page.getByRole('heading', { name: /^Good (morning|afternoon|evening)/, level: 1 }),
   ).toBeVisible();
-  await page.keyboard.press('/');
-  await page.keyboard.type('stock');
+  await page.getByLabel('Search the secretariat pages').filter({ visible: true }).fill('stock');
   const results = page.getByRole('listbox', { name: 'Pages that match' }).filter({ visible: true });
   await expect(results.getByRole('option').first()).toContainText('Door gifts');
   await page.keyboard.press('Enter');

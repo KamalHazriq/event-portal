@@ -11,6 +11,7 @@ import { currentDeviceId, readBackupMode } from '@/modules/backup/server';
 import { CommentsWall } from '@/modules/talk/components/CommentsWall';
 import { ReactionBar } from '@/modules/talk/components/ReactionBar';
 import { reactionsOpen } from '@/modules/talk/logic';
+import { currentPlayer } from '@/modules/points/server';
 import { DevTimeNotice } from '@/modules/schedule/components/DevTimeNotice';
 import { SlidoButton } from '@/modules/schedule/components/SlidoButton';
 import { SpeakerList } from '@/modules/schedule/components/SpeakerList';
@@ -70,6 +71,9 @@ export default async function SessionPage({ params, searchParams }: PageProps) {
   const following = position >= 0 ? sameDay[position + 1] : undefined;
 
   const isLive = status === 'live';
+  // Registration, meals, breaks and free time: nothing to react to or comment on.
+  const interactive = !['logistics', 'meal', 'break'].includes(session.type);
+  const me = interactive && config.features.comments ? await currentPlayer() : null;
   // Slido (or the backup Q&A) and the reaction buttons, kept together.
   const takePart = (
     <>
@@ -105,7 +109,7 @@ export default async function SessionPage({ params, searchParams }: PageProps) {
         </a>
       ) : null}
 
-      {reactionTotals ? (
+      {reactionTotals && interactive ? (
         <ReactionBar
           sessionId={session.id}
           open={reactionsOpen(session, now)}
@@ -116,15 +120,18 @@ export default async function SessionPage({ params, searchParams }: PageProps) {
     </>
   );
 
-  const commentsWall = config.features.comments ? (
-    <CommentsWall
-      sessionId={session.id}
-      comments={comments}
-      likedIds={likedIds}
-      state={state}
-      nowParam={nowParam}
-    />
-  ) : null;
+  const commentsWall =
+    config.features.comments && interactive ? (
+      <CommentsWall
+        sessionId={session.id}
+        comments={comments}
+        likedIds={likedIds}
+        state={state}
+        nowParam={nowParam}
+        deviceId={deviceId}
+        signedInAs={me?.name ?? null}
+      />
+    ) : null;
 
   return (
     <article className="space-y-5">

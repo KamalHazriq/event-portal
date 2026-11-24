@@ -27,6 +27,10 @@ export async function POST(request: Request): Promise<Response> {
   // One more than the limit, so "too long" is reported rather than cut off.
   const text = multilineText(form.get('text'), MAX_COMMENT + 1).replace(/\s*\n\s*/g, ' ');
   const data = getData();
+  // Nothing anonymous: the comment carries the name this phone signed in with.
+  const ownerId = await data.players.ownerOf(deviceId);
+  const owner = ownerId ? await data.attendees.get(ownerId) : null;
+  if (!owner) return backToComments(sessionId, 'who', now);
   const checked = validateComment({
     text,
     alreadyPosted: await data.comments.countByDevice(sessionId, deviceId),
@@ -36,8 +40,7 @@ export async function POST(request: Request): Promise<Response> {
   await data.comments.add({
     sessionId,
     text: text.trim(),
-    // Each person chooses: a name, or blank to stay anonymous.
-    name: plainText(form.get('name'), MAX_COMMENT_NAME),
+    name: owner.name.slice(0, MAX_COMMENT_NAME),
     deviceId,
   });
   after(() => notifyTeamWaiting('comment').catch(() => undefined));

@@ -5,6 +5,8 @@
  * marked. Pure helpers; see secretariat-list.test.ts.
  */
 export const SECRETARIAT_KEY = 'attendees.secretariatStaffNos';
+/** People the list calls secretariat who also take part: ranked and in the draw. */
+export const PARTICIPANT_KEY = 'attendees.participantStaffNos';
 
 /** Staff numbers from pasted text: one per line, or separated by commas or spaces. */
 export function parseStaffNos(text: string | null | undefined): string[] {
@@ -20,12 +22,15 @@ export function parseStaffNos(text: string | null | undefined): string[] {
 export function secretariatChanges(
   people: { id: string; staffNo: string; isSecretariat: boolean; byList: boolean }[],
   staffNos: string[],
+  participantStaffNos: string[] = [],
 ): { mark: string[]; unmark: string[] } {
   const wanted = new Set(staffNos.map((s) => s.toUpperCase()));
+  const participants = new Set(participantStaffNos.map((s) => s.toUpperCase()));
   const mark: string[] = [];
   const unmark: string[] = [];
   for (const p of people) {
-    const should = p.byList || wanted.has(p.staffNo.toUpperCase());
+    const staffNo = p.staffNo.toUpperCase();
+    const should = (p.byList || wanted.has(staffNo)) && !participants.has(staffNo);
     if (should && !p.isSecretariat) mark.push(p.id);
     if (!should && p.isSecretariat) unmark.push(p.id);
   }

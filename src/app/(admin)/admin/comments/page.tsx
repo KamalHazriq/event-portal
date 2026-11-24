@@ -50,9 +50,8 @@ export default async function CommentsPage({ searchParams }: { searchParams: Sea
 
   const data = getData();
   const [all, totals, screenReactions] = await Promise.all([
-    session && config.features.comments
-      ? data.comments.listBySession(session.id)
-      : Promise.resolve([]),
+    // Every talk in one list: no picking a session to moderate.
+    config.features.comments ? data.comments.listAll() : Promise.resolve([]),
     session && config.features.reactions ? data.reactions.totals(session.id) : null,
     data.settings.get(COMMENT_KEYS.screenReactions),
   ]);
@@ -61,6 +60,7 @@ export default async function CommentsPage({ searchParams }: { searchParams: Sea
   for (const c of all) counts[c.status] += 1;
   const shown = rankComments(all.filter((c) => tab === 'all' || c.status === tab));
   const link = (status: string) => `/admin/comments?session=${session?.id ?? ''}&status=${status}`;
+  const titleOf = new Map(sessions.map((s) => [s.id, `${s.dayLabel}, ${s.start}: ${s.title}`]));
 
   const act = (id: string, name: string, label: string, primary = false) => (
     <form action={moderateComment}>
@@ -86,8 +86,8 @@ export default async function CommentsPage({ searchParams }: { searchParams: Sea
       <div>
         <h1 className="text-2xl font-bold text-ink">Comments and reactions</h1>
         <p className="mt-1 text-ink-soft">
-          Comments on each talk wait here for approval before anyone sees them. Reactions need no
-          approval.
+          Comments from every talk wait here, in one list, for approval before anyone sees them.
+          Reactions need no approval.
         </p>
       </div>
 
@@ -100,7 +100,7 @@ export default async function CommentsPage({ searchParams }: { searchParams: Sea
           <section className="rounded-xl border border-line bg-surface p-4">
             <form method="get" action="/admin/comments" className="flex flex-wrap items-end gap-2">
               <label className="min-w-0 flex-1 text-sm font-semibold text-ink">
-                Talk
+                For the big screen and the reaction count: which talk
                 <select
                   name="session"
                   defaultValue={session.id}
@@ -160,7 +160,7 @@ export default async function CommentsPage({ searchParams }: { searchParams: Sea
               ) : null}
               {counts.pending > 0 ? (
                 <form action={approveAllComments}>
-                  <input type="hidden" name="sessionId" value={session.id} />
+                  <input type="hidden" name="sessionId" value="" />
                   <button
                     type="submit"
                     className="min-h-11 rounded-lg border border-line px-4 text-sm font-semibold text-ink"
@@ -199,9 +199,12 @@ export default async function CommentsPage({ searchParams }: { searchParams: Sea
                 <ul className="space-y-2">
                   {shown.map((c) => (
                     <li key={c.id} className="rounded-xl border border-line bg-surface p-4">
-                      <p className="text-ink">{c.text}</p>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-ink-soft">
+                        {titleOf.get(c.sessionId) ?? c.sessionId}
+                      </p>
+                      <p className="mt-1 text-ink">{c.text}</p>
                       <p className="mt-1 text-sm text-ink-soft">
-                        {c.name || 'Anonymous'} · {localClock(c.createdAt, config.event.timezone)} ·{' '}
+                        {c.name || 'No name'} · {localClock(c.createdAt, config.event.timezone)} ·{' '}
                         {c.likes} likes · {COMMENT_STATUS_LABEL[c.status]}
                       </p>
                       <div className="mt-3 flex flex-wrap gap-2">

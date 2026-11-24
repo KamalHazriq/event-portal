@@ -46,9 +46,10 @@ export async function approveAllComments(formData: FormData): Promise<void> {
   await assertAdmin();
   const sessionId = plainText(formData.get('sessionId'), 64);
   const data = getData();
-  const waiting = (await data.comments.listBySession(sessionId)).filter(
-    (c) => c.status === 'pending',
-  );
+  // Every talk at once, unless one is named.
+  const waiting = (
+    sessionId ? await data.comments.listBySession(sessionId) : await data.comments.listAll()
+  ).filter((c) => c.status === 'pending');
   for (const c of waiting) await data.comments.setStatus(c.id, 'approved');
   if (waiting.length > 0) await recordActivity(`Approved ${waiting.length} comments`);
   done();

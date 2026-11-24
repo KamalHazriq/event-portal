@@ -1,5 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 
+import { asAttendee } from './as-attendee';
+
 /**
  * Module 5 happy path.
  *
@@ -30,6 +32,7 @@ async function signIn(page: Page): Promise<void> {
 
 test.describe('a session feedback form', () => {
   test('takes stars and a comment, then says thank you', async ({ page }) => {
+    await asAttendee(page);
     await page.goto(`/feedback/${SESSION_FORM}`);
 
     await expect(page.getByRole('heading', { level: 1 })).toContainText('Keynote');
@@ -43,6 +46,7 @@ test.describe('a session feedback form', () => {
   });
 
   test('refuses a second answer from the same phone', async ({ page }) => {
+    await asAttendee(page);
     await page.goto(`/feedback/${SESSION_FORM}`);
     await page.getByRole('radio', { name: '5 stars' }).check();
     await page.getByRole('button', { name: 'Send feedback' }).click();
@@ -57,6 +61,7 @@ test.describe('a session feedback form', () => {
   });
 
   test('the browser stops a submission with no rating', async ({ page }) => {
+    await asAttendee(page);
     await page.goto(`/feedback/${SESSION_FORM}`);
 
     await page.getByLabel(/Any comments/).fill('Forgot to pick stars.');
@@ -81,6 +86,7 @@ test.describe('a session feedback form', () => {
 
 test.describe('the whole event form', () => {
   test('asks the extra questions and records them', async ({ page }) => {
+    await asAttendee(page);
     await page.goto('/feedback/event');
 
     await expect(page.getByRole('group', { name: 'Overall, how was the summit?' })).toBeVisible();
@@ -98,27 +104,32 @@ test.describe('the whole event form', () => {
 });
 
 test.describe('names', () => {
-  test('an optional name is kept when given', async ({ page }) => {
+  test('nothing is anonymous: the answer carries the signed in name', async ({ page }) => {
+    // Not signed in: asked to find a name first, with no form.
     await page.goto(`/feedback/${SESSION_FORM}`);
+    await expect(page.getByRole('link', { name: 'Find my name' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Send feedback' })).toHaveCount(0);
 
-    await expect(page.getByLabel('Your name (optional)')).toBeVisible();
-    await expect(page.getByText('Leave it blank to stay anonymous.')).toBeVisible();
-
+    await asAttendee(page);
+    await page.goto(`/feedback/${SESSION_FORM}`);
+    await expect(page.getByText(/^Sent as /)).toBeVisible();
+    await expect(page.getByLabel('Your name (optional)')).toHaveCount(0);
     await page.getByRole('radio', { name: '3 stars' }).check();
-    const who = marker('Siti Osman');
-    await page.getByLabel('Your name (optional)').fill(who);
+    const said = marker('Named answer');
+    await page.getByLabel(/Any comments/).fill(said);
     await page.getByRole('button', { name: 'Send feedback' }).click();
     await expect(page.getByRole('heading', { name: 'Thank you' })).toBeVisible();
 
-    // The secretariat sees the name against that answer.
+    // The secretariat sees the answer.
     await signIn(page);
     await page.goto(`/admin/feedback/${SESSION_FORM}`);
-    await expect(page.getByText(who)).toBeVisible();
+    await expect(page.getByText(said)).toBeVisible();
   });
 });
 
 test.describe('the secretariat view', () => {
   test('shows results per session, which is the module done when', async ({ page }) => {
+    await asAttendee(page);
     // Leave an answer first so there is something to look at.
     await page.goto(`/feedback/${SESSION_FORM}`);
     await page.getByRole('radio', { name: '5 stars' }).check();

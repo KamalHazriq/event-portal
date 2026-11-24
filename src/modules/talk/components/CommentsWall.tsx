@@ -1,6 +1,8 @@
+import Link from 'next/link';
+
 import type { Comment } from '@/data/types';
 
-import { COMMENT_MESSAGES, MAX_COMMENT, MAX_COMMENT_NAME, publicComments } from '../logic';
+import { COMMENT_MESSAGES, MAX_COMMENT, publicComments } from '../logic';
 
 /**
  * The comments and take aways on a talk. Plain forms, so it works with no
@@ -12,14 +14,23 @@ export function CommentsWall({
   likedIds,
   state,
   nowParam,
+  deviceId = null,
+  signedInAs = null,
 }: {
   sessionId: string;
   comments: Comment[];
   likedIds: string[];
   state: string | null;
   nowParam: string | null;
+  /** This phone: its own comments show at once, marked as waiting. */
+  deviceId?: string | null;
+  /** The name comments are posted under. Null: not signed in yet. */
+  signedInAs?: string | null;
 }) {
-  const shown = publicComments(comments);
+  const mine = deviceId
+    ? comments.filter((c) => c.deviceId === deviceId && c.status === 'pending')
+    : [];
+  const shown = [...mine, ...publicComments(comments)];
   const liked = new Set(likedIds);
   const message = state ? COMMENT_MESSAGES[state] : undefined;
 
@@ -50,9 +61,14 @@ export function CommentsWall({
         <ul className="mt-3 space-y-2">
           {shown.map((c) => (
             <li key={c.id} className="rounded-lg border border-line bg-background p-3">
+              {c.status === 'pending' ? (
+                <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-warning">
+                  Yours, waiting for approval
+                </p>
+              ) : null}
               <p className="text-ink">{c.text}</p>
               <div className="mt-2 flex items-center justify-between gap-2">
-                <span className="text-sm text-ink-soft">{c.name || 'Anonymous'}</span>
+                <span className="text-sm text-ink-soft">{c.name}</span>
                 <form action="/api/comments/like" method="post">
                   <input type="hidden" name="sessionId" value={sessionId} />
                   <input type="hidden" name="commentId" value={c.id} />
@@ -75,7 +91,23 @@ export function CommentsWall({
         <p className="mt-3 text-sm text-ink-soft">No comments yet. Be the first.</p>
       )}
 
-      <form action="/api/comments" method="post" className="mt-4 space-y-2">
+      {signedInAs ? null : (
+        <p className="mt-4 text-sm text-ink">
+          Comments carry your name.{' '}
+          <Link
+            href={`/welcome?next=${encodeURIComponent(`/session/${sessionId}#comments`)}`}
+            className="font-semibold text-primary"
+          >
+            Say who you are
+          </Link>{' '}
+          to post one.
+        </p>
+      )}
+      <form
+        action="/api/comments"
+        method="post"
+        className={signedInAs ? 'mt-4 space-y-2' : 'hidden'}
+      >
         <input type="hidden" name="sessionId" value={sessionId} />
         {nowParam ? <input type="hidden" name="now" value={nowParam} /> : null}
         <label htmlFor="comment-text" className="block text-sm font-semibold text-ink">
@@ -89,17 +121,9 @@ export function CommentsWall({
           rows={3}
           className="block w-full rounded-lg border border-line bg-background p-3 text-ink focus:border-primary focus:outline-none"
         />
-        <label htmlFor="comment-name" className="block text-sm font-semibold text-ink">
-          Your name{' '}
-          <span className="font-normal text-ink-soft">(leave blank to stay anonymous)</span>
-        </label>
-        <input
-          id="comment-name"
-          name="name"
-          maxLength={MAX_COMMENT_NAME}
-          autoComplete="name"
-          className="block min-h-11 w-full rounded-lg border border-line bg-background px-3 text-ink focus:border-primary focus:outline-none"
-        />
+        <p className="text-sm text-ink-soft">
+          Posted as <strong className="text-ink">{signedInAs}</strong>.
+        </p>
         <button
           type="submit"
           className="btn-primary min-h-11 rounded-lg bg-primary px-5 font-bold text-on-primary"

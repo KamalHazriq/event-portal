@@ -50,3 +50,22 @@ export function respond(
     headers: { Location: `${path}${join}state=${encodeURIComponent(state)}` },
   });
 }
+
+/**
+ * The phone's id for signing in as this person. A phone that was someone
+ * else's starts afresh under a new id, so what it did before (photos,
+ * reactions, comments) stays with the person who did it.
+ */
+export async function deviceIdFor(attendeeId: string): Promise<string> {
+  const deviceId = await deviceIdOrNew();
+  const owner = await getData().players.ownerOf(deviceId);
+  if (!owner || owner === attendeeId) return deviceId;
+  const fresh = newDeviceId();
+  (await cookies()).set(DEVICE_COOKIE, fresh, deviceCookieOptions);
+  return fresh;
+}
+
+/** A new id for this phone, so what it did before is never counted for the next person. */
+export async function startFreshDevice(): Promise<void> {
+  (await cookies()).set(DEVICE_COOKIE, newDeviceId(), deviceCookieOptions);
+}

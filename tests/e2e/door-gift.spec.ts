@@ -91,8 +91,10 @@ test('a new phone says who it is, spins for a door gift, and the desk can change
     await page.getByRole('button', { name: 'Check in' }).first().click();
     const dialog = page.getByRole('dialog', { name: `Door gift for ${name}` });
     await expect(dialog).toBeVisible();
-    await dialog.getByRole('button', { name: 'Spin for the gift' }).click();
-    await expect(dialog.getByText('Presentation pointer!')).toBeVisible({ timeout: 20_000 });
+    await dialog.getByRole('button', { name: 'Spin!' }).click();
+    await expect(dialog.getByText('Your door gift is the Presentation pointer!')).toBeVisible({
+      timeout: 20_000,
+    });
     await dialog.getByRole('button', { name: 'Later' }).click();
     await expect(
       page.getByText(/Door gift: Presentation pointer, not handed over yet/),
@@ -139,8 +141,10 @@ test('the desk gives a guest who is not on the list a spin too', async ({ page }
     await page.getByLabel('Guest name (optional)').fill('Walk In Visitor');
     await page.getByRole('button', { name: 'Spin a door gift' }).click();
     const dialog = page.getByRole('dialog', { name: 'Door gift for Walk In Visitor' });
-    await dialog.getByRole('button', { name: 'Spin for the gift' }).click();
-    await expect(dialog.getByText('Thermal printer!')).toBeVisible({ timeout: 20_000 });
+    await dialog.getByRole('button', { name: 'Spin!' }).click();
+    await expect(dialog.getByText('Your door gift is the Thermal printer!')).toBeVisible({
+      timeout: 20_000,
+    });
     await dialog.getByRole('button', { name: 'Handed over' }).click();
     await page.goto('/admin/door-gifts');
     const guest = page.locator('li', { hasText: 'Walk In Visitor' });

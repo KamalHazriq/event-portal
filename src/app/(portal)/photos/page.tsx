@@ -55,7 +55,7 @@ export default async function PhotosPage() {
           </p>
         ) : (
           <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-            {onTheWall.slice(0, 60).map((photo) => (
+            {onTheWall.map((photo) => (
               <li
                 key={photo.id}
                 className="overflow-hidden rounded-lg border border-line bg-surface"

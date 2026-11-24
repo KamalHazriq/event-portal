@@ -49,7 +49,7 @@ export default function InfoPage() {
                   <div key={item.label} className="grid gap-1 py-2.5 sm:grid-cols-[10rem_1fr]">
                     <dt className="font-semibold text-ink">{item.label}</dt>
                     <dd className={pending ? 'text-ink-soft italic' : 'text-ink'}>
-                      {pending ? 'Coming soon' : item.text}
+                      {pending ? 'Coming soon' : <InfoText text={item.text} />}
                     </dd>
                   </div>
                 );
@@ -59,5 +59,27 @@ export default function InfoPage() {
         </section>
       ))}
     </div>
+  );
+}
+
+/**
+ * "Day 1: formal. Day 2: smart casual." reads better as one line per day,
+ * with the day in bold. Anything else stays as written.
+ */
+function InfoText({ text }: { text: string }) {
+  const parts = text.split(/(?=\bDay \d+\s*:)/).map((p) => p.trim()).filter(Boolean);
+  if (parts.length < 2) return <>{text}</>;
+  return (
+    <ul className="space-y-1.5">
+      {parts.map((part) => {
+        const [day, ...rest] = part.split(':');
+        return (
+          <li key={part} className="grid grid-cols-[4.5rem_1fr] gap-2">
+            <span className="font-semibold">{day!.trim()}</span>
+            <span>{rest.join(':').trim().replace(/\.$/, '')}</span>
+          </li>
+        );
+      })}
+    </ul>
   );
 }

@@ -165,9 +165,10 @@ export const TEST_PLAN: Part[] = [
           },
           {
             id: 'a-home-info',
+            changed: true,
             do: 'Open Know before you go and Resources.',
             expect:
-              'No line still says "Coming soon" unless you meant it. Every resource link opens.',
+              'Resources shows the four "(test link)" files, each opening a sample PDF (swap them for the real links on Event info, Resources). The dress code shows one line per day. No line says "Coming soon" unless you meant it.',
             links: [
               { href: '/info', label: 'Know before you go' },
               { href: '/resources', label: 'Resources' },
@@ -191,9 +192,10 @@ export const TEST_PLAN: Part[] = [
           },
           {
             id: 'a-part-comment',
-            do: 'Post a comment on a session.',
+            changed: true,
+            do: 'On a live talk, signed in as Test Participant, post a comment. Then open a lunch or break session.',
             expect:
-              'It says it is waiting for approval. It appears for everyone once the secretariat approves it.',
+              'There is no name box: it says "Posted as Test Participant". Your comment shows at once marked "Yours, waiting for approval", and for everyone once approved. Lunch, breaks, registration and free time have no reactions or comments.',
             links: [
               { href: '/agenda', label: 'Agenda (open a session)' },
               { href: '/admin/comments', label: 'Approve it' },
@@ -212,9 +214,10 @@ export const TEST_PLAN: Part[] = [
           },
           {
             id: 'a-part-feedback',
+            changed: true,
             do: 'After a session ends, open its feedback form, give stars and a comment, send it. Then try again.',
             expect:
-              'A thank you, and the second try says it was already sent. On Day 3, the whole-summit feedback form works too.',
+              'A thank you, and the second try says it was already sent. The form says "Sent as Test Participant": no answer is anonymous. Someone not signed in is asked to find their name first. On Day 3, the whole-summit form works too.',
             links: [
               { href: '#test-clock', label: 'Test clock' },
               { href: '/agenda', label: 'Agenda (open a finished session)' },
@@ -397,9 +400,10 @@ export const TEST_PLAN: Part[] = [
           },
           {
             id: 's-login-dash',
-            do: 'Read the dashboard.',
+            changed: true,
+            do: 'Open the Secretariat overview (the first page after the PIN) and scroll down past the four number cards.',
             expect:
-              'The Storage card says the database is ready. "Needs attention" and "Still to fill in" list only what you expect.',
+              '"Needs attention" (only when something does), "Still to fill in before the event", and at the bottom the Storage card saying the database is ready. Each lists only what you expect.',
             links: [{ href: '/admin', label: 'Dashboard' }],
           },
           {
@@ -448,6 +452,14 @@ export const TEST_PLAN: Part[] = [
             do: 'Look at the Secretariat filter and the count on the Attendees page.',
             expect:
               'Everyone whose role, department or remark says Secretariat is marked by itself. Only open "The secretariat" box below the list if someone was missed.',
+            links: [{ href: '/admin/attendees', label: 'Attendees' }],
+          },
+          {
+            id: 's-people-both',
+            changed: true,
+            do: 'For someone who is secretariat and a participant too (for example Farah): press Edit on their row, untick Secretariat, and Save.',
+            expect:
+              'They lose the Secretariat badge and stay a participant even after the list is uploaded again: ranked on the leaderboard and able to win the lucky draw.',
             links: [{ href: '/admin/attendees', label: 'Attendees' }],
           },
           {
@@ -562,7 +574,7 @@ export const TEST_PLAN: Part[] = [
             changed: true,
             do: 'Find someone by name, by department (type CORES), and from the Whole list tab.',
             expect:
-              'Each finds them and a tap on Check in works. The first time someone is checked in, a door gift card covers the desk: press "Spin for the gift", it stops on one gift, then press "Handed over" (or "Later"). Checking them in again never spins twice: it shows which gift is theirs.',
+              'Each finds them and a tap on Check in works. The first time someone is checked in, a door gift card covers the desk: press "Spin!": the gifts flick past in one window and stop on one, with confetti, then press "Handed over" (or "Later"). Checking them in again never spins twice: it shows which gift is theirs.',
             links: [{ href: '/admin/desk', label: 'Desk' }],
           },
           {
@@ -604,7 +616,7 @@ export const TEST_PLAN: Part[] = [
             changed: true,
             do: '(Optional) On the Desk page open the kiosk: "Preview" on your own laptop, and "Open and lock this device" on the tablet. On the locked tablet, hold up a card; then type three letters of a name and pick the person; then try typing /admin.',
             expect:
-              'Preview never locks your laptop. The locked tablet shows a big "Welcome" for the card and for the typed name (it asks to confirm the name first), and spins the door gift by itself the first time, then goes back to waiting. Typing /admin shows a "locked to the kiosk" page that needs the PIN.',
+              'Preview never locks your laptop. The locked tablet shows a big "Welcome" for the card and for the typed name (it asks to confirm the name first), and the first time shows the door gift card: the person presses Spin!, sees their gift with confetti, then Done (or Later) takes the kiosk back to waiting. Typing /admin shows a "locked to the kiosk" page that needs the PIN.',
             links: [
               { href: '/kiosk', label: 'Preview the kiosk' },
               { href: '/kiosk?lock=1', label: 'Open and lock (tablet only)' },
@@ -700,7 +712,8 @@ export const TEST_PLAN: Part[] = [
           },
           {
             id: 's-room-moderate',
-            do: 'Approve and hide a comment, and approve and reject a photo. Try the approval switch and each photo layout.',
+            changed: true,
+            do: 'On Comments, approve and hide a comment from any talk (they are all in one list, each labelled with its talk), and approve and reject a photo. Try the approval switch and each photo layout.',
             expect: 'Each change shows on phones and the big screen.',
             links: [
               { href: '/admin/comments', label: 'Comments' },

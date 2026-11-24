@@ -24,4 +24,10 @@ describe('the secretariat list', () => {
     ];
     expect(secretariatChanges(people, ['d1'])).toEqual({ mark: ['a'], unmark: ['b'] });
   });
+
+  it('lets someone the list calls secretariat take part as a participant', () => {
+    const people = [{ id: 'f', staffNo: 'D1', isSecretariat: true, byList: true }];
+    expect(secretariatChanges(people, [], ['d1'])).toEqual({ mark: [], unmark: ['f'] });
+    expect(secretariatChanges(people, [], [])).toEqual({ mark: [], unmark: [] });
+  });
 });

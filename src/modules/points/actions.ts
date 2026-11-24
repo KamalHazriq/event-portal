@@ -7,7 +7,12 @@ import { getData } from '@/data';
 import { getEventConfig } from '@/lib/config';
 import { plainText } from '@/lib/text';
 import { LIMITS, rateLimit } from '@/lib/rate-limit';
-import { currentDeviceId, deviceIdOrNew } from '@/modules/backup/server';
+import {
+  currentDeviceId,
+  deviceIdFor,
+  deviceIdOrNew,
+  startFreshDevice,
+} from '@/modules/backup/server';
 import { GUEST_COOKIE, safeNext } from '@/modules/identity/logic';
 
 /**
@@ -32,7 +37,7 @@ export async function joinLeaderboard(formData: FormData): Promise<void> {
   const person = await data.attendees.findByStaffNo(staffNo);
   if (!person) redirect('/me?state=no-match');
 
-  await data.players.link(deviceId, person.id);
+  await data.players.link(await deviceIdFor(person.id), person.id);
   redirect('/me?state=joined');
 }
 
@@ -76,7 +81,7 @@ export async function joinAsPerson(formData: FormData): Promise<void> {
     }
   }
 
-  await data.players.link(deviceId, person.id);
+  await data.players.link(await deviceIdFor(person.id), person.id);
   if (!fromWelcome) redirect('/me?state=joined');
 
   redirect(next);
@@ -85,6 +90,8 @@ export async function joinAsPerson(formData: FormData): Promise<void> {
 export async function leaveLeaderboard(): Promise<void> {
   const deviceId = await currentDeviceId();
   if (deviceId) await getData().players.unlink(deviceId);
+  // Whoever signs in next on this phone starts from nothing.
+  await startFreshDevice();
   redirect('/me?state=left');
 }
 

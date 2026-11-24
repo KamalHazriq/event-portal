@@ -269,12 +269,10 @@ export function ArrivalsView({
     );
   }
 
-  // The feed rolls once there are a few names. Each half of the loop is
-  // padded to at least twelve rows, so the column never shows a gap.
-  const scroll = earlier.length >= 5;
-  const loop = scroll
-    ? Array.from({ length: Math.ceil(12 / earlier.length) }, () => earlier).flat()
-    : earlier;
+  // The feed only rolls once there are more names than the column holds, so
+  // a handful of arrivals stand still and are never repeated.
+  const scroll = earlier.length >= 10;
+  const loop = earlier;
   const feedCard = (card: ArrivalCard, copy: string) => (
     <li
       key={`${copy}-${card.key}`}

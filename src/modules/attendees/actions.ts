@@ -9,7 +9,7 @@ import { requireAdminApi } from '@/lib/admin-guard';
 import { recordActivity } from '@/modules/admins/record';
 
 import { applySecretariatList } from './secretariat';
-import { parseStaffNos, SECRETARIAT_KEY } from './secretariat-list';
+import { parseStaffNos, SECRETARIAT_KEY, PARTICIPANT_KEY } from './secretariat-list';
 
 /** Saves the secretariat's staff numbers and marks them at once. */
 export async function saveSecretariatList(formData: FormData): Promise<void> {
@@ -44,13 +44,22 @@ export async function saveAttendee(formData: FormData): Promise<void> {
     email: String(formData.get('email') ?? ''),
   });
   // Secretariat, by staff number in the list, so an upload keeps it.
+  // Unticked means "a participant", even if their role says Secretariat.
   const wantSecretariat = formData.get('secretariat') === 'on';
-  const list = parseStaffNos(await data.settings.get(SECRETARIAT_KEY));
+  const [list, participants] = await Promise.all([
+    data.settings.get(SECRETARIAT_KEY).then(parseStaffNos),
+    data.settings.get(PARTICIPANT_KEY).then(parseStaffNos),
+  ]);
   const staffNo = person.staffNo.toUpperCase();
-  const next = wantSecretariat
-    ? [...new Set([...list, staffNo])]
-    : list.filter((s) => s !== staffNo);
-  await data.settings.set(SECRETARIAT_KEY, next.join('\n'));
+  const without = (xs: string[]) => xs.filter((s) => s !== staffNo);
+  await data.settings.set(
+    SECRETARIAT_KEY,
+    (wantSecretariat ? [...new Set([...list, staffNo])] : without(list)).join('\n'),
+  );
+  await data.settings.set(
+    PARTICIPANT_KEY,
+    (wantSecretariat ? without(participants) : [...new Set([...participants, staffNo])]).join('\n'),
+  );
   await applySecretariatList();
   await recordActivity(`Edited the details of ${name}`, auth.session.operator);
   revalidatePath('/', 'layout');

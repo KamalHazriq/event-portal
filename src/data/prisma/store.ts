@@ -1221,6 +1221,14 @@ export function createPrismaAdapter(
       return rows.map(toComment);
     },
 
+    async listAll() {
+      const rows = await prisma.comment.findMany({
+        orderBy: { createdAt: 'desc' },
+        include: { _count: { select: { likes: true } } },
+      });
+      return rows.map(toComment);
+    },
+
     async listApproved() {
       const rows = await prisma.comment.findMany({
         where: { status: 'approved' },

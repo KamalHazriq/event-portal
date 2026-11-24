@@ -71,10 +71,11 @@ export function validateComment(input: {
 
 export const COMMENT_MESSAGES: Record<string, { text: string; good: boolean }> = {
   posted: {
-    text: 'Thanks. Your comment shows here once the secretariat has approved it.',
+    text: 'Thanks. Your comment is below, waiting for the secretariat to approve it.',
     good: true,
   },
   liked: { text: 'Liked.', good: true },
+  who: { text: 'Say who you are first, so your comment carries your name.', good: false },
   already: { text: 'You already liked that one.', good: true },
   empty: { text: 'Type your comment first.', good: false },
   'too-long': { text: `Please keep it under ${MAX_COMMENT} characters.`, good: false },

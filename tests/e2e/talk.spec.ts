@@ -1,5 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 
+import { asAttendee } from './as-attendee';
+
 /**
  * Reactions and comments during talks, against the frozen test agenda:
  * the keynote runs 14:50 to 15:50 on Day 1 (2026-12-14).
@@ -52,13 +54,23 @@ test('a comment waits for approval, then shows, can be liked, and reaches the pr
 }) => {
   const text = `Loved the practical examples ${Date.now()}`;
 
-  // An attendee posts.
+  // An attendee posts, under the name they signed in with: there is no name box.
+  await asAttendee(page);
   await page.goto('/session/d1-panel');
+  await expect(page.getByLabel(/Your name/)).toHaveCount(0);
+  await expect(page.getByText(/^Posted as /)).toBeVisible();
   await page.getByLabel('Your comment').fill(text);
-  await page.getByLabel(/Your name/).fill('Test Person');
   await page.getByRole('button', { name: 'Post comment' }).click();
-  await expect(page.getByText(/shows here once the secretariat has approved it/)).toBeVisible();
-  await expect(page.getByText(text)).toHaveCount(0);
+  await expect(page.getByText(/waiting for the secretariat to approve it/)).toBeVisible();
+  // The writer sees their own comment straight away, marked as waiting.
+  const waiting = page.locator('li', { hasText: text });
+  await expect(waiting).toContainText('Yours, waiting for approval');
+
+  // Someone else does not see it until it is approved.
+  const other = await (await browser.newContext()).newPage();
+  await other.goto('/session/d1-panel');
+  await expect(other.getByText(text)).toHaveCount(0);
+  await other.close();
 
   // The secretariat approves it and puts it on the big screen.
   const admin = await (await browser.newContext()).newPage();

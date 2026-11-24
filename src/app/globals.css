@@ -2368,3 +2368,34 @@ select:focus-visible {
 .nav-step .text-ink-soft {
   opacity: 0.8;
 }
+
+/* -- Every button answers: brighter (or ruled in the main colour) under the
+ *    pointer, and a small press when tapped. Links styled as buttons too. */
+:is(button, input[type='submit'], a.rounded-lg, a.rounded-xl, a.rounded-full, label.rounded-lg):not(
+  :disabled,
+  [aria-disabled='true']
+) {
+  transition:
+    filter 140ms ease,
+    transform 110ms ease,
+    border-color 140ms ease,
+    background-color 140ms ease;
+}
+:is(button, input[type='submit']):not(:disabled):hover {
+  filter: brightness(1.12);
+}
+:is(button, input[type='submit'], a.rounded-lg, label.rounded-lg).border:not(:disabled):hover {
+  border-color: var(--c-primary);
+}
+:is(button, input[type='submit'], a.rounded-lg, a.rounded-xl, a.rounded-full, label.rounded-lg):not(
+    :disabled,
+    [aria-disabled='true']
+  ):active {
+  transform: scale(0.97);
+  filter: brightness(0.92);
+}
+@media (prefers-reduced-motion: reduce) {
+  :is(button, input[type='submit'], a.rounded-lg, a.rounded-xl, a.rounded-full):active {
+    transform: none;
+  }
+}

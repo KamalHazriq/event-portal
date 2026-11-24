@@ -65,9 +65,14 @@ export async function submitFeedback(formData: FormData): Promise<void> {
   // Only what the form offers, so a hand-made post cannot vote for lunch.
   const knownSessionIds = new Set(bestSessionChoices(config).map((session) => session.id));
 
+  // Nothing is anonymous: every answer carries the name this phone signed in with.
+  const ownerId = await data.players.ownerOf(deviceId);
+  const owner = ownerId ? await data.attendees.get(ownerId) : null;
+  if (!owner) return back('who');
+
   const validated = validateSubmission(
     form,
-    settings.anonymity,
+    'anonymous',
     {
       rating: formData.get('rating'),
       comment: formData.get('comment'),
@@ -80,17 +85,15 @@ export async function submitFeedback(formData: FormData): Promise<void> {
 
   if (!validated.ok) return back('invalid', validated.problems);
 
-  const { rating, answers, displayName } = validated.value;
+  const { rating, answers } = validated.value;
 
   const result = await data.feedback.submit({
     formId: form.id,
     kind: form.kind,
     rating,
     answers,
-    // Nothing links a submission to an attendee record. With no login, a
-    // name is what the person typed, and claiming more would be dishonest.
-    attendeeId: null,
-    displayName,
+    attendeeId: owner.id,
+    displayName: owner.name,
     deviceId,
   });
 

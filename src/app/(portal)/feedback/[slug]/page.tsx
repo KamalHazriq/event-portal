@@ -18,6 +18,7 @@ import {
   bestSessionChoices,
 } from '@/modules/feedback/logic';
 import { readFormSettings } from '@/modules/feedback/settings';
+import { currentPlayer } from '@/modules/points/server';
 import { FormPending } from '@/components/FormPending';
 
 export const dynamic = 'force-dynamic';
@@ -47,7 +48,7 @@ export default async function FeedbackPage({ params, searchParams }: PageProps) 
   const form = findFeedbackForm(config, formIdFromSlug(slug));
   if (!form) notFound();
 
-  const settings = await readFormSettings(form.id);
+  const [settings, me] = await Promise.all([readFormSettings(form.id), currentPlayer()]);
   const state = first(query.state);
 
   // Already answered on this device? Say so instead of offering the form.
@@ -83,6 +84,24 @@ export default async function FeedbackPage({ params, searchParams }: PageProps) 
     .filter((value): value is SubmissionProblem => value.length > 0);
 
   const otherSessions = bestSessionChoices(config);
+
+  // Nothing is anonymous: say who you are first, then the form.
+  if (!me) {
+    return (
+      <div className="space-y-4 py-2">
+        <h1 className="text-2xl font-bold leading-tight text-ink">{form.title}</h1>
+        <p className="rounded-lg border border-line bg-surface p-4 text-ink">
+          Feedback is sent with your name. Say who you are first, then come back here.
+        </p>
+        <Link
+          href={`/welcome?next=${encodeURIComponent(`/feedback/${slug}`)}`}
+          className="inline-flex min-h-11 items-center rounded-lg bg-primary px-5 font-bold text-on-primary no-underline"
+        >
+          Find my name
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-5 py-2">
@@ -172,35 +191,9 @@ export default async function FeedbackPage({ params, searchParams }: PageProps) 
           />
         </div>
 
-        {settings.anonymity === 'anonymous' ? (
-          <p className="rounded-lg border border-line bg-muted p-3 text-sm text-ink">
-            This form is anonymous. Your name is not asked for and is not recorded.
-          </p>
-        ) : (
-          <div>
-            <label htmlFor="name" className="block font-semibold text-ink">
-              Your name{settings.anonymity === 'optional' ? ' ' : ''}
-              {settings.anonymity === 'optional' ? (
-                <span className="font-normal text-ink-soft">(optional)</span>
-              ) : null}
-            </label>
-            {settings.anonymity === 'optional' ? (
-              <p id="name-hint" className="text-sm text-ink-soft">
-                Leave it blank to stay anonymous.
-              </p>
-            ) : null}
-            <input
-              id="name"
-              name="name"
-              type="text"
-              maxLength={80}
-              autoComplete="name"
-              required={settings.anonymity === 'named'}
-              aria-describedby={settings.anonymity === 'optional' ? 'name-hint' : undefined}
-              className="mt-1 min-h-11 w-full rounded-lg border border-line bg-surface px-3 py-2 text-ink"
-            />
-          </div>
-        )}
+        <p className="rounded-lg border border-line bg-muted p-3 text-sm text-ink">
+          Sent as <strong>{me?.name}</strong>.
+        </p>
 
         <button
           type="submit"

@@ -295,6 +295,8 @@ export interface CommentRepository {
   listBySession(sessionId: string): Promise<Comment[]>;
   /** Approved comments across every talk, for points. */
   listApproved(): Promise<Comment[]>;
+  /** Every comment on every talk, newest first, for the secretariat. */
+  listAll(): Promise<Comment[]>;
   countByDevice(sessionId: string, deviceId: string): Promise<number>;
   setStatus(id: string, status: CommentStatus): Promise<boolean>;
   remove(id: string): Promise<boolean>;

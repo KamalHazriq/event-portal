@@ -5,7 +5,12 @@
 import { getData } from '@/data';
 import { looksLikeSecretariat } from '@/lib/attendee-import';
 
-import { parseStaffNos, SECRETARIAT_KEY, secretariatChanges } from './secretariat-list';
+import {
+  parseStaffNos,
+  PARTICIPANT_KEY,
+  SECRETARIAT_KEY,
+  secretariatChanges,
+} from './secretariat-list';
 
 export async function readSecretariatList(): Promise<string[]> {
   return parseStaffNos(await getData().settings.get(SECRETARIAT_KEY));
@@ -13,7 +18,11 @@ export async function readSecretariatList(): Promise<string[]> {
 
 export async function applySecretariatList(): Promise<number> {
   const data = getData();
-  const [people, staffNos] = await Promise.all([data.attendees.list(), readSecretariatList()]);
+  const [people, staffNos, participants] = await Promise.all([
+    data.attendees.list(),
+    readSecretariatList(),
+    data.settings.get(PARTICIPANT_KEY).then(parseStaffNos),
+  ]);
   const { mark, unmark } = secretariatChanges(
     people.map((p) => ({
       id: p.id,
@@ -22,6 +31,7 @@ export async function applySecretariatList(): Promise<number> {
       byList: looksLikeSecretariat(p.department, p.remark, p.title),
     })),
     staffNos,
+    participants,
   );
   if (mark.length) await data.attendees.setSecretariat(mark, true);
   if (unmark.length) await data.attendees.setSecretariat(unmark, false);

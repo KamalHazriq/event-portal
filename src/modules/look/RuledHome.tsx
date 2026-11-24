@@ -71,16 +71,6 @@ function Opener({
   );
 }
 
-function initials(name: string): string {
-  // A role written as an acronym ("CDIO") reads best whole.
-  if (/^[A-Z&]{2,4}$/.test(name.trim())) return name.trim();
-  const words = name
-    .replace(/[^A-Za-z ]/g, ' ')
-    .split(/\s+/)
-    .filter((w) => w.length > 0 && !/^(bin|binti|of|and|the|a\/l|a\/p)$/i.test(w));
-  return ((words[0]?.[0] ?? '') + (words[1]?.[0] ?? '')).toUpperCase() || '·';
-}
-
 export async function RuledHome({
   config,
   now,
@@ -133,8 +123,6 @@ export async function RuledHome({
   // One tile per department, by short name ("Cores" and "Corporate &
   // Engineering Services" are the same team).
   const teams = [...new Set(departments.map((d) => shortDepartment(config, d)))];
-  // Every speaker set up on the Agenda page, in the order they were added.
-  const speakers = config.speakers.slice(0, 16);
   const dates = `${formatShortDate(event.startDate, tz)} to ${formatShortDate(event.endDate, tz)}`;
 
   const faqs: [string, React.ReactNode][] = [
@@ -419,30 +407,6 @@ export async function RuledHome({
       {notice ? <div className="mt-6">{notice}</div> : null}
 
       {/* 4. The departments in the room, in a ruled grid. */}
-      {departments.length > 0 ? (
-        <section aria-labelledby="teams" className={SECTION}>
-          <Opener
-            id="teams"
-            lines={[`${teams.length} departments,`, 'one room']}
-            control={features.leaderboard ? { href: '/leaderboard', label: 'Leaderboard' } : null}
-          />
-          <ul className="mt-8 grid grid-cols-2 border-l border-t border-line sm:grid-cols-4 lg:grid-cols-7">
-            {teams.map((d) => (
-              <li
-                key={d}
-                className="flex min-h-20 items-center justify-center border-b border-r border-line px-3 text-center font-display text-lg font-medium text-ink"
-              >
-                {d}
-              </li>
-            ))}
-          </ul>
-          <p className="mt-4 text-sm text-ink-soft">
-            {features.leaderboard
-              ? 'Departments are ranked by average points per person, so a small team can top the board.'
-              : 'Everyone on the participant list.'}
-          </p>
-        </section>
-      ) : null}
 
       {/* 5. Gallery: the newest approved photos. */}
       {features.photoWall ? (
@@ -495,40 +459,6 @@ export async function RuledHome({
       </section>
 
       {/* 7. Team: who people will hear from. */}
-      {speakers.length > 0 ? (
-        <section aria-labelledby="people" className={SECTION}>
-          <Opener
-            id="people"
-            lines={['Who you will', 'hear from']}
-            control={{ href: `/agenda${linkSuffix}`, label: 'Agenda' }}
-          />
-          <ul className="mx-auto mt-10 flex max-w-5xl flex-wrap justify-center gap-x-8 gap-y-10 text-center [&>li]:w-[calc(50%-1rem)] sm:[&>li]:w-40">
-            {speakers.map((s) => (
-              <li key={s.id}>
-                {s.photoPath ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={s.photoPath}
-                    alt=""
-                    className="mx-auto size-24 rounded-full border border-line object-cover"
-                  />
-                ) : (
-                  <span
-                    aria-hidden="true"
-                    className="mx-auto flex size-24 items-center justify-center rounded-full border border-line bg-surface font-display text-2xl font-medium text-ink"
-                  >
-                    {initials(s.name)}
-                  </span>
-                )}
-                <p className="mt-4 font-display text-lg font-medium leading-snug text-ink">
-                  {s.name}
-                </p>
-                {s.title ? <p className="mt-1 text-sm text-ink-soft">{s.title}</p> : null}
-              </li>
-            ))}
-          </ul>
-        </section>
-      ) : null}
 
       {/* 8. The three days, as full-width rows. */}
       <section aria-labelledby="days" className={SECTION}>

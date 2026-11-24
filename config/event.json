@@ -232,6 +232,7 @@
         },
         {
           "id": "d1-welcome",
+          "slidesUrl": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
           "start": "11:00",
           "end": "11:10",
           "title": "Welcome and doa",
@@ -275,6 +276,8 @@
         },
         {
           "id": "d1-svc",
+          "slidesUrl": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+          "slidesLabel": "Open the report",
           "start": "14:00",
           "end": "14:10",
           "title": "Secretariat sharing: SVC",
@@ -551,29 +554,29 @@
   "resources": [
     {
       "id": "res-posters",
-      "title": "Session summary posters",
-      "url": "https://example.com/power-summit/posters",
+      "title": "Session summary posters (test link)",
+      "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
       "description": "One poster per session with the key points, to keep and share with your team. Published after each day.",
       "kind": "file"
     },
     {
       "id": "res-sharing-slides",
-      "title": "Day 1 sharing slides",
-      "url": "https://example.com/power-summit/sharing-slides",
+      "title": "Day 1 sharing slides (test link)",
+      "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
       "description": "The slides from the four domain sharings and the committee secretariat updates.",
       "kind": "file"
     },
     {
       "id": "res-breakouts",
-      "title": "Breakout outputs",
-      "url": "https://example.com/power-summit/breakouts",
+      "title": "Breakout outputs (test link)",
+      "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
       "description": "What each Day 2 group proposed, as presented in the afternoon.",
       "kind": "file"
     },
     {
       "id": "res-photos",
-      "title": "Event photos",
-      "url": "https://example.com/power-summit/photos",
+      "title": "Event photos (test link)",
+      "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
       "description": "Photos from all three days, including the Day 1 group photo.",
       "kind": "link"
     }

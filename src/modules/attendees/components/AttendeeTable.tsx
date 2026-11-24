@@ -85,7 +85,17 @@ export function AttendeeTable({ rows }: { rows: AttendeeRow[] }) {
         </p>
       ) : (
         <div className="max-h-[70vh] max-w-full overflow-auto rounded-xl border border-line [contain:inline-size]">
-          <table className="w-full text-left text-sm">
+          <table className="w-full min-w-[62rem] table-fixed text-left text-sm">
+            {/* Fixed widths, so the columns stay put as the list filters. */}
+            <colgroup>
+              <col className="w-14" />
+              <col className="w-[30%]" />
+              <col className="w-28" />
+              <col className="w-[20%]" />
+              <col className="w-24" />
+              <col className="w-[18%]" />
+              <col className="w-24" />
+            </colgroup>
             <thead className="sticky top-0 z-10 bg-muted text-ink-soft">
               <tr>
                 <th className="px-3 py-2 font-semibold">No</th>
@@ -103,7 +113,7 @@ export function AttendeeTable({ rows }: { rows: AttendeeRow[] }) {
               {shown.map((p) => (
                 <tr key={p.id} className="border-t border-line bg-surface hover:bg-muted/40">
                   <td className="px-3 py-2 tabular-nums text-ink-soft">{p.no ?? ''}</td>
-                  <td className="px-3 py-2 font-semibold text-ink">
+                  <td className="break-words px-3 py-2 font-semibold text-ink">
                     {p.name}
                     {p.isSecretariat ? (
                       <span className="ml-2 rounded bg-muted px-1.5 py-0.5 text-xs font-semibold text-ink-soft">
@@ -112,13 +122,13 @@ export function AttendeeTable({ rows }: { rows: AttendeeRow[] }) {
                     ) : null}
                   </td>
                   <td className="px-3 py-2 font-mono text-ink">{p.staffNo}</td>
-                  <td className="px-3 py-2 text-ink">
+                  <td className="break-words px-3 py-2 text-ink">
                     {p.title || <span className="text-warning">No role</span>}
                   </td>
-                  <td className="px-3 py-2 text-ink" title={p.departmentFull}>
+                  <td className="truncate px-3 py-2 text-ink" title={p.departmentFull}>
                     {p.department}
                   </td>
-                  <td className="px-3 py-2 text-ink-soft">{p.remark}</td>
+                  <td className="break-words px-3 py-2 text-ink-soft">{p.remark}</td>
                   <td className="px-3 py-2">
                     <Link
                       href={`/admin/attendees/${p.id}`}

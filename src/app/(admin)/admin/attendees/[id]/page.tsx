@@ -102,6 +102,10 @@ export default async function EditAttendeePage({ params, searchParams }: Props) 
           />
           Secretariat (left out of the leaderboard and the lucky draw)
         </label>
+        <p className="-mt-2 text-sm text-ink-soft">
+          Secretariat and a participant too? Untick it: they are ranked and can win, even if their
+          role says Secretariat. It stays that way when the list is uploaded again.
+        </p>
         <button
           type="submit"
           className="min-h-11 rounded-lg bg-primary px-5 font-bold text-on-primary"
