@@ -21,6 +21,12 @@ env:
   - variable: DATA_ADAPTER
     value: postgres
     availability: [RUNTIME]
+  # Up to 10 database connections per server, so a page that reads many
+  # things at once (the leaderboard) never queues. Neon's pooled address
+  # takes many more than that.
+  - variable: PG_POOL_MAX
+    value: '10'
+    availability: [RUNTIME]
 
   - variable: EVENT_CONFIG_PATH
     value: config/event.json

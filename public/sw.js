@@ -40,7 +40,11 @@ self.addEventListener('fetch', (event) => {
   if (url.origin !== self.location.origin) return;
 
   // Build files and logos: named by their content, so safe to keep.
-  if (url.pathname.startsWith('/_next/static/') || url.pathname.startsWith('/branding/')) {
+  if (
+    url.pathname.startsWith('/_next/static/') ||
+    url.pathname.startsWith('/branding/') ||
+    url.pathname.startsWith('/door-gifts/')
+  ) {
     event.respondWith(
       caches.open(ASSETS).then(async (cache) => {
         const hit = await cache.match(request);

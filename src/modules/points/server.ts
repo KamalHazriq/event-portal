@@ -2,6 +2,8 @@
  * Gathers what the points are worked out from, and who this device is.
  * See logic.ts for the rules.
  */
+import { cache } from 'react';
+
 import { getData, type Attendee } from '@/data';
 import { getEventConfig } from '@/lib/config';
 import { isDivision } from '@/lib/departments';
@@ -92,10 +94,12 @@ export async function loadScoreboard(): Promise<Scoreboard> {
 }
 
 /** The person this device is signed in as, or null. */
-export async function currentPlayer(): Promise<Attendee | null> {
+// Asked by the page, the banners and the name check alike: looked up once
+// per request, not once per asker.
+export const currentPlayer = cache(async (): Promise<Attendee | null> => {
   const deviceId = await currentDeviceId();
   if (!deviceId) return null;
   const data = getData();
   const attendeeId = await data.players.ownerOf(deviceId);
   return attendeeId ? data.attendees.get(attendeeId) : null;
-}
+});
