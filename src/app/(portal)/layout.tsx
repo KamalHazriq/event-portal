@@ -7,6 +7,7 @@ import { RULED_CONTAINER, RuledFooter, RuledHeader } from '@/components/ruled/Ru
 import { AnnouncementBanner } from '@/modules/announce/components/AnnouncementBanner';
 import { LuckyWinBanner } from '@/modules/lucky-draw/components/LuckyWinBanner';
 import { readStyle } from '@/modules/look/server';
+import { usesRuledLayout } from '@/lib/look';
 import { getEventConfig } from '@/lib/config';
 import { isPlaceholderUrl } from '@/lib/placeholder';
 import { markFor, resolveTheme } from '@/lib/theme';
@@ -17,7 +18,7 @@ export default async function PortalLayout({ children }: { children: React.React
   const { branding } = config;
   const theme = resolveTheme(branding, 'portal');
 
-  if ((await readStyle()) === 'ruled') {
+  if (usesRuledLayout(await readStyle())) {
     return (
       // overflow-x: clip lets the home page's hero run edge to edge without
       // ever making the page scroll sideways.

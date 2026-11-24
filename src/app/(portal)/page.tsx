@@ -9,6 +9,7 @@ import { AutoRefresh } from '@/components/AutoRefresh';
 import { readBackupMode } from '@/modules/backup/server';
 import { RuledHome } from '@/modules/look/RuledHome';
 import { readStyle } from '@/modules/look/server';
+import { usesRuledLayout } from '@/lib/look';
 import { DevTimeNotice } from '@/modules/schedule/components/DevTimeNotice';
 import { DoorGiftCard } from '@/modules/door-gift/components/DoorGiftCard';
 import { NowNextPanel } from '@/modules/schedule/components/NowNextPanel';
@@ -67,7 +68,7 @@ export default async function HomePage({ searchParams }: { searchParams: SearchP
       : (focusDay?.sessions ?? [])
   ).slice(0, HOME_SESSIONS);
 
-  if ((await readStyle()) === 'ruled') {
+  if (usesRuledLayout(await readStyle())) {
     return (
       <>
         <AutoRefresh enabled={!now.isOverride} />

@@ -18,11 +18,11 @@ async function signIn(page: Page): Promise<void> {
   ).toBeVisible();
 }
 
-async function useStyle(page: Page, name: 'Classic' | 'Ruled'): Promise<void> {
+async function useStyle(page: Page, name: 'Classic' | 'Ruled' | 'Studio'): Promise<void> {
   await page.goto('/admin');
   const option = page.getByRole('button', { name: new RegExp(`^${name}`) });
   if (await option.isEnabled()) await option.click();
-  await expect(page.locator('html')).toHaveAttribute('data-style', name.toLowerCase());
+  await expect(page.locator('html')).toHaveAttribute('data-look', name.toLowerCase());
 }
 
 test.afterEach(async ({ browser }, testInfo) => {
@@ -63,4 +63,26 @@ test('the secretariat switches the whole portal between styles', async ({ page }
   await page.goto('/');
   await expect(page.locator('html')).toHaveAttribute('data-style', 'classic');
   await expect(page.getByRole('heading', { name: /How to take\s*part/ })).toHaveCount(0);
+});
+
+test('Studio is Ruled underneath, with its own finish on top', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'shared-switches', 'Changes a shared switch.');
+  await signIn(page);
+  await useStyle(page, 'Studio');
+  await page.goto('/?now=2026-12-14T15:10');
+  await expect(page.locator('html')).toHaveAttribute('data-style', 'ruled');
+  await expect(page.locator('html')).toHaveAttribute('data-look', 'studio');
+  await expect(page.getByRole('list', { name: 'The summit in numbers' })).toBeVisible();
+  await expect(page.getByRole('region', { name: 'On now and next' })).toBeVisible();
+  // Nothing makes a phone scroll sideways.
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.reload();
+  const overflow = await page.evaluate(
+    () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+  );
+  expect(overflow).toBeLessThanOrEqual(0);
+  // Ruled hides the Studio pieces.
+  await useStyle(page, 'Ruled');
+  await page.goto('/');
+  await expect(page.getByRole('list', { name: 'The summit in numbers' })).toBeHidden();
 });

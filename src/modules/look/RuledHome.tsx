@@ -20,6 +20,8 @@
  */
 import Link from 'next/link';
 
+import { StudioGem } from '@/components/studio/StudioGem';
+
 import { getData } from '@/data';
 import type { EventConfig } from '@/lib/event-schema';
 import { logoFor } from '@/lib/theme';
@@ -209,9 +211,26 @@ export async function RuledHome({
         />
         <div
           aria-hidden="true"
-          className="absolute -bottom-28 -right-36 size-64 rounded-full border-[40px] border-primary/30 md:-right-20 md:-top-16 md:bottom-auto md:size-[560px] md:border-[90px]"
+          className="not-studio absolute -bottom-28 -right-36 size-64 rounded-full border-[40px] border-primary/30 md:-right-20 md:-top-16 md:bottom-auto md:size-[560px] md:border-[90px]"
         />
+        {/* Studio: a glass hexagon instead of the ring. */}
+        <div aria-hidden="true" className="studio-only">
+          <StudioGem className="absolute right-0 top-6 hidden w-[260px] md:block lg:right-16 lg:top-10 lg:w-[300px]" />
+        </div>
         <div className={`${RULED_CONTAINER} relative pb-12 pt-16 lg:pb-[88px] lg:pt-24`}>
+          <p className="studio-only mb-4">
+            <span className="code-tag">
+              <b>
+                {event.shortName
+                  .split(/\s+/)
+                  .map((w) => w[0])
+                  .join('')
+                  .toUpperCase()}
+              </b>
+              {`${String(config.days.length).padStart(2, '0')}-DAY`}
+            </span>{' '}
+            <span className="code-tag code-tag-soft">{branding.organisationName || 'D&I'}</span>
+          </p>
           <p className="text-[13px] font-semibold uppercase tracking-[0.14em] text-[#9FC3FF]">
             {dates}
             {event.city ? ` · ${event.city}` : ''}
@@ -262,6 +281,28 @@ export async function RuledHome({
           />
         </div>
       </section>
+
+      {/* Studio: the event in four numbers, as square tiles. */}
+      <div className="studio-only">
+        <ul aria-label="The summit in numbers" className="studio-stats mt-12">
+          {[
+            [config.days.length, config.days.length === 1 ? 'day' : 'days', 'D'],
+            [
+              config.days.flatMap((d) => d.sessions).filter((x) => !x.hidden).length,
+              'sessions',
+              'S',
+            ],
+            [teams.length, 'departments', 'T'],
+            [config.speakers.length, 'speakers and hosts', 'P'],
+          ].map(([value, label, code]) => (
+            <li key={String(label)}>
+              <span className="code-tag code-tag-soft">{`${code}-${String(value).padStart(2, '0')}`}</span>
+              <span className="studio-stat-value">{value}</span>
+              <span className="studio-stat-label">{label}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
 
       {/* The product: what is on now, next and later, framed. */}
       <section aria-label="On now and next" className="mt-12">

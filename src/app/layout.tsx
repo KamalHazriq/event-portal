@@ -12,6 +12,7 @@ import { buildThemeCss, markFor, resolveTheme } from '@/lib/theme';
 import '@fontsource-variable/host-grotesk';
 import '@fontsource-variable/instrument-sans';
 import { readStyle } from '@/modules/look/server';
+import { baseStyle } from '@/lib/look';
 
 import './globals.css';
 
@@ -89,7 +90,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const style = await readStyle();
 
   return (
-    <html lang="en" data-theme={theme} data-style={style}>
+    <html lang="en" data-theme={theme} data-style={baseStyle(style)} data-look={style}>
       <head>
         {/* Theme tokens from config/event.json. See src/lib/theme.ts. */}
         <style>{buildThemeCss(config.branding)}</style>

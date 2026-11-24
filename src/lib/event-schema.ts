@@ -123,7 +123,7 @@ export const BrandingSchema = z.object({
    * (new typefaces, flat outlined cards). The default; the secretariat can
    * switch it from the dashboard. See src/lib/look.ts.
    */
-  style: z.enum(['classic', 'ruled']).default('classic'),
+  style: z.enum(['classic', 'ruled', 'studio']).default('classic'),
 });
 
 /* ----------------------------------------------------------------- people */

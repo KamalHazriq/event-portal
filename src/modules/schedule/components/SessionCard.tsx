@@ -47,6 +47,11 @@ export function SessionCard({
           <span className="font-mono text-sm font-semibold text-ink-soft">
             {formatTimeRange(session.start, session.end)}
           </span>
+          {/* Studio's code label: day and start time, like D1·1450. */}
+          <span className="code-tag studio-only">
+            <b>{`D${session.dayId.replace(/\D+/g, '') || '1'}`}</b>
+            {session.start.replace(':', '')}
+          </span>
           <TypeBadge type={session.type} />
           <StatusBadge status={status} />
         </div>
