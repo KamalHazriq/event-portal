@@ -86,7 +86,7 @@ export default async function TourPage() {
   }[] = [
     {
       title: 'The attendee phone: scan, land on Home',
-      say: 'Everyone scans one QR on their name tag. No app, no login code. Home shows what is on now and what is next.',
+      say: 'Everyone scans one portal QR (on a table tent, a slide or the projector). No app, no login code. Home shows what is on now and what is next.',
       links: [
         { href: '/', label: 'Home (phone view)' },
         { href: '/agenda', label: 'Agenda' },

@@ -18,7 +18,7 @@ export function GuideBody() {
     {
       who: 'Attendees',
       where: 'On their phones',
-      what: 'The agenda, what is on now and next, each session with its speakers, the Slido link, feedback forms, take aways and photo sharing. Opened by scanning the QR on the name tag, a table tent or the projector.',
+      what: 'The agenda, what is on now and next, each session with its speakers, the Slido link, feedback forms, take aways and photo sharing. Opened by scanning the portal QR on a table tent, a slide or the projector.',
       href: '/',
       link: 'Open the attendee view',
       on: true,
@@ -45,11 +45,8 @@ export function GuideBody() {
     {
       when: 'Before the event',
       title: 'Print and prepare',
-      text: 'Print the name tags (one sided: the name and the portal QR), the table tents, and drop the portal QR into the welcome slide.',
-      links: [
-        { href: '/admin/name-tags', label: 'Name tags', on: features.checkIn },
-        { href: '/admin/qr-assets', label: 'QR assets', on: features.checkIn },
-      ],
+      text: 'Print the table tents, and drop the portal QR into the welcome slide.',
+      links: [{ href: '/admin/qr-assets', label: 'QR assets', on: features.checkIn }],
     },
     {
       when: 'Arrival',
@@ -116,7 +113,7 @@ export function GuideBody() {
     {
       role: 'Registration desk',
       device: 'Laptop or phone with a camera',
-      does: 'Signs in as desk-1 or desk-2. Scans tags, searches names, undoes a wrong scan.',
+      does: 'Signs in as desk-1 or desk-2. Scans business cards, searches names, undoes a wrong scan.',
     },
     {
       role: 'MC or floor manager',
