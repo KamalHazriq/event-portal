@@ -59,30 +59,42 @@ export function PodiumView({
       <h2 className="text-[clamp(1.6rem,3vw,4rem)] font-bold text-ink">Top {size}</h2>
 
       {podium ? (
-        <ol className="mt-[3vh] flex flex-1 items-end justify-center gap-[2vw]">
+        <ol className="mt-[2vh] flex min-h-0 flex-1 items-end justify-center gap-[2vw]">
           {/* 2nd, 1st, 3rd, the way a podium stands. */}
           {[1, 0, 2]
             .filter((i) => i < places.length)
             .map((i) => {
               const place = places[i]!;
               const out = i >= shownFrom;
-              const height =
-                place.rank === 1 ? 'h-[70%]' : place.rank === 2 ? 'h-[55%]' : 'h-[42%]';
+              const crowd = place.people.length;
+              // The bar is a fixed height, so many people tied for one place can
+              // never push it off the screen; they share a grid above it instead.
+              const bar =
+                place.rank === 1 ? 'h-[22vh]' : place.rank === 2 ? 'h-[15vh]' : 'h-[10vh]';
+              const width =
+                places.length === 1 ? 'w-[86%]' : places.length === 2 ? 'w-[42%]' : 'w-[28%]';
+              const size =
+                crowd > 8
+                  ? 'text-[clamp(1rem,1.9vw,2.4rem)]'
+                  : crowd > 3
+                    ? 'text-[clamp(1.1rem,2vw,2.6rem)]'
+                    : 'text-[clamp(1.3rem,2.8vw,3.6rem)]';
+              const cols = crowd > 8 ? 'grid-cols-3' : crowd > 3 ? 'grid-cols-2' : 'grid-cols-1';
               return (
-                <li key={place.rank} className={`flex w-[26%] flex-col justify-end ${height}`}>
-                  <div className="mb-[1.5vh] text-center">
+                <li key={place.rank} className={`flex min-h-0 flex-col justify-end ${width}`}>
+                  <div className="mb-[1.5vh] min-h-0 text-center">
                     {out ? (
                       <div className="screen-fade">
-                        {place.people.map((p) => (
-                          <p
-                            key={p.id}
-                            className="text-[clamp(1.3rem,2.8vw,3.6rem)] font-bold text-ink"
-                          >
-                            {p.name}
-                          </p>
-                        ))}
-                        <p className="text-[clamp(1rem,1.8vw,2.4rem)] text-ink-soft">
+                        <ul className={`grid gap-x-[1.5vw] gap-y-[0.6vh] ${cols}`}>
+                          {place.people.map((p) => (
+                            <li key={p.id} className={`font-bold leading-tight text-ink ${size}`}>
+                              {p.name}
+                            </li>
+                          ))}
+                        </ul>
+                        <p className="mt-[0.8vh] text-[clamp(1rem,1.8vw,2.4rem)] text-ink-soft">
                           {place.points} points
+                          {crowd > 1 ? `, ${crowd} tied` : ''}
                         </p>
                       </div>
                     ) : (
@@ -91,7 +103,8 @@ export function PodiumView({
                   </div>
                   <div
                     className={[
-                      'flex flex-1 items-start justify-center rounded-t-xl pt-[2vh] text-[clamp(2rem,5vw,6rem)] font-bold',
+                      'flex items-start justify-center rounded-t-xl pt-[1.5vh] text-[clamp(2rem,5vw,6rem)] font-bold',
+                      bar,
                       out ? 'bg-primary text-on-primary' : 'bg-muted text-ink-soft',
                     ].join(' ')}
                   >
