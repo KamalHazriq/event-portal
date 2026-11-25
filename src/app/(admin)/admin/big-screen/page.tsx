@@ -76,6 +76,12 @@ export default async function BigScreenControlPage() {
     podiumGroupsNow.length,
   );
   const podiumTies = podiumGroupsNow.filter((g) => g.people.length > 1);
+  // The next button says which place comes up, from the last one to the first.
+  const nextGroup = podiumGroupsNow[podiumGroupsNow.length - podiumStep - 1];
+  const placeWord = (n: number) => (n === 1 ? '1st' : n === 2 ? '2nd' : n === 3 ? '3rd' : `${n}th`);
+  const nextLabel = nextGroup
+    ? `Reveal ${placeWord(nextGroup.rank)} place${nextGroup.people.length > 1 ? ` (${nextGroup.people.length} tied)` : ''}`
+    : 'All revealed';
 
   // A nudge from the clock and the agenda. The device test clock applies here too,
   // so it can be tried before the day.
@@ -180,8 +186,8 @@ export default async function BigScreenControlPage() {
           <h2 className="text-sm font-bold uppercase tracking-wide text-ink-soft">Podium reveal</h2>
           <p className="mt-1 text-sm text-ink-soft">
             Reveals the winners one place at a time, from the bottom up, with confetti and a fanfare
-            for the winner. Pick how many places, then tap Reveal next on stage. People with the
-            same points share a place, and a tie at the cut-off shows everyone tied.
+            for the winner. Pick how many places, then tap the Reveal button on stage. People with
+            the same points share a place, and a tie at the cut-off shows everyone tied.
           </p>
           <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label="How many places">
             {PODIUM_SIZES.map((n) => (
@@ -219,7 +225,7 @@ export default async function BigScreenControlPage() {
           ) : null}
           <div className="mt-3 flex flex-wrap gap-2">
             {[
-              ['next', 'Reveal next', 'bg-primary text-on-primary'],
+              ['next', nextLabel, 'bg-primary text-on-primary'],
               ['back', 'Hide last', 'border border-line bg-surface text-ink'],
               ['all', 'Show all', 'border border-line bg-surface text-ink'],
               ['reset', 'Start again', 'border border-line bg-surface text-ink'],

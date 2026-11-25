@@ -2129,6 +2129,72 @@ select:focus-visible {
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--c-primary) 30%, transparent);
 }
 
+/* The open list, in browsers that let a page style it (Chrome, Edge): the
+ * theme's own surface, space around every choice, a clear highlight, and a
+ * tick on the one chosen. Other browsers keep their native list, which
+ * select option above already colours. */
+@supports (appearance: base-select) {
+  select:not([multiple]),
+  select:not([multiple])::picker(select) {
+    appearance: base-select;
+  }
+  select:not([multiple]) {
+    background-image: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+  select:not([multiple])::picker-icon {
+    content: '';
+    width: 0.5rem;
+    height: 0.5rem;
+    margin-right: 0.2rem;
+    border-right: 2px solid var(--c-text-muted);
+    border-bottom: 2px solid var(--c-text-muted);
+    transform: rotate(45deg) translateY(-2px);
+    transition: transform 160ms ease;
+  }
+  select:not([multiple]):open::picker-icon {
+    transform: rotate(225deg);
+  }
+  select::picker(select) {
+    box-sizing: border-box;
+    margin-top: 0.3rem;
+    padding: 0.3rem;
+    max-height: min(24rem, 60vh);
+    overflow-y: auto;
+    border: 1px solid var(--c-border);
+    border-radius: 0.7rem;
+    background: var(--c-surface);
+    color: var(--c-text);
+    box-shadow: 0 14px 36px rgb(0 0 0 / 0.35);
+  }
+  select option {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.5rem;
+    padding: 0.45rem 0.75rem;
+    border-radius: 0.45rem;
+    cursor: pointer;
+  }
+  select option:hover,
+  select option:focus-visible {
+    background: color-mix(in srgb, var(--c-primary) 22%, var(--c-surface));
+    outline: none;
+  }
+  select option:checked {
+    background: var(--c-primary);
+    color: var(--c-primary-text);
+    font-weight: 600;
+  }
+  select option::checkmark {
+    order: 1;
+    margin-left: auto;
+  }
+}
+
 /* ==========================================================================
  * Studio: Ruled underneath (data-style="ruled"), with a minimal tech finish
  * on top (data-look="studio"): light, tight display type; square tiles with
@@ -2470,4 +2536,76 @@ select:focus-visible {
   to {
     transform: translateY(-1.4vh);
   }
+}
+
+/* -- The podium reveal: each place rises or pops in, the winner glows. */
+@keyframes podium-rise {
+  from {
+    transform: scaleY(0.15);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+@keyframes podium-pop {
+  0% {
+    transform: translateY(3vh) scale(0.6);
+    opacity: 0;
+  }
+  60% {
+    transform: translateY(-0.6vh) scale(1.08);
+    opacity: 1;
+  }
+  100% {
+    transform: none;
+  }
+}
+@keyframes row-in {
+  from {
+    transform: translateX(-5vw);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+@keyframes winner-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+  50% {
+    box-shadow: 0 0 4vw 0.6vw color-mix(in srgb, var(--c-primary) 70%, transparent);
+  }
+}
+@keyframes crown-bob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-6deg);
+  }
+  50% {
+    transform: translateY(-1vh) rotate(6deg);
+  }
+}
+.podium-fx.podium-rise {
+  transform-origin: bottom;
+  animation: podium-rise 700ms cubic-bezier(0.2, 0.9, 0.3, 1.15) both;
+}
+.podium-fx.podium-pop {
+  animation: podium-pop 650ms cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+}
+.podium-fx.row-in {
+  animation: row-in 500ms cubic-bezier(0.2, 0.9, 0.3, 1.1) both;
+}
+.winner-glow {
+  animation:
+    podium-rise 700ms cubic-bezier(0.2, 0.9, 0.3, 1.15) both,
+    winner-glow 2.4s ease-in-out 700ms infinite;
+}
+.crown-bob {
+  display: inline-block;
+  animation: crown-bob 1.8s ease-in-out infinite;
 }

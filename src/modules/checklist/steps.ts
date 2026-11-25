@@ -869,7 +869,7 @@ export const TEST_PLAN: Part[] = [
             rev: 3,
             do: 'On Big screen choose Podium reveal, pick Top 3, then press Reveal next until the winner shows. Try Top 5 and Top 10.',
             expect:
-              'Places appear from the bottom up, the winner brings confetti and a fanfare, tied people share a place, and Start again hides it.',
+              'The button names the place coming up (Reveal 5th place, 4th place, and so on). Places pop in from the bottom up: the top 3 on the podium, places 4 and below in a box underneath, the winner gets a crown, confetti and a fanfare, tied people share a place, and Start again hides it. The title reads "Top N best participants".',
             links: [{ href: '/admin/big-screen', label: 'Big screen' }],
           },
           {

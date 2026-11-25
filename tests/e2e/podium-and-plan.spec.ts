@@ -20,12 +20,15 @@ test('the podium is revealed one place at a time, then put back', async ({ page 
 
   await page.getByRole('button', { name: 'Top 5', exact: true }).click();
   await expect(page.getByText(/0 of \d+ places revealed|Nobody has points yet/)).toBeVisible();
-  await page.getByRole('button', { name: 'Reveal next', exact: true }).click();
+  await page
+    .getByRole('button', { name: /^Reveal (\d+(st|nd|rd|th) place|next)|All revealed/ })
+    .last()
+    .click();
   await expect(page.getByText(/1 of \d+ places revealed|Nobody has points yet/)).toBeVisible();
 
   // The projector shows the podium view.
   await page.goto('/screen?view=podium');
-  await expect(page.getByRole('heading', { name: 'Top 5', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Top 5 best participants' })).toBeVisible();
 
   // Put the screen back for the other tests.
   await page.goto('/admin/big-screen');

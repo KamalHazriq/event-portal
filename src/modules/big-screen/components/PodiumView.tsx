@@ -13,12 +13,14 @@ export type PodiumPlace = {
 
 const ORDINAL: Record<number, string> = { 1: '1st', 2: '2nd', 3: '3rd' };
 const ordinal = (n: number) => ORDINAL[n] ?? `${n}th`;
+const MEDAL: Record<number, string> = { 1: '🥇', 2: '🥈', 3: '🥉' };
 
 /**
- * Kahoot style reveal. Places come in best first; the MC reveals them from the
- * bottom up with a button on /admin/big-screen. Each reveal ticks, the winner
- * brings confetti and a fanfare. Nothing plays on the first paint, so a
- * reloaded projector does not make noise.
+ * Kahoot style reveal, all on one screen. The top three stand on a podium;
+ * places 4 and below (for the top 5 or 10) sit in a box under it. The MC
+ * reveals from the last place up with a button on /admin/big-screen. Each
+ * reveal ticks and pops in, the winner brings confetti, a fanfare, a crown and
+ * a glow. Nothing plays on first paint, so a reloaded projector stays quiet.
  */
 export function PodiumView({
   places,
@@ -32,7 +34,8 @@ export function PodiumView({
   calm: boolean;
 }) {
   const previous = useRef<number | null>(null);
-  const shownFrom = places.length - revealed; // index of the first revealed place
+  const firstShown = places.length - revealed; // index of the first revealed place
+  const isOut = (i: number) => i >= firstShown;
   const winnerOut = revealed >= places.length && places.length > 0;
 
   useEffect(() => {
@@ -51,102 +54,126 @@ export function PodiumView({
     );
   }
 
-  const podium = places.length <= 3;
+  const top = places.map((p, i) => ({ p, i })).filter(({ p }) => p.rank <= 3);
+  const rest = places.map((p, i) => ({ p, i })).filter(({ p }) => p.rank > 3);
+  const hasRest = rest.length > 0;
+  // The podium is taller when it has the whole screen to itself.
+  const bars: Record<number, string> = hasRest
+    ? { 1: 'h-[20vh]', 2: 'h-[14vh]', 3: 'h-[10vh]' }
+    : { 1: 'h-[26vh]', 2: 'h-[18vh]', 3: 'h-[12vh]' };
+  const fx = calm ? '' : 'podium-fx';
+
+  // Podium order: 2nd, 1st, 3rd, the way it stands. A tie can leave a gap.
+  const standing = [2, 1, 3]
+    .map((rank) => top.find(({ p }) => p.rank === rank))
+    .filter((x): x is { p: PodiumPlace; i: number } => x !== undefined);
 
   return (
-    <div className="screen-fade relative flex h-full flex-col">
+    <div className="screen-fade relative flex h-full flex-col overflow-hidden">
       {winnerOut && !calm ? <Confetti /> : null}
-      <h2 className="text-[clamp(1.6rem,3vw,4rem)] font-bold text-ink">Top {size}</h2>
+      <h2 className="text-center text-[clamp(1.6rem,3.2vw,4.2rem)] font-bold leading-tight text-ink">
+        Top {size} best participants
+      </h2>
 
-      {podium ? (
-        <ol className="mt-[2vh] flex min-h-0 flex-1 items-end justify-center gap-[2vw]">
-          {/* 2nd, 1st, 3rd, the way a podium stands. */}
-          {[1, 0, 2]
-            .filter((i) => i < places.length)
-            .map((i) => {
-              const place = places[i]!;
-              const out = i >= shownFrom;
-              const crowd = place.people.length;
-              // The bar is a fixed height, so many people tied for one place can
-              // never push it off the screen; they share a grid above it instead.
-              const bar =
-                place.rank === 1 ? 'h-[22vh]' : place.rank === 2 ? 'h-[15vh]' : 'h-[10vh]';
-              const width =
-                places.length === 1 ? 'w-[86%]' : places.length === 2 ? 'w-[42%]' : 'w-[28%]';
-              const size =
-                crowd > 8
-                  ? 'text-[clamp(1rem,1.9vw,2.4rem)]'
-                  : crowd > 3
-                    ? 'text-[clamp(1.1rem,2vw,2.6rem)]'
-                    : 'text-[clamp(1.3rem,2.8vw,3.6rem)]';
-              const cols = crowd > 8 ? 'grid-cols-3' : crowd > 3 ? 'grid-cols-2' : 'grid-cols-1';
+      <ol
+        className={`mt-[2vh] flex shrink-0 items-end justify-center gap-[1.6vw] ${hasRest ? '' : 'flex-1 pb-[3vh]'}`}
+      >
+        {standing.map(({ p: place, i }) => {
+          const out = isOut(i);
+          const crowd = place.people.length;
+          const first = place.rank === 1;
+          const width = standing.length === 1 ? 'w-[60%]' : 'w-[30%]';
+          const size =
+            crowd > 6
+              ? 'text-[clamp(0.9rem,1.7vw,2.2rem)]'
+              : crowd > 2
+                ? 'text-[clamp(1.1rem,2vw,2.6rem)]'
+                : first
+                  ? 'text-[clamp(1.4rem,3vw,3.8rem)]'
+                  : 'text-[clamp(1.2rem,2.5vw,3.2rem)]';
+          const cols = crowd > 6 ? 'grid-cols-3' : crowd > 2 ? 'grid-cols-2' : 'grid-cols-1';
+          return (
+            <li key={place.rank} className={`flex flex-col justify-end ${width}`}>
+              <div className="mb-[1.2vh] min-h-[11vh] text-center">
+                {out ? (
+                  <div className={out ? `${fx} podium-pop` : ''} key={`out-${place.rank}`}>
+                    {first ? (
+                      <p
+                        aria-hidden="true"
+                        className={`text-[clamp(2rem,4vw,5rem)] leading-none ${calm ? '' : 'crown-bob'}`}
+                      >
+                        👑
+                      </p>
+                    ) : null}
+                    <ul className={`grid gap-x-[1.2vw] gap-y-[0.4vh] ${cols}`}>
+                      {place.people.map((person) => (
+                        <li key={person.id} className={`font-bold leading-tight text-ink ${size}`}>
+                          {person.name}
+                        </li>
+                      ))}
+                    </ul>
+                    <p className="mt-[0.5vh] text-[clamp(0.95rem,1.7vw,2.2rem)] text-ink-soft">
+                      {place.points} points{crowd > 1 ? `, ${crowd} tied` : ''}
+                    </p>
+                  </div>
+                ) : (
+                  <p className="pt-[4vh] text-[clamp(1.6rem,3.2vw,4.2rem)] font-bold text-ink-soft">
+                    ?
+                  </p>
+                )}
+              </div>
+              <div
+                className={[
+                  'flex items-center justify-center gap-[0.6vw] rounded-t-xl text-[clamp(1.4rem,3.4vw,4.4rem)] font-bold leading-none',
+                  bars[place.rank],
+                  out ? `bg-primary text-on-primary ${fx} podium-rise` : 'bg-muted text-ink-soft',
+                  out && first && !calm ? 'winner-glow' : '',
+                ].join(' ')}
+              >
+                <span aria-hidden="true" className="text-[0.8em]">
+                  {out ? MEDAL[place.rank] : ''}
+                </span>
+                {ordinal(place.rank)}
+              </div>
+            </li>
+          );
+        })}
+      </ol>
+
+      {hasRest ? (
+        <div className="mt-[1.5vh] shrink-0 rounded-2xl border border-line bg-surface p-[1.2vw]">
+          <ol className="grid content-start gap-x-[1.5vw] gap-y-[0.8vh] md:grid-cols-2">
+            {rest.map(({ p: place, i }) => {
+              const out = isOut(i);
               return (
-                <li key={place.rank} className={`flex min-h-0 flex-col justify-end ${width}`}>
-                  <div className="mb-[1.5vh] min-h-0 text-center">
-                    {out ? (
-                      <div className="screen-fade">
-                        <ul className={`grid gap-x-[1.5vw] gap-y-[0.6vh] ${cols}`}>
-                          {place.people.map((p) => (
-                            <li key={p.id} className={`font-bold leading-tight text-ink ${size}`}>
-                              {p.name}
-                            </li>
-                          ))}
-                        </ul>
-                        <p className="mt-[0.8vh] text-[clamp(1rem,1.8vw,2.4rem)] text-ink-soft">
-                          {place.points} points
-                          {crowd > 1 ? `, ${crowd} tied` : ''}
-                        </p>
-                      </div>
-                    ) : (
-                      <p className="text-[clamp(1.6rem,3.4vw,4.4rem)] font-bold text-ink-soft">?</p>
-                    )}
-                  </div>
-                  <div
-                    className={[
-                      'flex items-start justify-center rounded-t-xl pt-[1.5vh] text-[clamp(2rem,5vw,6rem)] font-bold',
-                      bar,
-                      out ? 'bg-primary text-on-primary' : 'bg-muted text-ink-soft',
-                    ].join(' ')}
-                  >
-                    {ordinal(place.rank)}
-                  </div>
+                <li
+                  key={place.rank}
+                  className={[
+                    'flex items-center gap-[1vw] rounded-lg px-[1vw] py-[0.8vh]',
+                    out ? `bg-muted ${fx} row-in` : 'bg-transparent',
+                  ].join(' ')}
+                >
+                  <span className="w-[4.5vw] shrink-0 text-[clamp(1.1rem,2vw,2.6rem)] font-bold tabular-nums text-primary">
+                    {place.rank}
+                  </span>
+                  {out ? (
+                    <>
+                      <span className="min-w-0 flex-1 truncate text-[clamp(1rem,1.8vw,2.3rem)] font-semibold text-ink">
+                        {place.people.map((person) => person.name).join(', ')}
+                      </span>
+                      <span className="shrink-0 text-[clamp(0.9rem,1.5vw,2rem)] tabular-nums text-ink-soft">
+                        {place.points} pts
+                      </span>
+                    </>
+                  ) : (
+                    <span className="text-[clamp(1rem,1.8vw,2.3rem)] text-ink-soft/60">?</span>
+                  )}
                 </li>
               );
             })}
-        </ol>
-      ) : (
-        <ol className="mt-[2vh] flex flex-1 flex-col justify-end gap-[1vh]">
-          {places.map((place, i) => {
-            const out = i >= shownFrom;
-            return (
-              <li
-                key={place.rank}
-                className={[
-                  'flex items-center gap-[2vw] rounded-lg border px-[2vw] py-[1vh]',
-                  out ? 'screen-fade border-line bg-surface' : 'border-line bg-muted',
-                  out && place.rank === 1 ? 'border-primary' : '',
-                ].join(' ')}
-              >
-                <span className="w-[8vw] text-[clamp(1.4rem,3vw,4rem)] font-bold text-primary">
-                  {ordinal(place.rank)}
-                </span>
-                {out ? (
-                  <>
-                    <span className="flex-1 text-[clamp(1.2rem,2.4vw,3.2rem)] font-bold text-ink">
-                      {place.people.map((p) => p.name).join(', ')}
-                    </span>
-                    <span className="text-[clamp(1rem,1.8vw,2.4rem)] tabular-nums text-ink-soft">
-                      {place.points} points
-                    </span>
-                  </>
-                ) : (
-                  <span className="text-[clamp(1.2rem,2.4vw,3.2rem)] text-ink-soft">?</span>
-                )}
-              </li>
-            );
-          })}
-        </ol>
-      )}
+          </ol>
+        </div>
+      ) : null}
     </div>
   );
 }

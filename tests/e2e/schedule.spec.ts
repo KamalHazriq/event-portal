@@ -69,7 +69,7 @@ test('the agenda has a tab per day and keeps the pinned clock', async ({ page })
   await expect(page).toHaveURL(/now=/);
 });
 
-test('a session page shows times, objectives, speakers and the Slido link', async ({ page }) => {
+test('a session page shows times, speakers and the Slido link', async ({ page }) => {
   await page.goto(`/session/d1-keynote?now=${DURING_KEYNOTE}`);
 
   await expect(
@@ -79,11 +79,10 @@ test('a session page shows times, objectives, speakers and the Slido link', asyn
   await expect(page.getByText('Monday 14 December 2026, 2:50 pm to 3:50 pm')).toBeVisible();
   await expect(page.getByText('Grand Ballroom', { exact: true })).toBeVisible();
 
-  await expect(page.getByRole('heading', { name: 'What you will walk away with' })).toBeVisible();
-  await expect(page.getByText('Understand the three year outlook')).toBeVisible();
-
-  await expect(page.getByRole('heading', { name: 'Speaker', exact: true })).toBeVisible();
-  await expect(page.getByText('Group Chief Executive Officer')).toBeVisible();
+  // The speaker sits with the time and place, small; there is no long objectives list.
+  await expect(page.getByText('Speaker', { exact: true })).toBeVisible();
+  await expect(page.getByText(/Group Chief Executive Officer/)).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'What you will walk away with' })).toHaveCount(0);
 
   // Q&A runs on Slido for this event, with the link coming from config.
   const slido = page.getByRole('link', { name: 'Join Slido' });

@@ -106,7 +106,7 @@ export const SCREEN_VIEW_INFO: Record<
   podium: {
     title: 'Podium reveal',
     description:
-      'The top 3, 5 or 10, revealed one place at a time from the bottom up, with confetti. The MC taps Reveal next.',
+      'The top 3, 5 or 10, revealed one place at a time from the bottom up, with confetti. The MC taps the Reveal button, which names the place coming up.',
     whenToUse: 'The closing, when the winners are announced',
   },
   leaderboard: {

@@ -15,7 +15,6 @@ import { isInteractiveSession, reactionsOpen } from '@/modules/talk/logic';
 import { currentPlayer } from '@/modules/points/server';
 import { DevTimeNotice } from '@/modules/schedule/components/DevTimeNotice';
 import { SlidoButton } from '@/modules/schedule/components/SlidoButton';
-import { SpeakerList } from '@/modules/schedule/components/SpeakerList';
 import { StatusBadge } from '@/modules/schedule/components/StatusBadge';
 import { TypeBadge } from '@/modules/schedule/components/TypeBadge';
 import { buildAgenda, nowLinkSuffix, readNowParam, sessionStatus } from '@/modules/schedule/logic';
@@ -71,7 +70,6 @@ export default async function SessionPage({ params, searchParams }: PageProps) {
   const previous = position > 0 ? sameDay[position - 1] : undefined;
   const following = position >= 0 ? sameDay[position + 1] : undefined;
 
-  const isLive = status === 'live';
   // Registration, meals, breaks and free time: nothing to react to or comment on.
   const interactive = isInteractiveSession(session);
   const me = interactive && config.features.comments ? await currentPlayer() : null;
@@ -109,17 +107,20 @@ export default async function SessionPage({ params, searchParams }: PageProps) {
           <span aria-hidden="true">↗</span>
         </a>
       ) : null}
-
-      {reactionTotals && interactive ? (
-        <ReactionBar
-          sessionId={session.id}
-          open={reactionsOpen(session, now)}
-          initialTotals={reactionTotals}
-          nowParam={nowParam}
-        />
-      ) : null}
     </>
   );
+
+  // Reactions come first, right under the details: while a talk is on, that is
+  // what people open the page for.
+  const reactions =
+    reactionTotals && interactive ? (
+      <ReactionBar
+        sessionId={session.id}
+        open={reactionsOpen(session, now)}
+        initialTotals={reactionTotals}
+        nowParam={nowParam}
+      />
+    ) : null;
 
   const commentsWall =
     config.features.comments && interactive ? (
@@ -172,14 +173,28 @@ export default async function SessionPage({ params, searchParams }: PageProps) {
               <dd className="text-ink-soft">{session.room}</dd>
             </div>
           ) : null}
+          {session.speakers.length > 0 ? (
+            <div className="flex gap-2">
+              <dt className="font-semibold text-ink">
+                {session.speakers.length === 1 ? 'Speaker' : 'Speakers'}
+              </dt>
+              <dd className="min-w-0 text-ink-soft">
+                {session.speakers.map((sp, i) => (
+                  <span key={sp.id}>
+                    {i > 0 ? '; ' : ''}
+                    <span className="text-ink">{sp.name}</span>
+                    {sp.title ? `, ${sp.title}` : ''}
+                  </span>
+                ))}
+              </dd>
+            </div>
+          ) : null}
         </dl>
       </header>
 
-      {/* While the talk is on, what people want is at the top. */}
-      {isLive ? takePart : null}
+      {reactions}
 
-      {/* Comments come next, so taking part is all in one place. */}
-      {isLive ? commentsWall : null}
+      {commentsWall}
 
       {session.description ? (
         <section>
@@ -188,41 +203,18 @@ export default async function SessionPage({ params, searchParams }: PageProps) {
         </section>
       ) : null}
 
-      {isLive ? null : commentsWall}
-
-      {session.objectives.length > 0 ? (
-        <section className="rounded-lg border border-line bg-muted p-4">
-          <h2 className="text-base font-bold text-ink">What you will walk away with</h2>
-          <ul className="mt-2 list-disc space-y-1 pl-5 text-ink">
-            {session.objectives.map((objective) => (
-              <li key={objective}>{objective}</li>
-            ))}
-          </ul>
-        </section>
-      ) : null}
-
-      {session.speakers.length > 0 ? (
-        <section>
-          <h2 className="mb-2 text-base font-bold text-ink">
-            {session.speakers.length === 1 ? 'Speaker' : 'Speakers'}
-          </h2>
-          <SpeakerList speakers={session.speakers} />
-        </section>
-      ) : null}
-
-      {/*
-        Polls and Q&A run on Slido for this event, so the portal links out.
-        The portal's own Q&A and feedback appear here instead once those
-        modules are built and switched on in config.
-      */}
-      {isLive ? null : takePart}
+      {/* Polls, questions and feedback sit at the bottom, smaller: they come after the talk. */}
+      {takePart}
 
       {config.features.feedback && session.feedbackEnabled && interactive ? (
-        <section className="rounded-lg border border-line bg-surface p-4">
-          <h2 className="text-base font-bold text-ink">Feedback</h2>
+        <section className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-line bg-surface px-3 py-2.5">
+          <p className="text-sm text-ink-soft">
+            <strong className="font-semibold text-ink">Feedback</strong>: a minute, stars and an
+            optional comment.
+          </p>
           <Link
             href={`/feedback/${session.id}${linkSuffix}`}
-            className="mt-2 inline-flex min-h-11 items-center rounded-lg bg-primary px-4 py-2.5 font-bold text-on-primary no-underline"
+            className="inline-flex min-h-9 items-center rounded-lg bg-primary px-3 text-sm font-bold text-on-primary no-underline"
           >
             Rate this session
           </Link>

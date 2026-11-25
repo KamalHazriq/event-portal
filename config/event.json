@@ -515,7 +515,8 @@
           "title": "Recap video",
           "type": "activity",
           "room": "Theatre hall",
-          "description": "Three days in a few minutes."
+          "description": "Three days in a few minutes.",
+          "plain": true
         },
         {
           "id": "d3-closing",
