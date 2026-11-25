@@ -20,7 +20,7 @@ import {
   COMMENT_KEYS,
   COMMENT_STATUS_LABEL,
   commentsNeedApproval,
-  isInteractiveType,
+  isInteractiveSession,
   rankComments,
   REACTIONS,
 } from '@/modules/talk/logic';
@@ -43,7 +43,7 @@ export default async function CommentsPage({ searchParams }: { searchParams: Sea
   const params = await searchParams;
   const agenda = buildAgenda(config);
   // Lunch, breaks and registration have no comments: they are not on the list.
-  const sessions = agenda.sessions.filter((s) => isInteractiveType(s.type));
+  const sessions = agenda.sessions.filter((s) => isInteractiveSession(s));
 
   // The asked for talk, else the one running now, else the first.
   const live = findNowAndNext(agenda, resolveEventNow({ timezone: config.event.timezone })).live;

@@ -7,6 +7,7 @@ import { timeOverrideAllowed } from '@/lib/time';
 import { removeAllClaims } from '@/modules/door-gift/server';
 import { forgetImages } from '@/modules/photos/image-cache';
 import { PICKER_KEY } from '@/modules/name-picker/logic';
+import { BONUS_KEY } from '@/modules/points/logic';
 import { ANNOUNCE_KEYS } from '@/modules/announce/logic';
 import { REMINDERS_KEY } from '@/modules/reminders/logic';
 
@@ -40,6 +41,7 @@ export async function clearTestData(formData: FormData): Promise<void> {
   await removeAllClaims();
   forgetImages();
   await getData().settings.remove(PICKER_KEY);
+  await getData().settings.remove(BONUS_KEY);
   await recordActivity(
     'Cleared all test data (activity only; the list and settings kept)',
     auth.session.operator,
@@ -91,8 +93,8 @@ export async function clearAllButPhotos(formData: FormData): Promise<void> {
   await data.clearActivity({ keepPhotos: true });
   await removeAllClaims();
   await Promise.all(
-    [PICKER_KEY, ANNOUNCE_KEYS.current, ANNOUNCE_KEYS.history, REMINDERS_KEY].map((key) =>
-      data.settings.remove(key),
+    [PICKER_KEY, BONUS_KEY, ANNOUNCE_KEYS.current, ANNOUNCE_KEYS.history, REMINDERS_KEY].map(
+      (key) => data.settings.remove(key),
     ),
   );
   await recordActivity(

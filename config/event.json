@@ -232,7 +232,8 @@
           "type": "talk",
           "room": "Main hall",
           "description": "Opening of Power Summit 2027.",
-          "speakerIds": []
+          "speakerIds": [],
+          "plain": true
         },
         {
           "id": "d1-ice-breaker",
@@ -242,7 +243,8 @@
           "type": "activity",
           "room": "Main hall",
           "description": "Find the people who match your bingo card. Mix with someone from another department.",
-          "speakerIds": []
+          "speakerIds": [],
+          "plain": true
         },
         {
           "id": "d1-reflection",
@@ -429,7 +431,8 @@
           "type": "breakout",
           "room": "Separate room",
           "description": "A separate morning session for heads of department, running alongside the breakouts. Everyone joins the plenary from lunch.",
-          "speakerIds": ["sp-facilitators"]
+          "speakerIds": ["sp-facilitators"],
+          "plain": true
         },
         {
           "id": "d2-tea",
@@ -553,14 +556,6 @@
       "kind": "file",
       "files": [
         {
-          "title": "Day 1: Welcome and doa",
-          "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
-        },
-        {
-          "title": "Day 1: Bingo ice breaker",
-          "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
-        },
-        {
           "title": "Day 1: 2026 reflection: setting the context",
           "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
         },
@@ -597,19 +592,11 @@
           "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
         },
         {
-          "title": "Day 1: Synergy Night",
-          "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
-        },
-        {
           "title": "Day 2: Setting the stage: our next S-curve",
           "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
         },
         {
           "title": "Day 2: Breakout 1: Sustain, Strengthen and Step Up",
-          "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
-        },
-        {
-          "title": "Day 2: M-level session (HODs)",
           "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
         },
         {
@@ -621,15 +608,7 @@
           "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
         },
         {
-          "title": "Day 3: Morning wellness: Pound, Zumba or Yoga",
-          "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
-        },
-        {
           "title": "Day 3: External speaker: Datuk Suhaimi Sulaiman",
-          "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
-        },
-        {
-          "title": "Day 3: Recap video",
           "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
         },
         {
@@ -645,10 +624,6 @@
       "description": "The slides from the domain sharings and the committee secretariat updates.",
       "kind": "file",
       "files": [
-        {
-          "title": "Welcome and doa",
-          "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
-        },
         {
           "title": "2026 reflection: setting the context",
           "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
@@ -713,10 +688,6 @@
       "files": [
         {
           "title": "Breakout 1: Sustain, Strengthen and Step Up",
-          "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
-        },
-        {
-          "title": "M-level session (HODs)",
           "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
         },
         {
@@ -810,19 +781,62 @@
     ]
   },
   "departments": [
-    { "name": "Digital & Information Division", "short": "D&I", "division": true },
-    { "name": "Chief Cybersecurity Operations Office", "short": "CS" },
-    { "name": "Chief Information Security Office", "short": "CISO" },
-    { "name": "Digital, Data & AI", "short": "DDAI" },
-    { "name": "Intelligent Operation", "short": "IO" },
-    { "name": "Telco & Network Services", "short": "TNS" },
-    { "name": "Enterprise Cloud Services", "short": "ECS" },
-    { "name": "Corporate & Engineering Services", "short": "CORES" },
-    { "name": "Enterprise Resource Planning", "short": "ERP" },
-    { "name": "Center of Delivery & Operation Services", "short": "CDOS" },
-    { "name": "Customer Service Management", "short": "CSM" },
-    { "name": "Governance, Risk & Compliance", "short": "GRC" },
-    { "name": "Technology & Architecture", "short": "TA" },
-    { "name": "Strategy, Partnership & Transformation", "short": "SPTX" }
+    {
+      "name": "Digital & Information Division",
+      "short": "D&I",
+      "division": true
+    },
+    {
+      "name": "Chief Cybersecurity Operations Office",
+      "short": "CS"
+    },
+    {
+      "name": "Chief Information Security Office",
+      "short": "CISO"
+    },
+    {
+      "name": "Digital, Data & AI",
+      "short": "DDAI"
+    },
+    {
+      "name": "Intelligent Operation",
+      "short": "IO"
+    },
+    {
+      "name": "Telco & Network Services",
+      "short": "TNS"
+    },
+    {
+      "name": "Enterprise Cloud Services",
+      "short": "ECS"
+    },
+    {
+      "name": "Corporate & Engineering Services",
+      "short": "CORES"
+    },
+    {
+      "name": "Enterprise Resource Planning",
+      "short": "ERP"
+    },
+    {
+      "name": "Center of Delivery & Operation Services",
+      "short": "CDOS"
+    },
+    {
+      "name": "Customer Service Management",
+      "short": "CSM"
+    },
+    {
+      "name": "Governance, Risk & Compliance",
+      "short": "GRC"
+    },
+    {
+      "name": "Technology & Architecture",
+      "short": "TA"
+    },
+    {
+      "name": "Strategy, Partnership & Transformation",
+      "short": "SPTX"
+    }
   ]
 }

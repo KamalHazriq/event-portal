@@ -378,6 +378,7 @@ export async function addSession(formData: FormData): Promise<void> {
         type: sessionType(formData.get('type')),
         qaEnabled: false,
         feedbackEnabled: formData.get('feedback') === 'on' && asksFeedback(formData.get('type')),
+        plain: false,
         hidden: false,
       },
     },

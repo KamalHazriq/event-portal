@@ -11,7 +11,9 @@ import { localDateTimeToInstant } from '@/lib/time';
 import { currentDeviceId } from '@/modules/backup/server';
 
 import {
+  BONUS_KEY,
   computeScores,
+  parseBonus,
   rankDepartments,
   rankPeople,
   type DepartmentRow,
@@ -44,6 +46,7 @@ export async function loadScoreboard(): Promise<Scoreboard> {
         ? Promise.all(qaSessions.map((s) => data.questions.listBySession(s.id)))
         : Promise.resolve([]),
     ]);
+  const bonusRaw = await data.settings.get(BONUS_KEY);
   const [voteLists, reactions, comments] = await Promise.all([
     Promise.all(polls.map((poll) => data.polls.votes(poll.id))),
     config.features.reactions ? data.reactions.participation() : Promise.resolve([]),
@@ -80,6 +83,7 @@ export async function loadScoreboard(): Promise<Scoreboard> {
       .map((q) => ({ id: q.id, deviceId: q.deviceId })),
     reactions,
     comments: comments.map((c) => ({ id: c.id, deviceId: c.deviceId })),
+    bonus: parseBonus(bonusRaw),
   });
 
   return {

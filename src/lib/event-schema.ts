@@ -177,6 +177,11 @@ export const SessionSchema = z
     type: z.enum(sessionTypes),
     qaEnabled: z.boolean().default(false),
     feedbackEnabled: z.boolean().default(false),
+    /**
+     * A session with nothing to take part in (a welcome, an ice breaker, a private
+     * session): no reactions, comments, Slido, feedback or poster anywhere.
+     */
+    plain: z.boolean().default(false),
     /** Overrides integrations.slido for this session only. */
     slido: SlidoRefSchema.optional(),
     /** Slides or a handout to open from the agenda (an organisation-only OneDrive link is best). */

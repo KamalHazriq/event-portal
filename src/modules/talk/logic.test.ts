@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  isInteractiveSession,
   isReactionKind,
   MAX_COMMENT,
   MAX_COMMENTS_PER_DEVICE,
@@ -78,5 +79,14 @@ describe('the projector comments', () => {
       c('d', '2026-12-14T10:07:00Z', 'hidden'),
     ];
     expect(screenComments(list).map((x) => x.id)).toEqual(['b', 'a']);
+  });
+});
+
+describe('isInteractiveSession', () => {
+  it('leaves out logistics, meals, breaks and plain sessions', () => {
+    expect(isInteractiveSession({ type: 'talk' })).toBe(true);
+    expect(isInteractiveSession({ type: 'meal' })).toBe(false);
+    expect(isInteractiveSession({ type: 'talk', plain: true })).toBe(false);
+    expect(isInteractiveSession({ type: 'activity', plain: false })).toBe(true);
   });
 });

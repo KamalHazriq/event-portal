@@ -1817,8 +1817,8 @@ main:has(.hex-wipe) .screen-sweep {
 }
 .nav-pill {
   min-height: 2.5rem;
-  border-radius: 999px;
-  padding: 0.35rem 1rem 0.35rem 0.8rem;
+  border-radius: 0.85rem;
+  padding: 0.3rem 1rem 0.3rem 0.35rem;
   font-size: 0.875rem;
   font-weight: 600;
 }
@@ -1842,7 +1842,7 @@ main:has(.hex-wipe) .screen-sweep {
   justify-content: center;
   width: 2rem;
   height: 2rem;
-  border-radius: 999px;
+  border-radius: 0.65rem;
   background: var(--c-primary);
   color: var(--c-primary-text);
   font-weight: 700;
@@ -2354,13 +2354,25 @@ select:focus-visible {
   border-color: color-mix(in srgb, var(--c-primary) 82%, black);
   background: color-mix(in srgb, var(--c-primary) 82%, black);
 }
+.nav-pill,
+.nav-step {
+  border-radius: 0.85rem;
+}
 .nav-pill .nav-arrow,
 .nav-step .nav-arrow {
-  width: auto;
-  height: auto;
-  background: none;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.65rem;
+  background: color-mix(in srgb, var(--c-primary-text) 20%, transparent);
   color: inherit;
-  font-size: 1.1em;
+}
+.nav-pill .nav-arrow {
+  width: 1.9rem;
+  height: 1.9rem;
+}
+.nav-pill *,
+.nav-step * {
+  text-decoration: none;
 }
 .nav-step :is(.text-ink, .text-ink-soft) {
   color: inherit;

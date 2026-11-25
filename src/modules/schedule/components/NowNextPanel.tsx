@@ -1,5 +1,7 @@
 import Link from 'next/link';
 
+import { NavChevron } from '@/components/NavChevron';
+import { isInteractiveSession } from '@/modules/talk/logic';
 import { formatShortDate, formatTimeRange, type EventNow } from '@/lib/time';
 
 import { formatMinutesUntil, type NowAndNext } from '../logic';
@@ -54,16 +56,14 @@ export function NowNextPanel({
                   </p>
                   <SpeakerNames speakers={session.speakers} />
                 </Link>
-                {session.type === 'meal' ||
-                session.type === 'break' ||
-                session.type === 'logistics' ? null : (
+                {!isInteractiveSession(session) ? null : (
                   <div className="mt-3 flex flex-wrap gap-2">
                     <Link
                       href={`/session/${session.id}${linkSuffix}`}
                       className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-primary px-4 font-bold text-on-primary no-underline transition hover:opacity-90"
                     >
                       React and comment
-                      <span aria-hidden="true">→</span>
+                      <NavChevron dir="next" />
                     </Link>
                     {session.slidesUrl ? (
                       <a

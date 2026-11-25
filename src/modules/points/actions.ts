@@ -1,10 +1,14 @@
 'use server';
 
 import { cookies } from 'next/headers';
+import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
 import { getData } from '@/data';
+import { requireAdminApi } from '@/lib/admin-guard';
 import { getEventConfig } from '@/lib/config';
+import { recordActivity } from '@/modules/admins/record';
+import { BONUS_KEY, parseBonus, parseBonusPoints } from './logic';
 import { plainText } from '@/lib/text';
 import { LIMITS, rateLimit } from '@/lib/rate-limit';
 import {
@@ -99,4 +103,55 @@ export async function leaveLeaderboard(): Promise<void> {
 export async function continueAsGuest(formData: FormData): Promise<void> {
   (await cookies()).set(GUEST_COOKIE, '1', { httpOnly: true, sameSite: 'lax', path: '/' });
   redirect(safeNext(formData.get('next')));
+}
+
+/* ------------------------------------------------------------------- bonus */
+
+async function assertAdmin(): Promise<string> {
+  const auth = await requireAdminApi();
+  if (!auth.ok) throw new Error('Not signed in.');
+  return auth.session.operator;
+}
+
+/**
+ * Gives a person extra points by hand, for taking part beyond the portal
+ * (helping, a great question on stage). The person is picked by the list in
+ * the form, "Name (STAFFNO)"; a bare staff number works too.
+ */
+export async function addBonus(formData: FormData): Promise<void> {
+  const operator = await assertAdmin();
+  const data = getData();
+  const typed = plainText(String(formData.get('person') ?? ''), 160);
+  const staffNo = (/\(([^()]+)\)\s*$/.exec(typed)?.[1] ?? typed).replace(/\s+/g, '');
+  const person = staffNo ? await data.attendees.findByStaffNo(staffNo) : null;
+  const points = parseBonusPoints(formData.get('points'));
+  if (!person) redirect('/admin/points?bonus=person#bonus');
+  if (points === null) redirect('/admin/points?bonus=points#bonus');
+
+  const entries = parseBonus(await data.settings.get(BONUS_KEY));
+  entries.push({
+    id: `b${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`,
+    attendeeId: person.id,
+    points,
+    reason: plainText(String(formData.get('reason') ?? ''), 120),
+    by: operator,
+    at: new Date().toISOString(),
+  });
+  await data.settings.set(BONUS_KEY, JSON.stringify(entries));
+  await recordActivity(`Gave ${points} bonus points to ${person.name}`, operator);
+  revalidatePath('/', 'layout');
+  redirect(`/admin/points?bonus=added&who=${encodeURIComponent(person.name)}#bonus`);
+}
+
+/** Takes one bonus back. */
+export async function removeBonus(formData: FormData): Promise<void> {
+  const operator = await assertAdmin();
+  const data = getData();
+  const id = String(formData.get('id') ?? '');
+  const entries = parseBonus(await data.settings.get(BONUS_KEY));
+  const gone = entries.find((e) => e.id === id);
+  await data.settings.set(BONUS_KEY, JSON.stringify(entries.filter((e) => e.id !== id)));
+  if (gone) await recordActivity(`Took back ${gone.points} bonus points`, operator);
+  revalidatePath('/', 'layout');
+  redirect('/admin/points?bonus=removed#bonus');
 }

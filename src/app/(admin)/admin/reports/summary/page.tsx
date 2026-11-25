@@ -4,7 +4,7 @@ import { findShortName } from '@/lib/departments';
 
 import { getData } from '@/data';
 import { requireAdmin } from '@/lib/admin-guard';
-import { isInteractiveType } from '@/modules/talk/logic';
+import { isInteractiveSession } from '@/modules/talk/logic';
 import { loadScoreboard } from '@/modules/points/server';
 import { PrintButton } from '@/modules/reports/components/PrintButton';
 import { buildReportSummary, localDateTime } from '@/modules/reports/logic';
@@ -43,9 +43,7 @@ export default async function ReportSummaryPage() {
   const titleOf = new Map(
     config.days.flatMap((d) => d.sessions).map((x) => [x.id, x.title] as const),
   );
-  const interactive = config.days
-    .flatMap((d) => d.sessions)
-    .filter((x) => isInteractiveType(x.type));
+  const interactive = config.days.flatMap((d) => d.sessions).filter((x) => isInteractiveSession(x));
   const [allComments, board, reactionTotals] = await Promise.all([
     config.features.comments ? data.comments.listAll() : Promise.resolve([]),
     config.features.leaderboard ? loadScoreboard() : Promise.resolve(null),

@@ -334,6 +334,11 @@ export default async function MyPointsPage({
             );
           })}
         </ul>
+        {score?.bonus ? (
+          <p className="mt-3 rounded-xl border border-primary bg-primary/10 p-3 font-semibold text-ink">
+            Bonus from the secretariat: +{score.bonus}. Thank you for taking part.
+          </p>
+        ) : null}
         <p className="mt-3 text-sm text-ink-soft">
           Your feedback answers stay as they were: points only count that you sent a form, never
           what you wrote.

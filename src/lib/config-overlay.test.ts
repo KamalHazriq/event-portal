@@ -77,6 +77,7 @@ describe('saved edits over the event file', () => {
             type: 'logistics',
             qaEnabled: false,
             feedbackEnabled: false,
+            plain: false,
             hidden: false,
           },
         },

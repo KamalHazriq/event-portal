@@ -73,11 +73,15 @@ export type ScoreSources = {
   reactions?: { sessionId: string; deviceId: string }[];
   /** Approved comments only. */
   comments?: { id: string; deviceId: string }[];
+  /** Extra points the secretariat gave by hand. */
+  bonus?: { attendeeId: string; points: number }[];
 };
 
 export type Score = {
   attendeeId: string;
   total: number;
+  /** The part of the total the secretariat gave by hand. */
+  bonus: number;
   /** How many of each, before multiplying by the points. */
   counts: Record<PointKind, number>;
 };
@@ -142,7 +146,15 @@ export function computeScores(sources: ScoreSources): Map<string, Score> {
     add(ownerOf.get(comment.deviceId), 'comment', comment.id);
   }
 
+  const bonusOf = new Map<string, number>();
+  for (const b of sources.bonus ?? []) {
+    bonusOf.set(b.attendeeId, (bonusOf.get(b.attendeeId) ?? 0) + b.points);
+  }
+
   const scores = new Map<string, Score>();
+  // Someone with only a bonus still appears.
+  for (const attendeeId of bonusOf.keys())
+    if (!seen.has(attendeeId)) seen.set(attendeeId, new Map());
   for (const [attendeeId, kinds] of seen) {
     const counts = emptyCounts();
     let total = 0;
@@ -151,7 +163,8 @@ export function computeScores(sources: ScoreSources): Map<string, Score> {
       counts[kind] = count;
       total += count * POINTS[kind];
     }
-    scores.set(attendeeId, { attendeeId, total, counts });
+    const bonus = bonusOf.get(attendeeId) ?? 0;
+    scores.set(attendeeId, { attendeeId, total: total + bonus, bonus, counts });
   }
   return scores;
 }
@@ -268,4 +281,43 @@ export function findByName<T extends { name: string }>(people: T[], typed: strin
     })
     .sort((a, b) => a.name.localeCompare(b.name))
     .slice(0, limit);
+}
+
+/* ------------------------------------------------------------------- bonus */
+
+/** Where the by-hand bonus points are kept (a settings row holding a list). */
+export const BONUS_KEY = 'points.bonus';
+export const MAX_BONUS = 100;
+
+export type BonusEntry = {
+  id: string;
+  attendeeId: string;
+  points: number;
+  reason: string;
+  by: string;
+  at: string;
+};
+
+export function parseBonus(raw: string | null): BonusEntry[] {
+  if (!raw) return [];
+  try {
+    const value: unknown = JSON.parse(raw);
+    if (!Array.isArray(value)) return [];
+    return value.filter(
+      (v): v is BonusEntry =>
+        typeof v === 'object' &&
+        v !== null &&
+        typeof (v as BonusEntry).id === 'string' &&
+        typeof (v as BonusEntry).attendeeId === 'string' &&
+        Number.isFinite((v as BonusEntry).points),
+    );
+  } catch {
+    return [];
+  }
+}
+
+/** A whole number from 1 to 100, or null. */
+export function parseBonusPoints(value: unknown): number | null {
+  const n = Number(value);
+  return Number.isInteger(n) && n >= 1 && n <= MAX_BONUS ? n : null;
 }

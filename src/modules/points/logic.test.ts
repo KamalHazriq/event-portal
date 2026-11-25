@@ -4,6 +4,7 @@ import {
   computeScores,
   POINTS,
   rankDepartments,
+  parseBonusPoints,
   rankPeople,
   shortName,
   type Score,
@@ -118,10 +119,44 @@ function scoresOf(points: Record<string, number>) {
   return new Map(
     Object.entries(points).map(([id, total]) => [
       id,
-      { attendeeId: id, total, counts: {} as Score['counts'] },
+      { attendeeId: id, total, bonus: 0, counts: {} as Score['counts'] },
     ]),
   );
 }
+
+describe('bonus points', () => {
+  const base = {
+    links: [],
+    checkIns: [],
+    dayStarts: {},
+    feedback: [],
+    pollVotes: [],
+    photos: [],
+    questions: [],
+  };
+
+  it('adds the by-hand bonus to the total, and lists someone who has only a bonus', () => {
+    const scores = computeScores({
+      ...base,
+      checkIns: [{ attendeeId: 'a', dayId: 'd1', at: '2026-12-14T09:00:00Z' }],
+      bonus: [
+        { attendeeId: 'a', points: 20 },
+        { attendeeId: 'a', points: 5 },
+        { attendeeId: 'z', points: 15 },
+      ],
+    });
+    expect(scores.get('a')?.total).toBe(10 + 25);
+    expect(scores.get('a')?.bonus).toBe(25);
+    expect(scores.get('z')?.total).toBe(15);
+  });
+
+  it('accepts whole numbers from 1 to 100 only', () => {
+    expect(parseBonusPoints('10')).toBe(10);
+    expect(parseBonusPoints('0')).toBeNull();
+    expect(parseBonusPoints('101')).toBeNull();
+    expect(parseBonusPoints('2.5')).toBeNull();
+  });
+});
 
 describe('rankPeople', () => {
   it('ranks best first, shares a rank on a tie, and leaves out the secretariat', () => {

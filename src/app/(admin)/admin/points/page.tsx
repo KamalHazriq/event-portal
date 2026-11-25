@@ -4,7 +4,17 @@ import { notFound } from 'next/navigation';
 import { requireAdmin } from '@/lib/admin-guard';
 import { getEventConfig } from '@/lib/config';
 import { shortDepartment } from '@/lib/departments';
-import { CAPS, POINT_LABELS, POINTS, type PointKind } from '@/modules/points/logic';
+import { getData } from '@/data';
+import { addBonus, removeBonus } from '@/modules/points/actions';
+import {
+  BONUS_KEY,
+  CAPS,
+  MAX_BONUS,
+  parseBonus,
+  POINT_LABELS,
+  POINTS,
+  type PointKind,
+} from '@/modules/points/logic';
 import { loadScoreboard } from '@/modules/points/server';
 
 export const dynamic = 'force-dynamic';
@@ -17,12 +27,33 @@ const KINDS = Object.keys(POINTS) as PointKind[];
  * Where everyone's points came from: one row per person on the leaderboard,
  * one column per way of earning, so a surprising total can be explained.
  */
-export default async function PointsPage() {
+type SearchParams = Promise<Record<string, string | string[] | undefined>>;
+
+export default async function PointsPage({ searchParams }: { searchParams: SearchParams }) {
   await requireAdmin('/admin/points');
   const config = getEventConfig();
   if (!config.features.leaderboard) notFound();
 
-  const board = await loadScoreboard();
+  const params = await searchParams;
+  const data = getData();
+  const [board, attendees, bonusRaw] = await Promise.all([
+    loadScoreboard(),
+    data.attendees.list(),
+    data.settings.get(BONUS_KEY),
+  ]);
+  const bonuses = parseBonus(bonusRaw).reverse();
+  const nameOf = new Map(attendees.map((a) => [a.id, a]));
+  const who = typeof params.who === 'string' ? params.who : '';
+  const notice =
+    params.bonus === 'added'
+      ? { good: true, text: `Gave bonus points to ${who}.` }
+      : params.bonus === 'removed'
+        ? { good: true, text: 'Took that bonus back.' }
+        : params.bonus === 'person'
+          ? { good: false, text: 'Pick a person from the list, or type their staff number.' }
+          : params.bonus === 'points'
+            ? { good: false, text: `Points must be a whole number from 1 to ${MAX_BONUS}.` }
+            : null;
 
   return (
     <div className="space-y-5">
@@ -34,6 +65,111 @@ export default async function PointsPage() {
           secretariat are left out.
         </p>
       </header>
+
+      <section
+        id="bonus"
+        aria-labelledby="bonus-h"
+        className="scroll-mt-24 rounded-xl border border-line bg-surface p-4"
+      >
+        <h2 id="bonus-h" className="text-lg font-bold text-ink">
+          Bonus points
+        </h2>
+        <p className="mt-1 text-sm text-ink-soft">
+          For people who take part beyond the portal: helping on the day, a great question on stage.
+          They add to the total at once and count on the leaderboard and the podium.
+        </p>
+        {notice ? (
+          <p
+            role="status"
+            className={`mt-3 rounded-lg border p-3 text-sm font-semibold ${
+              notice.good ? 'border-success text-success' : 'border-warning text-warning'
+            }`}
+          >
+            {notice.text}
+          </p>
+        ) : null}
+        <form
+          action={addBonus}
+          className="mt-3 grid gap-3 md:grid-cols-[2fr_8rem_2fr_auto] md:items-end"
+        >
+          <label className="block text-sm font-semibold text-ink">
+            Who
+            <input
+              name="person"
+              list="bonus-people"
+              required
+              autoComplete="off"
+              placeholder="Start typing a name"
+              className="mt-1 block min-h-11 w-full rounded-lg border border-line bg-canvas px-3 py-2 text-ink"
+            />
+            <datalist id="bonus-people">
+              {attendees.map((a) => (
+                <option key={a.id} value={`${a.name} (${a.staffNo})`} />
+              ))}
+            </datalist>
+          </label>
+          <label className="block text-sm font-semibold text-ink">
+            Points
+            <input
+              name="points"
+              type="number"
+              min={1}
+              max={MAX_BONUS}
+              step={1}
+              defaultValue={10}
+              required
+              className="mt-1 block min-h-11 w-full rounded-lg border border-line bg-canvas px-3 py-2 text-ink"
+            />
+          </label>
+          <label className="block text-sm font-semibold text-ink">
+            Why (optional)
+            <input
+              name="reason"
+              list="bonus-reasons"
+              maxLength={120}
+              className="mt-1 block min-h-11 w-full rounded-lg border border-line bg-canvas px-3 py-2 text-ink"
+            />
+            <datalist id="bonus-reasons">
+              <option value="Helped on the day" />
+              <option value="Great question on stage" />
+              <option value="Shared in the sharing round" />
+              <option value="Won an activity" />
+            </datalist>
+          </label>
+          <button
+            type="submit"
+            className="min-h-11 rounded-lg bg-primary px-5 font-bold text-on-primary"
+          >
+            Give bonus
+          </button>
+        </form>
+
+        {bonuses.length > 0 ? (
+          <ul className="mt-4 divide-y divide-line rounded-lg border border-line">
+            {bonuses.map((b) => (
+              <li key={b.id} className="flex flex-wrap items-center justify-between gap-2 p-3">
+                <span className="min-w-0 text-sm">
+                  <strong className="text-ink">
+                    {nameOf.get(b.attendeeId)?.name ?? 'Someone no longer on the list'}
+                  </strong>
+                  <span className="ml-2 font-bold tabular-nums text-primary">+{b.points}</span>
+                  {b.reason ? <span className="ml-2 text-ink-soft">{b.reason}</span> : null}
+                  <span className="ml-2 text-xs text-ink-soft">by {b.by}</span>
+                </span>
+                <form action={removeBonus}>
+                  <input type="hidden" name="id" value={b.id} />
+                  <button
+                    type="submit"
+                    className="min-h-9 rounded-lg border border-line px-3 text-sm font-semibold text-ink hover:border-primary"
+                  >
+                    Take back
+                  </button>
+                </form>
+              </li>
+            ))}
+          </ul>
+        ) : null}
+      </section>
 
       <section className="rounded-xl border border-line bg-surface p-4">
         <h2 className="text-sm font-bold uppercase tracking-wide text-ink-soft">
@@ -65,6 +201,7 @@ export default async function PointsPage() {
                 <th className="px-3 py-2 font-semibold">Name</th>
                 <th className="px-3 py-2 font-semibold">Dept</th>
                 <th className="px-3 py-2 text-right font-semibold">Total</th>
+                <th className="px-2 py-2 text-right font-semibold">Bonus</th>
                 {KINDS.map((kind) => (
                   <th
                     key={kind}
@@ -88,6 +225,9 @@ export default async function PointsPage() {
                     </td>
                     <td className="px-3 py-2 text-right font-bold tabular-nums text-ink">
                       {row.points}
+                    </td>
+                    <td className="px-2 py-2 text-right tabular-nums text-ink-soft">
+                      {score?.bonus ? `+${score.bonus}` : '·'}
                     </td>
                     {KINDS.map((kind) => {
                       const count = score?.counts[kind] ?? 0;

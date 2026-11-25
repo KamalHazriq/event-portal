@@ -54,6 +54,11 @@ export function isInteractiveType(type: string): boolean {
   return !['logistics', 'meal', 'break'].includes(type);
 }
 
+/** Whether a session can be reacted to and commented on: not logistics, meals, breaks or a plain session. */
+export function isInteractiveSession(session: { type: string; plain?: boolean }): boolean {
+  return isInteractiveType(session.type) && session.plain !== true;
+}
+
 /** Comments wait for approval only when the secretariat turn that on. Off by default: every comment carries a name. */
 export function commentsNeedApproval(stored: string | null): boolean {
   return stored === 'on';

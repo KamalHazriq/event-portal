@@ -140,6 +140,22 @@ export const TEST_PLAN: Part[] = [
         title: 'A2. Home, agenda and sessions',
         steps: [
           {
+            id: 'a-home-plain',
+            rev: 3,
+            do: 'Open the Welcome, the Bingo ice breaker (Day 1) and the M-level session (Day 2) on the agenda.',
+            expect:
+              'These show the time and place only: no reactions, no comments, no Slido button, no rating. They are missing from the Comments, Q&A and report lists too.',
+            links: [{ href: '/agenda', label: 'Agenda' }],
+          },
+          {
+            id: 'a-home-arrows',
+            rev: 3,
+            do: 'Open any session and scroll to the end. Use the Previous and Next buttons, and the back button at the top.',
+            expect:
+              'The buttons are solid blocks with a square chevron, no underlines, and open the neighbouring session.',
+            links: [{ href: '/agenda', label: 'Agenda' }],
+          },
+          {
             id: 'a-home-ended',
             rev: 3,
             do: 'With the test clock set to "Day 2, after it ends" (or after the event), open Home, Agenda and a session.',
@@ -161,9 +177,9 @@ export const TEST_PLAN: Part[] = [
           {
             id: 'a-home-resources',
             rev: 3,
-            do: 'Open Resources. Open a session poster, a Day 1 or Day 2 slides entry, and a breakout output. Try "Download all" and a single file.',
+            do: 'Open Resources. Open a session poster, a Day 1 or Day 2 slides entry, and a breakout output. Press the blue "Download all" button on a category, then pick a single file.',
             expect:
-              'Each resource links to a folder or a direct file, with the files listed one by one under it. There is no event photos entry. Single and multiple downloads both work.',
+              'Each resource links to a folder or a direct file, with the files listed one by one under it. There is no event photos entry, and no posters for the welcome, ice breaker, M-level or other non-talk sessions. Single and multiple downloads both work.',
             links: [{ href: '/resources', label: 'Resources' }],
           },
           {
@@ -529,6 +545,17 @@ export const TEST_PLAN: Part[] = [
         id: 's-people',
         title: 'S2. The participant list',
         steps: [
+          {
+            id: 's-people-bonus',
+            rev: 3,
+            do: 'On Points, under Bonus points, pick a person, give them some points and a reason, then look at the leaderboard and their My points page. Then press Take back.',
+            expect:
+              'The points add to their total at once (leaderboard, podium and My points show "Bonus from the secretariat"), the Points table has a Bonus column, and Take back removes them again.',
+            links: [
+              { href: '/admin/points', label: 'Points, Bonus' },
+              { href: '/leaderboard', label: 'Leaderboard' },
+            ],
+          },
           {
             id: 's-people-undo',
             rev: 3,

@@ -1,4 +1,4 @@
-import { isInteractiveType } from '@/modules/talk/logic';
+import { isInteractiveSession } from '@/modules/talk/logic';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -42,7 +42,7 @@ export default async function QaQueuePage({ searchParams }: { searchParams: Sear
 
   const params = await searchParams;
   const agenda = buildAgenda(config);
-  const qaSessions = agenda.sessions.filter((s) => s.qaEnabled && isInteractiveType(s.type));
+  const qaSessions = agenda.sessions.filter((s) => s.qaEnabled && isInteractiveSession(s));
 
   // The asked for session, else the one running now, else the first.
   const live = findNowAndNext(agenda, resolveEventNow({ timezone: config.event.timezone })).live;

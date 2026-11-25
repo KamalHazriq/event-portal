@@ -26,7 +26,7 @@ import { suggestScreenView } from '@/modules/big-screen/suggest';
 import {
   COMMENT_KEYS,
   commentsNeedApproval,
-  isInteractiveType,
+  isInteractiveSession,
   resolveCommentLayout,
 } from '@/modules/talk/logic';
 import { setCommentApproval, setCommentLayout } from '@/modules/talk/actions';
@@ -59,7 +59,7 @@ export default async function BigScreenControlPage() {
     getData().settings.get(COMMENT_KEYS.screenLayout),
     getData().settings.get(COMMENT_KEYS.approval),
   ]);
-  const talks = buildAgenda(config).sessions.filter((s) => isInteractiveType(s.type));
+  const talks = buildAgenda(config).sessions.filter((s) => isInteractiveSession(s));
   const chosenTalk = talks.some((t) => t.id === chosenRaw) ? (chosenRaw as string) : 'auto';
   const commentLayout = resolveCommentLayout(commentLayoutRaw);
   const commentsApproval = commentsNeedApproval(approvalRaw);

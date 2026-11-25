@@ -6,11 +6,12 @@ import { notFound } from 'next/navigation';
 import { getEventConfig } from '@/lib/config';
 import { formatLongDate, formatTimeRange, resolveEventNow } from '@/lib/time';
 import { AutoRefresh } from '@/components/AutoRefresh';
+import { NavChevron } from '@/components/NavChevron';
 import { getData } from '@/data';
 import { currentDeviceId, readBackupMode } from '@/modules/backup/server';
 import { CommentsWall } from '@/modules/talk/components/CommentsWall';
 import { ReactionBar } from '@/modules/talk/components/ReactionBar';
-import { reactionsOpen } from '@/modules/talk/logic';
+import { isInteractiveSession, reactionsOpen } from '@/modules/talk/logic';
 import { currentPlayer } from '@/modules/points/server';
 import { DevTimeNotice } from '@/modules/schedule/components/DevTimeNotice';
 import { SlidoButton } from '@/modules/schedule/components/SlidoButton';
@@ -72,12 +73,12 @@ export default async function SessionPage({ params, searchParams }: PageProps) {
 
   const isLive = status === 'live';
   // Registration, meals, breaks and free time: nothing to react to or comment on.
-  const interactive = !['logistics', 'meal', 'break'].includes(session.type);
+  const interactive = isInteractiveSession(session);
   const me = interactive && config.features.comments ? await currentPlayer() : null;
   // Slido (or the backup Q&A) and the reaction buttons, kept together.
   const takePart = (
     <>
-      {backupOn && session.qaEnabled ? (
+      {!interactive ? null : backupOn && session.qaEnabled ? (
         // Backup mode: the portal's own Q&A stands in for the Slido button.
         <Link
           href={`/qa/${session.id}`}
@@ -141,12 +142,10 @@ export default async function SessionPage({ params, searchParams }: PageProps) {
       <nav>
         <Link
           href={`/agenda?day=${session.dayId}${nowLinkSuffix(now, '&')}`}
-          className="nav-pill"
+          className="nav-pill no-underline"
           aria-label={`Back to ${session.dayLabel}`}
         >
-          <span aria-hidden="true" className="nav-arrow nav-arrow-back">
-            ←
-          </span>
+          <NavChevron dir="back" />
           {session.dayLabel} agenda
         </Link>
       </nav>
@@ -218,7 +217,7 @@ export default async function SessionPage({ params, searchParams }: PageProps) {
       */}
       {isLive ? null : takePart}
 
-      {config.features.feedback && session.feedbackEnabled ? (
+      {config.features.feedback && session.feedbackEnabled && interactive ? (
         <section className="rounded-lg border border-line bg-surface p-4">
           <h2 className="text-base font-bold text-ink">Feedback</h2>
           <Link
@@ -237,12 +236,10 @@ export default async function SessionPage({ params, searchParams }: PageProps) {
         {previous ? (
           <Link
             href={`/session/${previous.id}${linkSuffix}`}
-            className="nav-step"
+            className="nav-step no-underline"
             aria-label={`Previous: ${previous.title}`}
           >
-            <span aria-hidden="true" className="nav-arrow nav-arrow-back">
-              ←
-            </span>
+            <NavChevron dir="back" />
             <span className="min-w-0">
               <span className="block text-xs font-semibold uppercase tracking-[0.12em] text-ink-soft">
                 Previous
@@ -256,7 +253,7 @@ export default async function SessionPage({ params, searchParams }: PageProps) {
         {following ? (
           <Link
             href={`/session/${following.id}${linkSuffix}`}
-            className="nav-step justify-end text-right"
+            className="nav-step no-underline justify-end text-right"
             aria-label={`Next: ${following.title}`}
           >
             <span className="min-w-0">
@@ -265,9 +262,7 @@ export default async function SessionPage({ params, searchParams }: PageProps) {
               </span>
               <span className="block truncate font-semibold text-ink">{following.title}</span>
             </span>
-            <span aria-hidden="true" className="nav-arrow">
-              →
-            </span>
+            <NavChevron dir="next" />
           </Link>
         ) : null}
       </nav>
