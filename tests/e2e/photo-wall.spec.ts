@@ -1,5 +1,6 @@
 import { join } from 'node:path';
 
+import { asAttendee } from './as-attendee';
 import { expect, test, type Browser, type Page } from '@playwright/test';
 
 /**
@@ -84,4 +85,16 @@ async function runWall(admin: Page, browser: Browser): Promise<void> {
   await expect(
     screen.locator('[data-layout="grid"] figure', { hasText: caption }).first(),
   ).toBeVisible();
+
+  // On the phone: like the photo, then comment on it under a signed in name.
+  await asAttendee(phone, 'D10016');
+  await phone.goto('/photos');
+  const card = phone.locator('li', { hasText: caption }).first();
+  await card.getByRole('button', { name: /Like this photo, 0 so far/ }).click();
+  await expect(card.getByRole('button', { name: /Like this photo, 1 so far/ })).toBeDisabled();
+  await card.getByText(/^Comments \(0\)$/).click();
+  const comment = `Great shot ${Math.random().toString(36).slice(2, 6)}`;
+  await card.getByLabel('Add a comment').fill(comment);
+  await card.getByRole('button', { name: 'Post comment' }).click();
+  await expect(phone.getByText(comment)).toBeVisible();
 }

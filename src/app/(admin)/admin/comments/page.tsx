@@ -238,7 +238,8 @@ export default async function CommentsPage({ searchParams }: { searchParams: Sea
                   {shown.map((c) => (
                     <li key={c.id} className="rounded-xl border border-line bg-surface p-4">
                       <p className="text-xs font-semibold uppercase tracking-wide text-ink-soft">
-                        {titleOf.get(c.sessionId) ?? c.sessionId}
+                        {titleOf.get(c.sessionId) ??
+                          (c.sessionId.startsWith('photo:') ? 'Photo wall' : c.sessionId)}
                       </p>
                       <p className="mt-1 text-ink">{c.text}</p>
                       <p className="mt-1 text-sm text-ink-soft">

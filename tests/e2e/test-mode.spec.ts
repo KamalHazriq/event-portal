@@ -21,7 +21,7 @@ test('test mode can be switched off, which takes the testing tools away, and on 
 }) => {
   await signIn(page);
   await page.goto('/admin/admins#test-mode');
-  await expect(page.getByRole('heading', { name: 'Test mode' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Test mode', exact: true })).toBeVisible();
   try {
     await page.getByRole('button', { name: 'Turn test mode off' }).click();
     await expect(page.getByRole('status').filter({ hasText: 'Test mode is off.' })).toBeVisible();

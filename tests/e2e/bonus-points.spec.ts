@@ -36,7 +36,7 @@ test('bonus points are given by hand, count on the board, and can be taken back'
   // The person is on the ranking, with the bonus in its own column.
   await expect(page.getByRole('columnheader', { name: 'Bonus' })).toBeVisible();
 
-  await row.getByRole('button', { name: 'Take back' }).click();
+  await row.getByRole('button', { name: 'Remove' }).click();
   await expect(page.getByRole('status')).toContainText('Took that bonus back');
   await expect(page.getByText('Helped on the day')).toHaveCount(0);
 });

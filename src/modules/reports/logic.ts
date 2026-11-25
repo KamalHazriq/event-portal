@@ -489,7 +489,8 @@ export function buildReportWorkbook(input: ReportInput): SheetInput[] {
       rows: [
         ['Session', 'Name', 'Comment', 'Likes', 'Status', 'Posted'],
         ...comments.map((c): CellValue[] => [
-          sessionTitles.get(c.sessionId) ?? c.sessionId,
+          sessionTitles.get(c.sessionId) ??
+            (c.sessionId.startsWith('photo:') ? 'Photo wall' : c.sessionId),
           c.name,
           c.text,
           c.likes,

@@ -3,8 +3,21 @@ import type { Metadata } from 'next';
 import { getData } from '@/data';
 import { requireAdmin } from '@/lib/admin-guard';
 import { PhotoField } from '@/modules/loop/components/PhotoField';
-import { removeLead, saveLead, saveLoopText } from '@/modules/loop/actions';
-import { LOOP_KEY, LOOP_PHOTO_PREFIX, parseLoop, riddlesToText } from '@/modules/loop/logic';
+import {
+  addRiddlePack,
+  removeLead,
+  saveLead,
+  saveLoopText,
+  setLiveFacts,
+} from '@/modules/loop/actions';
+import {
+  LOOP_KEY,
+  LOOP_PHOTO_PREFIX,
+  missingFromPack,
+  parseLoop,
+  RIDDLE_PACKS,
+  riddlesToText,
+} from '@/modules/loop/logic';
 
 export const dynamic = 'force-dynamic';
 
@@ -54,6 +67,53 @@ export default async function ScreensaverPage({
             : 'Saved. The screen updates within seconds.'}
         </p>
       ) : null}
+
+      <section className="space-y-3 rounded-xl border border-line bg-surface p-4">
+        <h2 className="text-lg font-bold text-ink">Ready-made templates</h2>
+        <p className="text-sm text-ink-soft">
+          Start from these and change anything below. Pressing a pack again only adds what is
+          missing.
+        </p>
+        <ul className="grid gap-2 sm:grid-cols-2">
+          {RIDDLE_PACKS.map((pack) => {
+            const missing = missingFromPack(content.riddles, pack).length;
+            return (
+              <li key={pack.id} className="rounded-lg border border-line bg-canvas p-3">
+                <p className="font-bold text-ink">{pack.title}</p>
+                <p className="text-sm text-ink-soft">
+                  {pack.riddles.length} riddles with their answers.
+                </p>
+                <form action={addRiddlePack} className="mt-2">
+                  <input type="hidden" name="pack" value={pack.id} />
+                  <button
+                    type="submit"
+                    disabled={missing === 0}
+                    className="min-h-10 rounded-lg bg-primary px-4 text-sm font-bold text-on-primary disabled:opacity-50"
+                  >
+                    {missing === 0 ? 'All added' : `Add ${missing} riddles`}
+                  </button>
+                </form>
+              </li>
+            );
+          })}
+          <li className="rounded-lg border border-line bg-canvas p-3">
+            <p className="font-bold text-ink">Live summit facts</p>
+            <p className="text-sm text-ink-soft">
+              &ldquo;Do you know?&rdquo; cards made from the real numbers: people on the list,
+              sessions, check ins today, photos and comments so far. Always true, nothing to type.
+            </p>
+            <form action={setLiveFacts} className="mt-2">
+              <input type="hidden" name="on" value={content.liveFacts ? 'no' : 'yes'} />
+              <button
+                type="submit"
+                className="min-h-10 rounded-lg border border-line px-4 text-sm font-bold text-ink"
+              >
+                {content.liveFacts ? 'On: turn off' : 'Off: turn on'}
+              </button>
+            </form>
+          </li>
+        </ul>
+      </section>
 
       <form
         action={saveLoopText}

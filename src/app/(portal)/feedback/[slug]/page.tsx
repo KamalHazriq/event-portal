@@ -88,13 +88,13 @@ export default async function FeedbackPage({ params, searchParams }: PageProps) 
 
   const otherSessions = bestSessionChoices(config);
 
-  // Nothing is anonymous: say who you are first, then the form.
+  // Nothing is anonymous: please choose your name first, then the form.
   if (!me) {
     return (
       <div className="space-y-4 py-2">
         <h1 className="text-2xl font-bold leading-tight text-ink">{form.title}</h1>
         <p className="rounded-lg border border-line bg-surface p-4 text-ink">
-          Feedback is sent with your name. Say who you are first, then come back here.
+          Feedback is sent with your name. Please choose your name first, then come back here.
         </p>
         <Link
           href={`/welcome?next=${encodeURIComponent(`/feedback/${slug}`)}`}

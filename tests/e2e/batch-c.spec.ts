@@ -68,6 +68,13 @@ test('the screensaver plays riddles, and the screen can be handed over to slides
   await signIn(page);
   await page.goto('/admin/screensaver');
   await expect(page.getByRole('heading', { name: 'Screensaver', level: 1 })).toBeVisible();
+  // A ready-made pack adds its riddles, and then has nothing left to add.
+  await expect(page.getByRole('heading', { name: 'Ready-made templates' })).toBeVisible();
+  const add = page.getByRole('button', { name: /^Add \d+ riddles$/ }).first();
+  if (await add.isVisible()) {
+    await add.click();
+    await expect(page.getByRole('button', { name: 'All added' }).first()).toBeVisible();
+  }
   await page.goto('/screen/loop');
   await expect(page.getByText('Teka-teki')).toBeVisible();
   await page.goto('/screen/slides');

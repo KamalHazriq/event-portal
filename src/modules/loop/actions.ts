@@ -12,9 +12,12 @@ import { recordActivity } from '@/modules/admins/record';
 import {
   LOOP_KEY,
   LOOP_PHOTO_PREFIX,
+  MAX_ITEMS,
+  missingFromPack,
   parseFactLines,
   parseLoop,
   parseRiddleLines,
+  RIDDLE_PACKS,
   safePhoto,
 } from './logic';
 
@@ -80,4 +83,35 @@ export async function removeLead(formData: FormData): Promise<void> {
   await recordActivity('Removed a lead from the screensaver', operator);
   revalidatePath('/admin/screensaver');
   redirect('/admin/screensaver?saved=removed#leads');
+}
+
+/** Adds a ready-made riddle pack, leaving out the ones already there. */
+export async function addRiddlePack(formData: FormData): Promise<void> {
+  const operator = await assertAdmin();
+  const data = getData();
+  const pack = RIDDLE_PACKS.find((p) => p.id === String(formData.get('pack') ?? ''));
+  if (!pack) redirect('/admin/screensaver');
+  const current = parseLoop(await data.settings.get(LOOP_KEY));
+  const added = missingFromPack(current.riddles, pack);
+  await data.settings.set(
+    LOOP_KEY,
+    JSON.stringify({ ...current, riddles: [...current.riddles, ...added].slice(0, MAX_ITEMS) }),
+  );
+  await recordActivity(`Added the riddle pack: ${pack.title}`, operator);
+  revalidatePath('/admin/screensaver');
+  redirect('/admin/screensaver?saved=pack');
+}
+
+/** Live facts (worked out from the numbers) on or off. */
+export async function setLiveFacts(formData: FormData): Promise<void> {
+  const operator = await assertAdmin();
+  const data = getData();
+  const current = parseLoop(await data.settings.get(LOOP_KEY));
+  await data.settings.set(
+    LOOP_KEY,
+    JSON.stringify({ ...current, liveFacts: formData.get('on') === 'yes' }),
+  );
+  await recordActivity('Changed the screensaver live facts', operator);
+  revalidatePath('/admin/screensaver');
+  redirect('/admin/screensaver?saved=text');
 }

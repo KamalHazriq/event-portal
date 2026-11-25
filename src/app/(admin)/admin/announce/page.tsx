@@ -153,7 +153,7 @@ export default async function AnnouncementsPage({ searchParams }: { searchParams
         <h1 className="text-2xl font-bold text-ink">Announcements</h1>
         <p className="mt-1 text-ink-soft">
           One short message at the top of every attendee page, for {ANNOUNCE_HOURS} hours or until
-          you take it down. Tick the box to also send it as a notification to the{' '}
+          you remove it. Tick the box to also send it as a notification to the{' '}
           <strong className="text-ink">
             {phones} {phones === 1 ? 'phone' : 'phones'}
           </strong>{' '}
@@ -176,7 +176,7 @@ export default async function AnnouncementsPage({ searchParams }: { searchParams
               type="submit"
               className="min-h-11 rounded-lg border border-line px-4 font-semibold text-ink"
             >
-              Take it down
+              Remove announcement
             </button>
           </form>
         </section>

@@ -107,7 +107,7 @@ export function PhotoUploader({
       {sent > 0 ? (
         <p className="text-ink">
           <span className="text-2xl font-bold tabular-nums">{sent}</span>{' '}
-          {sent === 1 ? 'photo' : 'photos'} shared from this device. Thank you, keep them coming.
+          {sent === 1 ? 'photo' : 'photos'} shared from this device. Thank you for sharing.
         </p>
       ) : null}
 
@@ -152,7 +152,7 @@ export function PhotoUploader({
               disabled={busy}
               className="min-h-10 rounded-lg border border-line px-3 text-sm font-semibold text-ink disabled:opacity-60"
             >
-              Take this one out
+              Delete
             </button>
           </div>
         ))}

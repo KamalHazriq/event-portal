@@ -93,7 +93,7 @@ export function CommentsWall({
             href={`/welcome?next=${encodeURIComponent(`/session/${sessionId}#comments`)}`}
             className="font-semibold text-primary"
           >
-            Say who you are
+            Choose your name
           </Link>{' '}
           to post one.
         </p>

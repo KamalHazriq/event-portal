@@ -69,7 +69,7 @@ import type {
 import type { ComponentProps } from 'react';
 import type { PodiumView } from './components/PodiumView';
 import type { LoopView } from './components/LoopView';
-import { buildLoopItems, LOOP_KEY, parseLoop } from '@/modules/loop/logic';
+import { buildLoopItems, liveFactTexts, LOOP_KEY, parseLoop } from '@/modules/loop/logic';
 
 /**
  * Reaction taps from the last few seconds, for the floating reactions over
@@ -423,7 +423,35 @@ export async function loadScreenView(
 
     case 'loop': {
       const content = parseLoop(await data.settings.get(LOOP_KEY));
-      return { view, props: { items: buildLoopItems(content), calm: settings.calm } };
+      let facts = content.facts;
+      if (content.liveFacts) {
+        const day = resolveCheckInDay(config.days, now);
+        const [people, headcount, photos, comments] = await Promise.all([
+          data.attendees.count().catch(() => 0),
+          day ? data.checkIns.headcount(day.id).catch(() => null) : Promise.resolve(null),
+          config.features.photoWall ? data.photos.list('approved').catch(() => []) : [],
+          config.features.comments ? data.comments.listApproved().catch(() => []) : [],
+        ]);
+        facts = [
+          ...facts,
+          ...liveFactTexts({
+            people,
+            days: config.days.length,
+            sessions: config.days.reduce(
+              (n, d) => n + d.sessions.filter((x) => !x.hidden).length,
+              0,
+            ),
+            venue: config.event.venue,
+            checkedIn: headcount?.arrived ?? 0,
+            photos: photos.length,
+            comments: comments.length,
+          }),
+        ];
+      }
+      return {
+        view,
+        props: { items: buildLoopItems({ ...content, facts }), calm: settings.calm },
+      };
     }
 
     case 'slides':

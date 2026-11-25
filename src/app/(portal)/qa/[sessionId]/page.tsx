@@ -35,7 +35,10 @@ function notice(state: string | null): { ok: boolean; text: string } | null {
   if (state === 'slow-down')
     return { ok: false, text: 'That was a lot at once. Wait a minute and try again.' };
   if (state === 'who')
-    return { ok: false, text: 'Say who you are first, so your question carries your name.' };
+    return {
+      ok: false,
+      text: 'Please choose your name first, so your question carries your name.',
+    };
   if (state === 'gone') return { ok: false, text: 'That question is no longer on the list.' };
   if (PROBLEMS.includes(state))
     return { ok: false, text: questionProblemMessage(state as QuestionProblem) };
@@ -124,7 +127,7 @@ export default async function QuestionsPage({
                 href={`/welcome?next=${encodeURIComponent(`/qa/${session.id}`)}`}
                 className="font-semibold text-primary"
               >
-                Say who you are
+                Choose your name
               </Link>{' '}
               to ask one.
             </p>

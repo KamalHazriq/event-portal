@@ -32,7 +32,7 @@ export const DURATION_CHOICES = [
   { minutes: 30, label: '30 minutes' },
   { minutes: 60, label: '1 hour' },
   { minutes: 120, label: '2 hours' },
-  { minutes: 0, label: 'Until I take it down' },
+  { minutes: 0, label: 'Until I remove it' },
 ] as const;
 export const DEFAULT_DURATION = 60;
 

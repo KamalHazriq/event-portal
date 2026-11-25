@@ -2,6 +2,9 @@ import { describe, expect, it } from 'vitest';
 
 import {
   buildLoopItems,
+  liveFactTexts,
+  missingFromPack,
+  RIDDLE_PACKS,
   parseFactLines,
   parseLoop,
   parseRiddleLines,
@@ -29,6 +32,7 @@ describe('the screensaver loop', () => {
       ],
       facts: ['f1'],
       leads: [{ id: 'l1', name: 'Aina', role: 'Head' }],
+      liveFacts: false,
     });
     expect(items.map((i) => i.kind)).toEqual(['riddle', 'fact', 'lead', 'riddle']);
   });
@@ -42,5 +46,28 @@ describe('the screensaver loop', () => {
     expect(safePhoto('data:image/jpeg;base64,AAAA')).toBe('data:image/jpeg;base64,AAAA');
     expect(safePhoto('data:image/svg+xml;base64,AAAA')).toBeNull();
     expect(safePhoto('https://example.com/a.jpg')).toBeNull();
+  });
+
+  it('adds only the riddles of a pack that are missing', () => {
+    const pack = RIDDLE_PACKS[0]!;
+    expect(missingFromPack([], pack)).toHaveLength(pack.riddles.length);
+    expect(missingFromPack(pack.riddles, pack)).toEqual([]);
+  });
+
+  it('writes live facts from the numbers and leaves out zeros', () => {
+    const facts = liveFactTexts({
+      people: 1,
+      days: 3,
+      sessions: 24,
+      venue: 'Grand Ballroom',
+      checkedIn: 0,
+      photos: 2,
+      comments: 0,
+    });
+    expect(facts).toEqual([
+      '1 colleague is on the list for this summit, at Grand Ballroom.',
+      'The summit has 24 sessions over 3 days.',
+      '2 photos have been shared on the photo wall.',
+    ]);
   });
 });

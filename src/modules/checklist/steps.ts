@@ -22,7 +22,7 @@ export type Step = {
 };
 
 /** Bump this when a batch of changes lands, and mark the steps it touched with it. */
-export const LATEST_REVISION = 5;
+export const LATEST_REVISION = 6;
 
 export type StepGroup = { id: string; title: string; steps: Step[] };
 
@@ -257,6 +257,14 @@ export const TEST_PLAN: Part[] = [
         title: 'A3. Taking part',
         steps: [
           {
+            id: 'a-part-photosocial',
+            rev: 6,
+            do: 'On Photos, tap the heart under a photo, open its Comments and post one (signed in with your name).',
+            expect:
+              'The heart counts at once and cannot be tapped twice. The comment appears under the photo with your name (or waits for approval if approval is on), and the secretariat sees it in Comments as "Photo wall". Each photo still has Save.',
+            links: [{ href: '/photos', label: 'Photos' }],
+          },
+          {
             id: 'a-part-photos',
             rev: 4,
             do: 'On Photos choose three photos at once, leave one caption empty and press Share, then fill them in. Afterwards tap Save under a photo on the wall.',
@@ -473,6 +481,14 @@ export const TEST_PLAN: Part[] = [
         title: 'S0. Is the portal ready?',
         steps: [
           {
+            id: 's-ready-testlist',
+            rev: 6,
+            do: 'On Admins, read the two lists under Test mode.',
+            expect:
+              'One lists what test mode adds (Test plan, Tour, pretend time, test participant, banner), the other what turning it off removes and what it leaves alone.',
+            links: [{ href: '/admin/admins', label: 'Admins, Test mode' }],
+          },
+          {
             id: 's-ready-testmode',
             rev: 5,
             do: 'On Admins, find Test mode. Turn it off, look at the menu and the Test plan address, then turn it on again.',
@@ -641,9 +657,9 @@ export const TEST_PLAN: Part[] = [
           {
             id: 's-people-bonus',
             rev: 3,
-            do: 'On Points, under Bonus points, pick a person, give them some points and a reason, then look at the leaderboard and their My points page. Then press Take back.',
+            do: 'On Points, under Bonus points, pick a person, give them some points and a reason, then look at the leaderboard and their My points page. Then press Remove.',
             expect:
-              'The points add to their total at once (leaderboard, podium and My points show "Bonus from the secretariat"), the Points table has a Bonus column, and Take back removes them again.',
+              'The points add to their total at once (leaderboard, podium and My points show "Bonus from the secretariat"), the Points table has a Bonus column, and Remove removes them again.',
             links: [
               { href: '/admin/points', label: 'Points, Bonus' },
               { href: '/leaderboard', label: 'Leaderboard' },
@@ -947,6 +963,28 @@ export const TEST_PLAN: Part[] = [
         title: 'S7. Running the room',
         steps: [
           {
+            id: 's-room-templates',
+            rev: 6,
+            do: 'On Screensaver, press Add on a riddle pack and turn Live summit facts on, then choose Screensaver on Big screen.',
+            expect:
+              'The pack adds its riddles (pressing it again adds nothing new). The projector also shows "Do you know?" cards made from the real numbers, such as people on the list and photos shared.',
+            links: [
+              { href: '/admin/screensaver', label: 'Screensaver' },
+              { href: '/admin/big-screen', label: 'Big screen' },
+            ],
+          },
+          {
+            id: 's-room-wording',
+            rev: 6,
+            do: 'Click through Photos, Announce, Points and the comment forms, looking at the button and message wording.',
+            expect:
+              'Everything reads professionally: Delete, Remove, Remove announcement, "Please choose your name first". No casual phrases such as "Take this one out".',
+            links: [
+              { href: '/admin/photos', label: 'Photos' },
+              { href: '/admin/announce', label: 'Announce' },
+            ],
+          },
+          {
             id: 's-room-podium-drums',
             rev: 5,
             do: 'On Big screen reveal the podium from the last place up, with the projector sound on.',
@@ -1055,7 +1093,7 @@ export const TEST_PLAN: Part[] = [
           {
             id: 's-room-announce',
             rev: 2,
-            do: 'On Announce, write a message, choose "Tapping it opens" (try the dropdown: every option is readable), keep When: Now, and press Post or schedule. Then "Send a test to this device", then Take it down.',
+            do: 'On Announce, write a message, choose "Tapping it opens" (try the dropdown: every option is readable), keep When: Now, and press Post or schedule. Then "Send a test to this device", then Remove announcement.',
             expect:
               'The banner appears on attendee phones with the link, and goes away when taken down. The big screen never shows announcements. The test arrives on a phone with alerts on.',
             links: [

@@ -115,6 +115,52 @@ export default async function AdminsPage({ searchParams }: { searchParams: Searc
           removes all of that: the pages leave the menu, pretend time stops working, and the test
           participant is taken off the list. Do it before the first guest arrives.
         </p>
+        <div className="grid gap-3 md:grid-cols-2">
+          <div className="rounded-lg border border-line bg-canvas p-3">
+            <h3 className="text-sm font-bold text-ink">What test mode adds (while it is on)</h3>
+            <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-ink-soft">
+              <li>
+                <strong className="text-ink">Test plan</strong>: the checklist with progress bar,
+                the Latest labels and the log, under Set up.
+              </li>
+              <li>
+                <strong className="text-ink">Tour</strong>: the one-page demo, with a link at the
+                foot of the menu.
+              </li>
+              <li>
+                <strong className="text-ink">Pretend time</strong>: make this device act as if it
+                were any session, from the Test plan, the Tour or the clock bar.
+              </li>
+              <li>
+                <strong className="text-ink">Test participant</strong>: a pretend person to sign in
+                as on a phone.
+              </li>
+              <li>The &ldquo;Test mode is on&rdquo; banner across the top of every page.</li>
+            </ul>
+          </div>
+          <div className="rounded-lg border border-line bg-canvas p-3">
+            <h3 className="text-sm font-bold text-ink">What turning it off removes</h3>
+            <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-ink-soft">
+              <li>The Test plan and the Tour leave the menu, and their addresses redirect here.</li>
+              <li>
+                Pretend time stops working, and this device goes back to the real clock at once.
+              </li>
+              <li>Test Participant is taken off the participant list.</li>
+              <li>The banner and the clock bar disappear.</li>
+            </ul>
+            <h3 className="mt-3 text-sm font-bold text-ink">What it leaves alone</h3>
+            <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-ink-soft">
+              <li>
+                Rehearsal data (check ins, points, comments, votes). Clear it with &ldquo;Clear
+                everything except photos&rdquo; under Resets below.
+              </li>
+              <li>
+                The time override on the web address (<code>?now=</code>) belongs to the server
+                setting <code>ALLOW_TIME_OVERRIDE</code>: remove that setting before the event.
+              </li>
+            </ul>
+          </div>
+        </div>
         <form action={setTestMode}>
           <input type="hidden" name="mode" value={testMode ? 'off' : 'on'} />
           <button

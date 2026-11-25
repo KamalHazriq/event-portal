@@ -163,7 +163,7 @@ export default async function PointsPage({ searchParams }: { searchParams: Searc
                     type="submit"
                     className="min-h-9 rounded-lg border border-line px-3 text-sm font-semibold text-ink hover:border-primary"
                   >
-                    Take back
+                    Remove
                   </button>
                 </form>
               </li>

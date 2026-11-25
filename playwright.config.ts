@@ -19,6 +19,8 @@ import { defineConfig, devices } from '@playwright/test';
  */
 const PORT = Number(process.env.PLAYWRIGHT_PORT ?? 3200);
 
+/** Flips test mode for everyone, so it has a project of its own, at the very end. */
+const TEST_MODE = /test-mode\.spec\.ts$/;
 /** Spec files that change state the whole portal shares. See projects below. */
 const SHARED_SWITCHES =
   /(backup-qa-polls|look|photo-wall|announcements|desk-browse|content-editor|checklist|door-gift|name-picker)\.spec\.ts$/;
@@ -39,16 +41,20 @@ export default defineConfig({
     {
       name: 'phone',
       use: { ...devices['Pixel 7'], viewport: { width: 375, height: 812 } },
-      testIgnore: SHARED_SWITCHES,
+      testIgnore: [SHARED_SWITCHES, TEST_MODE],
     },
-    { name: 'desktop', use: { ...devices['Desktop Chrome'] }, testIgnore: SHARED_SWITCHES },
+    {
+      name: 'desktop',
+      use: { ...devices['Desktop Chrome'] },
+      testIgnore: [SHARED_SWITCHES, TEST_MODE],
+    },
     {
       // Tests that flip a switch every page reads (Slido is down). They run
       // on their own, after the others, so nothing sees the switch mid-way.
       name: 'shared-switches',
       use: { ...devices['Desktop Chrome'] },
       testMatch: SHARED_SWITCHES,
-      testIgnore: /(photo-wall|checklist)\.spec\.ts$/,
+      testIgnore: [/(photo-wall|checklist)\.spec\.ts$/, TEST_MODE],
       dependencies: ['phone', 'desktop'],
     },
     {

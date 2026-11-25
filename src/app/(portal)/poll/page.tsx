@@ -82,7 +82,7 @@ export default async function PollPage({ searchParams }: { searchParams: SearchP
             <p className="rounded-xl border border-line bg-surface p-4 text-ink">
               Votes carry your name.{' '}
               <Link href="/welcome?next=/poll" className="font-semibold text-primary">
-                Say who you are
+                Choose your name
               </Link>{' '}
               to vote.
             </p>
@@ -92,7 +92,7 @@ export default async function PollPage({ searchParams }: { searchParams: SearchP
               role="status"
               className="rounded-lg border border-warning p-3 text-sm font-semibold text-warning"
             >
-              Say who you are first, so your vote carries your name.
+              Please choose your name first, so your vote carries your name.
             </p>
           ) : null}
 

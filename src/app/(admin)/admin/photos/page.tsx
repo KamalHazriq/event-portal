@@ -183,7 +183,7 @@ export default async function PhotosAdminPage({ searchParams }: { searchParams: 
                       <input type="hidden" name="id" value={photo.id} />
                       <input type="hidden" name="decision" value="rejected" />
                       <button type="submit" className={`${button} border border-line text-ink`}>
-                        {photo.status === 'approved' ? 'Take down' : 'Reject'}
+                        {photo.status === 'approved' ? 'Remove from the wall' : 'Reject'}
                       </button>
                     </form>
                   ) : (

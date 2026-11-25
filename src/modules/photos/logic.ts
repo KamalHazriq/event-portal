@@ -97,11 +97,11 @@ export function uploadMessage(problem: UploadProblem): string {
     case 'too-big':
       return 'That photo is too large, even after shrinking. Try another one.';
     case 'too-many':
-      return 'You have shared a lot of photos in a short time. Wait a moment, then try again.';
+      return 'You have shared many photos in a short time. Please wait a moment, then try again.';
     case 'switched-off':
       return 'The photo wall is not open right now.';
     case 'rate-limited':
-      return 'That was a lot of photos at once. Wait a minute and try again.';
+      return 'Too many photos were sent at once. Please wait a minute and try again.';
     case 'caption-needed':
       return 'Every photo needs a caption. Write a few words about it, then share.';
     case 'failed':

@@ -28,7 +28,9 @@ export default async function DoorGiftPage({
     return (
       <div className={box}>
         <h1 className="text-2xl font-bold text-ink">Door gift</h1>
-        <p className="mt-2 text-ink-soft">Say who you are first, then spin for your gift.</p>
+        <p className="mt-2 text-ink-soft">
+          Please choose your name first, then spin for your gift.
+        </p>
         <Link
           href="/welcome?next=/door-gift"
           className="mt-4 inline-flex min-h-11 items-center rounded-lg bg-primary px-5 font-bold text-on-primary no-underline"

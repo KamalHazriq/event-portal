@@ -78,7 +78,7 @@ test('post an announcement, see it on a phone, take it down', async ({ browser, 
   await projector.goto('/screen/welcome');
   await expect(projector.getByText(text)).toHaveCount(0);
 
-  await admin.getByRole('button', { name: 'Take it down' }).click();
+  await admin.getByRole('button', { name: 'Remove announcement' }).click();
   await expect(admin.getByRole('heading', { name: /^Showing now/ })).toHaveCount(0);
   await expect(admin.locator('p:visible', { hasText: text }).first()).toBeVisible(); // still in "Sent before"
   await phone.goto('/');
