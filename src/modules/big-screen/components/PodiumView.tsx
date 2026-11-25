@@ -59,7 +59,7 @@ export function PodiumView({
   const hasRest = rest.length > 0;
   // The podium is taller when it has the whole screen to itself.
   const bars: Record<number, string> = hasRest
-    ? { 1: 'h-[20vh]', 2: 'h-[14vh]', 3: 'h-[10vh]' }
+    ? { 1: 'h-[14vh]', 2: 'h-[10vh]', 3: 'h-[7vh]' }
     : { 1: 'h-[26vh]', 2: 'h-[18vh]', 3: 'h-[12vh]' };
   const fx = calm ? '' : 'podium-fx';
 
@@ -71,12 +71,12 @@ export function PodiumView({
   return (
     <div className="screen-fade relative flex h-full flex-col overflow-hidden">
       {winnerOut && !calm ? <Confetti /> : null}
-      <h2 className="text-center text-[clamp(1.6rem,3.2vw,4.2rem)] font-bold leading-tight text-ink">
+      <h2 className="text-center text-[clamp(1.4rem,min(3.2vw,5.5vh),4.2rem)] font-bold leading-tight text-ink">
         Top {size} best participants
       </h2>
 
       <ol
-        className={`mt-[2vh] flex shrink-0 items-end justify-center gap-[1.6vw] ${hasRest ? '' : 'flex-1 pb-[3vh]'}`}
+        className={`mt-[1vh] flex shrink-0 items-end justify-center gap-[1.6vw] ${hasRest ? '' : 'flex-1 pb-[3vh]'}`}
       >
         {standing.map(({ p: place, i }) => {
           const out = isOut(i);
@@ -85,22 +85,22 @@ export function PodiumView({
           const width = standing.length === 1 ? 'w-[60%]' : 'w-[30%]';
           const size =
             crowd > 6
-              ? 'text-[clamp(0.9rem,1.7vw,2.2rem)]'
+              ? 'text-[clamp(0.85rem,min(1.6vw,2.6vh),2.2rem)]'
               : crowd > 2
-                ? 'text-[clamp(1.1rem,2vw,2.6rem)]'
+                ? 'text-[clamp(1rem,min(1.9vw,3.2vh),2.6rem)]'
                 : first
-                  ? 'text-[clamp(1.4rem,3vw,3.8rem)]'
-                  : 'text-[clamp(1.2rem,2.5vw,3.2rem)]';
+                  ? 'text-[clamp(1.3rem,min(2.8vw,5vh),3.8rem)]'
+                  : 'text-[clamp(1.1rem,min(2.3vw,4.2vh),3.2rem)]';
           const cols = crowd > 6 ? 'grid-cols-3' : crowd > 2 ? 'grid-cols-2' : 'grid-cols-1';
           return (
             <li key={place.rank} className={`flex flex-col justify-end ${width}`}>
-              <div className="mb-[1.2vh] min-h-[11vh] text-center">
+              <div className={`mb-[1vh] text-center ${hasRest ? 'min-h-[9vh]' : 'min-h-[11vh]'}`}>
                 {out ? (
                   <div className={out ? `${fx} podium-pop` : ''} key={`out-${place.rank}`}>
                     {first ? (
                       <p
                         aria-hidden="true"
-                        className={`text-[clamp(2rem,4vw,5rem)] leading-none ${calm ? '' : 'crown-bob'}`}
+                        className={`text-[clamp(1.5rem,min(3.2vw,5vh),4.5rem)] leading-none ${calm ? '' : 'crown-bob'}`}
                       >
                         👑
                       </p>
@@ -112,19 +112,19 @@ export function PodiumView({
                         </li>
                       ))}
                     </ul>
-                    <p className="mt-[0.5vh] text-[clamp(0.95rem,1.7vw,2.2rem)] text-ink-soft">
+                    <p className="mt-[0.5vh] text-[clamp(0.85rem,min(1.5vw,2.6vh),2.2rem)] text-ink-soft">
                       {place.points} points{crowd > 1 ? `, ${crowd} tied` : ''}
                     </p>
                   </div>
                 ) : (
-                  <p className="pt-[4vh] text-[clamp(1.6rem,3.2vw,4.2rem)] font-bold text-ink-soft">
+                  <p className="pt-[4vh] text-[clamp(1.4rem,min(3vw,5vh),4.2rem)] font-bold text-ink-soft">
                     ?
                   </p>
                 )}
               </div>
               <div
                 className={[
-                  'flex items-center justify-center gap-[0.6vw] rounded-t-xl text-[clamp(1.4rem,3.4vw,4.4rem)] font-bold leading-none',
+                  'flex items-center justify-center gap-[0.6vw] rounded-t-xl text-[clamp(1.2rem,min(3.2vw,5.5vh),4.4rem)] font-bold leading-none',
                   bars[place.rank],
                   out ? `bg-primary text-on-primary ${fx} podium-rise` : 'bg-muted text-ink-soft',
                   out && first && !calm ? 'winner-glow' : '',
@@ -141,8 +141,8 @@ export function PodiumView({
       </ol>
 
       {hasRest ? (
-        <div className="mt-[1.5vh] shrink-0 rounded-2xl border border-line bg-surface p-[1.2vw]">
-          <ol className="grid content-start gap-x-[1.5vw] gap-y-[0.8vh] md:grid-cols-2">
+        <div className="mt-[1.2vh] shrink-0 rounded-2xl border border-line bg-surface p-[0.8vw]">
+          <ol className="grid content-start gap-x-[1.2vw] gap-y-[0.5vh] md:grid-cols-2">
             {/* One row for each person: three tied for 8th show 8th three times. */}
             {rest.flatMap(({ p: place, i }) => {
               const out = isOut(i);
@@ -150,24 +150,26 @@ export function PodiumView({
                 <li
                   key={`${place.rank}-${person.id}`}
                   className={[
-                    'flex items-center gap-[1vw] rounded-lg px-[1vw] py-[0.8vh]',
+                    'flex items-center gap-[1vw] rounded-lg px-[1vw] py-[0.5vh]',
                     out ? `bg-muted ${fx} row-in` : 'bg-transparent',
                   ].join(' ')}
                 >
-                  <span className="w-[4.5vw] shrink-0 text-[clamp(1.1rem,2vw,2.6rem)] font-bold tabular-nums text-primary">
+                  <span className="w-[4.5vw] shrink-0 text-[clamp(1rem,min(1.8vw,3vh),2.4rem)] font-bold tabular-nums text-primary">
                     {place.rank}
                   </span>
                   {out ? (
                     <>
-                      <span className="min-w-0 flex-1 truncate text-[clamp(1rem,1.8vw,2.3rem)] font-semibold text-ink">
+                      <span className="min-w-0 flex-1 truncate text-[clamp(0.95rem,min(1.6vw,2.7vh),2.1rem)] font-semibold text-ink">
                         {person.name}
                       </span>
-                      <span className="shrink-0 text-[clamp(0.9rem,1.5vw,2rem)] tabular-nums text-ink-soft">
+                      <span className="shrink-0 text-[clamp(0.85rem,min(1.3vw,2.2vh),1.8rem)] tabular-nums text-ink-soft">
                         {place.points} pts
                       </span>
                     </>
                   ) : (
-                    <span className="text-[clamp(1rem,1.8vw,2.3rem)] text-ink-soft/60">?</span>
+                    <span className="text-[clamp(0.95rem,min(1.6vw,2.7vh),2.1rem)] text-ink-soft/60">
+                      ?
+                    </span>
                   )}
                 </li>
               ));
