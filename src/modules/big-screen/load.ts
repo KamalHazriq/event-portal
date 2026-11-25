@@ -68,6 +68,8 @@ import type {
 } from './components/ScreenViews';
 import type { ComponentProps } from 'react';
 import type { PodiumView } from './components/PodiumView';
+import type { LoopView } from './components/LoopView';
+import { buildLoopItems, LOOP_KEY, parseLoop } from '@/modules/loop/logic';
 
 /**
  * Reaction taps from the last few seconds, for the floating reactions over
@@ -126,7 +128,9 @@ export type ScreenPayload =
   | { view: 'leaderboard'; props: ComponentProps<typeof LeaderboardView> }
   | { view: 'comments'; props: ComponentProps<typeof CommentsView> }
   | { view: 'podium'; props: ComponentProps<typeof PodiumView> }
-  | { view: 'feedback'; props: ComponentProps<typeof FeedbackQrView> };
+  | { view: 'feedback'; props: ComponentProps<typeof FeedbackQrView> }
+  | { view: 'loop'; props: ComponentProps<typeof LoopView> }
+  | { view: 'slides'; props: Record<string, never> };
 
 export async function loadScreenView(
   view: ScreenView,
@@ -416,6 +420,14 @@ export async function loadScreenView(
         },
       };
     }
+
+    case 'loop': {
+      const content = parseLoop(await data.settings.get(LOOP_KEY));
+      return { view, props: { items: buildLoopItems(content), calm: settings.calm } };
+    }
+
+    case 'slides':
+      return { view, props: {} };
 
     case 'feedback': {
       if (!config.features.feedback) return loadScreenView('welcome', now, settings);

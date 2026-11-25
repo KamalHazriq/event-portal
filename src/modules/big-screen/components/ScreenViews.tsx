@@ -7,7 +7,6 @@
  * Every colour comes from the theme tokens.
  */
 import { QrCode } from '@/components/QrCode';
-import { displayUrl } from '@/lib/event-pass';
 
 import { LuckyDrawSpinner } from '@/modules/lucky-draw/components/LuckyDrawSpinner';
 import type { PollKind } from '@/data/types';
@@ -87,9 +86,6 @@ export function WelcomeView({
         ) : null}
         <p className="mt-[1vh] text-center text-[clamp(0.8rem,1.3vw,1.8rem)] text-accent">
           Then tap “Turn on alerts” for live updates
-        </p>
-        <p className="max-w-[30vw] break-all text-center text-[clamp(0.8rem,1.1vw,1.5rem)] text-ink-soft">
-          {displayUrl(portalUrl)}
         </p>
       </div>
     </div>

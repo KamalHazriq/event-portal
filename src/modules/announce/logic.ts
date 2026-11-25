@@ -129,6 +129,8 @@ export function alertSupport(env: {
 export const NUDGE_KEYS = {
   enabled: 'announce.feedbackNudges',
   sentFor: (sessionId: string) => `announce.nudged.${sessionId}`,
+  /** The one "how was the whole summit?" push, when the last session is over. */
+  eventSent: 'announce.nudged.event',
 } as const;
 
 /** How long after a talk ends the reminder can still go out. */

@@ -1,4 +1,7 @@
 import type { Metadata } from 'next';
+import { redirect } from 'next/navigation';
+
+import { testModeOn } from '@/modules/test-mode/server';
 
 import { headers } from 'next/headers';
 
@@ -36,6 +39,8 @@ type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
 export default async function ChecklistPage({ searchParams }: { searchParams: SearchParams }) {
   await requireAdmin('/admin/test-plan');
+  // Only while test mode is on: switched off, there is nothing here to use.
+  if (!(await testModeOn())) redirect('/admin/admins?testmode=off#test-mode');
   const params = await searchParams;
   const clockOn = await testClockOn();
   const data = getData();

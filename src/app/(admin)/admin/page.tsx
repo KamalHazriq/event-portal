@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 
+import { testModeOn } from '@/modules/test-mode/server';
 import { ADMIN_GROUPS, hiddenAdminPages } from '@/components/admin-pages';
 import { AutoRefresh } from '@/components/AutoRefresh';
 import { Icon, type IconName } from '@/components/icons';
@@ -110,7 +111,7 @@ export default async function AdminHomePage() {
   const session = await requireAdmin('/admin');
 
   const config = getEventConfig();
-  const hidden = hiddenAdminPages(config.features);
+  const hidden = hiddenAdminPages(config.features, await testModeOn());
   const now = resolveEventNow({ timezone: config.event.timezone });
   const day = resolveCheckInDay(config.days, now);
   const live = findNowAndNext(buildAgenda(config), now);

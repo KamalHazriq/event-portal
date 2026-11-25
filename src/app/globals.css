@@ -2628,3 +2628,118 @@ select:focus-visible {
     animation: none;
   }
 }
+
+/* -- The podium's drama: the room dims while the drums roll, the question mark
+ *    trembles, and the hit flashes and shakes the screen (more for the winner). */
+@keyframes podium-dim-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.podium-dim {
+  background: radial-gradient(ellipse at 50% 55%, transparent 20%, rgb(0 0 0 / 0.62) 100%);
+  animation: podium-dim-in 600ms ease-out both;
+}
+.podium-dim-winner {
+  background: radial-gradient(ellipse at 50% 45%, transparent 12%, rgb(0 0 0 / 0.8) 100%);
+}
+@keyframes podium-tremble {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  20% {
+    transform: translate(-0.3vw, 0.2vh) scale(1.08) rotate(-2deg);
+  }
+  40% {
+    transform: translate(0.3vw, -0.2vh) scale(1.15) rotate(2deg);
+  }
+  60% {
+    transform: translate(-0.2vw, -0.2vh) scale(1.1) rotate(-1.5deg);
+  }
+  80% {
+    transform: translate(0.2vw, 0.3vh) scale(1.18) rotate(1.5deg);
+  }
+}
+.podium-suspense {
+  display: inline-block;
+  animation: podium-tremble 0.22s linear infinite;
+  text-shadow: 0 0 2vw color-mix(in srgb, var(--c-primary) 80%, transparent);
+}
+@keyframes podium-flash {
+  from {
+    opacity: 0.85;
+  }
+  to {
+    opacity: 0;
+  }
+}
+.podium-flash {
+  animation: podium-flash 700ms ease-out both;
+}
+@keyframes podium-shake {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  15% {
+    transform: translate(-0.8vw, 0.5vh);
+  }
+  30% {
+    transform: translate(0.8vw, -0.5vh);
+  }
+  45% {
+    transform: translate(-0.6vw, -0.4vh);
+  }
+  60% {
+    transform: translate(0.6vw, 0.4vh);
+  }
+  75% {
+    transform: translate(-0.3vw, 0.2vh);
+  }
+}
+.podium-shake {
+  animation: podium-shake 0.6s ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .podium-suspense,
+  .podium-shake,
+  .podium-flash {
+    animation: none;
+  }
+}
+
+/* -- The screensaver cards slide up and settle; a riddle's answer pops in. */
+@keyframes loop-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(5vh) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.loop-card {
+  animation: loop-card-in 800ms cubic-bezier(0.2, 0.8, 0.3, 1) both;
+}
+@keyframes loop-answer-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  60% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+  100% {
+    transform: none;
+  }
+}
+.loop-answer {
+  display: inline-block;
+  animation: loop-answer-in 600ms cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+}

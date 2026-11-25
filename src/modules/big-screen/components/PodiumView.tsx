@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
-import { playFanfare, playTick } from '@/modules/lucky-draw/sound';
+import { playDrumRoll, playFanfare, playImpact, playPing } from '@/modules/lucky-draw/sound';
 import { Confetti } from '@/modules/lucky-draw/components/LuckyDrawSpinner';
 
 export type PodiumPlace = {
@@ -33,18 +33,62 @@ export function PodiumView({
   size: number;
   calm: boolean;
 }) {
-  const previous = useRef<number | null>(null);
-  const firstShown = places.length - revealed; // index of the first revealed place
+  // What is on screen lags what the MC pressed, so a drum roll can build first.
+  const [shown, setShown] = useState(revealed);
+  const [suspense, setSuspense] = useState<number | null>(null); // rank being rolled for
+  const [flash, setFlash] = useState(0); // counts up on each hit, to restart the flash
+  const [shake, setShake] = useState(false);
+  const roll = useRef<number | null>(null);
+  const mounted = useRef(true);
+
+  const firstShown = places.length - shown; // index of the first revealed place
   const isOut = (i: number) => i >= firstShown;
-  const winnerOut = revealed >= places.length && places.length > 0;
+  const winnerOut = shown >= places.length && places.length > 0;
 
   useEffect(() => {
-    if (previous.current !== null && revealed > previous.current && !calm) {
-      if (revealed >= places.length) playFanfare();
-      else playTick();
+    if (mounted.current) {
+      mounted.current = false; // a reloaded projector shows where it was, quietly
+      return;
     }
-    previous.current = revealed;
-  }, [revealed, places.length, calm]);
+    if (revealed === shown || suspense !== null) return; // caught up, or already rolling
+    // Every change of state happens in a timer callback, never in the effect body.
+    if (revealed < shown) {
+      const t = window.setTimeout(() => setShown(revealed), 0);
+      return () => window.clearTimeout(t);
+    }
+    const next = places[places.length - shown - 1];
+    const rank = next?.rank ?? 99;
+    if (!next || calm || rank > 3) {
+      const t = window.setTimeout(() => {
+        if (next && !calm) playPing(rank);
+        setShown(next ? shown + 1 : revealed);
+      }, 0);
+      return () => window.clearTimeout(t);
+    }
+    // A podium step: roll the drums, then reveal. The winner's roll is the longest.
+    const seconds = rank === 1 ? 4.6 : rank === 2 ? 2.8 : 2.2;
+    const start = window.setTimeout(() => {
+      setSuspense(rank);
+      playDrumRoll(seconds, rank === 1);
+      roll.current = window.setTimeout(() => {
+        playImpact(rank === 1);
+        if (rank === 1) window.setTimeout(playFanfare, 350);
+        setSuspense(null);
+        setShown((n) => n + 1);
+        setFlash((n) => n + 1);
+        setShake(true);
+        window.setTimeout(() => setShake(false), rank === 1 ? 1100 : 600);
+      }, seconds * 1000);
+    }, 0);
+    return () => window.clearTimeout(start);
+  }, [revealed, shown, suspense, places, calm]);
+
+  useEffect(
+    () => () => {
+      if (roll.current !== null) window.clearTimeout(roll.current);
+    },
+    [],
+  );
 
   if (places.length === 0) {
     return (
@@ -59,7 +103,7 @@ export function PodiumView({
   const hasRest = rest.length > 0;
   // The podium is taller when it has the whole screen to itself.
   const bars: Record<number, string> = hasRest
-    ? { 1: 'h-[14vh]', 2: 'h-[10vh]', 3: 'h-[7vh]' }
+    ? { 1: 'h-[17vh]', 2: 'h-[12vh]', 3: 'h-[8vh]' }
     : { 1: 'h-[26vh]', 2: 'h-[18vh]', 3: 'h-[12vh]' };
   const fx = calm ? '' : 'podium-fx';
 
@@ -69,14 +113,31 @@ export function PodiumView({
     .filter((x): x is { p: PodiumPlace; i: number } => x !== undefined);
 
   return (
-    <div className="screen-fade relative flex h-full flex-col overflow-hidden">
+    <div
+      className={`screen-fade relative flex h-full flex-col overflow-hidden ${shake && !calm ? 'podium-shake' : ''}`}
+    >
       {winnerOut && !calm ? <Confetti /> : null}
+      {/* The room goes dark while the drums roll, brightest on the winner's. */}
+      {suspense !== null && !calm ? (
+        <div
+          aria-hidden="true"
+          className={`podium-dim pointer-events-none absolute inset-0 z-10 ${suspense === 1 ? 'podium-dim-winner' : ''}`}
+        />
+      ) : null}
+      {flash > 0 && !calm ? (
+        <div
+          key={flash}
+          aria-hidden="true"
+          className="podium-flash pointer-events-none absolute inset-0 z-20 bg-white"
+        />
+      ) : null}
       <h2 className="text-center text-[clamp(1.4rem,min(3.2vw,5.5vh),4.2rem)] font-bold leading-tight text-ink">
         Top {size} best participants
       </h2>
 
+      {/* The podium takes the space above; the box for 4th and down sits at the bottom. */}
       <ol
-        className={`mt-[1vh] flex shrink-0 items-end justify-center gap-[1.6vw] ${hasRest ? '' : 'flex-1 pb-[3vh]'}`}
+        className={`mt-[1vh] flex min-h-0 flex-1 items-end justify-center gap-[1.6vw] ${hasRest ? '' : 'pb-[3vh]'}`}
       >
         {standing.map(({ p: place, i }) => {
           const out = isOut(i);
@@ -117,7 +178,13 @@ export function PodiumView({
                     </p>
                   </div>
                 ) : (
-                  <p className="pt-[4vh] text-[clamp(1.4rem,min(3vw,5vh),4.2rem)] font-bold text-ink-soft">
+                  <p
+                    className={`pt-[4vh] text-[clamp(1.4rem,min(3vw,5vh),4.2rem)] font-bold ${
+                      suspense === place.rank && !calm
+                        ? 'podium-suspense relative z-20 text-primary'
+                        : 'text-ink-soft'
+                    }`}
+                  >
                     ?
                   </p>
                 )}
@@ -141,7 +208,7 @@ export function PodiumView({
       </ol>
 
       {hasRest ? (
-        <div className="mt-[1.2vh] shrink-0 rounded-2xl border border-line bg-surface p-[0.8vw]">
+        <div className="mt-auto shrink-0 rounded-2xl border border-line bg-surface p-[0.8vw]">
           <ol className="grid content-start gap-x-[1.2vw] gap-y-[0.5vh] md:grid-cols-2">
             {/* One row for each person: three tied for 8th show 8th three times. */}
             {rest.flatMap(({ p: place, i }) => {

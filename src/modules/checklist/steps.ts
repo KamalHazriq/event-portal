@@ -22,7 +22,7 @@ export type Step = {
 };
 
 /** Bump this when a batch of changes lands, and mark the steps it touched with it. */
-export const LATEST_REVISION = 4;
+export const LATEST_REVISION = 5;
 
 export type StepGroup = { id: string; title: string; steps: Step[] };
 
@@ -472,6 +472,22 @@ export const TEST_PLAN: Part[] = [
         id: 's-ready',
         title: 'S0. Is the portal ready?',
         steps: [
+          {
+            id: 's-ready-testmode',
+            rev: 5,
+            do: 'On Admins, find Test mode. Turn it off, look at the menu and the Test plan address, then turn it on again.',
+            expect:
+              'Off: the Test plan and Tour leave the menu and redirect, pretend time stops working and the test participant is off the list. The banner at the top says when test mode is on.',
+            links: [{ href: '/admin/admins', label: 'Admins, Test mode' }],
+          },
+          {
+            id: 's-ready-slots',
+            rev: 5,
+            do: 'On the Tour, under Pretend any slot, press a session, then open the attendee Home.',
+            expect:
+              'Home, the agenda and the session act as if it were five minutes into that slot.',
+            links: [{ href: '/admin/tour', label: 'Tour' }],
+          },
           {
             id: 's-ready-plain-bar',
             rev: 4,
@@ -931,6 +947,25 @@ export const TEST_PLAN: Part[] = [
         title: 'S7. Running the room',
         steps: [
           {
+            id: 's-room-podium-drums',
+            rev: 5,
+            do: 'On Big screen reveal the podium from the last place up, with the projector sound on.',
+            expect:
+              'Places 4 and below tick in. Then 3rd, 2nd and 1st each build with a drum roll while the room dims and the question mark trembles, ending in a hit, a flash and a shake. The winner is the longest roll, then a big hit, a crown, confetti and a fanfare. The box for 4th and down sits at the bottom.',
+            links: [{ href: '/admin/big-screen', label: 'Big screen' }],
+          },
+          {
+            id: 's-room-loop',
+            rev: 5,
+            do: 'On Screensaver add a riddle, a fact and a lead with a photo, then choose Screensaver on Big screen.',
+            expect:
+              'The projector cycles one card at a time. A riddle shows its question, then its answer after a pause. A lead card shows the photo, name and role. Choose Hand over to slides for a plain black screen, then any view to come back.',
+            links: [
+              { href: '/admin/screensaver', label: 'Screensaver' },
+              { href: '/admin/big-screen', label: 'Big screen' },
+            ],
+          },
+          {
             id: 's-room-feedbackqr',
             rev: 4,
             do: 'On Big screen choose Feedback QR (automatic), then pick another session.',
@@ -1136,6 +1171,17 @@ export const TEST_PLAN: Part[] = [
         id: 's-after',
         title: 'S8. After the event',
         steps: [
+          {
+            id: 's-after-eventnudge',
+            rev: 5,
+            do: "After the last session ends (use the Announce page's feedback reminders switch), look at a phone with alerts on and at the big screen suggestion.",
+            expect:
+              'One notification asks how the summit was and opens the whole-event form, and Big screen suggests the Feedback QR.',
+            links: [
+              { href: '/admin/announce', label: 'Announce' },
+              { href: '/admin/big-screen', label: 'Big screen' },
+            ],
+          },
           {
             id: 's-after-names',
             rev: 4,

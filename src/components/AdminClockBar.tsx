@@ -1,3 +1,5 @@
+import { testModeOn } from '@/modules/test-mode/server';
+import Link from 'next/link';
 import { testClockMoment } from '@/lib/test-clock-server';
 import { clearTestClock } from '@/modules/checklist/actions';
 
@@ -8,23 +10,41 @@ import { clearTestClock } from '@/modules/checklist/actions';
  */
 export async function AdminClockBar() {
   const moment = await testClockMoment();
-  if (!moment) return null;
+  const testMode = await testModeOn();
+  const modeBar = testMode ? (
+    <p className="mb-3 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-line bg-muted px-3 py-2 text-sm text-ink-soft print:hidden">
+      <span>
+        <strong className="text-ink">Test mode is on.</strong> The test tools are showing. Switch it
+        off before the event.
+      </span>
+      <Link href="/admin/admins#test-mode" className="font-semibold text-primary">
+        Test mode settings
+      </Link>
+    </p>
+  ) : null;
+  if (!moment) return modeBar;
   return (
-    <div
-      role="status"
-      className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-lg border-2 border-warning bg-warning/10 p-3 text-sm print:hidden"
-    >
-      <p className="text-ink">
-        <strong>Test clock is ON for this device</strong>: attendee pages here pretend it is{' '}
-        <span className="font-mono">{moment.replace('T', ' ')}</span>. Secretariat pages keep the
-        real time.
-      </p>
-      <form action={clearTestClock}>
-        <input type="hidden" name="back" value="here" />
-        <button type="submit" className="min-h-11 rounded-lg bg-warning px-4 font-bold text-canvas">
-          Turn the test clock off
-        </button>
-      </form>
-    </div>
+    <>
+      {modeBar}
+      <div
+        role="status"
+        className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-lg border-2 border-warning bg-warning/10 p-3 text-sm print:hidden"
+      >
+        <p className="text-ink">
+          <strong>Test clock is ON for this device</strong>: attendee pages here pretend it is{' '}
+          <span className="font-mono">{moment.replace('T', ' ')}</span>. Secretariat pages keep the
+          real time.
+        </p>
+        <form action={clearTestClock}>
+          <input type="hidden" name="back" value="here" />
+          <button
+            type="submit"
+            className="min-h-11 rounded-lg bg-warning px-4 font-bold text-canvas"
+          >
+            Turn the test clock off
+          </button>
+        </form>
+      </div>
+    </>
   );
 }

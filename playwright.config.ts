@@ -66,6 +66,13 @@ export default defineConfig({
       testMatch: /checklist\.spec\.ts$/,
       dependencies: ['photo-wall'],
     },
+    {
+      // Test mode is shared, and the checklist needs it on: this goes after it.
+      name: 'test-mode',
+      use: { ...devices['Desktop Chrome'] },
+      testMatch: /test-mode\.spec\.ts$/,
+      dependencies: ['wipe'],
+    },
   ],
 
   webServer: process.env.PLAYWRIGHT_BASE_URL

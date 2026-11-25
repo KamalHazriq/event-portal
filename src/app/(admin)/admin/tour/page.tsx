@@ -1,4 +1,7 @@
 import type { Metadata } from 'next';
+import { redirect } from 'next/navigation';
+
+import { testModeOn } from '@/modules/test-mode/server';
 import Link from 'next/link';
 
 import { QrCode } from '@/components/QrCode';
@@ -39,6 +42,8 @@ const plus = (clock: string, minutes: number): string => {
  */
 export default async function TourPage() {
   await requireAdmin('/admin/tour');
+  // Only while test mode is on: switched off, there is nothing here to use.
+  if (!(await testModeOn())) redirect('/admin/admins?testmode=off#test-mode');
   const config = getEventConfig();
   const { features } = config;
   const data = getData();
@@ -272,6 +277,48 @@ export default async function TourPage() {
               </p>
             )}
           </div>
+        </div>
+      </section>
+
+      <section id="slots" aria-labelledby="slots-h" className="scroll-mt-24">
+        <h2 id="slots-h" className="text-xl font-bold text-ink">
+          Pretend any slot
+        </h2>
+        <p className="mt-1 text-sm text-ink-soft">
+          Press a session to make this device act as if it were five minutes into that slot: Home,
+          the agenda, reactions, comments, feedback and the big screen preview all follow. Then open
+          the attendee view to see it. Turn it off with the clock bar at the top.
+        </p>
+        <div className="mt-3 space-y-4">
+          {agenda.days.map((day) => (
+            <div key={day.id}>
+              <p className="mb-1 text-sm font-bold uppercase tracking-wide text-ink-soft">
+                {day.label}
+              </p>
+              <ul className="flex flex-wrap gap-2">
+                {day.sessions
+                  .filter((x) => !x.hidden)
+                  .map((x) => (
+                    <li key={x.id}>
+                      <form action={tourSetClock}>
+                        <input
+                          type="hidden"
+                          name="moment"
+                          value={`${day.date}T${plus(x.start, 5)}`}
+                        />
+                        <button
+                          type="submit"
+                          className="min-h-11 rounded-lg border border-line bg-surface px-3 text-left text-sm font-semibold text-ink hover:border-primary"
+                        >
+                          <span className="block font-mono text-xs text-ink-soft">{x.start}</span>
+                          {x.title}
+                        </button>
+                      </form>
+                    </li>
+                  ))}
+              </ul>
+            </div>
+          ))}
         </div>
       </section>
 

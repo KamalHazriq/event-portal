@@ -113,6 +113,14 @@ export const ADMIN_GROUPS: AdminGroup[] = [
         icon: 'sparkle',
       },
       {
+        href: '/admin/screensaver',
+        label: 'Screensaver',
+        title: 'Screensaver',
+        description:
+          'Riddles, "Do you know?" facts and new leads and heads that play on the big screen during breaks.',
+        icon: 'sparkle',
+      },
+      {
         href: '/admin/door-gifts',
         label: 'Door gifts',
         title: 'Door gifts',
@@ -265,8 +273,13 @@ export function findGroup(slug: string): AdminGroup | undefined {
 }
 
 /** Pages of modules switched off in the event file: kept out of every menu. */
-export function hiddenAdminPages(features: { committees: boolean; doorGift: boolean }): string[] {
+export function hiddenAdminPages(
+  features: { committees: boolean; doorGift: boolean },
+  testMode = true,
+): string[] {
   return [
+    // The testing pages go when test mode is switched off.
+    ...(testMode ? [] : ['/admin/test-plan', '/admin/tour']),
     ...(features.committees ? [] : ['/admin/committees']),
     ...(features.doorGift ? [] : ['/admin/door-gifts']),
   ];

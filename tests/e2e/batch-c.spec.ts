@@ -60,3 +60,16 @@ test('a person can be given early-arrival times, and the department table is gon
   await page.goto('/leaderboard');
   await expect(page.getByRole('heading', { name: 'Departments' })).toHaveCount(0);
 });
+
+test('the screensaver plays riddles, and the screen can be handed over to slides', async ({
+  page,
+}, testInfo) => {
+  test.skip(testInfo.project.name !== 'desktop', 'one run is enough');
+  await signIn(page);
+  await page.goto('/admin/screensaver');
+  await expect(page.getByRole('heading', { name: 'Screensaver', level: 1 })).toBeVisible();
+  await page.goto('/screen/loop');
+  await expect(page.getByText('Teka-teki')).toBeVisible();
+  await page.goto('/screen/slides');
+  await expect(page.getByText('Handed over to slides')).toBeAttached();
+});

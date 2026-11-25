@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
+import { testModeOn } from '@/modules/test-mode/server';
 import { ADMIN_GROUPS, findGroup, hiddenAdminPages } from '@/components/admin-pages';
 import { getEventConfig } from '@/lib/config';
 import { Icon } from '@/components/icons';
@@ -31,6 +32,7 @@ const INTRO: Record<string, string> = {
 export default async function AdminGroupPage({ params }: Props) {
   const { group: slug } = await params;
   const group = findGroup(slug);
+  const hidden = hiddenAdminPages(getEventConfig().features, await testModeOn());
   if (!group) notFound();
   await requireAdmin(`/admin/${group.slug}`);
 
@@ -42,7 +44,7 @@ export default async function AdminGroupPage({ params }: Props) {
       </header>
       <ul className="stagger grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {group.pages
-          .filter((page) => !hiddenAdminPages(getEventConfig().features).includes(page.href))
+          .filter((page) => !hidden.includes(page.href))
           .map((page) => (
             <li key={page.href}>
               <Link

@@ -1,4 +1,5 @@
 import { AdminClockBar } from '@/components/AdminClockBar';
+import { testModeOn } from '@/modules/test-mode/server';
 import { hiddenAdminPages } from '@/components/admin-pages';
 import type { Metadata } from 'next';
 
@@ -36,6 +37,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const session = await getAdminSession();
   const mark = markFor(config.branding, resolveTheme(config.branding, 'portal'));
   const operator = session?.operator ?? null;
+  const testMode = await testModeOn();
 
   return (
     <div
@@ -49,7 +51,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           shortName={config.event.shortName}
           operator={operator}
           mark={mark}
-          hidden={hiddenAdminPages(config.features)}
+          hidden={hiddenAdminPages(config.features, testMode)}
+          testMode={testMode}
         />
       ) : null}
 
@@ -58,7 +61,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           shortName={config.event.shortName}
           operator={operator}
           mark={mark}
-          hidden={hiddenAdminPages(config.features)}
+          hidden={hiddenAdminPages(config.features, testMode)}
+          testMode={testMode}
         />
         <main
           id="main"

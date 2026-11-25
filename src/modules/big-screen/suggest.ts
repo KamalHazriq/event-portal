@@ -62,8 +62,28 @@ export function suggestScreenView(
       reason: 'Before the first session: the welcome screen, with the QR to join.',
     };
   }
+  if (state.afterEventEnds && has('feedback')) {
+    return {
+      view: 'feedback',
+      reason: 'The summit is over: put up the feedback QR, so people can scan before they leave.',
+    };
+  }
   if (state.afterEventEnds && has('photos')) {
     return { view: 'photos', reason: 'The summit is over: the photo wall is a good last screen.' };
+  }
+  // A session with a feedback form has just finished: its QR is the thing to show.
+  const justEnded = agenda.sessions.find(
+    (x) =>
+      x.feedbackEnabled &&
+      x.date === now.date &&
+      now.minutes >= x.endMinutes &&
+      now.minutes - x.endMinutes <= 10,
+  );
+  if (justEnded && has('feedback')) {
+    return {
+      view: 'feedback',
+      reason: `${justEnded.title} has just finished: show the feedback QR while it is fresh.`,
+    };
   }
   if (state.next && state.minutesUntilNext !== null && has('now-next')) {
     return {

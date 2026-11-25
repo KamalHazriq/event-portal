@@ -1,5 +1,6 @@
 import { PodiumView } from './PodiumView';
 import { FeedbackQrView } from './ScreenViews';
+import { LoopView } from './LoopView';
 import { AutoRefresh } from '@/components/AutoRefresh';
 
 import { SCREEN_POLL_MS } from '../logic';
@@ -49,6 +50,16 @@ export function ScreenFrame({
   clock: string;
   testMode: boolean;
 }) {
+  // Handed over to slides: nothing at all, so the deck on top has a clean black screen.
+  if (payload.view === 'slides') {
+    return (
+      <main id="main" className="relative h-dvh w-full bg-black">
+        <AutoRefresh intervalMs={SCREEN_POLL_MS} />
+        <span className="sr-only">Handed over to slides. The portal is waiting behind.</span>
+      </main>
+    );
+  }
+
   return (
     <main
       id="main"
@@ -109,6 +120,7 @@ export function ScreenFrame({
           {payload.view === 'comments' ? <CommentsView {...payload.props} /> : null}
           {payload.view === 'podium' ? <PodiumView {...payload.props} /> : null}
           {payload.view === 'feedback' ? <FeedbackQrView {...payload.props} /> : null}
+          {payload.view === 'loop' ? <LoopView {...payload.props} calm={calm} /> : null}
         </div>
       </ViewTransition>
       {banner ? (

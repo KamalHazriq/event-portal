@@ -10,6 +10,8 @@ type Props = {
   mark?: string | null;
   /** Pages switched off in the event file. */
   hidden?: string[];
+  /** Test mode: the Tour link shows only while it is on. */
+  testMode?: boolean;
 };
 
 function Brand({ shortName, mark }: { shortName: string; mark: string | null }) {
@@ -83,6 +85,7 @@ export function AdminSidebar({
   operator,
   mark = null,
   hidden = [],
+  testMode = true,
 }: Props & { operator: string }) {
   return (
     <aside className="admin-sidebar sticky top-0 hidden h-dvh flex-col border-r border-line lg:flex print:hidden">
@@ -94,13 +97,15 @@ export function AdminSidebar({
       </div>
       <AdminSidebarNav hidden={hidden} />
       <div className="space-y-3 border-t border-line px-6 py-4">
-        <Link
-          href="/admin/tour"
-          className="flex items-center gap-2 text-sm font-semibold text-ink-soft no-underline hover:text-ink"
-        >
-          <Icon name="book" className="size-4" />
-          Tour (demo the portal)
-        </Link>
+        {testMode ? (
+          <Link
+            href="/admin/tour"
+            className="flex items-center gap-2 text-sm font-semibold text-ink-soft no-underline hover:text-ink"
+          >
+            <Icon name="book" className="size-4" />
+            Tour (demo the portal)
+          </Link>
+        ) : null}
         <Link
           href="/"
           className="flex items-center gap-2 text-sm font-semibold text-ink-soft no-underline hover:text-ink"

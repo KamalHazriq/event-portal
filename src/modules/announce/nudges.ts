@@ -10,6 +10,7 @@
 import { getData } from '@/data';
 import { getEventConfig } from '@/lib/config';
 import { toMinutes, type EventNow } from '@/lib/time';
+import { EVENT_FORM_ID } from '@/modules/feedback/logic';
 import { readFormSettings } from '@/modules/feedback/settings';
 
 import { dueFeedbackNudges, NUDGE_KEYS } from './logic';
@@ -38,6 +39,27 @@ export async function runFeedbackNudges(now: EventNow): Promise<number> {
       body: 'Rate it in under a minute. It helps the next summit.',
       url: `/feedback/${session.id}`,
       tag: `feedback-${session.id}`,
+    }).catch(() => undefined);
+    count++;
+  }
+  // The summit itself is over: one nudge for the whole-event form.
+  const lastDay = [...days].sort((a, b) => (a.date < b.date ? -1 : 1)).at(-1);
+  const lastEnd = lastDay
+    ? Math.max(...lastDay.sessions.filter((s) => !s.hidden).map((s) => toMinutes(s.end)))
+    : null;
+  if (
+    lastDay &&
+    lastEnd !== null &&
+    (now.date > lastDay.date || (now.date === lastDay.date && now.minutes >= lastEnd)) &&
+    (await readFormSettings(EVENT_FORM_ID)).open &&
+    (await data.settings.get(NUDGE_KEYS.eventSent)) === null
+  ) {
+    await data.settings.set(NUDGE_KEYS.eventSent, new Date().toISOString());
+    await pushToAll({
+      title: `How was ${config.event.shortName}?`,
+      body: 'Thank you for coming. Tell us what you thought: it takes a few minutes.',
+      url: '/feedback/event',
+      tag: 'feedback-event',
     }).catch(() => undefined);
     count++;
   }

@@ -1,4 +1,6 @@
 import type { Metadata } from 'next';
+import { setTestMode } from '@/modules/test-mode/actions';
+import { testModeOn } from '@/modules/test-mode/server';
 
 import { AutoRefresh } from '@/components/AutoRefresh';
 import { getData } from '@/data';
@@ -44,6 +46,7 @@ type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
 export default async function AdminsPage({ searchParams }: { searchParams: SearchParams }) {
   const params = await searchParams;
+  const testMode = await testModeOn();
   const session = await requireAdmin('/admin/admins');
   const config = getEventConfig();
   const { desks, log, now } = await loadAdmins(session.operator);
@@ -87,6 +90,42 @@ export default async function AdminsPage({ searchParams }: { searchParams: Searc
         <p className="mt-2 text-sm text-ink-soft">
           A desk shows as here while it has a page open, and for half an hour after it goes quiet.
         </p>
+      </section>
+
+      <section
+        id="test-mode"
+        aria-labelledby="test-mode-h"
+        className="scroll-mt-24 space-y-3 rounded-xl border border-line bg-surface p-4"
+      >
+        <h2 id="test-mode-h" className="text-lg font-bold text-ink">
+          Test mode
+        </h2>
+        {params.testmode === 'off' ? (
+          <p
+            role="status"
+            className="rounded-lg border border-success p-3 text-sm font-semibold text-success"
+          >
+            Test mode is off. The testing tools are gone and the test participant is off the list.
+          </p>
+        ) : null}
+        <p className="text-sm text-ink-soft">
+          Test mode is <strong className="text-ink">{testMode ? 'ON' : 'OFF'}</strong>. While it is
+          on, the secretariat has the Test plan, the Tour, the pretend-time clock and the test
+          participant, so every part of the portal can be tried before the event. Switching it off
+          removes all of that: the pages leave the menu, pretend time stops working, and the test
+          participant is taken off the list. Do it before the first guest arrives.
+        </p>
+        <form action={setTestMode}>
+          <input type="hidden" name="mode" value={testMode ? 'off' : 'on'} />
+          <button
+            type="submit"
+            className={`min-h-11 rounded-lg px-5 font-bold ${
+              testMode ? 'bg-primary text-on-primary' : 'border border-line text-ink'
+            }`}
+          >
+            {testMode ? 'Turn test mode off' : 'Turn test mode on'}
+          </button>
+        </form>
       </section>
 
       <section id="resets" aria-labelledby="resets-h" className="scroll-mt-24 space-y-3">

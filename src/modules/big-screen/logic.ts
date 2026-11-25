@@ -24,6 +24,8 @@ export const SCREEN_VIEWS = [
   'comments',
   'podium',
   'feedback',
+  'loop',
+  'slides',
 ] as const;
 export type ScreenView = (typeof SCREEN_VIEWS)[number];
 
@@ -105,6 +107,18 @@ export const SCREEN_VIEW_INFO: Record<
     title: 'Comments',
     description: 'The most liked approved comments on a talk, with a QR to add one.',
     whenToUse: 'After a talk, or while people are reacting',
+  },
+  loop: {
+    title: 'Screensaver',
+    description:
+      'Riddles that reveal their answer, "Do you know?" facts and new leads and heads, one card at a time. Edit them on the Screensaver page.',
+    whenToUse: 'Breaks, lunch and any quiet time',
+  },
+  slides: {
+    title: 'Hand over to slides',
+    description:
+      'A plain black screen, so the projector laptop can switch to PowerPoint (Alt+Tab) and show the deck without the portal behind it.',
+    whenToUse: 'When a speaker or the MC shows their own slides',
   },
   feedback: {
     title: 'Feedback QR',
