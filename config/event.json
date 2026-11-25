@@ -432,7 +432,8 @@
           "room": "Separate room",
           "description": "A separate morning session for heads of department, running alongside the breakouts. Everyone joins the plenary from lunch.",
           "speakerIds": ["sp-facilitators"],
-          "plain": true
+          "plain": true,
+          "hidden": true
         },
         {
           "id": "d2-tea",

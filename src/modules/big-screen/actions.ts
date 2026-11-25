@@ -5,7 +5,14 @@ import { revalidatePath } from 'next/cache';
 import { getData } from '@/data';
 import { requireAdminApi } from '@/lib/admin-guard';
 
-import { isScreenView, parsePodiumSize, SCREEN_KEYS, SCREEN_VIEW_INFO } from './logic';
+import { loadScoreboard } from '@/modules/points/server';
+import {
+  isScreenView,
+  parsePodiumSize,
+  podiumGroups,
+  SCREEN_KEYS,
+  SCREEN_VIEW_INFO,
+} from './logic';
 import { recordActivity } from '@/modules/admins/record';
 import { getEventConfig } from '@/lib/config';
 import { QA_KEYS } from '@/modules/qa/logic';
@@ -100,6 +107,12 @@ export async function podiumControl(formData: FormData): Promise<void> {
     await data.settings.set(SCREEN_KEYS.podiumStep, String(current + 1));
   } else if (action === 'back') {
     await data.settings.set(SCREEN_KEYS.podiumStep, String(Math.max(0, current - 1)));
+  } else if (action === 'rest') {
+    // Everyone below the top three at once: places 4 and down.
+    const size = parsePodiumSize(await data.settings.get(SCREEN_KEYS.podiumSize));
+    const groups = podiumGroups((await loadScoreboard()).people, size);
+    const below = groups.filter((g) => g.rank > 3).length;
+    await data.settings.set(SCREEN_KEYS.podiumStep, String(Math.max(current, below)));
   } else if (action === 'all') {
     await data.settings.set(SCREEN_KEYS.podiumStep, '99');
   } else if (action === 'reset') {

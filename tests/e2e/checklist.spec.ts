@@ -44,11 +44,11 @@ test('tick the plan, and clear test data behind a typed word', async ({ page }) 
   });
 
   // Not without the word.
-  await page.getByLabel('Type CLEAR to confirm').fill('nope');
+  await page.getByLabel('Type CLEAR to confirm').first().fill('nope');
   await page.getByRole('button', { name: 'Clear all test data' }).click();
   await expect(page.getByRole('alert').filter({ hasText: 'Type CLEAR' })).toBeVisible();
 
-  await page.getByLabel('Type CLEAR to confirm').fill('clear');
+  await page.getByLabel('Type CLEAR to confirm').first().fill('clear');
   await page.getByRole('button', { name: 'Clear all test data' }).click();
   await expect(page.getByText('Cleared. The event starts from a clean slate.')).toBeVisible();
 

@@ -142,9 +142,9 @@ export const TEST_PLAN: Part[] = [
           {
             id: 'a-home-plain',
             rev: 3,
-            do: 'Open the Welcome, the Bingo ice breaker (Day 1) and the M-level session (Day 2) on the agenda.',
+            do: 'Open the Welcome and the Bingo ice breaker (Day 1) on the agenda, and look for the M-level session (Day 2).',
             expect:
-              'These show the time and place only: no reactions, no comments, no Slido button, no rating. They are missing from the Comments, Q&A and report lists too.',
+              'Welcome and Bingo show the time and place only: no reactions, no comments, no Slido button, no rating, and they are missing from the Comments, Q&A and report lists. The M-level session is private, so it is not on the agenda at all.',
             links: [{ href: '/agenda', label: 'Agenda' }],
           },
           {
@@ -869,7 +869,7 @@ export const TEST_PLAN: Part[] = [
             rev: 3,
             do: 'On Big screen choose Podium reveal, pick Top 3, then press Reveal next until the winner shows. Try Top 5 and Top 10.',
             expect:
-              'The button names the place coming up (Reveal 5th place, 4th place, and so on). Places pop in from the bottom up: the top 3 on the podium, places 4 and below in a box underneath, the winner gets a crown, confetti and a fanfare, tied people share a place, and Start again hides it. The title reads "Top N best participants".',
+              'The button names the place coming up (Reveal 5th place, 4th place, and so on), and a second button reveals places 4 to the last at once. Three people tied for 8th show 8th three times, one row each. Places pop in from the bottom up: the top 3 on the podium, places 4 and below in a box underneath, the winner gets a crown, confetti and a fanfare, tied people share a place, and Start again hides it. The title reads "Top N best participants".',
             links: [{ href: '/admin/big-screen', label: 'Big screen' }],
           },
           {

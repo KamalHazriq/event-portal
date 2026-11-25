@@ -192,16 +192,16 @@ export default async function SessionPage({ params, searchParams }: PageProps) {
         </dl>
       </header>
 
-      {reactions}
-
-      {commentsWall}
-
       {session.description ? (
         <section>
           <h2 className="sr-only">About this session</h2>
           <p className="text-ink">{session.description}</p>
         </section>
       ) : null}
+
+      {reactions}
+
+      {commentsWall}
 
       {/* Polls, questions and feedback sit at the bottom, smaller: they come after the talk. */}
       {takePart}

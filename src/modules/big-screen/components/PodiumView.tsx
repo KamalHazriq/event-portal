@@ -143,11 +143,12 @@ export function PodiumView({
       {hasRest ? (
         <div className="mt-[1.5vh] shrink-0 rounded-2xl border border-line bg-surface p-[1.2vw]">
           <ol className="grid content-start gap-x-[1.5vw] gap-y-[0.8vh] md:grid-cols-2">
-            {rest.map(({ p: place, i }) => {
+            {/* One row for each person: three tied for 8th show 8th three times. */}
+            {rest.flatMap(({ p: place, i }) => {
               const out = isOut(i);
-              return (
+              return place.people.map((person) => (
                 <li
-                  key={place.rank}
+                  key={`${place.rank}-${person.id}`}
                   className={[
                     'flex items-center gap-[1vw] rounded-lg px-[1vw] py-[0.8vh]',
                     out ? `bg-muted ${fx} row-in` : 'bg-transparent',
@@ -159,7 +160,7 @@ export function PodiumView({
                   {out ? (
                     <>
                       <span className="min-w-0 flex-1 truncate text-[clamp(1rem,1.8vw,2.3rem)] font-semibold text-ink">
-                        {place.people.map((person) => person.name).join(', ')}
+                        {person.name}
                       </span>
                       <span className="shrink-0 text-[clamp(0.9rem,1.5vw,2rem)] tabular-nums text-ink-soft">
                         {place.points} pts
@@ -169,7 +170,7 @@ export function PodiumView({
                     <span className="text-[clamp(1rem,1.8vw,2.3rem)] text-ink-soft/60">?</span>
                   )}
                 </li>
-              );
+              ));
             })}
           </ol>
         </div>

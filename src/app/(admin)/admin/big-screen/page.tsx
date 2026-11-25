@@ -79,6 +79,11 @@ export default async function BigScreenControlPage() {
   // The next button says which place comes up, from the last one to the first.
   const nextGroup = podiumGroupsNow[podiumGroupsNow.length - podiumStep - 1];
   const placeWord = (n: number) => (n === 1 ? '1st' : n === 2 ? '2nd' : n === 3 ? '3rd' : `${n}th`);
+  const belowTop3 = podiumGroupsNow.filter((g) => g.rank > 3);
+  const restLabel =
+    belowTop3.length > 0 && podiumStep < belowTop3.length
+      ? `Reveal ${placeWord(belowTop3[0]!.rank)} to ${placeWord(belowTop3[belowTop3.length - 1]!.rank)} at once`
+      : null;
   const nextLabel = nextGroup
     ? `Reveal ${placeWord(nextGroup.rank)} place${nextGroup.people.length > 1 ? ` (${nextGroup.people.length} tied)` : ''}`
     : 'All revealed';
@@ -226,6 +231,7 @@ export default async function BigScreenControlPage() {
           <div className="mt-3 flex flex-wrap gap-2">
             {[
               ['next', nextLabel, 'bg-primary text-on-primary'],
+              ...(restLabel ? [['rest', restLabel, 'border border-primary text-primary']] : []),
               ['back', 'Hide last', 'border border-line bg-surface text-ink'],
               ['all', 'Show all', 'border border-line bg-surface text-ink'],
               ['reset', 'Start again', 'border border-line bg-surface text-ink'],
