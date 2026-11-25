@@ -2609,3 +2609,22 @@ select:focus-visible {
   display: inline-block;
   animation: crown-bob 1.8s ease-in-out infinite;
 }
+
+/* -- The announcement icon pulses a ring now and then, so it is noticed. */
+@keyframes announce-ring {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--c-primary) 55%, transparent);
+  }
+  70%,
+  100% {
+    box-shadow: 0 0 0 0.9rem transparent;
+  }
+}
+.announce-icon {
+  animation: announce-ring 2.4s ease-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .announce-icon {
+    animation: none;
+  }
+}

@@ -140,9 +140,9 @@ export default async function ReportSummaryPage() {
         {board && board.people.length > 0 ? (
           <>
             <h2 className={h2}>Leaderboard</h2>
-            <div className="mt-1 grid grid-cols-2 gap-x-6 text-ink">
+            <div className="mt-1 text-ink">
               <div>
-                <p className="text-sm font-semibold text-ink-soft">Top 5 people</p>
+                <p className="text-sm font-semibold text-ink-soft">Top 5 participants</p>
                 <ol className="mt-1 space-y-0.5">
                   {board.people
                     .filter((r) => r.rank <= 5)
@@ -154,19 +154,6 @@ export default async function ReportSummaryPage() {
                         <span className="tabular-nums">{r.points}</span>
                       </li>
                     ))}
-                </ol>
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-ink-soft">Top 3 departments</p>
-                <ol className="mt-1 space-y-0.5">
-                  {board.departments.slice(0, 3).map((d) => (
-                    <li key={d.department} className="flex justify-between gap-2">
-                      <span>
-                        {d.rank}. {findShortName(config, d.department)}
-                      </span>
-                      <span className="tabular-nums">{d.average.toFixed(1)} avg</span>
-                    </li>
-                  ))}
                 </ol>
               </div>
             </div>

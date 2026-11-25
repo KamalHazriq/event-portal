@@ -6,8 +6,7 @@ import { requireAdmin } from '@/lib/admin-guard';
 import { getEventConfig } from '@/lib/config';
 import { formatShortDate, resolveEventNow } from '@/lib/time';
 import { DeskConsole } from '@/modules/check-in/components/DeskConsole';
-import { GuestGift } from '@/modules/door-gift/components/GuestGift';
-import { giftView, loadDoorGifts } from '@/modules/door-gift/server';
+import { addPersonToList } from '@/modules/check-in/add-person';
 import { UndoAllButton } from '@/modules/check-in/components/UndoAllButton';
 import { arrivalRate, checkInDays, resolveCheckInDay } from '@/modules/check-in/logic';
 
@@ -37,7 +36,7 @@ export default async function DeskPage({ searchParams }: { searchParams: SearchP
   }
 
   const data = getData();
-  const [headcount, gifts] = await Promise.all([data.checkIns.headcount(day.id), loadDoorGifts()]);
+  const headcount = await data.checkIns.headcount(day.id);
 
   return (
     <div className="space-y-4">
@@ -115,7 +114,64 @@ export default async function DeskPage({ searchParams }: { searchParams: SearchP
         initialHeadcount={arrivalRate(headcount.arrived, headcount.expected)}
       />
 
-      {gifts.open ? <GuestGift items={gifts.config.items.map(giftView)} /> : null}
+      {typeof params.added === 'string' ? (
+        <p
+          role="status"
+          className={`rounded-lg border p-3 font-semibold ${
+            params.added === 'short' || params.added === 'error'
+              ? 'border-warning text-warning'
+              : 'border-success text-success'
+          }`}
+        >
+          {params.added === 'short'
+            ? 'Type the full name (at least three letters).'
+            : params.added === 'error'
+              ? 'Could not add them. Try again.'
+              : `${params.added} is on the list. Search their name above and check them in.`}
+        </p>
+      ) : null}
+
+      <details
+        className="rounded-xl border border-dashed border-line bg-surface p-4"
+        id="add-person"
+        open={typeof params.added === 'string'}
+      >
+        <summary className="cursor-pointer font-semibold text-ink">
+          Not on the list? Add them
+        </summary>
+        <p className="mt-2 text-sm text-ink-soft">
+          Add the person to the participant list, then search their name above and check them in as
+          usual. They get points, a door gift spin and feedback like everyone else.
+        </p>
+        <form action={addPersonToList} className="mt-3 flex flex-wrap items-end gap-3">
+          <label className="min-w-0 flex-1 text-sm font-semibold text-ink">
+            Full name
+            <input
+              name="name"
+              required
+              minLength={3}
+              maxLength={120}
+              autoComplete="off"
+              className="mt-1 block min-h-11 w-full rounded-lg border border-line bg-canvas px-3 text-ink"
+            />
+          </label>
+          <label className="min-w-0 flex-1 text-sm font-semibold text-ink">
+            Role (optional)
+            <input
+              name="title"
+              maxLength={120}
+              autoComplete="off"
+              className="mt-1 block min-h-11 w-full rounded-lg border border-line bg-canvas px-3 text-ink"
+            />
+          </label>
+          <button
+            type="submit"
+            className="min-h-11 rounded-lg bg-primary px-5 font-bold text-on-primary"
+          >
+            Add to the list
+          </button>
+        </form>
+      </details>
 
       <p className="text-sm text-ink-soft">
         Checked the wrong person in? Undo it on the{' '}

@@ -19,25 +19,25 @@ export async function AnnouncementBanner() {
     <>
       <span
         aria-hidden="true"
-        className="grid size-10 shrink-0 place-items-center rounded-full bg-primary text-xl text-on-primary"
+        className="announce-icon relative grid size-12 shrink-0 place-items-center rounded-xl bg-primary text-2xl text-on-primary"
       >
         📣
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block text-[0.7rem] font-bold uppercase tracking-[0.16em] text-primary">
+        <span className="block text-[0.7rem] font-bold uppercase tracking-[0.18em] text-primary">
           Announcement
         </span>
-        <span className="block text-base font-semibold leading-snug text-ink">{a.text}</span>
+        <span className="mt-0.5 block text-lg font-bold leading-snug text-ink">{a.text}</span>
       </span>
       {a.href ? (
-        <span className="shrink-0 rounded-full bg-primary px-3.5 py-1.5 text-sm font-bold text-on-primary">
-          Open
+        <span className="inline-flex shrink-0 items-center gap-1 rounded-lg bg-primary px-3.5 py-2 text-sm font-bold text-on-primary">
+          Open <span aria-hidden="true">›</span>
         </span>
       ) : null}
     </>
   );
   const frame =
-    'announce-card mb-6 flex items-center gap-3 overflow-hidden rounded-xl border border-line border-l-4 border-l-primary bg-surface p-3 pr-4 text-ink no-underline shadow-sm';
+    'announce-card mb-5 flex items-center gap-3.5 rounded-2xl border border-primary/50 bg-gradient-to-r from-primary/20 via-primary/10 to-transparent p-3.5 pr-4 text-ink no-underline shadow-lg';
   return (
     <aside role="status" aria-label="Announcement">
       {a.href ? (

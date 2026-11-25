@@ -5,7 +5,6 @@ import { notFound } from 'next/navigation';
 import { AutoRefresh } from '@/components/AutoRefresh';
 import { getEventConfig } from '@/lib/config';
 import { shortDepartment } from '@/lib/departments';
-import { MIN_DEPARTMENT_SIZE } from '@/modules/points/logic';
 import { currentPlayer, loadScoreboard } from '@/modules/points/server';
 
 export const dynamic = 'force-dynamic';
@@ -97,46 +96,6 @@ export default async function LeaderboardPage() {
             <span className="font-bold">{mine.points}</span> points.
           </p>
         ) : null}
-      </section>
-
-      <section aria-labelledby="teams">
-        <h2 id="teams" className="mb-3 text-xs font-bold uppercase tracking-[0.16em] text-ink-soft">
-          Departments
-        </h2>
-        {board.departments.length === 0 ? (
-          <p className="rounded-xl border border-line bg-surface p-4 text-ink-soft">
-            No departments to show yet.
-          </p>
-        ) : (
-          <ol className="stagger space-y-2">
-            {board.departments.map((row) => {
-              const best = board.departments[0]?.average || 1;
-              return (
-                <li key={row.department} className="rounded-xl border border-line bg-surface p-3">
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="font-bold text-ink">
-                      {row.rank}. {shortDepartment(config, row.department)}
-                    </span>
-                    <span className="text-sm text-ink-soft">
-                      <span className="font-bold tabular-nums text-ink">{row.average}</span> per
-                      person
-                    </span>
-                  </div>
-                  <div className="mt-2 h-2 overflow-hidden rounded-full bg-muted">
-                    <div
-                      className="h-full rounded-full bg-primary"
-                      style={{ width: `${Math.round((row.average / best) * 100)}%` }}
-                    />
-                  </div>
-                </li>
-              );
-            })}
-          </ol>
-        )}
-        <p className="mt-3 text-sm text-ink-soft">
-          Averaged over everyone on the department&apos;s list, so a big team does not win by size.
-          Departments of fewer than {MIN_DEPARTMENT_SIZE} people and the secretariat are not ranked.
-        </p>
       </section>
     </div>
   );

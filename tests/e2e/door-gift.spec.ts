@@ -74,8 +74,8 @@ test('a new phone says who it is, spins for a door gift, and the desk can change
     const phone = await browser.newPage();
     await phone.goto('/welcome?next=/agenda');
     await expect(phone.getByRole('heading', { name: 'Welcome! Who are you?' })).toBeVisible();
-    // The backup for someone not on the list is there, but small.
-    await expect(phone.getByRole('button', { name: 'continue without a name' })).toBeVisible();
+    // There is no way to carry on without a name.
+    await expect(phone.getByRole('button', { name: 'continue without a name' })).toHaveCount(0);
     await phone.getByLabel('Type your name').fill(`doorprize${tag}`);
     await phone.getByRole('button', { name: 'Find me' }).click();
     await phone.getByRole('link', { name: `That is me: ${name}` }).click();
@@ -127,33 +127,36 @@ test('a new phone says who it is, spins for a door gift, and the desk can change
   }
 });
 
-test('the welcome page says when a name is not on the list', async ({ page }) => {
+test('the welcome page says when a name is not on the list, with no way round it', async ({
+  page,
+}) => {
   await page.goto('/welcome?find=zzzzzz&next=https://evil.example');
   await expect(page.getByText(/Nobody on the list has that name/)).toBeVisible();
-  await expect(page.getByText(/Ask the registration desk to add you/)).toBeVisible();
-  await page.getByRole('button', { name: 'continue without a name' }).click();
-  await expect(page).toHaveURL(/127\.0\.0\.1:\d+\/$/);
+  await expect(page.getByText(/they will add you to the list/)).toBeVisible();
+  await expect(page.getByRole('button', { name: 'continue without a name' })).toHaveCount(0);
 });
 
-test('the desk gives a guest who is not on the list a spin too', async ({ page }) => {
+test('the desk adds someone who is not on the list, then checks them in and spins', async ({
+  page,
+}) => {
   await signIn(page);
   await giftSettings(page, { mode: 'on', secretariat: true, stock: ['0', '30', '0'] });
+  const name = `Walk In ${Math.random().toString(36).slice(2, 7)}`;
   try {
     await page.goto('/admin/desk');
-    await page.getByText('Not on the list? Door gift for a guest').click();
-    await page.getByLabel('Guest name (optional)').fill('Walk In Visitor');
-    await page.getByRole('button', { name: 'Spin a door gift' }).click();
-    const dialog = page.getByRole('dialog', { name: 'Door gift for Walk In Visitor' });
+    await page.getByText('Not on the list? Add them').click();
+    await page.getByLabel('Full name').fill(name);
+    await page.getByRole('button', { name: 'Add to the list' }).click();
+    await expect(page.getByRole('status')).toContainText(`${name} is on the list`);
+
+    await page.getByLabel('Search for a name, staff number or department').fill(name);
+    await page.getByRole('button', { name: 'Check in' }).first().click();
+    const dialog = page.getByRole('dialog', { name: `Door gift for ${name}` });
     await dialog.getByRole('button', { name: 'Spin!' }).click();
     await expect(dialog.getByText('Your door gift is the Headphones!')).toBeVisible({
       timeout: 20_000,
     });
     await dialog.getByRole('button', { name: 'Handed over' }).click();
-    await page.goto('/admin/door-gifts');
-    const guest = page.locator('li', { hasText: 'Walk In Visitor' });
-    await expect(guest.getByRole('button', { name: '✓ Collected' })).toBeVisible();
-    await guest.getByRole('button', { name: 'Remove' }).click();
-    await expect(page.locator('li', { hasText: 'Walk In Visitor' })).toHaveCount(0);
   } finally {
     await giftSettings(page, { mode: 'first-day', secretariat: true, stock: ['30', '30', '30'] });
   }

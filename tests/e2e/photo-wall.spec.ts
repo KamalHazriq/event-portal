@@ -71,7 +71,7 @@ async function runWall(admin: Page, browser: Browser): Promise<void> {
   await phone.goto('/photos');
   // One photo: choose it, see it, caption it, then share.
   await phone.locator('input[type=file]').setInputFiles(PHOTO);
-  await expect(phone.getByRole('img', { name: 'The photo you chose' })).toBeVisible();
+  await expect(phone.getByRole('img', { name: 'Photo 1 you chose' })).toBeVisible();
   await phone.getByLabel(/Caption/).fill(caption);
   await phone.getByRole('button', { name: 'Share this photo' }).click();
   await expect(phone.getByText(/1 photo shared from this device/)).toBeVisible({ timeout: 20_000 });

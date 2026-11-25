@@ -5,6 +5,7 @@ import { ADMIN_GROUPS, hiddenAdminPages } from '@/components/admin-pages';
 import { AutoRefresh } from '@/components/AutoRefresh';
 import { Icon, type IconName } from '@/components/icons';
 import { getData } from '@/data';
+import { moderationOn, PHOTO_KEYS } from '@/modules/photos/logic';
 import { requireAdmin } from '@/lib/admin-guard';
 import { getEventConfig } from '@/lib/config';
 import { STYLE_INFO, STYLES } from '@/lib/look';
@@ -116,12 +117,15 @@ export default async function AdminHomePage() {
 
   const data = getData();
   const qaSessions = config.days.flatMap((d) => d.sessions).filter((s) => s.qaEnabled);
+  const photosModerated = config.features.photoWall
+    ? moderationOn(await data.settings.get(PHOTO_KEYS.moderation).catch(() => null))
+    : false;
   const [health, headcount, summaries, waitingPhotos, backupOn, questionLists, people] =
     await Promise.all([
       data.healthCheck(),
       day ? data.checkIns.headcount(day.id) : Promise.resolve(null),
       data.feedback.summaries(),
-      config.features.photoWall ? data.photos.list('pending') : Promise.resolve([]),
+      photosModerated ? data.photos.list('pending') : Promise.resolve([]),
       config.features.qa ? readBackupMode() : Promise.resolve(false),
       config.features.qa
         ? Promise.all(qaSessions.map((s) => data.questions.listBySession(s.id)))
@@ -216,14 +220,19 @@ export default async function AdminHomePage() {
       href: '/admin/feedback',
       icon: 'star',
     },
-    {
-      label: 'Photos waiting',
-      value: String(waitingPhotos.length),
-      note: waitingPhotos.length > 0 ? 'Need a look before the slideshow' : 'All caught up',
-      href: '/admin/photos',
-      icon: 'image',
-      alert: waitingPhotos.length > 0,
-    },
+    // Only when photos wait for approval: with approval off there is nothing to check.
+    ...(photosModerated
+      ? [
+          {
+            label: 'Photos waiting',
+            value: String(waitingPhotos.length),
+            note: waitingPhotos.length > 0 ? 'Need a look before the slideshow' : 'All caught up',
+            href: '/admin/photos',
+            icon: 'image' as const,
+            alert: waitingPhotos.length > 0,
+          },
+        ]
+      : []),
     backupOn
       ? {
           label: 'Questions waiting',

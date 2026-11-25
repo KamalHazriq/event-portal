@@ -5,7 +5,6 @@ import { useLayoutEffect, useRef } from 'react';
 import { RollingNumber } from './RollingNumber';
 
 type Person = { id: string; rank: number; name: string; department: string; points: number };
-type Department = { department: string; rank: number; average: number };
 
 const EASE = 'cubic-bezier(0.2, 0.7, 0.2, 1)';
 
@@ -103,41 +102,6 @@ export function AnimatedPeople({ people }: { people: Person[] }) {
           <span className="text-[clamp(1.2rem,2vw,2.8rem)] font-bold tabular-nums text-ink">
             <RollingNumber value={row.points} />
           </span>
-        </li>
-      ))}
-    </ol>
-  );
-}
-
-export function AnimatedDepartments({ departments }: { departments: Department[] }) {
-  const best = departments[0]?.average || 1;
-  const ref = useRowMotion(
-    departments.map((d) => ({ key: d.department, rank: d.rank, value: d.average })),
-  );
-  return (
-    <ol className="mt-[2vh] space-y-[1.6vh]">
-      {departments.map((row, i) => (
-        <li
-          key={row.department}
-          ref={ref(row.department)}
-          className="board-row relative"
-          style={{ animationDelay: `${i * 80}ms` }}
-        >
-          <div className="flex items-baseline justify-between gap-[1vw] text-[clamp(1rem,1.7vw,2.4rem)]">
-            <span className="font-bold text-ink">
-              {row.rank}. {row.department}
-            </span>
-            <span className="tabular-nums text-ink-soft">{row.average}</span>
-          </div>
-          <div className="mt-[0.6vh] h-[1vh] overflow-hidden rounded-full bg-muted">
-            <div
-              className="board-bar h-full rounded-full bg-primary"
-              style={{
-                width: `${Math.round((row.average / best) * 100)}%`,
-                animationDelay: `${300 + i * 80}ms`,
-              }}
-            />
-          </div>
         </li>
       ))}
     </ol>

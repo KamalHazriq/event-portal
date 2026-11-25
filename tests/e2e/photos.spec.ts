@@ -35,6 +35,17 @@ test('the server refuses something that is not a photo', async ({ request }) => 
   expect((await response.json()).problem).toBe('not-a-photo');
 });
 
+test('a photo needs a caption before it can be shared', async ({ browser }, testInfo) => {
+  test.skip(testInfo.project.name !== 'desktop', 'one run is enough');
+  const phone = await browser.newPage({ viewport: { width: 375, height: 812 } });
+  await phone.goto('/photos');
+  await phone.locator('input[type=file]').setInputFiles(PHOTO);
+  await expect(phone.getByRole('img', { name: 'Photo 1 you chose' })).toBeVisible();
+  await phone.getByRole('button', { name: 'Share this photo' }).click();
+  await expect(phone.getByRole('alert')).toContainText('needs a caption');
+  await phone.close();
+});
+
 test('the photo admin page and the zip need the PIN', async ({ page, request }) => {
   await page.goto('/admin/photos');
   await expect(page).toHaveURL(/\/admin\/sign-in/);
@@ -51,7 +62,7 @@ test('a shared photo waits for approval, then reaches the slideshow', async ({
   await phone.goto('/photos');
   // One photo: choose it, see it, caption it, then share.
   await phone.locator('input[type=file]').setInputFiles(PHOTO);
-  await expect(phone.getByRole('img', { name: 'The photo you chose' })).toBeVisible();
+  await expect(phone.getByRole('img', { name: 'Photo 1 you chose' })).toBeVisible();
   await phone.getByLabel(/Caption/).fill(caption);
   await phone.getByRole('button', { name: 'Share this photo' }).click();
   await expect(phone.getByText('Sent, waiting for approval')).toBeVisible({ timeout: 20_000 });

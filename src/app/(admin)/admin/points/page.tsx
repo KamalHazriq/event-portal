@@ -5,7 +5,7 @@ import { requireAdmin } from '@/lib/admin-guard';
 import { getEventConfig } from '@/lib/config';
 import { shortDepartment } from '@/lib/departments';
 import { getData } from '@/data';
-import { addBonus, removeBonus } from '@/modules/points/actions';
+import { addBonus, removeBonus, saveEarlyCutoffs } from '@/modules/points/actions';
 import {
   BONUS_KEY,
   CAPS,
@@ -15,7 +15,7 @@ import {
   POINTS,
   type PointKind,
 } from '@/modules/points/logic';
-import { loadScoreboard } from '@/modules/points/server';
+import { attendanceRules, loadScoreboard } from '@/modules/points/server';
 
 export const dynamic = 'force-dynamic';
 
@@ -42,6 +42,7 @@ export default async function PointsPage({ searchParams }: { searchParams: Searc
     data.settings.get(BONUS_KEY),
   ]);
   const bonuses = parseBonus(bonusRaw).reverse();
+  const rules = await attendanceRules();
   const nameOf = new Map(attendees.map((a) => [a.id, a]));
   const who = typeof params.who === 'string' ? params.who : '';
   const notice =
@@ -169,6 +170,65 @@ export default async function PointsPage({ searchParams }: { searchParams: Searc
             ))}
           </ul>
         ) : null}
+      </section>
+
+      <section
+        id="attendance"
+        aria-labelledby="attendance-h"
+        className="scroll-mt-24 rounded-xl border border-line bg-surface p-4"
+      >
+        <h2 id="attendance-h" className="text-lg font-bold text-ink">
+          Attendance points, each day
+        </h2>
+        <p className="mt-1 text-sm text-ink-soft">
+          Each day is scanned on its own date: the desk and the kiosk use the day that matches today
+          (before the event they use Day 1, and the desk can pick another day at the top of the Desk
+          page). A scan on a day earns {POINTS.checkIn} points. A scan before the early time below
+          earns {POINTS.onTime} more. Scan later that day: just the {POINTS.checkIn}. No scan that
+          day: nothing. Participants see these rules on My points.
+        </p>
+        {params.early === 'saved' ? (
+          <p
+            role="status"
+            className="mt-3 rounded-lg border border-success p-3 text-sm font-semibold text-success"
+          >
+            Saved. Points update at once.
+          </p>
+        ) : null}
+        <form action={saveEarlyCutoffs} className="mt-3 space-y-3">
+          <ul className="divide-y divide-line rounded-lg border border-line">
+            {rules.map((rule) => (
+              <li
+                key={rule.dayId}
+                className="flex flex-wrap items-center justify-between gap-3 p-3"
+              >
+                <span className="text-sm">
+                  <strong className="text-ink">{rule.label}</strong>
+                  <span className="ml-2 text-ink-soft">{rule.date}</span>
+                </span>
+                <label className="flex items-center gap-2 text-sm font-semibold text-ink">
+                  Early means before
+                  <input
+                    type="time"
+                    name={`early-${rule.dayId}`}
+                    defaultValue={rule.earlyBy}
+                    required
+                    className="min-h-11 rounded-lg border border-line bg-canvas px-3 text-ink"
+                  />
+                </label>
+              </li>
+            ))}
+          </ul>
+          <button
+            type="submit"
+            className="min-h-11 rounded-lg bg-primary px-5 font-bold text-on-primary"
+          >
+            Save the early times
+          </button>
+          <p className="text-xs text-ink-soft">
+            Left alone, early means before the day&apos;s first session starts.
+          </p>
+        </form>
       </section>
 
       <section className="rounded-xl border border-line bg-surface p-4">

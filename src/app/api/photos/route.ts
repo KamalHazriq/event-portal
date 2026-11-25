@@ -65,12 +65,16 @@ export async function POST(request: Request): Promise<Response> {
     return refuse(checked.problem, checked.problem === 'too-many' ? 403 : 400);
   }
 
+  // Every photo needs a few words about it.
+  const caption = plainText(form.get('caption'), PHOTO_LIMITS.maxCaption).trim();
+  if (caption.length < 2) return refuse('caption-needed', 400);
+
   // Straight onto the wall when the secretariat has switched approval off.
   const approved = !moderationOn(await data.settings.get(PHOTO_KEYS.moderation));
   await data.photos.add({
     deviceId,
     status: approved ? 'approved' : 'pending',
-    caption: plainText(form.get('caption'), PHOTO_LIMITS.maxCaption),
+    caption,
     width: checked.width,
     height: checked.height,
     image: imageBytes,

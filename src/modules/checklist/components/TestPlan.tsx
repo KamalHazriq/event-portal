@@ -277,11 +277,11 @@ export function TestPlan({ parts }: { parts: Part[] }) {
       </section>
 
       <div
-        className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-surface/95 px-4 py-2 backdrop-blur print:hidden"
+        className="sticky bottom-3 z-30 rounded-xl border border-line bg-surface/95 px-4 py-2.5 shadow-lg backdrop-blur print:hidden"
         role="status"
         aria-live="polite"
       >
-        <div className="mx-auto flex max-w-5xl items-center gap-3">
+        <div className="flex items-center gap-3">
           <span className="shrink-0 text-sm font-bold tabular-nums text-ink">
             {doneCount} of {total}
           </span>
@@ -307,7 +307,6 @@ export function TestPlan({ parts }: { parts: Part[] }) {
           </span>
         </div>
       </div>
-      <div aria-hidden="true" className="h-10 print:hidden" />
     </div>
   );
 }

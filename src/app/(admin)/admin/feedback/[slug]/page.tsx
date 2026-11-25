@@ -6,7 +6,6 @@ import { getData } from '@/data';
 import { requireAdmin } from '@/lib/admin-guard';
 import { getEventConfig } from '@/lib/config';
 import {
-  anonymityLabel,
   findFeedbackForm,
   formatAverage,
   formIdFromSlug,
@@ -78,7 +77,7 @@ export default async function FeedbackDetailPage({ params }: PageProps) {
         <h1 className="text-2xl font-bold leading-tight text-ink">{form.title}</h1>
         <p className="mt-1 text-ink-soft">{form.context}</p>
         <p className="mt-1 text-sm text-ink-soft">
-          {anonymityLabel(settings.anonymity)}
+          Every answer carries the name the person signed in with
           {settings.open ? '' : ', closed to new answers'}
         </p>
       </header>

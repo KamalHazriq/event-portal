@@ -395,8 +395,8 @@ export async function loadScreenView(
         view,
         props: {
           people: board.people
-            // Eight fit a 1080p projector at a size the back row can read.
-            .slice(0, 8)
+            // Ten fit a 1080p projector at a size the back row can read.
+            .slice(0, 10)
             .map((row) => ({
               id: row.attendeeId,
               rank: row.rank,
@@ -404,11 +404,6 @@ export async function loadScreenView(
               department: shortDepartment(config, row.department),
               points: row.points,
             })),
-          departments: board.departments.slice(0, 8).map((row) => ({
-            department: shortDepartment(config, row.department),
-            rank: row.rank,
-            average: row.average,
-          })),
           joinUrl: passLink(`${config.event.portalUrl.replace(/\/$/, '')}/me`),
         },
       };

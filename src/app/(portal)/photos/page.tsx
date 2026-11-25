@@ -34,7 +34,8 @@ export default async function PhotosPage() {
         <h1 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">Share a photo</h1>
         <p className="mt-3 text-ink-soft">
           Your photos play on the big screen during breaks and dinner
-          {moderated ? ', once an organiser has checked them' : ''}. Share as many as you like.
+          {moderated ? ', once an organiser has checked them' : ''}. Up to three at a time, each
+          with a caption. Tap Save under any photo to keep it in full quality.
         </p>
       </div>
 
@@ -74,9 +75,19 @@ export default async function PhotosPage() {
                     className="aspect-square h-auto w-full object-cover"
                   />
                 </a>
-                {photo.caption ? (
-                  <p className="truncate px-2 py-1.5 text-xs text-ink-soft">{photo.caption}</p>
-                ) : null}
+                <div className="flex items-center justify-between gap-2 px-2 py-1.5">
+                  <p className="min-w-0 flex-1 truncate text-xs text-ink-soft">
+                    {photo.caption || ' '}
+                  </p>
+                  <a
+                    href={`/api/photos/${photo.id}?download=1`}
+                    download
+                    aria-label={`Download the photo ${photo.caption || ''}`.trim()}
+                    className="inline-flex min-h-8 shrink-0 items-center rounded-md border border-line px-2 text-xs font-semibold text-primary no-underline"
+                  >
+                    ⬇ Save
+                  </a>
+                </div>
               </li>
             ))}
           </ul>

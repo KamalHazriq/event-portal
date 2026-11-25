@@ -6,7 +6,6 @@ import { getEventConfig } from '@/lib/config';
 import { resolveEventNow } from '@/lib/time';
 import { KioskConsole } from '@/modules/check-in/components/KioskConsole';
 import { checkInDays, resolveCheckInDay } from '@/modules/check-in/logic';
-import { giftView, loadDoorGifts } from '@/modules/door-gift/server';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,7 +20,6 @@ export default async function KioskPage() {
   const config = getEventConfig();
   const now = resolveEventNow({ timezone: config.event.timezone });
   const day = resolveCheckInDay(checkInDays(config), now);
-  const gifts = await loadDoorGifts();
   if (!day) return <p className="p-6 text-ink">This event has no days set up yet.</p>;
   return (
     <main id="main" className="relative bg-canvas">
@@ -35,12 +33,7 @@ export default async function KioskPage() {
           />
         </span>
       ) : null}
-      <KioskConsole
-        dayId={day.id}
-        dayLabel={day.label}
-        eventName={config.event.shortName}
-        guestItems={gifts.open ? gifts.config.items.map(giftView) : []}
-      />
+      <KioskConsole dayId={day.id} dayLabel={day.label} eventName={config.event.shortName} />
       {/* A quiet way out for staff: it asks for the PIN if the tablet is locked. */}
       <Link
         href="/admin"

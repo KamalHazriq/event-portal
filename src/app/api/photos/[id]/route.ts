@@ -14,11 +14,13 @@ export async function GET(
 ): Promise<Response> {
   const { id: raw } = await params;
   const id = plainText(raw, 64);
-  const size = new URL(request.url).searchParams.get('size') === 'thumb' ? 'thumb' : 'full';
+  const query = new URL(request.url).searchParams;
+  const size = query.get('size') === 'thumb' ? 'thumb' : 'full';
+  const download = query.get('download') === '1' && size === 'full';
 
   // An approved photo many phones are looking at: from memory, not the database.
   const kept = cachedImage(id, size);
-  if (kept) return send(kept, true);
+  if (kept) return send(kept, true, download ? id : null);
 
   const found = await getData().photos.image(id, size);
   if (!found) return new Response('Not found', { status: 404 });
@@ -27,13 +29,16 @@ export async function GET(
   if (!approved && !(await getAdminSession())) return new Response('Not found', { status: 404 });
   const bytes = new Uint8Array(found.bytes);
   if (approved) keepImage(id, size, bytes);
-  return send(bytes, approved);
+  return send(bytes, approved, download && approved ? id : null);
 }
 
-function send(bytes: Uint8Array, approved: boolean): Response {
+function send(bytes: Uint8Array, approved: boolean, saveAs: string | null = null): Response {
   return new Response(new Uint8Array(bytes), {
     headers: {
       'Content-Type': 'image/jpeg',
+      ...(saveAs
+        ? { 'Content-Disposition': `attachment; filename="power-summit-${saveAs.slice(0, 8)}.jpg"` }
+        : {}),
       'X-Content-Type-Options': 'nosniff',
       // Short, so a photo rejected after approval disappears within minutes.
       'Cache-Control': approved ? 'public, max-age=300' : 'private, no-store',

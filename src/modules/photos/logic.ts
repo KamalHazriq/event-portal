@@ -63,7 +63,13 @@ export function jpegSize(bytes: Uint8Array): { width: number; height: number } |
 }
 
 export type UploadProblem =
-  'not-a-photo' | 'too-big' | 'too-many' | 'switched-off' | 'rate-limited' | 'failed';
+  | 'not-a-photo'
+  | 'too-big'
+  | 'too-many'
+  | 'switched-off'
+  | 'rate-limited'
+  | 'caption-needed'
+  | 'failed';
 
 /** Checks one upload. Returns the photo's size, or the reason it is refused. */
 export function checkUpload(input: {
@@ -96,6 +102,8 @@ export function uploadMessage(problem: UploadProblem): string {
       return 'The photo wall is not open right now.';
     case 'rate-limited':
       return 'That was a lot of photos at once. Wait a minute and try again.';
+    case 'caption-needed':
+      return 'Every photo needs a caption. Write a few words about it, then share.';
     case 'failed':
       return 'The photo did not arrive. Check your connection and try again.';
     default: {

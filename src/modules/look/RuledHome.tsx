@@ -169,7 +169,7 @@ export async function RuledHome({
     ],
     [
       'Is my feedback anonymous?',
-      'Points only count that you sent a form, never what you wrote, and you choose whether to give your name.',
+      'No. Every answer carries the name you signed in with, so the team can follow up. Points only count that you sent a form, never what you wrote.',
     ],
     [
       'Can I use it on my laptop too?',
@@ -398,11 +398,25 @@ export async function RuledHome({
         </div>
       </section>
 
-      {/* Side by side on a laptop, one under the other on a phone. */}
-      <div className="mt-6 grid items-stretch gap-3 md:grid-cols-[repeat(auto-fit,minmax(20rem,1fr))]">
-        <InstallApp className="h-full" />
-        <AlertsOptIn />
-      </div>
+      {/* Do this once: stands out from the rest of the page. Side by side on a laptop. */}
+      <section
+        aria-label="Install the app and turn on alerts"
+        className="mt-6 rounded-2xl border-2 border-primary bg-primary/10 p-3 sm:p-4"
+      >
+        <p className="mb-3 flex items-center gap-2 text-sm font-bold uppercase tracking-[0.14em] text-primary">
+          <span
+            aria-hidden="true"
+            className="announce-icon grid size-6 place-items-center rounded-full bg-primary text-xs text-on-primary"
+          >
+            !
+          </span>
+          Do this once, so you do not miss anything
+        </p>
+        <div className="grid items-stretch gap-3 md:grid-cols-[repeat(auto-fit,minmax(20rem,1fr))]">
+          <InstallApp className="h-full" />
+          <AlertsOptIn />
+        </div>
+      </section>
 
       {notice ? <div className="mt-6">{notice}</div> : null}
 
@@ -502,21 +516,26 @@ export async function RuledHome({
         </ol>
       </section>
 
-      {/* 9. General Q&A: every answer open, in two columns. */}
+      {/* 9. General Q&A: tap a question to open its answer. */}
       <section aria-labelledby="faq" className={SECTION}>
         <Opener
           id="faq"
           lines={['General', 'Q&A']}
           control={config.info ? { href: '/info', label: config.info.title } : null}
         />
-        <dl className="mt-8 grid gap-x-12 gap-y-8 md:grid-cols-2">
+        <div className="mt-8 grid items-start gap-x-12 gap-y-2 md:grid-cols-2">
           {faqs.map(([q, a]) => (
-            <div key={q} className="border-t border-line pt-5">
-              <dt className="font-display text-lg font-medium text-ink">{q}</dt>
-              <dd className="mt-2 text-ink-soft">{a}</dd>
-            </div>
+            <details key={q} className="group border-t border-line py-4">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-display text-lg font-medium text-ink">
+                {q}
+                <span aria-hidden="true" className="text-ink-soft transition group-open:rotate-45">
+                  +
+                </span>
+              </summary>
+              <div className="mt-3 text-ink-soft">{a}</div>
+            </details>
           ))}
-        </dl>
+        </div>
       </section>
 
       {/* 10. Closing: inverted banner, title and two actions in one row. */}

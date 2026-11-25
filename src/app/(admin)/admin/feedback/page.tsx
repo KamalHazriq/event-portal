@@ -4,18 +4,8 @@ import Link from 'next/link';
 import { getData } from '@/data';
 import { requireAdmin } from '@/lib/admin-guard';
 import { getEventConfig } from '@/lib/config';
-import {
-  updateDefaultAnonymity,
-  updateFormAnonymity,
-  updateFormOpen,
-} from '@/modules/feedback/admin-actions';
-import {
-  ANONYMITY_MODES,
-  anonymityLabel,
-  feedbackForms,
-  formatAverage,
-  slugForFormId,
-} from '@/modules/feedback/logic';
+import { updateFormOpen } from '@/modules/feedback/admin-actions';
+import { feedbackForms, formatAverage, slugForFormId } from '@/modules/feedback/logic';
 import { readAllFormSettings } from '@/modules/feedback/settings';
 
 export const dynamic = 'force-dynamic';
@@ -33,7 +23,7 @@ export default async function AdminFeedbackPage() {
 
   const config = getEventConfig();
   const forms = feedbackForms(config);
-  const [{ eventDefault, byForm }, summaries] = await Promise.all([
+  const [{ byForm }, summaries] = await Promise.all([
     readAllFormSettings(forms),
     getData().feedback.summaries(),
   ]);
@@ -58,36 +48,9 @@ export default async function AdminFeedbackPage() {
         </p>
       ) : null}
 
-      <section className="rounded-xl border border-line bg-surface p-4">
-        <h2 className="font-bold text-ink">Names, by default</h2>
-        <p className="mt-1 text-sm text-ink-soft">
-          Applies to every form that does not have its own setting below.
-        </p>
-
-        <form action={updateDefaultAnonymity} className="mt-3 flex flex-wrap items-center gap-2">
-          <label htmlFor="default-mode" className="sr-only">
-            Default anonymity
-          </label>
-          <select
-            id="default-mode"
-            name="mode"
-            defaultValue={eventDefault}
-            className="min-h-11 rounded-lg border border-line bg-canvas px-3 py-2 text-ink"
-          >
-            {ANONYMITY_MODES.map((mode) => (
-              <option key={mode} value={mode}>
-                {anonymityLabel(mode)}
-              </option>
-            ))}
-          </select>
-          <button
-            type="submit"
-            className="min-h-11 rounded-lg bg-primary px-4 py-2 font-bold text-on-primary"
-          >
-            Save
-          </button>
-        </form>
-      </section>
+      <p className="rounded-xl border border-line bg-surface p-4 text-ink-soft">
+        Every answer carries the name the person signed in with. There is no anonymous feedback.
+      </p>
 
       <section>
         <h2 className="mb-2 text-lg font-bold text-ink">Forms</h2>
@@ -125,32 +88,6 @@ export default async function AdminFeedbackPage() {
                 </p>
 
                 <div className="mt-3 flex flex-wrap items-center gap-2">
-                  <form action={updateFormAnonymity} className="flex flex-wrap items-center gap-2">
-                    <input type="hidden" name="formId" value={form.id} />
-                    <label htmlFor={`mode-${form.id}`} className="text-sm text-ink-soft">
-                      Names
-                    </label>
-                    <select
-                      id={`mode-${form.id}`}
-                      name="mode"
-                      defaultValue={settings?.anonymityIsOverride ? settings.anonymity : 'default'}
-                      className="min-h-11 rounded-lg border border-line bg-canvas px-2 py-1 text-sm text-ink"
-                    >
-                      <option value="default">Follow the default</option>
-                      {ANONYMITY_MODES.map((mode) => (
-                        <option key={mode} value={mode}>
-                          {anonymityLabel(mode)}
-                        </option>
-                      ))}
-                    </select>
-                    <button
-                      type="submit"
-                      className="min-h-11 rounded-lg border border-line px-3 py-1 text-sm font-semibold text-ink"
-                    >
-                      Save
-                    </button>
-                  </form>
-
                   <form action={updateFormOpen}>
                     <input type="hidden" name="formId" value={form.id} />
                     <input type="hidden" name="open" value={settings?.open ? 'closed' : 'open'} />
@@ -165,12 +102,6 @@ export default async function AdminFeedbackPage() {
                     </button>
                   </form>
                 </div>
-
-                {!settings?.anonymityIsOverride ? (
-                  <p className="mt-2 text-xs text-ink-soft">
-                    Following the default: {anonymityLabel(eventDefault).toLowerCase()}
-                  </p>
-                ) : null}
               </li>
             );
           })}

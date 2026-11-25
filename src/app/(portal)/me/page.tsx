@@ -12,7 +12,8 @@ import { DEVICE_COOKIE, readDeviceId } from '@/lib/device';
 import { LIMITS, rateLimit } from '@/lib/rate-limit';
 import { findByName } from '@/modules/points/logic';
 import { CAPS, POINT_LABELS, POINTS, type PointKind } from '@/modules/points/logic';
-import { currentPlayer, loadScoreboard } from '@/modules/points/server';
+import { formatClock, formatShortDate } from '@/lib/time';
+import { attendanceRules, currentPlayer, loadScoreboard } from '@/modules/points/server';
 import { AlertsOptIn } from '@/modules/announce/components/AlertsOptIn';
 import { InstallApp } from '@/components/InstallApp';
 import { FormPending } from '@/components/FormPending';
@@ -61,6 +62,7 @@ export default async function MyPointsPage({
   const message = wrong ? MESSAGES['taken-wrong'] : state ? MESSAGES[state] : undefined;
   const me = await currentPlayer();
   const board = me ? await loadScoreboard() : null;
+  const rules = await attendanceRules();
   const score = me ? board?.scores.get(me.id) : undefined;
   const row = me ? board?.people.find((p) => p.attendeeId === me.id) : undefined;
 
@@ -155,7 +157,7 @@ export default async function MyPointsPage({
         <section className="rise rounded-2xl border border-line bg-surface p-5">
           <h2 className="text-lg font-bold text-ink">Join the leaderboard</h2>
           <p className="mt-1 text-ink-soft">
-            Once, on your own phone. Then taking part earns points for you and your department.
+            Once, on your own phone. Then taking part earns you points.
             {config.features.luckyDraw
               ? ' If you win the lucky draw, this device tells you too.'
               : ''}
@@ -308,10 +310,39 @@ export default async function MyPointsPage({
         </section>
       )}
 
+      <section aria-labelledby="attend" className="rounded-2xl border border-line bg-surface p-5">
+        <h2 id="attend" className="text-lg font-bold text-ink">
+          Come every day: points for arriving
+        </h2>
+        <p className="mt-1 text-sm text-ink-soft">
+          Scan in at the registration desk or the kiosk each day. Each day counts on its own.
+        </p>
+        <ul className="mt-3 space-y-2">
+          {rules.map((rule) => (
+            <li key={rule.dayId} className="rounded-xl border border-line bg-canvas p-3">
+              <p className="font-bold text-ink">
+                {rule.label}, {formatShortDate(rule.date, config.event.timezone)}
+              </p>
+              <p className="mt-1 text-sm text-ink-soft">
+                Before <strong className="text-ink">{formatClock(rule.earlyBy)}</strong>:{' '}
+                <strong className="text-ink">{POINTS.checkIn + POINTS.onTime} points</strong>. Later
+                that day: <strong className="text-ink">{POINTS.checkIn} points</strong>. No scan: 0.
+              </p>
+            </li>
+          ))}
+        </ul>
+      </section>
+
       <section aria-labelledby="earn">
         <h2 id="earn" className="text-lg font-bold text-ink">
           How to earn points
         </h2>
+        <p className="mt-1 text-sm text-ink-soft">
+          Points are added by themselves from what you do in the portal. The leaderboard ranks
+          everyone by their total, and people on the same points share a place. The secretariat are
+          not ranked. The secretariat may also add bonus points by hand for taking part beyond the
+          portal.
+        </p>
         <ul className="stagger mt-3 grid gap-2 sm:grid-cols-2">
           {offered.map((kind) => {
             const done = score?.counts[kind] ?? 0;

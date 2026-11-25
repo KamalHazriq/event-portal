@@ -116,9 +116,6 @@ export function CommentsWall({
           rows={3}
           className="block w-full rounded-lg border border-line bg-background p-3 text-ink focus:border-primary focus:outline-none"
         />
-        <p className="text-sm text-ink-soft">
-          Posted as <strong className="text-ink">{signedInAs}</strong>.
-        </p>
         <button
           type="submit"
           className="btn-primary min-h-11 rounded-lg bg-primary px-5 font-bold text-on-primary"

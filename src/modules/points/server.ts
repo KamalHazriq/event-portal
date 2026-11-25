@@ -6,17 +6,16 @@ import { cache } from 'react';
 
 import { getData, type Attendee } from '@/data';
 import { getEventConfig } from '@/lib/config';
-import { isDivision } from '@/lib/departments';
 import { localDateTimeToInstant } from '@/lib/time';
 import { currentDeviceId } from '@/modules/backup/server';
 
 import {
   BONUS_KEY,
+  EARLY_KEY,
+  parseEarlyCutoffs,
   computeScores,
   parseBonus,
-  rankDepartments,
   rankPeople,
-  type DepartmentRow,
   type PersonRow,
   type Score,
   type ScoreSources,
@@ -25,7 +24,6 @@ import {
 export type Scoreboard = {
   scores: Map<string, Score>;
   people: PersonRow[];
-  departments: DepartmentRow[];
 };
 
 /** Everything at once. A few small queries: the whole event is a few hundred rows. */
@@ -53,9 +51,11 @@ export async function loadScoreboard(): Promise<Scoreboard> {
     config.features.comments ? data.comments.listApproved() : Promise.resolve([]),
   ]);
 
+  const cutoffs = parseEarlyCutoffs(await data.settings.get(EARLY_KEY));
   const dayStarts: ScoreSources['dayStarts'] = {};
   for (const day of config.days) {
-    const first = [...day.sessions].map((s) => s.start).sort()[0];
+    // The secretariat's own cut-off for the day, else the day's first session.
+    const first = cutoffs[day.id] ?? [...day.sessions].map((s) => s.start).sort()[0];
     const instant = first
       ? localDateTimeToInstant(`${day.date}T${first}`, config.event.timezone)
       : null;
@@ -89,11 +89,6 @@ export async function loadScoreboard(): Promise<Scoreboard> {
   return {
     scores,
     people: rankPeople(scores, attendees),
-    // The division (D&I) is over the departments, so it is not ranked as one.
-    departments: rankDepartments(
-      scores,
-      attendees.filter((a) => !isDivision(config, a.department)),
-    ),
   };
 }
 
@@ -107,3 +102,21 @@ export const currentPlayer = cache(async (): Promise<Attendee | null> => {
   const attendeeId = await data.players.ownerOf(deviceId);
   return attendeeId ? data.attendees.get(attendeeId) : null;
 });
+
+/** What each day's attendance is worth, for the points pages. */
+export async function attendanceRules(): Promise<
+  { dayId: string; label: string; date: string; earlyBy: string; defaultEarlyBy: string }[]
+> {
+  const config = getEventConfig();
+  const cutoffs = parseEarlyCutoffs(await getData().settings.get(EARLY_KEY));
+  return config.days.map((day) => {
+    const first = [...day.sessions].map((s) => s.start).sort()[0] ?? '09:00';
+    return {
+      dayId: day.id,
+      label: day.label,
+      date: day.date,
+      earlyBy: cutoffs[day.id] ?? first,
+      defaultEarlyBy: first,
+    };
+  });
+}

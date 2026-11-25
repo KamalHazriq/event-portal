@@ -321,3 +321,23 @@ export function parseBonusPoints(value: unknown): number | null {
   const n = Number(value);
   return Number.isInteger(n) && n >= 1 && n <= MAX_BONUS ? n : null;
 }
+
+/* --------------------------------------------------------- early arrival */
+
+/** Per day, the time before which arriving counts as early: {"day-1":"09:30"}. */
+export const EARLY_KEY = 'points.earlyCutoffs';
+
+export function parseEarlyCutoffs(raw: string | null): Record<string, string> {
+  if (!raw) return {};
+  try {
+    const value: unknown = JSON.parse(raw);
+    if (typeof value !== 'object' || value === null) return {};
+    return Object.fromEntries(
+      Object.entries(value as Record<string, unknown>).filter(
+        ([, v]) => typeof v === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(v),
+      ),
+    ) as Record<string, string>;
+  } catch {
+    return {};
+  }
+}

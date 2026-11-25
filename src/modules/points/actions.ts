@@ -1,6 +1,5 @@
 'use server';
 
-import { cookies } from 'next/headers';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
@@ -8,7 +7,7 @@ import { getData } from '@/data';
 import { requireAdminApi } from '@/lib/admin-guard';
 import { getEventConfig } from '@/lib/config';
 import { recordActivity } from '@/modules/admins/record';
-import { BONUS_KEY, parseBonus, parseBonusPoints } from './logic';
+import { BONUS_KEY, EARLY_KEY, parseBonus, parseBonusPoints } from './logic';
 import { plainText } from '@/lib/text';
 import { LIMITS, rateLimit } from '@/lib/rate-limit';
 import {
@@ -17,7 +16,7 @@ import {
   deviceIdOrNew,
   startFreshDevice,
 } from '@/modules/backup/server';
-import { GUEST_COOKIE, safeNext } from '@/modules/identity/logic';
+import { safeNext } from '@/modules/identity/logic';
 
 /**
  * Signs this device in as a person, for points.
@@ -99,12 +98,6 @@ export async function leaveLeaderboard(): Promise<void> {
   redirect('/me?state=left');
 }
 
-/** The backup: someone not on the list carries on without a name, for this visit. */
-export async function continueAsGuest(formData: FormData): Promise<void> {
-  (await cookies()).set(GUEST_COOKIE, '1', { httpOnly: true, sameSite: 'lax', path: '/' });
-  redirect(safeNext(formData.get('next')));
-}
-
 /* ------------------------------------------------------------------- bonus */
 
 async function assertAdmin(): Promise<string> {
@@ -154,4 +147,19 @@ export async function removeBonus(formData: FormData): Promise<void> {
   if (gone) await recordActivity(`Took back ${gone.points} bonus points`, operator);
   revalidatePath('/', 'layout');
   redirect('/admin/points?bonus=removed#bonus');
+}
+
+/** Saves, for each day, the time before which a scan counts as early. */
+export async function saveEarlyCutoffs(formData: FormData): Promise<void> {
+  const operator = await assertAdmin();
+  const config = getEventConfig();
+  const cutoffs: Record<string, string> = {};
+  for (const day of config.days) {
+    const value = String(formData.get(`early-${day.id}`) ?? '');
+    if (/^([01]\d|2[0-3]):[0-5]\d$/.test(value)) cutoffs[day.id] = value;
+  }
+  await getData().settings.set(EARLY_KEY, JSON.stringify(cutoffs));
+  await recordActivity('Changed the early arrival times', operator);
+  revalidatePath('/', 'layout');
+  redirect('/admin/points?early=saved#attendance');
 }

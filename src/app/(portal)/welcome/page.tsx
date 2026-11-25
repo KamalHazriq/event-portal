@@ -10,7 +10,7 @@ import { shortDepartment } from '@/lib/departments';
 import { DEVICE_COOKIE, readDeviceId } from '@/lib/device';
 import { LIMITS, rateLimit } from '@/lib/rate-limit';
 import { safeNext } from '@/modules/identity/logic';
-import { continueAsGuest, joinAsPerson } from '@/modules/points/actions';
+import { joinAsPerson } from '@/modules/points/actions';
 import { findByName } from '@/modules/points/logic';
 import { currentPlayer } from '@/modules/points/server';
 
@@ -85,8 +85,7 @@ export default async function WelcomePage({ searchParams }: { searchParams: Prom
         <p className="eyebrow">{config.event.shortName}</p>
         <h1 className="mt-1 text-3xl font-bold text-ink">Welcome! Who are you?</h1>
         <p className="mt-2 text-ink-soft">
-          Once, on this device. Then your points, photos and feedback are all yours, with nothing
-          more to type.
+          Type your name once on this device. After that everything you do is yours.
         </p>
       </header>
 
@@ -164,7 +163,7 @@ export default async function WelcomePage({ searchParams }: { searchParams: Prom
               autoComplete="off"
               autoFocus
               minLength={3}
-              placeholder="For example Fahzan"
+              placeholder="For example, type your name"
               className={field}
             />
             <button type="submit" className={primary}>
@@ -217,17 +216,10 @@ export default async function WelcomePage({ searchParams }: { searchParams: Prom
         </section>
       )}
 
-      <form action={continueAsGuest} className="text-center text-sm text-ink-soft">
-        <input type="hidden" name="next" value={next} />
-        <p>Cannot find your name? Ask the registration desk to add you to the list.</p>
-        <p className="mt-2">
-          Only if that is not possible:{' '}
-          <button type="submit" className="font-semibold text-ink-soft underline">
-            continue without a name
-          </button>
-          . The desk still gives you a door gift spin.
-        </p>
-      </form>
+      <p className="text-center text-sm text-ink-soft">
+        Cannot find your name? Ask at the registration desk: they will add you to the list, then you
+        can try again.
+      </p>
     </div>
   );
 }
