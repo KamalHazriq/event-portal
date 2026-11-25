@@ -23,6 +23,7 @@ export const SCREEN_VIEWS = [
   'leaderboard',
   'comments',
   'podium',
+  'feedback',
 ] as const;
 export type ScreenView = (typeof SCREEN_VIEWS)[number];
 
@@ -34,6 +35,8 @@ export const SCREEN_KEYS = {
   /** The podium: how many places (3, 5 or 10) and how many the MC has revealed so far. */
   podiumSize: 'bigscreen.podium.size',
   podiumStep: 'bigscreen.podium.step',
+  /** What the feedback QR is for: "auto" (the session now or just finished), "event", or a session id. */
+  feedbackTarget: 'bigscreen.feedback.target',
 } as const;
 
 export const DEFAULT_SCREEN_VIEW: ScreenView = 'welcome';
@@ -103,6 +106,12 @@ export const SCREEN_VIEW_INFO: Record<
     description: 'The most liked approved comments on a talk, with a QR to add one.',
     whenToUse: 'After a talk, or while people are reacting',
   },
+  feedback: {
+    title: 'Feedback QR',
+    description:
+      'A big QR code that opens the feedback form for the session on now (or the one that just finished), or for the whole summit.',
+    whenToUse: 'The end of a session, and at the closing',
+  },
   podium: {
     title: 'Podium reveal',
     description:
@@ -135,6 +144,7 @@ export function availableScreenViews(features: {
   polls: boolean;
   leaderboard?: boolean;
   comments?: boolean;
+  feedback?: boolean;
 }): ScreenView[] {
   return SCREEN_VIEWS.filter(
     (view) =>
@@ -144,6 +154,7 @@ export function availableScreenViews(features: {
       (view !== 'poll' || features.polls) &&
       (view !== 'leaderboard' || features.leaderboard === true) &&
       (view !== 'podium' || features.leaderboard === true) &&
+      (view !== 'feedback' || features.feedback === true) &&
       (view !== 'comments' || features.comments === true),
   );
 }

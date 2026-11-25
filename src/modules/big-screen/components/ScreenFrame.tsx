@@ -1,4 +1,5 @@
 import { PodiumView } from './PodiumView';
+import { FeedbackQrView } from './ScreenViews';
 import { AutoRefresh } from '@/components/AutoRefresh';
 
 import { SCREEN_POLL_MS } from '../logic';
@@ -53,7 +54,7 @@ export function ScreenFrame({
       id="main"
       className={`screen-glow ${calm ? 'screen-calm' : ''} relative flex h-dvh w-full flex-col overflow-hidden px-[5vw] pt-[9vh] ${banner ? 'pb-[16vh]' : 'pb-[5vh]'}`}
     >
-      <AutoRefresh intervalMs={SCREEN_POLL_MS} />
+      <AutoRefresh intervalMs={payload.view === 'podium' ? 1_500 : SCREEN_POLL_MS} />
       <SoundUnlock />
       {/* The same calm navy backdrop behind every view. */}
       <div
@@ -107,6 +108,7 @@ export function ScreenFrame({
           {payload.view === 'leaderboard' ? <LeaderboardView {...payload.props} /> : null}
           {payload.view === 'comments' ? <CommentsView {...payload.props} /> : null}
           {payload.view === 'podium' ? <PodiumView {...payload.props} /> : null}
+          {payload.view === 'feedback' ? <FeedbackQrView {...payload.props} /> : null}
         </div>
       </ViewTransition>
       {banner ? (

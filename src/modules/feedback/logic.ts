@@ -146,6 +146,28 @@ export function findFeedbackForm(config: EventConfig, formId: string): FeedbackF
   return feedbackForms(config).find((form) => form.id === formId) ?? null;
 }
 
+/* --------------------------------------------- the longer whole-event form */
+
+/** Extra 1 to 5 questions on the whole-event form, stored in the answers. */
+export const EVENT_RATINGS = [
+  { key: 'relevance', label: 'How useful was the content for your work?' },
+  { key: 'organisation', label: 'How well was the summit organised?' },
+  { key: 'venue', label: 'How were the venue, food and facilities?' },
+  { key: 'networking', label: 'How good was the chance to meet and talk with colleagues?' },
+] as const;
+
+export const EVENT_RECOMMEND = [
+  { value: 'yes', label: 'Yes, definitely' },
+  { value: 'maybe', label: 'Maybe' },
+  { value: 'no', label: 'No' },
+] as const;
+
+/** Extra written questions on the whole-event form. */
+export const EVENT_TEXTS = [
+  { key: 'wentWell', label: 'What went well?' },
+  { key: 'nextTopic', label: 'What should we cover next time?' },
+] as const;
+
 /* ------------------------------------------------------------- validation */
 
 export type SubmissionInput = {
@@ -155,6 +177,8 @@ export type SubmissionInput = {
   bestSessionId?: unknown;
   improve?: unknown;
   name: unknown;
+  /** Whole-event form only: the extra questions, by key. */
+  extras?: Record<string, unknown>;
 };
 
 export type SubmissionProblem =
@@ -207,6 +231,21 @@ export function validateSubmission(
     const improve = multilineText(input.improve, MAX_COMMENT + 1);
     if (improve.length > MAX_COMMENT) problems.push('comment-too-long');
     if (improve.length > 0) answers.improve = improve.slice(0, MAX_COMMENT);
+
+    const extras = input.extras ?? {};
+    for (const q of EVENT_RATINGS) {
+      const value = parseRating(extras[q.key]);
+      if (value !== null) answers[q.key] = String(value);
+    }
+    const recommend = plainText(extras.recommend, 16);
+    if (EVENT_RECOMMEND.some((r) => r.value === recommend)) answers.recommend = recommend;
+    const bestDay = plainText(extras.bestDay, 64);
+    if (bestDay.length > 0) answers.bestDay = bestDay;
+    for (const q of EVENT_TEXTS) {
+      const text = multilineText(extras[q.key], MAX_COMMENT + 1);
+      if (text.length > MAX_COMMENT) problems.push('comment-too-long');
+      if (text.length > 0) answers[q.key] = text.slice(0, MAX_COMMENT);
+    }
 
     // Only a session that exists, so the report cannot point at nothing.
     const best = plainText(input.bestSessionId, 64);

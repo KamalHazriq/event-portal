@@ -36,7 +36,6 @@ test('a phone joins with its staff number, and sees its points', async ({ page }
       .or(page.getByText(/You are number \d+/))
       .first(),
   ).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Departments' })).toBeVisible();
 
   // And signing out stops the phone counting for them.
   await page.getByRole('link', { name: 'My points' }).click();
@@ -56,8 +55,7 @@ test('the projector has a leaderboard view', async ({ page }) => {
 
   await page.goto('/screen/leaderboard');
   await expect(page.getByRole('heading', { name: 'Leaderboard' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Departments' })).toBeVisible();
-  await expect(page.getByText('Scan to join')).toBeVisible();
+  await expect(page.getByText('Scan to join', { exact: true })).toBeVisible();
 });
 
 // Shanti Fernandez (D10005) is one the demo seed leaves unlinked.

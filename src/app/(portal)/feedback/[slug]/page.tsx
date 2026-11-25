@@ -10,6 +10,9 @@ import { cookies } from 'next/headers';
 import { submitFeedback } from '@/modules/feedback/actions';
 import { StarRating } from '@/modules/feedback/components/StarRating';
 import {
+  EVENT_RATINGS,
+  EVENT_RECOMMEND,
+  EVENT_TEXTS,
   findFeedbackForm,
   formIdFromSlug,
   MAX_COMMENT,
@@ -140,6 +143,81 @@ export default async function FeedbackPage({ params, searchParams }: PageProps) 
         <StarRating
           legend={form.kind === 'event' ? 'Overall, how was the summit?' : 'How was this session?'}
         />
+
+        {form.kind === 'event' ? (
+          <fieldset className="space-y-4 rounded-xl border border-line bg-surface p-4">
+            <legend className="px-1 font-semibold text-ink">A few more questions</legend>
+            {EVENT_RATINGS.map((q) => (
+              <div key={q.key}>
+                <p className="font-semibold text-ink">{q.label}</p>
+                <div className="mt-1 flex flex-wrap gap-2" role="radiogroup" aria-label={q.label}>
+                  {[1, 2, 3, 4, 5].map((n) => (
+                    <label
+                      key={n}
+                      className="flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-lg border border-line bg-canvas px-3 font-bold text-ink has-[:checked]:border-primary has-[:checked]:bg-primary has-[:checked]:text-on-primary"
+                    >
+                      <input type="radio" name={q.key} value={n} className="sr-only" />
+                      {n}
+                    </label>
+                  ))}
+                  <span className="self-center text-sm text-ink-soft">1 low, 5 high</span>
+                </div>
+              </div>
+            ))}
+            <div>
+              <label htmlFor="bestDay" className="block font-semibold text-ink">
+                Which day did you like most?
+              </label>
+              <select
+                id="bestDay"
+                name="bestDay"
+                defaultValue=""
+                className="mt-1 min-h-11 w-full rounded-lg border border-line bg-canvas px-3 py-2 text-ink"
+              >
+                <option value="">No answer</option>
+                {config.days.map((d) => (
+                  <option key={d.id} value={d.label}>
+                    {d.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <p className="font-semibold text-ink">
+                Would you recommend this summit to a colleague?
+              </p>
+              <div
+                className="mt-1 flex flex-wrap gap-2"
+                role="radiogroup"
+                aria-label="Would you recommend this summit"
+              >
+                {EVENT_RECOMMEND.map((r) => (
+                  <label
+                    key={r.value}
+                    className="flex min-h-11 cursor-pointer items-center rounded-lg border border-line bg-canvas px-4 font-semibold text-ink has-[:checked]:border-primary has-[:checked]:bg-primary has-[:checked]:text-on-primary"
+                  >
+                    <input type="radio" name="recommend" value={r.value} className="sr-only" />
+                    {r.label}
+                  </label>
+                ))}
+              </div>
+            </div>
+            {EVENT_TEXTS.map((q) => (
+              <div key={q.key}>
+                <label htmlFor={q.key} className="block font-semibold text-ink">
+                  {q.label}
+                </label>
+                <textarea
+                  id={q.key}
+                  name={q.key}
+                  rows={2}
+                  maxLength={MAX_COMMENT}
+                  className="mt-1 w-full rounded-lg border border-line bg-canvas px-3 py-2 text-ink"
+                />
+              </div>
+            ))}
+          </fieldset>
+        ) : null}
 
         {form.kind === 'event' ? (
           <div>

@@ -22,7 +22,7 @@ export type Step = {
 };
 
 /** Bump this when a batch of changes lands, and mark the steps it touched with it. */
-export const LATEST_REVISION = 3;
+export const LATEST_REVISION = 4;
 
 export type StepGroup = { id: string; title: string; steps: Step[] };
 
@@ -69,6 +69,14 @@ export const TEST_PLAN: Part[] = [
         id: 'a-in',
         title: 'A1. Getting in',
         steps: [
+          {
+            id: 'a-in-noskip',
+            rev: 4,
+            do: 'On a phone with no name chosen, open any page, then try to carry on without picking a name.',
+            expect:
+              'You land on "Welcome! Who are you?". Typing a name shows the matches; there is no "continue without a name". A name that is not on the list tells you to ask the registration desk to add you.',
+            links: [{ href: '/welcome', label: 'Welcome page' }],
+          },
           {
             id: 'a-in-qr',
             do: 'Scan a printed name tag or table tent QR with the phone camera.',
@@ -139,6 +147,25 @@ export const TEST_PLAN: Part[] = [
         id: 'a-home',
         title: 'A2. Home, agenda and sessions',
         steps: [
+          {
+            id: 'a-home-highlights',
+            rev: 4,
+            do: 'Open Home and look above the agenda. Then scroll to the Q&A near the bottom.',
+            expect:
+              'The "Do this once" panel with install and alerts is boxed in the main colour. The Q&A answers are closed: tap a question to open it. An announcement is a bold tinted card with a pulsing icon.',
+            links: [{ href: '/', label: 'Home' }],
+          },
+          {
+            id: 'a-home-poll',
+            rev: 4,
+            do: 'On Polls (secretariat), open a poll. Then look at Home on a phone, and on a phone with alerts on.',
+            expect:
+              'Home shows an "A poll is open" card with Vote now, the top bar says Vote in the poll, and the phone gets a notification. Votes carry the name. Close the poll afterwards.',
+            links: [
+              { href: '/', label: 'Home' },
+              { href: '/admin/polls', label: 'Polls' },
+            ],
+          },
           {
             id: 'a-home-plain',
             rev: 3,
@@ -230,6 +257,22 @@ export const TEST_PLAN: Part[] = [
         title: 'A3. Taking part',
         steps: [
           {
+            id: 'a-part-photos',
+            rev: 4,
+            do: 'On Photos choose three photos at once, leave one caption empty and press Share, then fill them in. Afterwards tap Save under a photo on the wall.',
+            expect:
+              'Only three can be chosen. Share is refused until every photo has a caption. The photos are sent together. Save downloads the full size picture.',
+            links: [{ href: '/photos', label: 'Photos' }],
+          },
+          {
+            id: 'a-part-eventform',
+            rev: 4,
+            do: 'Open the whole-event feedback form.',
+            expect:
+              'It asks for stars, four 1 to 5 questions, the best day, whether you would recommend it, what went well, what next time, the most useful session and what to improve. It is sent with your name.',
+            links: [{ href: '/feedback/event', label: 'Event feedback' }],
+          },
+          {
             id: 'a-part-signed',
             rev: 3,
             do: 'Without a name chosen, try to comment, ask a question, vote in a poll and send feedback.',
@@ -305,6 +348,17 @@ export const TEST_PLAN: Part[] = [
         id: 'a-points',
         title: 'A4. Points and the leaderboard',
         steps: [
+          {
+            id: 'a-points-rules',
+            rev: 4,
+            do: 'Open My points.',
+            expect:
+              '"Come every day" lists each day with the early time: before it, 15 points; later that day, 10; no scan, 0. Below it, how every other kind of point is earned, and any bonus from the secretariat. The leaderboard has no department table.',
+            links: [
+              { href: '/me', label: 'My points' },
+              { href: '/leaderboard', label: 'Leaderboard' },
+            ],
+          },
           {
             id: 'a-points-full',
             rev: 3,
@@ -418,6 +472,14 @@ export const TEST_PLAN: Part[] = [
         id: 's-ready',
         title: 'S0. Is the portal ready?',
         steps: [
+          {
+            id: 's-ready-plain-bar',
+            rev: 4,
+            do: 'Scroll down this page with the floating progress bar.',
+            expect:
+              'The bar floats as a rounded card at the bottom of the page and never covers a button.',
+            links: [{ href: '#clean', label: 'Clean slate (on this page)' }],
+          },
           {
             id: 's-ready-tour',
             rev: 3,
@@ -545,6 +607,21 @@ export const TEST_PLAN: Part[] = [
         id: 's-people',
         title: 'S2. The participant list',
         steps: [
+          {
+            id: 's-people-add',
+            rev: 4,
+            do: 'On Desk open "Not on the list? Add them", add someone, then search their name and check them in.',
+            expect:
+              'They appear on the list with a staff number starting ADD, check in normally and spin for a door gift. There is no nameless guest.',
+            links: [{ href: '/admin/desk', label: 'Desk' }],
+          },
+          {
+            id: 's-people-days',
+            rev: 4,
+            do: 'On Points, under Attendance points, change the early time for a day and save. Check someone in before and after it.',
+            expect: 'Before the time: 15 points. After: 10. The change shows on My points.',
+            links: [{ href: '/admin/points', label: 'Points' }],
+          },
           {
             id: 's-people-bonus',
             rev: 3,
@@ -854,6 +931,33 @@ export const TEST_PLAN: Part[] = [
         title: 'S7. Running the room',
         steps: [
           {
+            id: 's-room-feedbackqr',
+            rev: 4,
+            do: 'On Big screen choose Feedback QR (automatic), then pick another session.',
+            expect:
+              "The projector shows a big QR and the session title. The QR opens that session's feedback form. Other views are unchanged.",
+            links: [{ href: '/admin/big-screen', label: 'Big screen' }],
+          },
+          {
+            id: 's-room-livemove',
+            rev: 4,
+            do: 'On Live control press "Start <next session> now", then "End ... now", then "Back to the clock".',
+            expect:
+              'Home, the agenda and the big screen move with the room at once. The status line says how far behind or ahead of the printed times you are, and Back to the clock resets it.',
+            links: [{ href: '/admin/live', label: 'Live control' }],
+          },
+          {
+            id: 's-room-dropdowns',
+            rev: 4,
+            do: 'Open the dropdown on Comments and on Q&A, and every other dropdown you meet.',
+            expect:
+              'The list opens in a styled panel with space around each choice. The session on now and next are first, under "Suggested". Nothing is cut off.',
+            links: [
+              { href: '/admin/comments', label: 'Comments' },
+              { href: '/admin/qa', label: 'Q&A' },
+            ],
+          },
+          {
             id: 's-room-comments',
             rev: 3,
             do: 'On Comments, switch approval off, post a comment from a phone, then switch the screen look to Bubbles. Pick the talk on the Big screen page.',
@@ -1032,6 +1136,22 @@ export const TEST_PLAN: Part[] = [
         id: 's-after',
         title: 'S8. After the event',
         steps: [
+          {
+            id: 's-after-names',
+            rev: 4,
+            do: 'Download the Excel report and open the sheets.',
+            expect:
+              'There are sheets for Comments and Poll votes with the name of everyone, the Feedback sheet has the extra event questions, and no sheet or row says Anonymous.',
+            links: [{ href: '/admin/reports', label: 'Reports' }],
+          },
+          {
+            id: 's-after-insights',
+            rev: 4,
+            do: 'Open Insights.',
+            expect:
+              'Attendance each day shows people and percent, and the arrivals chart has a time label under every hour.',
+            links: [{ href: '/admin/insights', label: 'Insights' }],
+          },
           {
             id: 's-after-report',
             do: 'On Reports, download the Excel report, open the PDF summary, and upload the Slido export.',

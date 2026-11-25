@@ -26,8 +26,27 @@ export type Scoreboard = {
   people: PersonRow[];
 };
 
+// The projector, the podium and the admin page all ask for this every few
+// seconds, and it is a dozen queries: kept for a moment so they share one.
+const SCOREBOARD_TTL_MS = 2_500;
+let kept: { at: number; value: Scoreboard } | null = null;
+
+/** Call after a change to points the secretariat makes by hand, so it shows at once. */
+export function forgetScoreboard(): void {
+  kept = null;
+}
+
 /** Everything at once. A few small queries: the whole event is a few hundred rows. */
-export async function loadScoreboard(): Promise<Scoreboard> {
+export async function loadScoreboard(options: { shared?: boolean } = {}): Promise<Scoreboard> {
+  // Only the projector and the admin controls share a recent copy. Anything a
+  // person has just done (joining, checking in) reads fresh.
+  if (options.shared && kept && Date.now() - kept.at < SCOREBOARD_TTL_MS) return kept.value;
+  const value = await computeScoreboard();
+  kept = { at: Date.now(), value };
+  return value;
+}
+
+async function computeScoreboard(): Promise<Scoreboard> {
   const config = getEventConfig();
   const data = getData();
 

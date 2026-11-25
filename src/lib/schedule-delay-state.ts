@@ -17,12 +17,14 @@ export function scheduleDelayMinutes(): number {
   return delayState().minutes;
 }
 
-export const DELAY_CHOICES = [0, 5, 10, 15, 20, 30, 45, 60] as const;
-export const MAX_DELAY_MINUTES = 120;
+export const MAX_DELAY_MINUTES = 180;
 
-/** A stored value as whole minutes between 0 and two hours. */
+/**
+ * A stored value as whole minutes, between three hours early (negative: the
+ * room is ahead of the printed times) and three hours late.
+ */
 export function parseDelay(raw: string | null | undefined): number {
   const value = Math.round(Number(raw ?? 0));
-  if (!Number.isFinite(value) || value <= 0) return 0;
-  return Math.min(value, MAX_DELAY_MINUTES);
+  if (!Number.isFinite(value)) return 0;
+  return Math.max(-MAX_DELAY_MINUTES, Math.min(value, MAX_DELAY_MINUTES));
 }

@@ -174,9 +174,9 @@ describe('report workbook', () => {
     expect(JSON.stringify(rows)).not.toContain('Vegetarian');
   });
 
-  it('shows names only where one was given', () => {
-    const names = (byName.get('Feedback') ?? []).slice(1).map((r) => r[6]);
-    expect(names.sort()).toEqual(['Aina', 'Anonymous', 'Anonymous']);
+  it('carries the name of everyone who answered', () => {
+    const names = (byName.get('Feedback') ?? []).slice(1).map((r) => r[14]);
+    expect(names.sort()).toEqual(['', '', 'Aina']);
   });
 
   it('adds a lucky draw sheet once someone has won, numbering the draws', () => {
@@ -241,11 +241,37 @@ describe('report workbook', () => {
     );
     const questions = withBackup.find((s) => s.name === 'Questions');
     // Every question is listed, with its status, including hidden ones.
-    expect(questions?.rows[1]?.slice(1, 5)).toEqual(['Who owns this?', 'Anonymous', 4, 'Hidden']);
+    expect(questions?.rows[1]?.slice(1, 5)).toEqual(['Who owns this?', '', 4, 'Hidden']);
     const polls = withBackup.find((s) => s.name === 'Poll results');
     expect(polls?.rows.slice(1).map((r) => [r[2], r[3], r[4], r[5]])).toEqual([
       ['Yes', 2, 67, 3],
       ['No', 1, 33, 3],
+    ]);
+    // Who voted what: each vote carries the name it was cast under.
+    const named = buildReportWorkbook(
+      input({
+        polls: [
+          {
+            poll: {
+              id: 'p',
+              question: 'Ready?',
+              kind: 'single',
+              options: ['Yes', 'No'],
+              status: 'closed',
+              revealed: true,
+              position: 1,
+              createdAt: '2026-12-14T07:00:00Z',
+            },
+            votes: [{ pollId: 'p', deviceId: 'a', choices: ['1'], at: '2026-12-14T07:05:00Z' }],
+          },
+        ],
+        pollVoters: { 'p.a': 'Aina' },
+      }),
+    );
+    expect(named.find((s) => s.name === 'Poll votes')?.rows[1]?.slice(0, 3)).toEqual([
+      'Ready?',
+      'Aina',
+      'No',
     ]);
     // And neither sheet appears when Slido did the job.
     const plain = buildReportWorkbook(input()).map((s) => s.name);

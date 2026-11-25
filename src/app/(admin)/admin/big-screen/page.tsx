@@ -13,6 +13,7 @@ import {
 import { getData } from '@/data';
 import {
   podiumControl,
+  setFeedbackTarget,
   setHideNames,
   setScreenCalm,
   setScreenTalk,
@@ -69,11 +70,15 @@ export default async function BigScreenControlPage() {
   // The podium: places and ties, so the MC knows what they are about to reveal.
   const podiumSize = parsePodiumSize(await getData().settings.get(SCREEN_KEYS.podiumSize));
   const podiumGroupsNow = config.features.leaderboard
-    ? podiumGroups((await loadScoreboard()).people, podiumSize)
+    ? podiumGroups((await loadScoreboard({ shared: true })).people, podiumSize)
     : [];
   const podiumStep = clampPodiumStep(
     Number((await getData().settings.get(SCREEN_KEYS.podiumStep)) ?? 0),
     podiumGroupsNow.length,
+  );
+  const feedbackTarget = (await getData().settings.get(SCREEN_KEYS.feedbackTarget)) ?? 'auto';
+  const feedbackSessions = buildAgenda(config).sessions.filter(
+    (s) => s.feedbackEnabled && !s.hidden,
   );
   const podiumTies = podiumGroupsNow.filter((g) => g.people.length > 1);
   // The next button says which place comes up, from the last one to the first.
@@ -185,6 +190,40 @@ export default async function BigScreenControlPage() {
           );
         })}
       </ul>
+
+      {config.features.feedback ? (
+        <section className="rounded-xl border border-line bg-surface p-4">
+          <h2 className="text-sm font-bold uppercase tracking-wide text-ink-soft">Feedback QR</h2>
+          <p className="mt-1 text-sm text-ink-soft">
+            A big QR that opens the feedback form. Automatic means the session on now, or the one
+            that just finished. The rest of the screen stays the same, only the QR changes.
+          </p>
+          <form action={setFeedbackTarget} className="mt-3 flex flex-wrap items-end gap-2">
+            <label className="min-w-0 flex-1 text-sm font-semibold text-ink">
+              The QR is for
+              <select
+                name="target"
+                defaultValue={feedbackTarget}
+                className="mt-1 block min-h-11 w-full rounded-lg border border-line bg-canvas px-3 text-ink"
+              >
+                <option value="auto">Automatic: the session now or just finished</option>
+                <option value="event">The whole summit</option>
+                {feedbackSessions.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.dayLabel}: {s.title}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <button
+              type="submit"
+              className="min-h-11 rounded-lg bg-primary px-5 font-bold text-on-primary"
+            >
+              Show it on the screen
+            </button>
+          </form>
+        </section>
+      ) : null}
 
       {config.features.leaderboard ? (
         <section className="rounded-xl border border-line bg-surface p-4">

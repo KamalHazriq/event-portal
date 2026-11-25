@@ -8,6 +8,7 @@
 import type {
   Attendee,
   CheckIn,
+  Comment,
   FeedbackEntry,
   FeedbackSummary,
   ImportedSheet,
@@ -38,6 +39,10 @@ export type ReportInput = {
   questions?: Question[];
   /** Backup polls with their answers. Empty when Slido was used. */
   polls?: { poll: Poll; votes: PollVote[] }[];
+  /** Every comment, any status, with the name it was posted under. */
+  comments?: Comment[];
+  /** Who cast each poll vote: `${pollId}.${deviceId}` to the name. */
+  pollVoters?: Record<string, string>;
   /** Photo wall counts. Only counts: the photos are in their own zip. */
   photos?: { approved: number; total: number };
   /** When the report was made, as an instant. */
@@ -321,7 +326,24 @@ export function buildReportWorkbook(input: ReportInput): SheetInput[] {
 
   /* Feedback, every answer */
   const feedbackRows: CellValue[][] = [
-    ['Form', 'When', 'Stars', 'Comment', 'One thing to improve', 'Best session', 'Name', 'Sent'],
+    [
+      'Form',
+      'When',
+      'Stars',
+      'Comment',
+      'One thing to improve',
+      'Best session',
+      'Content useful (1-5)',
+      'Organisation (1-5)',
+      'Venue and food (1-5)',
+      'Meeting colleagues (1-5)',
+      'Recommend',
+      'Best day',
+      'What went well',
+      'Next time',
+      'Name',
+      'Sent',
+    ],
     ...[...feedback]
       .sort((a, b) => (a.at < b.at ? -1 : 1))
       .map((f): CellValue[] => {
@@ -333,8 +355,15 @@ export function buildReportWorkbook(input: ReportInput): SheetInput[] {
           f.answers.comment ?? '',
           f.answers.improve ?? '',
           f.answers.bestSessionId ? (sessionTitles.get(f.answers.bestSessionId) ?? '') : '',
-          // The form's anonymity setting decided this when it was sent.
-          f.displayName || 'Anonymous',
+          f.answers.relevance ? Number(f.answers.relevance) : '',
+          f.answers.organisation ? Number(f.answers.organisation) : '',
+          f.answers.venue ? Number(f.answers.venue) : '',
+          f.answers.networking ? Number(f.answers.networking) : '',
+          f.answers.recommend ?? '',
+          f.answers.bestDay ?? '',
+          f.answers.wentWell ?? '',
+          f.answers.nextTopic ?? '',
+          f.displayName,
           localDateTime(f.at, tz),
         ];
       }),
@@ -421,7 +450,7 @@ export function buildReportWorkbook(input: ReportInput): SheetInput[] {
         ...questions.map((q): CellValue[] => [
           sessionTitles.get(q.sessionId) ?? q.sessionId,
           q.text,
-          q.name || 'Anonymous',
+          q.name,
           q.votes,
           QUESTION_STATUS_LABEL[q.status],
           q.pinned ? 'Yes' : '',
@@ -448,6 +477,45 @@ export function buildReportWorkbook(input: ReportInput): SheetInput[] {
             results.voters,
           ]);
         }),
+      ],
+    });
+  }
+
+  // Who said what: every comment and every poll vote carries a name.
+  const comments = input.comments ?? [];
+  if (comments.length > 0) {
+    sheets.push({
+      name: 'Comments',
+      rows: [
+        ['Session', 'Name', 'Comment', 'Likes', 'Status', 'Posted'],
+        ...comments.map((c): CellValue[] => [
+          sessionTitles.get(c.sessionId) ?? c.sessionId,
+          c.name,
+          c.text,
+          c.likes,
+          c.status,
+          localDateTime(c.createdAt, tz),
+        ]),
+      ],
+    });
+  }
+
+  if (answered.length > 0) {
+    const voters = input.pollVoters ?? {};
+    sheets.push({
+      name: 'Poll votes',
+      rows: [
+        ['Poll', 'Name', 'Answer', 'Voted'],
+        ...answered.flatMap(({ poll, votes }) =>
+          votes.map((v): CellValue[] => [
+            poll.question,
+            voters[`${poll.id}.${v.deviceId}`] ?? 'Name not recorded',
+            poll.kind === 'wordcloud'
+              ? v.choices.join(', ')
+              : v.choices.map((index) => poll.options[Number(index)] ?? index).join(', '),
+            v.at ? localDateTime(v.at, tz) : '',
+          ]),
+        ),
       ],
     });
   }

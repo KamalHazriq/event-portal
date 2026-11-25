@@ -7,7 +7,8 @@ import { requireAdminApi } from '@/lib/admin-guard';
 import { getEventConfig } from '@/lib/config';
 import { plainText } from '@/lib/text';
 import { storeScheduleDelay } from '@/lib/schedule-delay';
-import { parseDelay } from '@/lib/schedule-delay-state';
+import { parseDelay, scheduleDelayMinutes } from '@/lib/schedule-delay-state';
+import { buildAgenda } from '@/modules/schedule/logic';
 import { resolveEventNow } from '@/lib/time';
 
 import {
@@ -38,6 +39,49 @@ export async function setScheduleDelay(formData: FormData): Promise<void> {
   await storeScheduleDelay(minutes);
   await recordActivity(
     minutes ? `Set the agenda running ${minutes} minutes late` : 'Set the agenda back on time',
+  );
+  revalidatePath('/admin/live');
+  revalidatePath('/', 'layout');
+}
+
+/**
+ * "Move the agenda to the room", instead of waiting for the clock.
+ * kind "start": this session starts now (the one before it ends). kind "end":
+ * this session ends now. kind "nudge": move by +N or -N minutes. kind "clock":
+ * follow the real clock again. All of them work by changing how far the
+ * portal's "now" is from the real time, so every page follows at once.
+ */
+export async function moveAgenda(formData: FormData): Promise<void> {
+  await assertAdmin();
+  const kind = String(formData.get('kind') ?? '');
+  const config = getEventConfig();
+  const real = resolveEventNow({ timezone: config.event.timezone, at: new Date() });
+  const current = parseDelay(String(scheduleDelayMinutes()));
+  let next = current;
+
+  if (kind === 'clock') {
+    next = 0;
+  } else if (kind === 'nudge') {
+    next = parseDelay(String(current + Number(formData.get('minutes') ?? 0)));
+  } else if (kind === 'start' || kind === 'end') {
+    const id = String(formData.get('sessionId') ?? '');
+    const session = buildAgenda(config).byId.get(id);
+    // Only on the session's own day: before that there is nothing to follow.
+    if (session && session.date === real.date) {
+      const target = kind === 'start' ? session.startMinutes : session.endMinutes;
+      next = parseDelay(String(real.minutes - target));
+    }
+  }
+
+  await storeScheduleDelay(next);
+  await recordActivity(
+    kind === 'clock'
+      ? 'Set the agenda back to the clock'
+      : kind === 'start'
+        ? 'Started the next session now'
+        : kind === 'end'
+          ? 'Ended the session now'
+          : `Moved the agenda ${Number(formData.get('minutes') ?? 0)} minutes`,
   );
   revalidatePath('/admin/live');
   revalidatePath('/', 'layout');

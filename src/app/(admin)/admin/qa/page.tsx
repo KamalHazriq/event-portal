@@ -45,7 +45,11 @@ export default async function QaQueuePage({ searchParams }: { searchParams: Sear
   const qaSessions = agenda.sessions.filter((s) => s.qaEnabled && isInteractiveSession(s));
 
   // The asked for session, else the one running now, else the first.
-  const live = findNowAndNext(agenda, resolveEventNow({ timezone: config.event.timezone })).live;
+  const nn = findNowAndNext(agenda, resolveEventNow({ timezone: config.event.timezone }));
+  const live = nn.live;
+  const suggested = qaSessions.filter(
+    (s) => live.some((l) => l.id === s.id) || s.id === nn.next?.id,
+  );
   const session =
     qaSessions.find((s) => s.id === one(params.session)) ??
     qaSessions.find((s) => live.some((l) => l.id === s.id)) ??
@@ -114,11 +118,22 @@ export default async function QaQueuePage({ searchParams }: { searchParams: Sear
                   defaultValue={session.id}
                   className="mt-1 block min-h-11 w-full rounded-lg border border-line bg-canvas px-3 font-normal text-ink"
                 >
-                  {qaSessions.map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {s.dayLabel}: {s.title}
-                    </option>
-                  ))}
+                  {suggested.length > 0 ? (
+                    <optgroup label="Suggested: on now and next">
+                      {suggested.map((s) => (
+                        <option key={`s-${s.id}`} value={s.id}>
+                          {live.some((l) => l.id === s.id) ? 'On now' : 'Next'}: {s.title}
+                        </option>
+                      ))}
+                    </optgroup>
+                  ) : null}
+                  <optgroup label="All sessions">
+                    {qaSessions.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.dayLabel}: {s.title}
+                      </option>
+                    ))}
+                  </optgroup>
                 </select>
               </label>
               <button

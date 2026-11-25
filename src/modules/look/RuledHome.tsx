@@ -34,6 +34,7 @@ import {
   type ResolvedSession,
 } from '@/modules/schedule/logic';
 import { REACTIONS } from '@/modules/talk/logic';
+import { openPoll } from '@/modules/backup/server';
 import { AlertsOptIn } from '@/modules/announce/components/AlertsOptIn';
 import { isDivision, shortDepartment } from '@/lib/departments';
 import { InstallApp } from '@/components/InstallApp';
@@ -104,6 +105,7 @@ export async function RuledHome({
     .slice(0, 4);
 
   // The database bits, each optional: the page still renders without them.
+  const poll = await openPoll();
   const [departments, photos, liveTotals] = await Promise.all([
     data.attendees
       .departments()
@@ -397,6 +399,30 @@ export async function RuledHome({
           </div>
         </div>
       </section>
+
+      {/* A poll is open: the first thing to see, with one tap to vote. */}
+      {poll ? (
+        <Link
+          href="/poll"
+          className="announce-card mt-6 flex items-center gap-4 rounded-2xl border-2 border-primary bg-primary p-4 text-on-primary no-underline shadow-lg"
+        >
+          <span
+            aria-hidden="true"
+            className="announce-icon grid size-12 shrink-0 place-items-center rounded-xl bg-on-primary/20 text-2xl"
+          >
+            🗳️
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-xs font-bold uppercase tracking-[0.18em] opacity-90">
+              A poll is open
+            </span>
+            <span className="mt-0.5 block text-lg font-bold leading-snug">{poll.question}</span>
+          </span>
+          <span className="shrink-0 rounded-lg bg-on-primary px-4 py-2 font-bold text-primary">
+            Vote now
+          </span>
+        </Link>
+      ) : null}
 
       {/* Do this once: stands out from the rest of the page. Side by side on a laptop. */}
       <section

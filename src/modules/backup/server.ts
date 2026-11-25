@@ -5,6 +5,7 @@
 import { cookies } from 'next/headers';
 
 import { getData } from '@/data';
+import { getEventConfig } from '@/lib/config';
 import { DEVICE_COOKIE, deviceCookieOptions, newDeviceId, readDeviceId } from '@/lib/device';
 import { isBackupOn, QA_KEYS } from '@/modules/qa/logic';
 
@@ -68,4 +69,27 @@ export async function deviceIdFor(attendeeId: string): Promise<string> {
 /** A new id for this phone, so what it did before is never counted for the next person. */
 export async function startFreshDevice(): Promise<void> {
   (await cookies()).set(DEVICE_COOKIE, newDeviceId(), deviceCookieOptions);
+}
+
+/**
+ * Whether the portal's own polls are reachable: when Slido is down (backup
+ * mode), or whenever a poll is open or showing results, so the secretariat
+ * can run a quick poll in the room without switching everything over.
+ */
+export async function portalPollsAvailable(): Promise<boolean> {
+  if (!getEventConfig().features.polls) return false;
+  if (await readBackupMode().catch(() => false)) return true;
+  const polls = await getData()
+    .polls.list()
+    .catch(() => []);
+  return polls.some((p) => p.status === 'open' || (p.status === 'closed' && p.revealed));
+}
+
+/** The poll that is open right now, if any. */
+export async function openPoll() {
+  if (!getEventConfig().features.polls) return null;
+  const polls = await getData()
+    .polls.list()
+    .catch(() => []);
+  return polls.find((p) => p.status === 'open') ?? null;
 }

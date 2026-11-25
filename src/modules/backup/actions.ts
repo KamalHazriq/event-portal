@@ -9,6 +9,7 @@ import { plainText } from '@/lib/text';
 import { SCREEN_KEYS } from '@/modules/big-screen/logic';
 import { validatePollInput } from '@/modules/polls/logic';
 import { QA_KEYS } from '@/modules/qa/logic';
+import { pushToAll } from '@/modules/announce/push';
 import { recordActivity } from '@/modules/admins/record';
 
 /**
@@ -121,8 +122,20 @@ export async function controlPoll(formData: FormData): Promise<void> {
   const id = plainText(formData.get('id'), 64);
   const act = String(formData.get('act') ?? '');
   const data = getData();
-  if (act === 'open') await data.polls.setStatus(id, 'open');
-  else if (act === 'close') await data.polls.setStatus(id, 'closed');
+  if (act === 'open') {
+    await data.polls.setStatus(id, 'open');
+    // Tell every phone with alerts on: a poll is waiting for a vote.
+    const poll = await data.polls.get(id);
+    if (poll) {
+      const shortName = getEventConfig().event.shortName;
+      pushToAll({
+        title: `${shortName}: a poll is open`,
+        body: poll.question,
+        url: '/poll',
+        tag: 'poll-open',
+      }).catch(() => undefined);
+    }
+  } else if (act === 'close') await data.polls.setStatus(id, 'closed');
   else if (act === 'reveal') await data.polls.setRevealed(id, true);
   else if (act === 'conceal') await data.polls.setRevealed(id, false);
   else if (act === 'delete' && formData.get('confirm') === 'yes') await data.polls.remove(id);

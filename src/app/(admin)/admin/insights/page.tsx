@@ -62,6 +62,16 @@ export default async function InsightsPage({ searchParams }: { searchParams: Sea
         ? 'After the event'
         : `During the event, ${formatShortDate(now.date, tz)}`;
 
+  // Who came each day: guests only, each person once a day.
+  const perDay = days.map((d) => {
+    const ids = new Set(
+      input.checkIns
+        .filter((c) => c.dayId === d.id && guestIds.has(c.attendeeId))
+        .map((c) => c.attendeeId),
+    );
+    return { id: d.id, label: d.label, date: d.date, came: ids.size };
+  });
+
   const stats = [
     { label: 'Guests on the list', value: guests.length },
     { label: 'Came at least one day', value: cameAny },
@@ -126,6 +136,39 @@ export default async function InsightsPage({ searchParams }: { searchParams: Sea
         )}
       </section>
 
+      <section aria-label="Attendance each day">
+        <ul className="grid gap-2 sm:grid-cols-3">
+          {perDay.map((d) => {
+            const percent = guests.length ? Math.round((d.came / guests.length) * 100) : 0;
+            return (
+              <li key={d.id} className="rounded-xl border border-line bg-surface p-4">
+                <p className="text-sm font-semibold text-ink-soft">
+                  {d.label}, {formatShortDate(d.date, tz)}
+                </p>
+                <p className="mt-1 text-3xl font-bold tabular-nums leading-none text-ink">
+                  {d.came}
+                  <span className="text-lg font-normal text-ink-soft"> of {guests.length}</span>
+                </p>
+                <div
+                  className="mt-3 h-2 w-full overflow-hidden rounded-full bg-muted"
+                  role="progressbar"
+                  aria-valuenow={percent}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-label={`${d.label} attendance`}
+                >
+                  <div
+                    className="h-full rounded-full bg-primary"
+                    style={{ width: `${percent}%` }}
+                  />
+                </div>
+                <p className="mt-1 text-xs text-ink-soft">{percent}% of the list</p>
+              </li>
+            );
+          })}
+        </ul>
+      </section>
+
       <section aria-label="The numbers">
         <ul className="grid grid-cols-2 gap-2 sm:grid-cols-4 xl:grid-cols-8">
           {stats.map((s) => (
@@ -174,7 +217,7 @@ export default async function InsightsPage({ searchParams }: { searchParams: Sea
                   : null}
               </p>
               <div
-                className="mt-4 flex h-40 items-end gap-0.5 border-b border-line"
+                className="mt-4 flex h-56 items-end gap-1 border-b border-line"
                 role="img"
                 aria-label={`Arrivals per 15 minutes on ${day.label}. Busiest window ${peak?.start} to ${peak?.end} with ${peak?.count}.`}
               >
@@ -192,7 +235,7 @@ export default async function InsightsPage({ searchParams }: { searchParams: Sea
                         </span>
                       ) : null}
                       <div
-                        className={`w-full max-w-6 rounded-t-[4px] mx-auto ${
+                        className={`mx-auto w-full max-w-10 rounded-t-[4px] ${
                           isPeak ? 'bg-primary' : 'bg-primary/45 group-hover:bg-primary/70'
                         }`}
                         style={{ height: `${(b.count / max) * 85}%` }}
@@ -201,11 +244,13 @@ export default async function InsightsPage({ searchParams }: { searchParams: Sea
                   );
                 })}
               </div>
-              <div className="mt-1 flex justify-between text-xs tabular-nums text-ink-soft">
-                <span>{buckets[0] ? formatClock(buckets[0].start) : null}</span>
-                <span>
-                  {buckets.length > 0 ? formatClock(buckets[buckets.length - 1]!.end) : null}
-                </span>
+              {/* A time label under every hour, so the bars can be read. */}
+              <div className="mt-1 flex gap-1 text-[0.7rem] tabular-nums text-ink-soft">
+                {buckets.map((b) => (
+                  <span key={b.start} className="min-w-0 flex-1 overflow-hidden text-center">
+                    {b.start.endsWith(':00') ? formatClock(b.start).replace(' ', '') : ''}
+                  </span>
+                ))}
               </div>
               <details className="mt-3 text-sm">
                 <summary className="cursor-pointer font-semibold text-ink">Show as a table</summary>

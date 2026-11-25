@@ -1,6 +1,7 @@
 /**
  * Reads everything the report needs, through the data adapter. Server only.
  */
+import { POLL_VOTER_PREFIX } from '@/modules/polls/logic';
 import { getData } from '@/data';
 import { getEventConfig } from '@/lib/config';
 
@@ -26,6 +27,18 @@ export async function loadReportInput(generatedAt = new Date()): Promise<ReportI
     Promise.all(qaSessions.map((s) => data.questions.listBySession(s.id))),
     data.polls.list(),
   ]);
+  // Who cast each vote: kept as settings rows when the vote came in.
+  const pollVoters: Record<string, string> = {};
+  for (const row of await data.settings.getAll()) {
+    if (!row.key.startsWith(POLL_VOTER_PREFIX)) continue;
+    try {
+      pollVoters[row.key.slice(POLL_VOTER_PREFIX.length)] = (
+        JSON.parse(row.value) as { name: string }
+      ).name;
+    } catch {
+      // A damaged row is skipped.
+    }
+  }
   const pollsWithVotes = await Promise.all(
     pollList.map(async (poll) => ({ poll, votes: await data.polls.votes(poll.id) })),
   );
@@ -34,6 +47,8 @@ export async function loadReportInput(generatedAt = new Date()): Promise<ReportI
     config,
     questions: questionLists.flat(),
     polls: pollsWithVotes,
+    comments: await data.comments.listAll(),
+    pollVoters,
     attendees,
     // listByDay carries the person too; the report only needs the check in.
     checkIns: perDay.flat().map(({ attendee: _attendee, ...checkIn }) => checkIn),

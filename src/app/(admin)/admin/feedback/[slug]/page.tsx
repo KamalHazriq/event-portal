@@ -11,6 +11,8 @@ import {
   formIdFromSlug,
   ratingBarWidths,
   tallyBestSessions,
+  EVENT_RATINGS,
+  EVENT_RECOMMEND,
 } from '@/modules/feedback/logic';
 import { readFormSettings } from '@/modules/feedback/settings';
 
@@ -109,6 +111,42 @@ export default async function FeedbackDetailPage({ params }: PageProps) {
         </ul>
       </section>
 
+      {form.kind === 'event' && entries.length > 0 ? (
+        <section className="rounded-xl border border-line bg-surface p-4">
+          <h2 className="text-lg font-bold text-ink">The extra questions</h2>
+          <ul className="mt-2 grid gap-x-6 gap-y-1 sm:grid-cols-2">
+            {EVENT_RATINGS.map((q) => {
+              const values = entries
+                .map((e) => Number(e.answers[q.key]))
+                .filter((n) => Number.isFinite(n) && n > 0);
+              const avg = values.length
+                ? (values.reduce((a, b) => a + b, 0) / values.length).toFixed(1)
+                : null;
+              return (
+                <li key={q.key} className="flex justify-between gap-3 text-ink">
+                  <span>{q.label}</span>
+                  <span className="shrink-0 font-bold tabular-nums">
+                    {avg ?? 'no answers'}
+                    {avg ? (
+                      <span className="font-normal text-ink-soft"> ({values.length})</span>
+                    ) : null}
+                  </span>
+                </li>
+              );
+            })}
+            <li className="flex justify-between gap-3 text-ink sm:col-span-2">
+              <span>Would recommend</span>
+              <span className="shrink-0 font-bold">
+                {EVENT_RECOMMEND.map(
+                  (r) =>
+                    `${r.label.split(',')[0]} ${entries.filter((e) => e.answers.recommend === r.value).length}`,
+                ).join(' · ')}
+              </span>
+            </li>
+          </ul>
+        </section>
+      ) : null}
+
       {best.length > 0 ? (
         <section>
           <h2 className="mb-2 text-lg font-bold text-ink">Most useful session</h2>
@@ -147,7 +185,7 @@ export default async function FeedbackDetailPage({ params }: PageProps) {
                       {entry.displayName ? (
                         <span className="ml-2 font-normal text-ink-soft">{entry.displayName}</span>
                       ) : (
-                        <span className="ml-2 font-normal italic text-ink-soft">Anonymous</span>
+                        <span className="ml-2 font-normal italic text-ink-soft">Unknown</span>
                       )}
                     </span>
                     <span className="shrink-0 text-xs text-ink-soft">
@@ -164,6 +202,19 @@ export default async function FeedbackDetailPage({ params }: PageProps) {
 
                   {entry.answers.comment ? (
                     <p className="mt-1 whitespace-pre-line text-ink">{entry.answers.comment}</p>
+                  ) : null}
+
+                  {entry.answers.wentWell ? (
+                    <p className="mt-1 whitespace-pre-line text-ink">
+                      <span className="font-semibold">Went well: </span>
+                      {entry.answers.wentWell}
+                    </p>
+                  ) : null}
+                  {entry.answers.nextTopic ? (
+                    <p className="mt-1 whitespace-pre-line text-ink">
+                      <span className="font-semibold">Next time: </span>
+                      {entry.answers.nextTopic}
+                    </p>
                   ) : null}
 
                   {!hasText ? (

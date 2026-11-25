@@ -52,6 +52,10 @@ export default async function CommentsPage({ searchParams }: { searchParams: Sea
     sessions.find((s) => live.some((l) => l.id === s.id)) ??
     sessions[0];
 
+  // On now and next, at the top of the list, so the right talk is one tap away.
+  const nextUp = findNowAndNext(agenda, resolveEventNow({ timezone: config.event.timezone })).next;
+  const suggested = sessions.filter((s) => live.some((l) => l.id === s.id) || s.id === nextUp?.id);
+
   const rawTab = one(params.status);
   const tab = (TABS as string[]).includes(rawTab ?? '')
     ? (rawTab as CommentStatus | 'all')
@@ -118,11 +122,22 @@ export default async function CommentsPage({ searchParams }: { searchParams: Sea
                   defaultValue={session.id}
                   className="mt-1 block min-h-11 w-full rounded-lg border border-line bg-canvas px-3 font-normal text-ink"
                 >
-                  {sessions.map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {s.dayLabel}: {s.title}
-                    </option>
-                  ))}
+                  {suggested.length > 0 ? (
+                    <optgroup label="Suggested: on now and next">
+                      {suggested.map((s) => (
+                        <option key={`s-${s.id}`} value={s.id}>
+                          {live.some((l) => l.id === s.id) ? 'On now' : 'Next'}: {s.title}
+                        </option>
+                      ))}
+                    </optgroup>
+                  ) : null}
+                  <optgroup label="All sessions">
+                    {sessions.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.dayLabel}: {s.title}
+                      </option>
+                    ))}
+                  </optgroup>
                 </select>
               </label>
               <button

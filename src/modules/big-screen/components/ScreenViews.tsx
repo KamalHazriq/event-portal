@@ -27,6 +27,7 @@ const LABEL =
 /* ---------------------------------------------------------------- welcome */
 
 export function WelcomeView({
+  accessCode = null,
   name,
   tagline,
   dates,
@@ -40,6 +41,8 @@ export function WelcomeView({
   venue: string;
   portalUrl: string;
   logoPath: string | null;
+  /** The event code, when the portal asks for one: shown under the QR for anyone who cannot scan. */
+  accessCode?: string | null;
 }) {
   return (
     <div className="screen-fade grid h-full grid-cols-1 items-center gap-[4vw] md:grid-cols-[1fr_auto]">
@@ -71,10 +74,18 @@ export function WelcomeView({
             className="block size-[clamp(10rem,26vw,34rem)]"
           />
         </div>
-        <p className="mt-[2vh] text-center text-[clamp(1rem,1.8vw,2.4rem)] font-bold text-ink">
-          Scan for the agenda
+        <p className="mt-[2vh] text-center text-[clamp(1.1rem,2.2vw,3rem)] font-bold text-ink">
+          Scan to access the portal
         </p>
-        <p className="mt-[0.4vh] text-center text-[clamp(0.8rem,1.3vw,1.8rem)] text-accent">
+        {accessCode ? (
+          <p className="mt-[1vh] text-center text-[clamp(1rem,1.8vw,2.4rem)] text-ink-soft">
+            Code:{' '}
+            <span className="rounded-[0.6vw] bg-surface px-[1vw] py-[0.4vh] font-mono font-bold tracking-wide text-ink">
+              {accessCode}
+            </span>
+          </p>
+        ) : null}
+        <p className="mt-[1vh] text-center text-[clamp(0.8rem,1.3vw,1.8rem)] text-accent">
           Then tap “Turn on alerts” for live updates
         </p>
         <p className="max-w-[30vw] break-all text-center text-[clamp(0.8rem,1.1vw,1.5rem)] text-ink-soft">
@@ -617,6 +628,50 @@ export function LeaderboardView({
         label="QR code that opens the leaderboard sign in"
         caption="Scan to join"
       />
+    </div>
+  );
+}
+
+/* --------------------------------------------------------------- feedback */
+
+export function FeedbackQrView({
+  title,
+  context,
+  url,
+  whole,
+}: {
+  title: string;
+  context: string;
+  url: string;
+  /** True for the whole-summit form. */
+  whole: boolean;
+}) {
+  return (
+    <div className="screen-fade grid h-full grid-cols-1 items-center gap-[4vw] md:grid-cols-[1fr_auto]">
+      <div className="min-w-0">
+        <p className={LABEL}>{whole ? 'Tell us about the summit' : 'How was it?'}</p>
+        <h2 className="mt-[1.5vh] text-[clamp(2rem,5vw,7rem)] font-bold leading-[1.05] text-ink">
+          {title}
+        </h2>
+        {context ? (
+          <p className="mt-[2vh] text-[clamp(1.1rem,2.2vw,3rem)] text-ink-soft">{context}</p>
+        ) : null}
+        <p className="mt-[4vh] text-[clamp(1rem,2vw,2.6rem)] text-accent">
+          Scan, say what you thought, and send it. It takes a minute.
+        </p>
+      </div>
+      <div className="flex flex-col items-center">
+        <div className="rounded-[1.5vw] bg-white p-[1.2vw] shadow-2xl">
+          <QrCode
+            value={url}
+            label="QR code that opens the feedback form"
+            className="block size-[clamp(10rem,28vw,36rem)]"
+          />
+        </div>
+        <p className="mt-[2vh] text-center text-[clamp(1.1rem,2.2vw,3rem)] font-bold text-ink">
+          Scan to give feedback
+        </p>
+      </div>
     </div>
   );
 }

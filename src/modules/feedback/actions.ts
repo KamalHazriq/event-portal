@@ -79,6 +79,18 @@ export async function submitFeedback(formData: FormData): Promise<void> {
       improve: formData.get('improve'),
       bestSessionId: formData.get('bestSessionId'),
       name: formData.get('name'),
+      extras: Object.fromEntries(
+        [
+          'relevance',
+          'organisation',
+          'venue',
+          'networking',
+          'recommend',
+          'bestDay',
+          'wentWell',
+          'nextTopic',
+        ].map((key) => [key, formData.get(key)]),
+      ),
     },
     knownSessionIds,
   );

@@ -3,13 +3,13 @@ import { getData } from '@/data';
 import { getEventConfig } from '@/lib/config';
 import { LIMITS, rateLimit } from '@/lib/rate-limit';
 import { plainText } from '@/lib/text';
-import { deviceIdOrNew, readBackupMode, respond } from '@/modules/backup/server';
+import { deviceIdOrNew, portalPollsAvailable, respond } from '@/modules/backup/server';
 import { MAX_WORD, POLL_VOTER_PREFIX, validateVote } from '@/modules/polls/logic';
 
 export async function POST(request: Request): Promise<Response> {
   const config = getEventConfig();
   const form = await request.formData().catch(() => null);
-  if (!form || !config.features.polls || !(await readBackupMode())) {
+  if (!form || !config.features.polls || !(await portalPollsAvailable())) {
     return respond(request, '/', 'closed', false, 403);
   }
 

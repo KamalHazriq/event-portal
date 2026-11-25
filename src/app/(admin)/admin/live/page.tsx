@@ -7,8 +7,8 @@ import { requireAdmin } from '@/lib/admin-guard';
 import { getEventConfig } from '@/lib/config';
 import { formatClock, formatTimeRange, resolveEventNow } from '@/lib/time';
 import { readBackupMode } from '@/modules/backup/server';
-import { setScheduleDelay, updateCountdown, updateCountdownLabel } from '@/modules/admin/actions';
-import { DELAY_CHOICES, scheduleDelayMinutes } from '@/lib/schedule-delay-state';
+import { moveAgenda, updateCountdown, updateCountdownLabel } from '@/modules/admin/actions';
+import { scheduleDelayMinutes } from '@/lib/schedule-delay-state';
 import { CountdownClock } from '@/modules/admin/components/CountdownClock';
 import {
   minutesLeftInSession,
@@ -65,6 +65,10 @@ export default async function LiveControlPage() {
   const state = live ? runningState(minutesLeft, live.endMinutes - live.startMinutes) : null;
 
   const slido = live?.slidoLink ?? null;
+  const delay = scheduleDelayMinutes();
+  // The real date, whatever the agenda's idea of now is: moving only makes sense on the day.
+  const realToday = resolveEventNow({ timezone: config.event.timezone, at: new Date() }).date;
+  const sameDay = (date: string) => date === realToday;
 
   return (
     // Two columns from a wide laptop up: the session on the left, the room
@@ -83,39 +87,80 @@ export default async function LiveControlPage() {
         </p>
       </header>
 
-      {/* ------------------------------------------------- running late */}
+      {/* ------------------------------------------------ agenda control */}
       <section className="rounded-xl border border-line bg-surface p-4 xl:col-span-2">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <h2 className="text-sm font-bold uppercase tracking-wide text-ink-soft">Running late?</h2>
-          <p className="text-sm font-semibold text-ink" role="status">
-            {scheduleDelayMinutes()
-              ? `The agenda is running ${scheduleDelayMinutes()} minutes late`
-              : 'On time'}
+          <h2 className="text-sm font-bold uppercase tracking-wide text-ink-soft">
+            Move the agenda with the room
+          </h2>
+          <p
+            role="status"
+            className={[
+              'rounded-full px-3 py-1 text-sm font-bold',
+              delay === 0 ? 'bg-success/15 text-success' : 'bg-live/15 text-live',
+            ].join(' ')}
+          >
+            {delay === 0
+              ? 'Following the clock'
+              : delay > 0
+                ? `Running ${delay} min behind the printed times`
+                : `Running ${-delay} min ahead of the printed times`}
           </p>
         </div>
         <p className="mt-1 text-sm text-ink-soft">
-          The portal follows the clock by itself. If the room is behind, pick how far: “Happening
-          now”, what is next, reactions and feedback reminders then follow the room. Set it back to
-          On time when you catch up. The printed times do not change.
+          No need to count minutes. When the room moves on, press the button: “Happening now”, what
+          is next, reactions, feedback reminders and the big screen all follow. The printed times
+          never change.
         </p>
         <div className="mt-3 flex flex-wrap gap-2">
-          {DELAY_CHOICES.map((minutes) => (
-            <form key={minutes} action={setScheduleDelay}>
+          {nowAndNext.next && sameDay(nowAndNext.next.date) ? (
+            <form action={moveAgenda}>
+              <input type="hidden" name="kind" value="start" />
+              <input type="hidden" name="sessionId" value={nowAndNext.next.id} />
+              <button
+                type="submit"
+                className="min-h-12 rounded-lg bg-primary px-5 font-bold text-on-primary"
+              >
+                Start “{nowAndNext.next.title}” now
+              </button>
+            </form>
+          ) : null}
+          {live && sameDay(live.date) ? (
+            <form action={moveAgenda}>
+              <input type="hidden" name="kind" value="end" />
+              <input type="hidden" name="sessionId" value={live.id} />
+              <button
+                type="submit"
+                className="min-h-12 rounded-lg border border-line px-5 font-semibold text-ink hover:border-primary"
+              >
+                End “{live.title}” now
+              </button>
+            </form>
+          ) : null}
+          {[-5, 5, 10].map((minutes) => (
+            <form key={minutes} action={moveAgenda}>
+              <input type="hidden" name="kind" value="nudge" />
               <input type="hidden" name="minutes" value={minutes} />
               <button
                 type="submit"
-                aria-pressed={scheduleDelayMinutes() === minutes}
-                className={[
-                  'min-h-11 rounded-lg border px-4 text-sm font-semibold',
-                  scheduleDelayMinutes() === minutes
-                    ? 'border-primary bg-primary text-on-primary'
-                    : 'border-line text-ink hover:border-primary',
-                ].join(' ')}
+                className="min-h-12 rounded-lg border border-line px-4 font-semibold text-ink hover:border-primary"
+                title={minutes > 0 ? 'The room is running later' : 'The room is running earlier'}
               >
-                {minutes === 0 ? 'On time' : `${minutes} min late`}
+                {minutes > 0 ? `+${minutes} min later` : `${minutes} min earlier`}
               </button>
             </form>
           ))}
+          {delay !== 0 ? (
+            <form action={moveAgenda}>
+              <input type="hidden" name="kind" value="clock" />
+              <button
+                type="submit"
+                className="min-h-12 rounded-lg border border-success px-4 font-bold text-success"
+              >
+                Back to the clock
+              </button>
+            </form>
+          ) : null}
         </div>
       </section>
 

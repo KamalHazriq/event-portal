@@ -42,7 +42,7 @@ test('a photo needs a caption before it can be shared', async ({ browser }, test
   await phone.locator('input[type=file]').setInputFiles(PHOTO);
   await expect(phone.getByRole('img', { name: 'Photo 1 you chose' })).toBeVisible();
   await phone.getByRole('button', { name: 'Share this photo' }).click();
-  await expect(phone.getByRole('alert')).toContainText('needs a caption');
+  await expect(phone.locator('p[role=alert]')).toContainText('needs a caption');
   await phone.close();
 });
 

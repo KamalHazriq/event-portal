@@ -7,7 +7,7 @@
 import { getData } from '@/data';
 import { getEventConfig } from '@/lib/config';
 import { shortDepartment } from '@/lib/departments';
-import { passLink } from '@/lib/event-pass-server';
+import { eventPass, passLink } from '@/lib/event-pass-server';
 import { shortName } from '@/modules/points/logic';
 import { LAYOUT_COUNT, PHOTO_KEYS, resolvePhotoLayout } from '@/modules/photos/logic';
 import {
@@ -33,7 +33,12 @@ import { tallyPoll } from '@/modules/polls/logic';
 import { QA_KEYS, screenQuestions } from '@/modules/qa/logic';
 import { groupDraws, LUCKY_KEYS, resolveExclusions } from '@/modules/lucky-draw/logic';
 import { parsePickerState, PICKER_KEY } from '@/modules/name-picker/logic';
-import { buildAgenda, findNowAndNext, type ResolvedSession } from '@/modules/schedule/logic';
+import {
+  buildAgenda,
+  findNowAndNext,
+  sessionStatus,
+  type ResolvedSession,
+} from '@/modules/schedule/logic';
 
 import {
   arrivalCards,
@@ -50,6 +55,7 @@ import type {
   ArrivalsView,
   CountdownView,
   CommentsView,
+  FeedbackQrView,
   LeaderboardView,
   LuckyDrawView,
   NamePickerView,
@@ -119,7 +125,8 @@ export type ScreenPayload =
   | { view: 'poll'; props: ComponentProps<typeof PollView> }
   | { view: 'leaderboard'; props: ComponentProps<typeof LeaderboardView> }
   | { view: 'comments'; props: ComponentProps<typeof CommentsView> }
-  | { view: 'podium'; props: ComponentProps<typeof PodiumView> };
+  | { view: 'podium'; props: ComponentProps<typeof PodiumView> }
+  | { view: 'feedback'; props: ComponentProps<typeof FeedbackQrView> };
 
 export async function loadScreenView(
   view: ScreenView,
@@ -140,6 +147,7 @@ export async function loadScreenView(
           venue: config.event.venue,
           portalUrl: passLink(config.event.portalUrl),
           logoPath: logoFor(config.branding, resolveTheme(config.branding, 'bigScreen')),
+          accessCode: eventPass(),
         },
       };
 
@@ -389,7 +397,7 @@ export async function loadScreenView(
 
     case 'leaderboard': {
       if (!config.features.leaderboard) return loadScreenView('welcome', now, settings);
-      const board = await loadScoreboard();
+      const board = await loadScoreboard({ shared: true });
       const name = (full: string) => (settings.hideNames ? shortName(full) : full);
       return {
         view,
@@ -409,11 +417,42 @@ export async function loadScreenView(
       };
     }
 
+    case 'feedback': {
+      if (!config.features.feedback) return loadScreenView('welcome', now, settings);
+      const agenda = buildAgenda(config);
+      const target = (await data.settings.get(SCREEN_KEYS.feedbackTarget)) ?? 'auto';
+      const forms = agenda.sessions.filter((s) => s.feedbackEnabled && !s.hidden);
+      let session: (typeof forms)[number] | null = null;
+      if (target !== 'event') {
+        const chosen = forms.find((s) => s.id === target);
+        const nn = findNowAndNext(agenda, now);
+        // The one on now with a form, else the last one that finished before now.
+        const finished = forms
+          .filter((s) => sessionStatus(s, now) === 'past')
+          .sort((a, b) =>
+            a.date === b.date ? b.endMinutes - a.endMinutes : a.date < b.date ? 1 : -1,
+          )[0];
+        session = chosen ?? nn.live.find((s) => s.feedbackEnabled) ?? finished ?? null;
+      }
+      const base = config.event.portalUrl.replace(/\/$/, '');
+      return {
+        view,
+        props: {
+          whole: session === null,
+          title: session ? session.title : config.event.name,
+          context: session
+            ? `${session.dayLabel}, ${formatClock(session.start)} to ${formatClock(session.end)}`
+            : 'Your feedback on the whole summit',
+          url: passLink(`${base}/feedback/${session ? session.id : 'event'}`),
+        },
+      };
+    }
+
     case 'podium': {
       if (!config.features.leaderboard) return loadScreenView('welcome', now, settings);
       const data = getData();
       const [board, sizeRaw, stepRaw] = await Promise.all([
-        loadScoreboard(),
+        loadScoreboard({ shared: true }),
         data.settings.get(SCREEN_KEYS.podiumSize),
         data.settings.get(SCREEN_KEYS.podiumStep),
       ]);

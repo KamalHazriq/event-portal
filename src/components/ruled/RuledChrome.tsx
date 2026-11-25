@@ -1,4 +1,4 @@
-import { readBackupMode } from '@/modules/backup/server';
+import { portalPollsAvailable } from '@/modules/backup/server';
 import { pageNowParam } from '@/lib/test-clock-server';
 import Link from 'next/link';
 
@@ -49,7 +49,7 @@ export async function RuledHeader({ config, mark }: { config: EventConfig; mark:
   });
   const items = portalNavItems(config);
   const slido = slidoLink(config);
-  const portalPolls = config.features.polls && (await readBackupMode().catch(() => false));
+  const portalPolls = config.features.polls && (await portalPollsAvailable().catch(() => false));
 
   return (
     <>

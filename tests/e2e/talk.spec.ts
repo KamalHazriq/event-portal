@@ -68,7 +68,8 @@ test('a comment waits for approval, then shows, can be liked, and reaches the pr
   await asAttendee(page);
   await page.goto('/session/d1-panel');
   await expect(page.getByLabel(/Your name/)).toHaveCount(0);
-  await expect(page.getByText(/^Posted as /)).toBeVisible();
+  // The name is the one signed in with: no name box and no "posted as" line to read.
+  await expect(page.getByText(/^Posted as /)).toHaveCount(0);
   await page.getByLabel('Your comment').fill(text);
   await page.getByRole('button', { name: 'Post comment' }).click();
   await expect(page.getByText(/waiting for the secretariat to approve it/)).toBeVisible();

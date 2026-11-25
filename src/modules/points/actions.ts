@@ -8,6 +8,7 @@ import { requireAdminApi } from '@/lib/admin-guard';
 import { getEventConfig } from '@/lib/config';
 import { recordActivity } from '@/modules/admins/record';
 import { BONUS_KEY, EARLY_KEY, parseBonus, parseBonusPoints } from './logic';
+import { forgetScoreboard } from './server';
 import { plainText } from '@/lib/text';
 import { LIMITS, rateLimit } from '@/lib/rate-limit';
 import {
@@ -132,6 +133,7 @@ export async function addBonus(formData: FormData): Promise<void> {
   });
   await data.settings.set(BONUS_KEY, JSON.stringify(entries));
   await recordActivity(`Gave ${points} bonus points to ${person.name}`, operator);
+  forgetScoreboard();
   revalidatePath('/', 'layout');
   redirect(`/admin/points?bonus=added&who=${encodeURIComponent(person.name)}#bonus`);
 }
@@ -145,6 +147,7 @@ export async function removeBonus(formData: FormData): Promise<void> {
   const gone = entries.find((e) => e.id === id);
   await data.settings.set(BONUS_KEY, JSON.stringify(entries.filter((e) => e.id !== id)));
   if (gone) await recordActivity(`Took back ${gone.points} bonus points`, operator);
+  forgetScoreboard();
   revalidatePath('/', 'layout');
   redirect('/admin/points?bonus=removed#bonus');
 }
@@ -160,6 +163,7 @@ export async function saveEarlyCutoffs(formData: FormData): Promise<void> {
   }
   await getData().settings.set(EARLY_KEY, JSON.stringify(cutoffs));
   await recordActivity('Changed the early arrival times', operator);
+  forgetScoreboard();
   revalidatePath('/', 'layout');
   redirect('/admin/points?early=saved#attendance');
 }

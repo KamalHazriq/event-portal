@@ -6,7 +6,7 @@ import { notFound } from 'next/navigation';
 import { AutoRefresh } from '@/components/AutoRefresh';
 import { getData } from '@/data';
 import { getEventConfig } from '@/lib/config';
-import { currentDeviceId, readBackupMode } from '@/modules/backup/server';
+import { currentDeviceId, portalPollsAvailable } from '@/modules/backup/server';
 import { PollResultsView } from '@/modules/polls/components/PollResultsView';
 import {
   MAX_WORD,
@@ -27,7 +27,7 @@ const PROBLEMS: readonly string[] = ['closed', 'nothing-chosen', 'not-an-option'
 /** The poll that is open right now (Module 3). One answer per phone. */
 export default async function PollPage({ searchParams }: { searchParams: SearchParams }) {
   const config = getEventConfig();
-  if (!config.features.polls || !(await readBackupMode())) notFound();
+  if (!config.features.polls || !(await portalPollsAvailable())) notFound();
 
   const query = await searchParams;
   const state = typeof query.state === 'string' ? query.state : null;

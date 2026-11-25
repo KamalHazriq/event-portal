@@ -110,7 +110,7 @@ export async function podiumControl(formData: FormData): Promise<void> {
   } else if (action === 'rest') {
     // Everyone below the top three at once: places 4 and down.
     const size = parsePodiumSize(await data.settings.get(SCREEN_KEYS.podiumSize));
-    const groups = podiumGroups((await loadScoreboard()).people, size);
+    const groups = podiumGroups((await loadScoreboard({ shared: true })).people, size);
     const below = groups.filter((g) => g.rank > 3).length;
     await data.settings.set(SCREEN_KEYS.podiumStep, String(Math.max(current, below)));
   } else if (action === 'all') {
@@ -119,5 +119,21 @@ export async function podiumControl(formData: FormData): Promise<void> {
     await data.settings.set(SCREEN_KEYS.podiumStep, '0');
   }
   await data.settings.set(SCREEN_KEYS.view, 'podium');
+  revalidatePath('/admin/big-screen');
+}
+
+/** What the Feedback QR on the projector is for: auto, the whole event, or one session. */
+export async function setFeedbackTarget(formData: FormData): Promise<void> {
+  await assertAdmin();
+  const raw = String(formData.get('target') ?? 'auto');
+  const known =
+    raw === 'auto' ||
+    raw === 'event' ||
+    getEventConfig()
+      .days.flatMap((d) => d.sessions)
+      .some((s) => s.id === raw && s.feedbackEnabled);
+  await getData().settings.set(SCREEN_KEYS.feedbackTarget, known ? raw : 'auto');
+  await getData().settings.set(SCREEN_KEYS.view, 'feedback');
+  await recordActivity('Put the feedback QR on the big screen');
   revalidatePath('/admin/big-screen');
 }
