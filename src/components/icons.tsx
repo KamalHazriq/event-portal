@@ -28,6 +28,12 @@ const PATHS = {
   sparkle: 'M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M6 18l2.5-2.5M15.5 8.5 18 6',
   calendar: 'M4 6h16v14H4zM4 10h16M8 3v4M16 3v4',
   megaphone: 'M3 10v4h3l8 5V5L6 10zM17 9a4 4 0 0 1 0 6M6 14l1.5 5h2.5l-1-4',
+  bell: 'M6 16v-5a6 6 0 0 1 12 0v5l1.5 2h-15zM10 20a2 2 0 0 0 4 0',
+  vote: 'M4 14h16v6H4zM7 14V4h10v10M9.5 8.5l2 2 3.5-4.5',
+  thumb: 'M7 11v9H4v-9zM7 11l4-7a2 2 0 0 1 2 2v3h5a2 2 0 0 1 2 2.3l-1 6A2 2 0 0 1 17 19H7',
+  heart: 'M12 20s-7-4.6-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.4-7 10-7 10z',
+  crown: 'M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5zM5 19h14',
+  medal: 'M12 15m-5 0a5 5 0 1 0 10 0a5 5 0 1 0 -10 0M8.5 10 7 3h4l1 3 1-3h4l-1.5 7M12 13v4',
 } as const;
 
 export type IconName = keyof typeof PATHS;
@@ -36,16 +42,19 @@ export function Icon({
   name,
   className = 'size-5',
   strokeWidth = 1.8,
+  filled = false,
 }: {
   name: IconName;
   className?: string;
   strokeWidth?: number;
+  /** Solid, for an "on" state such as a liked heart. */
+  filled?: boolean;
 }) {
   return (
     <svg
       viewBox="0 0 24 24"
       className={className}
-      fill="none"
+      fill={filled ? 'currentColor' : 'none'}
       stroke="currentColor"
       strokeWidth={strokeWidth}
       strokeLinecap="round"

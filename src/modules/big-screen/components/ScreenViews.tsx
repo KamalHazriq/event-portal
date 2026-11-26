@@ -6,6 +6,7 @@
  * from the back of a ballroom, and scale down sensibly on a laptop preview.
  * Every colour comes from the theme tokens.
  */
+import { Icon } from '@/components/icons';
 import { QrCode } from '@/components/QrCode';
 
 import { LuckyDrawSpinner } from '@/modules/lucky-draw/components/LuckyDrawSpinner';
@@ -718,7 +719,7 @@ export function CommentsView({
                   <span className="bubble-text">{c.text}</span>
                   <span className="bubble-name">
                     {c.name}
-                    {c.likes > 0 ? ` · 👍 ${c.likes}` : ''}
+                    {c.likes > 0 ? ` · ${c.likes} ${c.likes === 1 ? 'like' : 'likes'}` : ''}
                   </span>
                 </li>
               ))}
@@ -758,7 +759,9 @@ export function CommentsView({
                 </p>
                 <p className="mt-[0.6vh] flex justify-between text-[clamp(0.8rem,1.2vw,1.6rem)] text-ink-soft">
                   <span>{c.name}</span>
-                  <span className="tabular-nums">👍 {c.likes}</span>
+                  <span className="inline-flex items-center gap-[0.4vw] tabular-nums">
+                    <Icon name="thumb" className="size-[1em]" /> {c.likes}
+                  </span>
                 </p>
               </li>
             ))}

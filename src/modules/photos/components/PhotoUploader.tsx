@@ -18,10 +18,13 @@ const MAX_AT_ONCE = 3;
 export function PhotoUploader({
   alreadySent,
   moderated = true,
+  highQuality = false,
 }: {
   alreadySent: number;
   /** False when the secretariat has switched approval off. */
   moderated?: boolean;
+  /** Photos go to object storage: send them larger and sharper. */
+  highQuality?: boolean;
 }) {
   const [sent, setSent] = useState(alreadySent);
   const [picked, setPicked] = useState<Picked[]>([]);
@@ -72,7 +75,7 @@ export function PhotoUploader({
     let total = sent;
     for (const item of picked) {
       try {
-        const { image, thumbnail } = await shrinkPhoto(item.file);
+        const { image, thumbnail } = await shrinkPhoto(item.file, highQuality);
         const body = new FormData();
         body.set('image', image, 'photo.jpg');
         body.set('thumbnail', thumbnail, 'thumb.jpg');
@@ -172,7 +175,7 @@ export function PhotoUploader({
               type="button"
               onClick={() => remove(item.id)}
               disabled={busy}
-              className="min-h-10 rounded-lg border border-line px-3 text-sm font-semibold text-ink disabled:opacity-60"
+              className="min-h-11 rounded-lg border border-line px-3 text-sm font-semibold text-ink disabled:opacity-60"
             >
               Delete
             </button>

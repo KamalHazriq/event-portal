@@ -24,7 +24,7 @@ export function SlidoButton({ slido }: { slido: SlidoRef }) {
           href={href}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex min-h-9 items-center rounded-lg bg-primary px-3 text-sm font-bold text-on-primary no-underline"
+          className="inline-flex min-h-11 items-center rounded-lg bg-primary px-3 text-sm font-bold text-on-primary no-underline"
         >
           {slido.label}
         </a>

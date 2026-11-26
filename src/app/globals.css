@@ -2751,3 +2751,21 @@ select:focus-visible {
 html:has(.screen-glow) {
   font-size: clamp(16px, 0.8334vw, 44px);
 }
+
+/* -- Anything pressable shows a pointing hand on a computer, and a control that
+ *    cannot be pressed says so. (Tailwind's reset leaves buttons on the arrow.) */
+button:not(:disabled),
+[role='button']:not([aria-disabled='true']),
+summary,
+select:not(:disabled),
+label:has(input[type='checkbox']),
+label:has(input[type='radio']),
+input[type='file']:not(:disabled),
+input[type='submit']:not(:disabled) {
+  cursor: pointer;
+}
+button:disabled,
+input:disabled,
+select:disabled {
+  cursor: not-allowed;
+}

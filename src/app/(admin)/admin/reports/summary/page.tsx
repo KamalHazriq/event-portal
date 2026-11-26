@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { findShortName } from '@/lib/departments';
 
 import { getData } from '@/data';
+import { feedbackForms } from '@/modules/feedback/logic';
 import { requireAdmin } from '@/lib/admin-guard';
 import { isInteractiveSession } from '@/modules/talk/logic';
 import { loadScoreboard } from '@/modules/points/server';
@@ -57,6 +58,38 @@ export default async function ReportSummaryPage() {
     .filter((c) => c.status === 'approved')
     .sort((a, b) => b.likes - a.likes)
     .slice(0, 3);
+  // What people wrote in the feedback forms: the kind words from good ratings, and the
+  // suggestions, each with the name and the session or the whole summit.
+  const formTitle = new Map(feedbackForms(config).map((f) => [f.id, f.title] as const));
+  const said = (
+    pick: (e: (typeof input.feedback)[number]) => string[],
+    keep: (e: (typeof input.feedback)[number]) => boolean,
+    limit: number,
+  ) =>
+    input.feedback
+      .filter(keep)
+      .flatMap((e) =>
+        pick(e).map((text, i) => ({
+          key: `${e.id}-${i}`,
+          text,
+          name: e.displayName,
+          title: formTitle.get(e.formId) ?? e.formId,
+          length: text.length,
+        })),
+      )
+      .filter((x) => x.text.length > 0)
+      .sort((a, b) => b.length - a.length)
+      .slice(0, limit);
+  const saidGood = said(
+    (e) => [e.answers.comment ?? '', e.answers.wentWell ?? ''],
+    (e) => e.rating !== null && e.rating >= 4,
+    5,
+  );
+  const saidImprove = said(
+    (e) => [e.answers.improve ?? '', e.answers.nextTopic ?? ''],
+    () => true,
+    6,
+  );
   const reactionSum = (t: Record<string, number>) => Object.values(t).reduce((n, v) => n + v, 0);
   const totalReactions = reactionTotals.reduce((n, r) => n + reactionSum(r.totals), 0);
   const mostReacted = [...reactionTotals].sort(
@@ -134,6 +167,42 @@ export default async function ReportSummaryPage() {
                 </li>
               ))}
             </ol>
+          </>
+        ) : null}
+
+        {saidGood.length > 0 || saidImprove.length > 0 ? (
+          <>
+            <h2 className={h2}>What people said</h2>
+            {saidGood.length > 0 ? (
+              <>
+                <h3 className="mt-2 font-bold text-ink">What went well</h3>
+                <ul className="mt-1 space-y-2">
+                  {saidGood.map((x) => (
+                    <li key={x.key} className="break-inside-avoid border-l-4 border-success pl-3">
+                      <p className="text-ink">&ldquo;{x.text}&rdquo;</p>
+                      <p className="text-sm text-ink-soft">
+                        {x.name}, on {x.title}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            ) : null}
+            {saidImprove.length > 0 ? (
+              <>
+                <h3 className="mt-3 font-bold text-ink">What to improve, and what to cover next</h3>
+                <ul className="mt-1 space-y-2">
+                  {saidImprove.map((x) => (
+                    <li key={x.key} className="break-inside-avoid border-l-4 border-warning pl-3">
+                      <p className="text-ink">&ldquo;{x.text}&rdquo;</p>
+                      <p className="text-sm text-ink-soft">
+                        {x.name}, on {x.title}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            ) : null}
           </>
         ) : null}
 

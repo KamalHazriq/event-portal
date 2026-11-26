@@ -48,7 +48,29 @@ export function PhotoWall({
     setQueue((q) => [...q, ...fresh]);
   }, [slides]);
 
-  const showing = queue[0];
+  // A new photo is loaded and decoded in the background first, and only then pops up, so
+  // the room never watches a photo load. One that cannot load is skipped.
+  const next = queue[0];
+  const [readyId, setReadyId] = useState<string | null>(null);
+  useEffect(() => {
+    if (!next) return;
+    let cancelled = false;
+    const image = new Image();
+    image.src = `/api/photos/${next.id}`;
+    image
+      .decode()
+      .then(() => {
+        if (!cancelled) setReadyId(next.id);
+      })
+      .catch(() => {
+        if (!cancelled) setQueue((q) => q.slice(1));
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [next]);
+
+  const showing = next && readyId === next.id ? next : undefined;
   useEffect(() => {
     if (!showing) return;
     const timer = window.setTimeout(() => setQueue((q) => q.slice(1)), NEW_PHOTO_MS);

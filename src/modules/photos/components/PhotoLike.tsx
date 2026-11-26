@@ -1,5 +1,6 @@
 'use client';
 
+import { Icon } from '@/components/icons';
 import { useState } from 'react';
 
 /** The heart under a photo: counts at once, tells the server in the background. */
@@ -44,9 +45,9 @@ export function PhotoLike({
         type="submit"
         disabled={done}
         aria-label={`Like this photo, ${count} so far`}
-        className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-line px-3 text-sm font-semibold text-ink disabled:border-primary disabled:text-primary"
+        className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-line px-3 text-sm font-semibold text-ink disabled:border-primary disabled:text-primary"
       >
-        <span aria-hidden="true">{done ? '♥' : '♡'}</span>
+        <Icon name="heart" filled={done} className="size-4" />
         <span className="tabular-nums">{count}</span>
       </button>
     </form>

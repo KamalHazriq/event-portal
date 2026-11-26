@@ -1,3 +1,4 @@
+import { Icon } from '@/components/icons';
 import { getData } from '@/data';
 import { getEventConfig } from '@/lib/config';
 import { currentPlayer } from '@/modules/points/server';
@@ -23,7 +24,7 @@ export async function LuckyWinBanner() {
       className="mb-6 rounded-xl border-2 border-warning bg-warning/15 p-4 text-ink"
     >
       <p className="text-lg font-bold">
-        <span aria-hidden="true">🎉 </span>
+        <Icon name="sparkle" className="mr-1 inline size-5 align-text-bottom" />
         You won the lucky draw{prizes.length > 0 ? `: ${prizes.join(', ')}` : ''}!
       </p>
       <p className="mt-1">Collect your prize at the registration desk. Bring this phone.</p>

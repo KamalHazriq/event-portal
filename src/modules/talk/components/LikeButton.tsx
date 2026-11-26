@@ -1,9 +1,10 @@
 'use client';
 
+import { Icon } from '@/components/icons';
 import { useState } from 'react';
 
 /**
- * The 👍 on a comment. It counts at once and tells the server in the
+ * The like on a comment. It counts at once and tells the server in the
  * background, so the page never reloads or jumps. Without JavaScript it is
  * still a plain form.
  */
@@ -55,7 +56,7 @@ export function LikeButton({
         aria-label={`Like, ${count} so far`}
         className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-line px-3 text-sm font-semibold text-ink disabled:border-primary disabled:text-primary"
       >
-        <span aria-hidden="true">👍</span>
+        <Icon name="thumb" className="size-4" />
         <span className="tabular-nums">{count}</span>
       </button>
     </form>

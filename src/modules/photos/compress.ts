@@ -8,7 +8,7 @@
  * photo's hidden details (location, camera, time), which never reach the
  * server.
  */
-import { fitWithin, PHOTO_LIMITS } from './logic';
+import { fitWithin, HIGH_QUALITY, PHOTO_LIMITS } from './logic';
 
 async function encode(
   bitmap: ImageBitmap,
@@ -29,10 +29,17 @@ async function encode(
   return { blob, ...size };
 }
 
-export async function shrinkPhoto(file: File): Promise<{ image: Blob; thumbnail: Blob }> {
+export async function shrinkPhoto(
+  file: File,
+  high = false,
+): Promise<{ image: Blob; thumbnail: Blob }> {
   const bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' });
   try {
-    const image = await encode(bitmap, PHOTO_LIMITS.longestSide, 0.88);
+    const image = await encode(
+      bitmap,
+      high ? HIGH_QUALITY.longestSide : PHOTO_LIMITS.longestSide,
+      high ? HIGH_QUALITY.quality : 0.88,
+    );
     const thumbnail = await encode(bitmap, PHOTO_LIMITS.thumbLongestSide, 0.82);
     return { image: image.blob, thumbnail: thumbnail.blob };
   } finally {

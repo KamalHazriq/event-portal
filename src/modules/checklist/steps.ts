@@ -24,7 +24,7 @@ export type Step = {
 };
 
 /** Bump this when a batch of changes lands, and mark the steps it touched with it. */
-export const LATEST_REVISION = 7;
+export const LATEST_REVISION = 8;
 
 export type StepGroup = { id: string; title: string; steps: Step[] };
 
@@ -1033,6 +1033,17 @@ export const TEST_PLAN: Part[] = [
         title: 'S7. Running the room',
         steps: [
           {
+            id: 's-room-photoload',
+            rev: 8,
+            do: 'With the photo wall on the big screen, share a photo from a phone.',
+            expect:
+              'The new photo pops up large only once it has fully loaded: nobody sees it loading in. If photos are stored in S3 or Firebase Storage they are sent at higher quality.',
+            links: [
+              { href: '/admin/photos', label: 'Photos' },
+              { href: '/photos', label: 'Photos (phone)' },
+            ],
+          },
+          {
             id: 's-room-templates',
             rev: 6,
             do: 'On Screensaver, press Add on a riddle pack and turn Live summit facts on, then choose Screensaver on Big screen.',
@@ -1286,6 +1297,14 @@ export const TEST_PLAN: Part[] = [
         title: 'S8. After the event',
         steps: [
           {
+            id: 's-after-said',
+            rev: 8,
+            do: 'Open the report summary after some feedback has been sent.',
+            expect:
+              'There is a "What people said" section with what went well and what to improve (with names and the session), after the most liked comments.',
+            links: [{ href: '/admin/reports/summary', label: 'Report summary' }],
+          },
+          {
             id: 's-after-eventnudge',
             rev: 5,
             do: "After the last session ends (use the Announce page's feedback reminders switch), look at a phone with alerts on and at the big screen suggestion.",
@@ -1341,6 +1360,14 @@ export const TEST_PLAN: Part[] = [
         id: 's-clean',
         title: 'S9. A clean slate before the event',
         steps: [
+          {
+            id: 's-clean-cron',
+            rev: 8,
+            do: 'Follow docs/CRON.md to make the cron secret and the scheduler job, then run the job once.',
+            expect:
+              'The scheduler job shows Success (200). Scheduled announcements and feedback reminders now go out even with no screen open.',
+            links: [{ href: '/admin/announce', label: 'Announce' }],
+          },
           {
             id: 's-clean-photos',
             rev: 3,

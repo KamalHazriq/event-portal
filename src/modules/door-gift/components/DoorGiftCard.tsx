@@ -1,3 +1,4 @@
+import { Icon } from '@/components/icons';
 import { getEventConfig } from '@/lib/config';
 import { currentPlayer } from '@/modules/points/server';
 
@@ -36,7 +37,7 @@ export async function DoorGiftCard() {
   return (
     <section className="flex items-center gap-4 rounded-xl border-2 border-accent bg-surface p-4">
       <span aria-hidden="true" className="text-4xl">
-        🎁
+        <Icon name="gift" className="size-6" />
       </span>
       <span className="min-w-0 flex-1">
         <span className="block text-lg font-bold text-ink">A door gift is waiting</span>

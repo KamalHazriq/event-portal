@@ -1,5 +1,7 @@
 import Link from 'next/link';
 
+import { Icon } from '@/components/icons';
+
 import { getData } from '@/data';
 
 import { ANNOUNCE_KEYS, isLive, parseAnnouncement } from '../logic';
@@ -21,7 +23,7 @@ export async function AnnouncementBanner() {
         aria-hidden="true"
         className="announce-icon relative grid size-12 shrink-0 place-items-center rounded-xl bg-primary text-2xl text-on-primary"
       >
-        📣
+        <Icon name="megaphone" className="size-6" />
       </span>
       <span className="min-w-0 flex-1">
         <span className="block text-[0.7rem] font-bold uppercase tracking-[0.18em] text-primary">

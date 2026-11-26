@@ -1,3 +1,4 @@
+import { Icon } from '@/components/icons';
 import { PodiumView } from './PodiumView';
 import { FeedbackQrView } from './ScreenViews';
 import { LoopView } from './LoopView';
@@ -140,7 +141,7 @@ export function ScreenFrame({
           className="screen-banner absolute inset-x-[5vw] bottom-[3vh] z-30 rounded-[1vw] bg-primary px-[2.5vw] py-[2vh] text-[clamp(1.3rem,2.6vw,3.6rem)] font-bold leading-tight text-on-primary"
         >
           <span aria-hidden="true" className="mr-[1vw]">
-            📣
+            <Icon name="megaphone" className="inline size-[1em] align-middle" />
           </span>
           {banner}
         </p>

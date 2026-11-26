@@ -6,6 +6,7 @@ import { cookies } from 'next/headers';
 import { after } from 'next/server';
 
 import { getData } from '@/data';
+import { objectStoreFromEnv } from '@/data/object-storage';
 import { getEventConfig } from '@/lib/config';
 import { DEVICE_COOKIE, deviceCookieOptions, newDeviceId, readDeviceId } from '@/lib/device';
 import { LIMITS, rateLimit } from '@/lib/rate-limit';
@@ -15,6 +16,7 @@ import {
   checkUpload,
   moderationOn,
   PHOTO_KEYS,
+  HIGH_QUALITY,
   PHOTO_LIMITS,
   type UploadProblem,
   uploadMessage,
@@ -29,7 +31,10 @@ export async function POST(request: Request): Promise<Response> {
 
   // The body is two small JPEGs; anything far bigger is not from our page.
   const declared = Number(request.headers.get('content-length') ?? 0);
-  if (declared > PHOTO_LIMITS.maxImageBytes + PHOTO_LIMITS.maxThumbBytes + 64 * 1024) {
+  // Larger and sharper when photos go to object storage; the database keeps the small size.
+  const high = objectStoreFromEnv() !== null;
+  const imageCeiling = high ? HIGH_QUALITY.maxImageBytes : PHOTO_LIMITS.maxImageBytes;
+  if (declared > imageCeiling + PHOTO_LIMITS.maxThumbBytes + 64 * 1024) {
     return refuse('too-big', 413);
   }
 
@@ -60,7 +65,7 @@ export async function POST(request: Request): Promise<Response> {
   const thumbBytes = new Uint8Array(await thumbnail.arrayBuffer());
   const alreadySent = await data.photos.countByDevice(deviceId);
 
-  const checked = checkUpload({ image: imageBytes, thumbnail: thumbBytes });
+  const checked = checkUpload({ image: imageBytes, thumbnail: thumbBytes }, high);
   if (!checked.ok) {
     return refuse(checked.problem, checked.problem === 'too-many' ? 403 : 400);
   }

@@ -83,7 +83,7 @@ export async function RuledHeader({ config, mark }: { config: EventConfig; mark:
               {config.features.leaderboard ? (
                 <Link
                   href="/me"
-                  className="hidden min-h-10 items-center rounded-lg border border-line px-3.5 text-sm font-semibold text-ink no-underline sm:inline-flex"
+                  className="hidden min-h-11 items-center rounded-lg border border-line px-3.5 text-sm font-semibold text-ink no-underline sm:inline-flex"
                 >
                   My points
                 </Link>
@@ -92,7 +92,7 @@ export async function RuledHeader({ config, mark }: { config: EventConfig; mark:
                 // Slido is down: the portal's own polls and questions stand in for it.
                 <Link
                   href="/poll"
-                  className="inline-flex min-h-10 items-center rounded-lg bg-primary px-3.5 text-sm font-semibold text-on-primary no-underline"
+                  className="inline-flex min-h-11 items-center rounded-lg bg-primary px-3.5 text-sm font-semibold text-on-primary no-underline"
                 >
                   Vote in the poll
                 </Link>
@@ -101,7 +101,7 @@ export async function RuledHeader({ config, mark }: { config: EventConfig; mark:
                   href={slido}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex min-h-10 items-center rounded-lg bg-primary px-3.5 text-sm font-semibold text-on-primary no-underline"
+                  className="inline-flex min-h-11 items-center rounded-lg bg-primary px-3.5 text-sm font-semibold text-on-primary no-underline"
                 >
                   Join Slido
                 </a>

@@ -18,6 +18,7 @@
  * There is no event photography, so the hero's full-bleed picture is the
  * brand field and the event wordmark; a venue photo can replace it later.
  */
+import { Icon } from '@/components/icons';
 import Link from 'next/link';
 
 import { StudioGem } from '@/components/studio/StudioGem';
@@ -42,7 +43,7 @@ import { InstallApp } from '@/components/InstallApp';
 const SECTION = 'pt-16 pb-12 lg:pt-24 lg:pb-16';
 const H2 = 'font-display text-[1.75rem] font-medium leading-[1.1] text-ink sm:text-[2.5rem]';
 const SMALL_BUTTON =
-  'inline-flex min-h-10 shrink-0 items-center whitespace-nowrap rounded-lg border border-line px-3.5 text-sm font-semibold text-ink no-underline hover:border-primary';
+  'inline-flex min-h-11 shrink-0 items-center whitespace-nowrap rounded-lg border border-line px-3.5 text-sm font-semibold text-ink no-underline hover:border-primary';
 const BUTTON =
   'inline-flex min-h-12 items-center whitespace-nowrap rounded-lg px-5 font-semibold no-underline';
 
@@ -343,7 +344,7 @@ export async function RuledHome({
                     href={slido}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex min-h-10 items-center rounded-lg bg-primary px-3.5 text-sm font-semibold text-on-primary no-underline"
+                    className="inline-flex min-h-11 items-center rounded-lg bg-primary px-3.5 text-sm font-semibold text-on-primary no-underline"
                   >
                     Ask on Slido
                   </a>
@@ -356,7 +357,7 @@ export async function RuledHome({
                 {pollOpen ? (
                   <Link
                     href="/poll"
-                    className="inline-flex min-h-10 items-center rounded-lg bg-primary px-3.5 text-sm font-semibold text-on-primary no-underline"
+                    className="inline-flex min-h-11 items-center rounded-lg bg-primary px-3.5 text-sm font-semibold text-on-primary no-underline"
                   >
                     Answer the poll
                   </Link>
@@ -410,7 +411,7 @@ export async function RuledHome({
             aria-hidden="true"
             className="announce-icon grid size-12 shrink-0 place-items-center rounded-xl bg-on-primary/20 text-2xl"
           >
-            🗳️
+            <Icon name="vote" className="size-6" />
           </span>
           <span className="min-w-0 flex-1">
             <span className="block text-xs font-bold uppercase tracking-[0.18em] opacity-90">

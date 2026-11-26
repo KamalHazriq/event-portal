@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 
 import { getData } from '@/data';
+import { objectStoreFromEnv } from '@/data/object-storage';
 import { getEventConfig } from '@/lib/config';
 import { DEVICE_COOKIE, readDeviceId } from '@/lib/device';
 import Link from 'next/link';
@@ -73,7 +74,11 @@ export default async function PhotosPage({
         </p>
       ) : null}
 
-      <PhotoUploader alreadySent={alreadySent} moderated={moderated} />
+      <PhotoUploader
+        alreadySent={alreadySent}
+        moderated={moderated}
+        highQuality={objectStoreFromEnv() !== null}
+      />
 
       <section aria-labelledby="wall" className="space-y-3 pt-4">
         <div className="flex items-baseline justify-between gap-3">
@@ -124,7 +129,7 @@ export default async function PhotosPage({
                         href={`/api/photos/${photo.id}?download=1`}
                         download
                         aria-label={`Download the photo ${photo.caption || ''}`.trim()}
-                        className="inline-flex min-h-9 items-center rounded-full border border-line px-3 text-sm font-semibold text-primary no-underline"
+                        className="inline-flex min-h-11 items-center rounded-full border border-line px-3 text-sm font-semibold text-primary no-underline"
                       >
                         Save
                       </a>
@@ -161,7 +166,7 @@ export default async function PhotosPage({
                             </label>
                             <button
                               type="submit"
-                              className="min-h-10 rounded-lg bg-primary px-4 text-sm font-bold text-on-primary"
+                              className="min-h-11 rounded-lg bg-primary px-4 text-sm font-bold text-on-primary"
                             >
                               Post comment
                             </button>

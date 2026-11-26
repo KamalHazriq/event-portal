@@ -1,5 +1,6 @@
 'use client';
 
+import { Icon } from '@/components/icons';
 import { useEffect, useState, useSyncExternalStore } from 'react';
 
 import { alertSupport, type AlertSupport } from '../logic';
@@ -139,7 +140,7 @@ export function AlertsOptIn({ team = false }: { team?: boolean }) {
   if (on) {
     return (
       <p className="flex flex-wrap items-center gap-2 text-sm text-ink-soft" role="status">
-        <span aria-hidden="true">🔔</span>{' '}
+        <Icon name="bell" className="mr-1 inline size-4 align-text-bottom" />
         {team ? 'Team alerts are on for this device.' : 'Event alerts are on for this device.'}
         <button
           type="button"
@@ -156,7 +157,7 @@ export function AlertsOptIn({ team = false }: { team?: boolean }) {
   return (
     <section aria-label="Event alerts" className="rounded-xl border border-line bg-surface p-4">
       <p className="font-bold text-ink">
-        <span aria-hidden="true">🔔 </span>
+        <Icon name="bell" className="mr-1 inline size-4 align-text-bottom" />
         {team ? 'Get team alerts on this device' : 'Get event alerts on this device'}
       </p>
       <p className="mt-1 text-sm text-ink-soft">

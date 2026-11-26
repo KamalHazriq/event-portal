@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 import { playDrumRoll, playFanfare, playImpact, playPing } from '@/modules/lucky-draw/sound';
+import { Icon } from '@/components/icons';
 import { Confetti } from '@/modules/lucky-draw/components/LuckyDrawSpinner';
 
 export type PodiumPlace = {
@@ -13,7 +14,8 @@ export type PodiumPlace = {
 
 const ORDINAL: Record<number, string> = { 1: '1st', 2: '2nd', 3: '3rd' };
 const ordinal = (n: number) => ORDINAL[n] ?? `${n}th`;
-const MEDAL: Record<number, string> = { 1: '🥇', 2: '🥈', 3: '🥉' };
+// Gold, silver and bronze for the medal on each step.
+const MEDAL_COLOUR: Record<number, string> = { 1: '#f5b301', 2: '#cbd5e1', 3: '#d9884a' };
 
 /**
  * Kahoot style reveal, all on one screen. The top three stand on a podium;
@@ -163,7 +165,7 @@ export function PodiumView({
                         aria-hidden="true"
                         className={`text-[clamp(1.5rem,min(3.2vw,5vh),4.5rem)] leading-none ${calm ? '' : 'crown-bob'}`}
                       >
-                        👑
+                        <Icon name="crown" className="mx-auto size-[1.1em] text-[#f5b301]" filled />
                       </p>
                     ) : null}
                     <ul className={`grid gap-x-[1.2vw] gap-y-[0.4vh] ${cols}`}>
@@ -197,8 +199,12 @@ export function PodiumView({
                   out && first && !calm ? 'winner-glow' : '',
                 ].join(' ')}
               >
-                <span aria-hidden="true" className="text-[0.8em]">
-                  {out ? MEDAL[place.rank] : ''}
+                <span
+                  aria-hidden="true"
+                  className="text-[0.8em]"
+                  style={{ color: out ? MEDAL_COLOUR[place.rank] : undefined }}
+                >
+                  {out ? <Icon name="medal" className="size-[1em]" filled /> : null}
                 </span>
                 {ordinal(place.rank)}
               </div>

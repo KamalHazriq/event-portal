@@ -20,6 +20,19 @@ export const PHOTO_LIMITS = {
   maxCaption: 120,
 } as const;
 
+/**
+ * Higher quality, used only when photos live in object storage (S3 or
+ * Firebase Storage) and not in the database: about 3200 px and a gentler
+ * compression, roughly 2 to 3 MB a photo. The wall still shows small
+ * thumbnails, so the screen and the phones stay as fast.
+ */
+export const HIGH_QUALITY = {
+  longestSide: 3200,
+  quality: 0.92,
+  maxImageBytes: 9_000_000,
+  maxDimension: 3300,
+} as const;
+
 /** How long each photo stays up in the big screen slideshow. */
 export const SLIDE_MS = 8_000;
 
@@ -72,19 +85,24 @@ export type UploadProblem =
   | 'failed';
 
 /** Checks one upload. Returns the photo's size, or the reason it is refused. */
-export function checkUpload(input: {
-  image: Uint8Array;
-  thumbnail: Uint8Array;
-}): { ok: true; width: number; height: number } | { ok: false; problem: UploadProblem } {
+export function checkUpload(
+  input: {
+    image: Uint8Array;
+    thumbnail: Uint8Array;
+  },
+  high = false,
+): { ok: true; width: number; height: number } | { ok: false; problem: UploadProblem } {
+  const maxBytes = high ? HIGH_QUALITY.maxImageBytes : PHOTO_LIMITS.maxImageBytes;
+  const maxSide = high ? HIGH_QUALITY.maxDimension : PHOTO_LIMITS.maxDimension;
   if (
-    input.image.byteLength > PHOTO_LIMITS.maxImageBytes ||
+    input.image.byteLength > maxBytes ||
     input.thumbnail.byteLength > PHOTO_LIMITS.maxThumbBytes
   ) {
     return { ok: false, problem: 'too-big' };
   }
   const size = jpegSize(input.image);
   if (!size || !jpegSize(input.thumbnail)) return { ok: false, problem: 'not-a-photo' };
-  if (size.width > PHOTO_LIMITS.maxDimension || size.height > PHOTO_LIMITS.maxDimension) {
+  if (size.width > maxSide || size.height > maxSide) {
     return { ok: false, problem: 'too-big' };
   }
   return { ok: true, ...size };
