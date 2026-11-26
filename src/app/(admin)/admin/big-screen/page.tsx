@@ -1,3 +1,10 @@
+import { CuePanel } from '@/modules/stage/components/CuePanel';
+import { CountdownPanel } from '@/modules/stage/components/CountdownPanel';
+import { DrawPanel } from '@/modules/stage/components/DrawPanel';
+import { PickerPanel } from '@/modules/stage/components/PickerPanel';
+import { PollPanel } from '@/modules/stage/components/PollPanel';
+import { QaPanel } from '@/modules/stage/components/QaPanel';
+import { StageKeys } from '@/modules/stage/components/StageKeys';
 import { LoopControls } from '@/modules/loop/components/LoopControls';
 import {
   buildLoopItems,
@@ -50,11 +57,12 @@ import {
   SCREEN_KEYS,
   SCREEN_VIEW_INFO,
 } from '@/modules/big-screen/logic';
+import { localClock } from '@/modules/reports/logic';
 import { loadScoreboard } from '@/modules/points/server';
 
 export const dynamic = 'force-dynamic';
 
-export const metadata: Metadata = { title: 'Big screen' };
+export const metadata: Metadata = { title: 'Stage control' };
 
 export default async function BigScreenControlPage() {
   await requireAdmin('/admin/big-screen');
@@ -112,96 +120,95 @@ export default async function BigScreenControlPage() {
     overrideParam: await pageNowParam(null),
   });
   const suggestion = suggestScreenView(buildAgenda(config), now, views);
+  // Who last changed something, so two people on the console see each other.
+  const lastEntry = (
+    await getData()
+      .activity.recent(1)
+      .catch(() => [])
+  )[0];
+  const lastChange = lastEntry
+    ? `${lastEntry.operator}: ${lastEntry.action}, ${localClock(lastEntry.at, config.event.timezone)}`
+    : null;
 
   return (
     <div className="space-y-5">
       <AutoRefresh intervalMs={30_000} />
-      <header>
-        <h1 className="text-2xl font-bold text-ink">Big screen</h1>
-        <p className="mt-1 text-ink-soft">
-          Pick what the ballroom projector shows. It changes within a few seconds.
+      <StageKeys />
+      <header className="flex flex-wrap items-baseline justify-between gap-2">
+        <h1 className="text-2xl font-bold text-ink">Stage control</h1>
+        <p className="text-sm text-ink-soft">
+          For the MC and the floor manager, on a phone or a laptop. Several people can have this
+          open: the screen follows whoever pressed last.
         </p>
       </header>
 
-      {suggestion ? (
-        <section
-          aria-label="Suggestion"
-          className={`rounded-xl border-2 p-4 ${
-            suggestion.view === settings.view
-              ? 'border-success bg-success/10'
-              : 'border-accent bg-accent/10'
-          }`}
-        >
-          <p className="text-xs font-bold uppercase tracking-wide text-ink-soft">
-            Suggestion for {formatClockMinutes(now.minutes)}
-          </p>
-          <p className="mt-1 font-semibold text-ink">{suggestion.reason}</p>
-          {suggestion.view === settings.view ? (
-            <p className="mt-1 text-success">
-              Already on the screen: {SCREEN_VIEW_INFO[suggestion.view].title}. Nothing to do.
-            </p>
-          ) : (
-            <>
-              <p className="mt-1 text-sm text-ink-soft">
-                The projector shows {SCREEN_VIEW_INFO[settings.view].title} now. Only change it if
-                there is no other reason for what is up.
-              </p>
-              <form action={setScreenView} className="mt-2">
-                <input type="hidden" name="view" value={suggestion.view} />
-                <button
-                  type="submit"
-                  className="min-h-11 rounded-lg bg-primary px-4 font-bold text-on-primary"
-                >
-                  Put {SCREEN_VIEW_INFO[suggestion.view].title} on the screen
-                </button>
-              </form>
-            </>
-          )}
+      <CuePanel
+        current={settings.view}
+        available={views}
+        suggestion={suggestion}
+        lastChange={lastChange}
+      />
+
+      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:items-start">
+        <section aria-label="Projector preview">
+          <h2 className="mb-2 text-sm font-bold uppercase tracking-wide text-ink-soft">
+            On the projector now: {SCREEN_VIEW_INFO[settings.view].title}
+          </h2>
+          {/* A new address per view, so the preview reloads at once on a switch. */}
+          <ScaledPreview src={`/screen?view=${settings.view}`} />
         </section>
-      ) : null}
 
-      <section>
-        <h2 className="mb-2 text-sm font-bold uppercase tracking-wide text-ink-soft">
-          On the projector now: {SCREEN_VIEW_INFO[settings.view].title}
-        </h2>
-        {/* A new address per view, so the preview reloads at once on a switch. */}
-        <ScaledPreview src={`/screen?view=${settings.view}`} />
-      </section>
+        <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+          {views.map((view, index) => {
+            const info = SCREEN_VIEW_INFO[view];
+            const active = view === settings.view;
+            const suggested = suggestion?.view === view && !active;
+            return (
+              <li key={view}>
+                <form action={setScreenView} className="h-full">
+                  <input type="hidden" name="view" value={view} />
+                  <button
+                    type="submit"
+                    aria-pressed={active}
+                    title={`${info.description} ${info.whenToUse}.`}
+                    data-tile-index={index < 9 ? index + 1 : undefined}
+                    className={[
+                      'relative block h-full min-h-14 w-full rounded-xl bg-surface px-3 py-2 text-left',
+                      active
+                        ? 'border-2 border-success'
+                        : suggested
+                          ? 'border-2 border-accent'
+                          : 'border border-line hover:border-primary',
+                    ].join(' ')}
+                  >
+                    <span className="block font-bold leading-tight text-ink">{info.title}</span>
+                    <span className="block text-xs font-semibold">
+                      {active ? (
+                        <span className="text-success">On screen</span>
+                      ) : suggested ? (
+                        <span className="text-accent">Suggested now</span>
+                      ) : (
+                        <span className="text-ink-soft">{info.whenToUse}</span>
+                      )}
+                    </span>
+                    {index < 9 ? (
+                      <kbd className="absolute right-2 top-2 rounded border border-line px-1.5 text-xs text-ink-soft">
+                        {index + 1}
+                      </kbd>
+                    ) : null}
+                  </button>
+                </form>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
 
-      <ul className="grid gap-3 sm:grid-cols-2">
-        {views.map((view) => {
-          const info = SCREEN_VIEW_INFO[view];
-          const active = view === settings.view;
-          return (
-            <li key={view}>
-              <form action={setScreenView} className="h-full">
-                <input type="hidden" name="view" value={view} />
-                <button
-                  type="submit"
-                  aria-pressed={active}
-                  className={[
-                    'block h-full min-h-11 w-full rounded-xl bg-surface p-4 text-left',
-                    active ? 'border-2 border-success' : 'border border-line hover:border-primary',
-                  ].join(' ')}
-                >
-                  <span className="flex items-center justify-between gap-2">
-                    <span className="font-bold text-ink">{info.title}</span>
-                    {active ? (
-                      <span className="rounded bg-success px-2 py-0.5 text-xs font-bold text-canvas">
-                        On screen
-                      </span>
-                    ) : (
-                      <span className="text-xs font-semibold text-primary">Show this</span>
-                    )}
-                  </span>
-                  <span className="mt-1 block text-sm text-ink-soft">{info.description}</span>
-                  <span className="mt-2 block text-xs text-ink-soft">{info.whenToUse}</span>
-                </button>
-              </form>
-            </li>
-          );
-        })}
-      </ul>
+      {settings.view === 'countdown' ? <CountdownPanel /> : null}
+      {settings.view === 'lucky-draw' && config.features.luckyDraw ? <DrawPanel /> : null}
+      {settings.view === 'name-picker' ? <PickerPanel /> : null}
+      {settings.view === 'qa' && config.features.qa ? <QaPanel /> : null}
+      {settings.view === 'poll' && config.features.polls ? <PollPanel /> : null}
 
       {settings.view === 'loop' ? (
         <LoopControls items={loopItems} manual={loopCommand.manual} />
@@ -521,10 +528,4 @@ export default async function BigScreenControlPage() {
       </section>
     </div>
   );
-}
-
-function formatClockMinutes(minutes: number): string {
-  const h = Math.floor(minutes / 60);
-  const m = minutes % 60;
-  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
 }

@@ -7,12 +7,11 @@ import { requireAdmin } from '@/lib/admin-guard';
 import { getEventConfig } from '@/lib/config';
 import { formatClock, formatTimeRange, resolveEventNow } from '@/lib/time';
 import { readBackupMode } from '@/modules/backup/server';
-import { moveAgenda, updateCountdown, updateCountdownLabel } from '@/modules/admin/actions';
+import { moveAgenda } from '@/modules/admin/actions';
 import { scheduleDelayMinutes } from '@/lib/schedule-delay-state';
 import { CountdownClock } from '@/modules/admin/components/CountdownClock';
 import {
   minutesLeftInSession,
-  QUICK_COUNTDOWNS,
   resolveSurprise,
   runningState,
   runningStateLabel,
@@ -300,118 +299,22 @@ export default async function LiveControlPage() {
         <h2 className="text-sm font-bold uppercase tracking-wide text-ink-soft">
           Surprise countdown
         </h2>
-
         {surprise.enabled && instant ? (
           <div className="mt-1">
             <p className="text-ink">{surprise.label}</p>
             <p className="text-3xl font-bold leading-tight text-ink">
               <CountdownClock targetMs={instant.getTime()} />
             </p>
-            <p className="mt-1 text-sm text-ink-soft">
-              Set for {surprise.targetAt?.replace('T', ' at ')}
-              {surprise.overridden ? ', changed from the config file' : ', from the config file'}
-            </p>
           </div>
         ) : (
-          <p className="mt-1 text-ink-soft">
-            Off.{' '}
-            {surprise.targetAt
-              ? `The config file has it at ${surprise.targetAt.replace('T', ' at ')}.`
-              : 'No time is set.'}
-          </p>
+          <p className="mt-1 text-ink-soft">Off.</p>
         )}
-
-        <div className="mt-4 space-y-3">
-          <div>
-            <p className="mb-1 text-sm font-semibold text-ink">Start it in</p>
-            <div className="flex flex-wrap gap-2">
-              {QUICK_COUNTDOWNS.map((minutes) => (
-                <form key={minutes} action={updateCountdown}>
-                  <input type="hidden" name="intent" value="quick" />
-                  <input type="hidden" name="minutes" value={minutes} />
-                  <button
-                    type="submit"
-                    className="min-h-11 rounded-lg border border-line bg-canvas px-3 py-2 text-sm font-bold text-ink"
-                  >
-                    {minutes} min
-                  </button>
-                </form>
-              ))}
-            </div>
-          </div>
-
-          <form action={updateCountdown} className="flex flex-wrap items-end gap-2">
-            <input type="hidden" name="intent" value="exact" />
-            <div>
-              <label htmlFor="targetAt" className="block text-sm font-semibold text-ink">
-                Or an exact time
-              </label>
-              <input
-                id="targetAt"
-                name="targetAt"
-                type="datetime-local"
-                defaultValue={surprise.targetAt ?? ''}
-                className="mt-1 min-h-11 rounded-lg border border-line bg-canvas px-3 py-2 text-ink"
-              />
-            </div>
-            <button
-              type="submit"
-              className="min-h-11 rounded-lg bg-primary px-4 py-2 font-bold text-on-primary"
-            >
-              Set
-            </button>
-          </form>
-
-          <form action={updateCountdownLabel} className="flex flex-wrap items-end gap-2">
-            <div className="min-w-0 flex-1">
-              <label htmlFor="label" className="block text-sm font-semibold text-ink">
-                What the screen says above the numbers
-              </label>
-              <input
-                id="label"
-                name="label"
-                type="text"
-                maxLength={80}
-                defaultValue={surprise.label}
-                className="mt-1 min-h-11 w-full rounded-lg border border-line bg-canvas px-3 py-2 text-ink"
-              />
-            </div>
-            <button
-              type="submit"
-              className="min-h-11 rounded-lg border border-line px-4 py-2 font-semibold text-ink"
-            >
-              Save
-            </button>
-          </form>
-
-          <div className="flex flex-wrap gap-2 border-t border-line pt-3">
-            <form action={updateCountdown}>
-              <input type="hidden" name="intent" value="off" />
-              <button
-                type="submit"
-                className="min-h-11 rounded-lg border border-line px-4 py-2 text-sm font-semibold text-ink"
-              >
-                Switch it off
-              </button>
-            </form>
-            <form action={updateCountdown}>
-              <input type="hidden" name="intent" value="reset" />
-              <button
-                type="submit"
-                className="min-h-11 rounded-lg border border-line px-4 py-2 text-sm font-semibold text-ink-soft"
-              >
-                Back to the config file
-              </button>
-            </form>
-          </div>
-        </div>
-
         <p className="mt-3 text-sm text-ink-soft">
-          To put it on the projector, choose Countdown on the{' '}
+          Start it, change it and put it on the projector from{' '}
           <Link href="/admin/big-screen" className="font-semibold text-primary">
-            big screen page
+            Stage control
           </Link>
-          .
+          , next to the other controls for the screen.
         </p>
       </section>
 
@@ -420,7 +323,7 @@ export default async function LiveControlPage() {
           { href: '/admin/desk', label: 'Desk' },
           { href: '/admin/headcount', label: 'Headcount' },
           { href: '/admin/feedback', label: 'Feedback' },
-          { href: '/admin/big-screen', label: 'Big screen' },
+          { href: '/admin/big-screen', label: 'Stage control' },
           { href: '/admin/lucky-draw', label: 'Lucky draw' },
         ].map((item) => (
           <Link

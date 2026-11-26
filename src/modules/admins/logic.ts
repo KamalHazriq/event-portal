@@ -39,7 +39,7 @@ export function pageLabel(path: string): string {
     '/admin/desk': 'Registration desk',
     '/admin/headcount': 'Headcount',
     '/admin/feedback': 'Feedback',
-    '/admin/big-screen': 'Big screen control',
+    '/admin/big-screen': 'Stage control',
     '/admin/reports': 'Reports',
     '/admin/reports/summary': 'Report summary',
     '/admin/lucky-draw': 'Lucky draw',

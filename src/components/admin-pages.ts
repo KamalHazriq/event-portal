@@ -57,9 +57,10 @@ export const ADMIN_GROUPS: AdminGroup[] = [
       },
       {
         href: '/admin/big-screen',
-        label: 'Big screen',
-        title: 'Big screen',
-        description: 'Choose what the ballroom projector shows, from your phone.',
+        label: 'Stage control',
+        title: 'Stage control',
+        description:
+          'Run the programme: what the projector shows, next cue, countdown, draws, questions and polls.',
         icon: 'monitor',
       },
       {

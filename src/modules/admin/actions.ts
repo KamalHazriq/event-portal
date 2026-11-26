@@ -41,6 +41,7 @@ export async function setScheduleDelay(formData: FormData): Promise<void> {
     minutes ? `Set the agenda running ${minutes} minutes late` : 'Set the agenda back on time',
   );
   revalidatePath('/admin/live');
+  revalidatePath('/admin/big-screen');
   revalidatePath('/', 'layout');
 }
 
@@ -84,6 +85,7 @@ export async function moveAgenda(formData: FormData): Promise<void> {
           : `Moved the agenda ${Number(formData.get('minutes') ?? 0)} minutes`,
   );
   revalidatePath('/admin/live');
+  revalidatePath('/admin/big-screen');
   revalidatePath('/', 'layout');
 }
 
@@ -97,6 +99,7 @@ export async function updateCountdown(formData: FormData): Promise<void> {
     await data.settings.set(SURPRISE_KEYS.enabled, 'false');
     await recordActivity('Switched the countdown off');
     revalidatePath('/admin/live');
+    revalidatePath('/admin/big-screen');
     return;
   }
 
@@ -109,6 +112,7 @@ export async function updateCountdown(formData: FormData): Promise<void> {
     ]);
     await recordActivity('Reset the countdown to the config file');
     revalidatePath('/admin/live');
+    revalidatePath('/admin/big-screen');
     return;
   }
 
@@ -140,6 +144,7 @@ export async function updateCountdown(formData: FormData): Promise<void> {
   await recordActivity('Started the countdown');
 
   revalidatePath('/admin/live');
+  revalidatePath('/admin/big-screen');
 }
 
 export async function updateCountdownLabel(formData: FormData): Promise<void> {
@@ -153,4 +158,5 @@ export async function updateCountdownLabel(formData: FormData): Promise<void> {
   await recordActivity('Changed the countdown label');
 
   revalidatePath('/admin/live');
+  revalidatePath('/admin/big-screen');
 }

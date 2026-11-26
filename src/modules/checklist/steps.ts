@@ -24,7 +24,7 @@ export type Step = {
 };
 
 /** Bump this when a batch of changes lands, and mark the steps it touched with it. */
-export const LATEST_REVISION = 9;
+export const LATEST_REVISION = 10;
 
 export type StepGroup = { id: string; title: string; steps: Step[] };
 
@@ -969,6 +969,15 @@ export const TEST_PLAN: Part[] = [
         id: 's-screen',
         title: 'S6. The projector laptop',
         steps: [
+          {
+            id: 's-stage-console',
+            rev: 10,
+            must: true,
+            do: 'Open Stage control on a phone and on a laptop at the same time. Press Next cue and Previous cue, then the right and left arrow keys on the laptop. Tap Countdown, Lucky draw, Name picker, Top questions and Poll tiles in turn.',
+            expect:
+              'The projector changes within a few seconds each time, and both devices show the change. Each tile opens its own controls under the tiles: countdown start and exact time, draw and Not here, Pick, approve and pin questions, open and reveal a poll. The agenda suggestion shows, but nothing moves until someone presses.',
+            links: [{ href: '/admin/big-screen', label: 'Stage control' }],
+          },
           {
             id: 's-screen-riddle-reveal',
             rev: 9,
