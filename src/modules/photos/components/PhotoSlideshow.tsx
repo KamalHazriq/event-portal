@@ -3,8 +3,9 @@
 import { useEffect, useState } from 'react';
 
 import { SLIDE_MS } from '../logic';
+import { LikeBadge } from './LikeBadge';
 
-type Slide = { id: string; caption: string };
+type Slide = { id: string; caption: string; likes?: number };
 
 /**
  * The big screen slideshow: one approved photo at a time, cross fading. The
@@ -34,6 +35,7 @@ export function PhotoSlideshow({ slides }: { slides: Slide[] }) {
           alt={current.caption || 'A photo from the event'}
           className="screen-fade absolute inset-0 h-full w-full rounded-[1vw] object-contain"
         />
+        <LikeBadge count={current.likes} large />
       </div>
       <div className="mt-[2vh] flex items-baseline justify-between gap-[2vw]">
         <p className="min-w-0 truncate text-[clamp(1rem,2vw,2.8rem)] font-bold text-ink">

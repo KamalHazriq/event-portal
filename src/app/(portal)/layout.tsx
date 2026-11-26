@@ -35,7 +35,7 @@ export default async function PortalLayout({ children }: { children: React.React
           className={`${RULED_CONTAINER} flex-1 pb-8 pt-8 lg:pt-12 [&>*]:mx-auto [&>*]:w-full [&>*]:max-w-3xl`}
         >
           {/* Room below a banner: the home page hero tucks up under the header. */}
-          <div className="mb-8 empty:hidden lg:mb-12">
+          <div className="mb-6 w-full !max-w-none empty:hidden lg:mb-8">
             <EventEndedBanner />
             <AnnouncementBanner />
             <LuckyWinBanner />

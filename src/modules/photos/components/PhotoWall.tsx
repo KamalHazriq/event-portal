@@ -12,9 +12,10 @@ import {
   wallPage,
   type PhotoLayout,
 } from '../logic';
+import { LikeBadge } from './LikeBadge';
 import { PhotoSlideshow } from './PhotoSlideshow';
 
-type Slide = { id: string; caption: string; width?: number; height?: number };
+type Slide = { id: string; caption: string; width?: number; height?: number; likes?: number };
 
 /**
  * The big screen photo wall, in the layout the secretariat picked. The screen
@@ -109,6 +110,7 @@ function Tile({ slide, large = false }: { slide: Slide; large?: boolean }) {
         decoding="async"
         className="absolute inset-0 h-full w-full object-cover"
       />
+      <LikeBadge count={slide.likes} large={large} />
       {slide.caption ? (
         <figcaption
           className={`absolute inset-x-0 bottom-0 truncate bg-gradient-to-t from-black/80 to-transparent px-[1vw] pt-[3vh] pb-[1vh] font-semibold text-white ${
@@ -216,6 +218,7 @@ function WallPhoto({ slide }: { slide: Slide }) {
         decoding="async"
         className="absolute inset-0 h-full w-full object-cover"
       />
+      <LikeBadge count={slide.likes} />
       {slide.caption ? (
         <figcaption className="absolute inset-x-0 bottom-0 truncate bg-gradient-to-t from-black/80 to-transparent px-[1vw] pt-[3vh] pb-[1vh] text-[clamp(0.8rem,1.2vw,1.8rem)] font-semibold text-white">
           {slide.caption}

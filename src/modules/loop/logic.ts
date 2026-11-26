@@ -110,6 +110,23 @@ export function buildLoopItems(content: LoopContent): LoopItem[] {
   return out;
 }
 
+/** Where the secretariat's Reveal / Next presses are stored. */
+export const LOOP_COMMAND_KEY = 'loop.command';
+
+export type LoopCommand = { seq: number; action: 'reveal' | 'next' };
+
+export function parseLoopCommand(raw: string | null | undefined): LoopCommand {
+  try {
+    const v = JSON.parse(raw ?? '') as Partial<LoopCommand>;
+    if (typeof v.seq === 'number' && (v.action === 'reveal' || v.action === 'next')) {
+      return { seq: v.seq, action: v.action };
+    }
+  } catch {
+    // fall through
+  }
+  return { seq: 0, action: 'next' };
+}
+
 /** How long each card stays up, in milliseconds. A riddle shows its question first. */
 export const SHOW_MS = { riddleQuestion: 9_000, riddleAnswer: 6_000, fact: 11_000, lead: 11_000 };
 

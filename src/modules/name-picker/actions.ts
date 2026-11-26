@@ -17,6 +17,7 @@ import { resolveCheckInDay } from '@/modules/check-in/logic';
 
 import {
   EMPTY_PICKER,
+  MAX_HISTORY,
   MAX_PICKER_TITLE,
   parsePickCount,
   parsePickerState,
@@ -67,17 +68,14 @@ export async function pickPeople(formData: FormData): Promise<void> {
   const picked = pickNames(pool, new Set(state.pickedIds), count, fresh, secureRandom);
   if (picked.length === 0) return;
 
+  const entry = { id: newId(), title, at: new Date().toISOString(), people: picked };
   await data.settings.set(
     PICKER_KEY,
     JSON.stringify({
-      latest: {
-        id: newId(),
-        title,
-        at: new Date().toISOString(),
-        people: picked,
-        fun: formData.get('fun') === 'on',
-      },
+      latest: { ...entry, fun: formData.get('fun') === 'on' },
       pickedIds: [...new Set([...state.pickedIds, ...picked.map((p) => p.id)])],
+      // The log of every pick, newest first.
+      history: [entry, ...state.history].slice(0, MAX_HISTORY),
     }),
   );
   if (formData.get('showOnScreen') === 'on')
@@ -89,7 +87,10 @@ export async function pickPeople(formData: FormData): Promise<void> {
 /** Everyone can be picked again. */
 export async function resetPicker(): Promise<void> {
   const operator = await assertAdmin();
-  await getData().settings.set(PICKER_KEY, JSON.stringify(EMPTY_PICKER));
+  // Everyone can be picked again, but the log of who was picked stays.
+  const data = getData();
+  const state = parsePickerState(await data.settings.get(PICKER_KEY));
+  await data.settings.set(PICKER_KEY, JSON.stringify({ ...EMPTY_PICKER, history: state.history }));
   await recordActivity('Reset the name picker', operator);
   done();
 }

@@ -94,27 +94,6 @@ test('the test plan opens on the short must-pass list, with the full list one pr
   expect(await page.getByRole('checkbox').count()).toBeGreaterThan(short);
 });
 
-test('the slides view shows a saved deck link, and refuses a link that is not a deck', async ({
-  page,
-}, testInfo) => {
-  test.skip(testInfo.project.name !== 'desktop', 'one run is enough');
-  await signIn(page);
-  await page.goto('/admin/big-screen');
-  await page.getByLabel('Slides link').fill('https://contoso.sharepoint.com/:p:/s/x/embed');
-  await page.getByRole('button', { name: 'Save only' }).click();
-  await page.goto('/screen/slides');
-  await expect(page.locator('iframe[title="Slides"]')).toHaveAttribute(
-    'src',
-    /contoso\.sharepoint\.com/,
-  );
-  // Put it back: no deck, a plain black screen.
-  await page.goto('/admin/big-screen');
-  await page.getByLabel('Slides link').fill('');
-  await page.getByRole('button', { name: 'Save only' }).click();
-  await page.goto('/screen/slides');
-  await expect(page.locator('iframe[title="Slides"]')).toHaveCount(0);
-});
-
 test('a phone that loses the connection is told so, and is told when it is back', async ({
   page,
 }, testInfo) => {

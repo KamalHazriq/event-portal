@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-label="Neck fan">
+  <defs>
+    <linearGradient id="b" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f8fafc"/><stop offset="1" stop-color="#cbd5e1"/></linearGradient>
+    <linearGradient id="a" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#60a5fa"/><stop offset="1" stop-color="#1d4ed8"/></linearGradient>
+  </defs>
+  <circle cx="120" cy="120" r="112" fill="#0b1b3a" opacity=".06"/>
+  <!-- the band that rests around the neck -->
+  <path d="M58 70c-34 14-42 56-28 92 4 10 18 12 26 4l10-10c6-6 6-14 2-22-6-12-4-26 10-34 14-9 40-9 54 0 14 8 16 22 10 34-4 8-4 16 2 22l10 10c8 8 22 6 26-4 14-36 6-78-28-92-36-14-84-14-120 0z" fill="url(#b)" stroke="#94a3b8" stroke-width="3"/>
+  <!-- the fan housings at each end -->
+  <circle cx="52" cy="168" r="26" fill="#e2e8f0" stroke="#94a3b8" stroke-width="3"/>
+  <circle cx="188" cy="168" r="26" fill="#e2e8f0" stroke="#94a3b8" stroke-width="3"/>
+  <g stroke="#64748b" stroke-width="3" stroke-linecap="round">
+    <path d="M40 160h24M38 168h28M40 176h24"/>
+    <path d="M176 160h24M174 168h28M176 176h24"/>
+  </g>
+  <!-- a blue power button on the back -->
+  <rect x="104" y="44" width="32" height="16" rx="8" fill="url(#a)"/>
+  <!-- little air streaks -->
+  <g stroke="#60a5fa" stroke-width="4" stroke-linecap="round" opacity=".8">
+    <path d="M20 200c8 4 14 4 22 0M198 200c8 4 14 4 22 0"/>
+  </g>
+</svg>

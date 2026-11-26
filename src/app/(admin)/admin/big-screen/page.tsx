@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 
 import { requireAdmin } from '@/lib/admin-guard';
 import { getEventConfig } from '@/lib/config';
-import { setPhotoLayout } from '@/modules/photos/actions';
+import { setPhotoDay, setPhotoLayout } from '@/modules/photos/actions';
 import {
   PHOTO_KEYS,
   PHOTO_LAYOUT_INFO,
@@ -13,7 +13,6 @@ import {
 import { getData } from '@/data';
 import {
   podiumControl,
-  saveSlidesUrl,
   setFeedbackTarget,
   setHideNames,
   setScreenCalm,
@@ -38,7 +37,6 @@ import {
   availableScreenViews,
   clampPodiumStep,
   parsePodiumSize,
-  safeSlidesUrl,
   PODIUM_SIZES,
   podiumGroups,
   SCREEN_KEYS,
@@ -57,6 +55,7 @@ export default async function BigScreenControlPage() {
   const settings = await readScreenSettings();
   const views = availableScreenViews(config.features);
   const photoLayout = resolvePhotoLayout(await getData().settings.get(PHOTO_KEYS.layout));
+  const photoDay = (await getData().settings.get(PHOTO_KEYS.day)) ?? 'all';
   const [chosenRaw, commentLayoutRaw, approvalRaw] = await Promise.all([
     getData().settings.get(COMMENT_KEYS.screenSession),
     getData().settings.get(COMMENT_KEYS.screenLayout),
@@ -78,7 +77,6 @@ export default async function BigScreenControlPage() {
     Number((await getData().settings.get(SCREEN_KEYS.podiumStep)) ?? 0),
     podiumGroupsNow.length,
   );
-  const slidesUrl = safeSlidesUrl(await getData().settings.get(SCREEN_KEYS.slidesUrl));
   const feedbackTarget = (await getData().settings.get(SCREEN_KEYS.feedbackTarget)) ?? 'auto';
   const feedbackSessions = buildAgenda(config).sessions.filter(
     (s) => s.feedbackEnabled && !s.hidden,
@@ -194,43 +192,6 @@ export default async function BigScreenControlPage() {
         })}
       </ul>
 
-      <section className="rounded-xl border border-line bg-surface p-4">
-        <h2 className="text-sm font-bold uppercase tracking-wide text-ink-soft">Slides</h2>
-        <p className="mt-1 text-sm text-ink-soft">
-          Show your deck on the projector without leaving the portal, so there is nothing to switch
-          on the laptop. In PowerPoint for the web or OneDrive: File, Share, Embed, copy the link
-          (or the whole code) and paste it here. Then press Show the slides: the slides fill the
-          screen. Choose any other view to come back.
-        </p>
-        <form action={saveSlidesUrl} className="mt-3 space-y-2">
-          <label className="block text-sm font-semibold text-ink">
-            Slides link
-            <input
-              name="url"
-              defaultValue={slidesUrl ?? ''}
-              placeholder="https://… (PowerPoint embed link)"
-              className="mt-1 block min-h-11 w-full rounded-lg border border-line bg-canvas px-3 font-normal text-ink"
-            />
-          </label>
-          <div className="flex flex-wrap gap-2">
-            <button
-              type="submit"
-              name="show"
-              value="yes"
-              className="min-h-11 rounded-lg bg-primary px-5 font-bold text-on-primary"
-            >
-              Save and show the slides
-            </button>
-            <button
-              type="submit"
-              className="min-h-11 rounded-lg border border-line px-5 font-semibold text-ink"
-            >
-              Save only
-            </button>
-          </div>
-        </form>
-      </section>
-
       {config.features.feedback ? (
         <section className="rounded-xl border border-line bg-surface p-4">
           <h2 className="text-sm font-bold uppercase tracking-wide text-ink-soft">Feedback QR</h2>
@@ -337,8 +298,30 @@ export default async function BigScreenControlPage() {
           </h2>
           <p className="mt-1 text-sm text-ink-soft">
             How the Photo wall view shows the approved photos. A new photo always pops up large for
-            a few seconds first.
+            a few seconds first. Each photo shows how many likes it has.
           </p>
+          <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label="Photos to show">
+            {[
+              { id: 'all', label: 'All photos' },
+              ...config.days.map((d) => ({ id: d.id, label: d.label })),
+            ].map((option) => (
+              <form key={option.id} action={setPhotoDay}>
+                <input type="hidden" name="day" value={option.id} />
+                <button
+                  type="submit"
+                  aria-pressed={option.id === photoDay}
+                  className={[
+                    'min-h-11 rounded-full border px-4 text-sm font-semibold',
+                    option.id === photoDay
+                      ? 'border-primary bg-primary text-on-primary'
+                      : 'border-line text-ink hover:border-primary',
+                  ].join(' ')}
+                >
+                  {option.label}
+                </button>
+              </form>
+            ))}
+          </div>
           <ul className="mt-3 grid gap-2 sm:grid-cols-3">
             {PHOTO_LAYOUTS.map((option) => (
               <li key={option}>

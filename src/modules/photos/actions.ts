@@ -88,3 +88,13 @@ export async function setPhotoLayout(formData: FormData): Promise<void> {
   revalidatePath('/admin/big-screen');
   done();
 }
+
+/** Which day's photos the big screen shows: one day, or all of them. */
+export async function setPhotoDay(formData: FormData): Promise<void> {
+  const operator = await assertAdmin();
+  const day = String(formData.get('day') ?? 'all').slice(0, 40) || 'all';
+  await getData().settings.set(PHOTO_KEYS.day, day);
+  await recordActivity(`Set the photo wall to ${day === 'all' ? 'all days' : day}`, operator);
+  revalidatePath('/admin/big-screen');
+  done();
+}

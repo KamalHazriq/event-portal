@@ -10,12 +10,14 @@ import { plainText } from '@/lib/text';
 import { recordActivity } from '@/modules/admins/record';
 
 import {
+  LOOP_COMMAND_KEY,
   LOOP_KEY,
   LOOP_PHOTO_PREFIX,
   MAX_ITEMS,
   missingFromPack,
   parseFactLines,
   parseLoop,
+  parseLoopCommand,
   parseRiddleLines,
   RIDDLE_PACKS,
   safePhoto,
@@ -114,4 +116,13 @@ export async function setLiveFacts(formData: FormData): Promise<void> {
   await recordActivity('Changed the screensaver live facts', operator);
   revalidatePath('/admin/screensaver');
   redirect('/admin/screensaver?saved=text');
+}
+
+/** "Reveal answer now" or "Next card" for the screensaver on the projector. */
+export async function sendLoopCommand(formData: FormData): Promise<void> {
+  await assertAdmin();
+  const action = formData.get('action') === 'reveal' ? 'reveal' : 'next';
+  const current = parseLoopCommand(await getData().settings.get(LOOP_COMMAND_KEY));
+  await getData().settings.set(LOOP_COMMAND_KEY, JSON.stringify({ seq: current.seq + 1, action }));
+  revalidatePath('/admin/screensaver');
 }

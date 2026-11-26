@@ -10,7 +10,6 @@ import {
   isScreenView,
   parsePodiumSize,
   podiumGroups,
-  safeSlidesUrl,
   SCREEN_KEYS,
   SCREEN_VIEW_INFO,
 } from './logic';
@@ -136,25 +135,5 @@ export async function setFeedbackTarget(formData: FormData): Promise<void> {
   await getData().settings.set(SCREEN_KEYS.feedbackTarget, known ? raw : 'auto');
   await getData().settings.set(SCREEN_KEYS.view, 'feedback');
   await recordActivity('Put the feedback QR on the big screen');
-  revalidatePath('/admin/big-screen');
-}
-
-/** Saves the slide deck address and, if asked, puts the slides on the screen. */
-export async function saveSlidesUrl(formData: FormData): Promise<void> {
-  await assertAdmin();
-  const raw = String(formData.get('url') ?? '').trim();
-  const data = getData();
-  if (raw === '') {
-    await data.settings.remove(SCREEN_KEYS.slidesUrl);
-  } else {
-    const url = safeSlidesUrl(raw);
-    if (!url)
-      throw new Error(
-        'That address is not a PowerPoint, OneDrive, SharePoint or Google Slides link.',
-      );
-    await data.settings.set(SCREEN_KEYS.slidesUrl, url);
-  }
-  if (formData.get('show') === 'yes') await data.settings.set(SCREEN_KEYS.view, 'slides');
-  await recordActivity(raw === '' ? 'Cleared the slides link' : 'Saved the slides link');
   revalidatePath('/admin/big-screen');
 }

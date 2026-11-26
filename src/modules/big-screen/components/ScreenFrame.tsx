@@ -56,15 +56,6 @@ export function ScreenFrame({
     return (
       <main id="main" className="relative h-dvh w-full bg-black">
         <AutoRefresh intervalMs={30_000} />
-        {payload.props.url ? (
-          <iframe
-            src={payload.props.url}
-            title="Slides"
-            allow="fullscreen"
-            allowFullScreen
-            className="absolute inset-0 size-full border-0"
-          />
-        ) : null}
         <span className="sr-only">Handed over to slides. The portal is waiting behind.</span>
       </main>
     );

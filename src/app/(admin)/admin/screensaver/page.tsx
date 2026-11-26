@@ -8,6 +8,7 @@ import {
   removeLead,
   saveLead,
   saveLoopText,
+  sendLoopCommand,
   setLiveFacts,
 } from '@/modules/loop/actions';
 import {
@@ -56,6 +57,37 @@ export default async function ScreensaverPage({
           choose Screensaver on the Big screen page.
         </p>
       </header>
+
+      <section className="rounded-xl border border-line bg-surface p-4">
+        <h2 className="text-sm font-bold uppercase tracking-wide text-ink-soft">
+          Control the projector
+        </h2>
+        <p className="mt-1 text-sm text-ink-soft">
+          A riddle shows its question and a box with “?” for the answer. The answer appears by
+          itself after 9 seconds. To reveal it earlier, or to skip to the next card, press a button
+          here (the screen follows within a couple of seconds).
+        </p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <form action={sendLoopCommand}>
+            <input type="hidden" name="action" value="reveal" />
+            <button
+              type="submit"
+              className="min-h-11 rounded-lg bg-primary px-5 font-bold text-on-primary"
+            >
+              Reveal answer now
+            </button>
+          </form>
+          <form action={sendLoopCommand}>
+            <input type="hidden" name="action" value="next" />
+            <button
+              type="submit"
+              className="min-h-11 rounded-lg border border-line px-5 font-semibold text-ink"
+            >
+              Next card
+            </button>
+          </form>
+        </div>
+      </section>
 
       {saved ? (
         <p

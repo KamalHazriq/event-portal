@@ -21,7 +21,7 @@ export async function AnnouncementBanner() {
     <>
       <span
         aria-hidden="true"
-        className="announce-icon relative grid size-12 shrink-0 place-items-center rounded-xl bg-primary text-2xl text-on-primary"
+        className="grid size-12 shrink-0 place-items-center rounded-xl bg-primary text-2xl text-on-primary"
       >
         <Icon name="megaphone" className="size-6" />
       </span>
@@ -39,9 +39,9 @@ export async function AnnouncementBanner() {
     </>
   );
   const frame =
-    'announce-card mb-5 flex items-center gap-3.5 rounded-2xl border border-primary/50 bg-gradient-to-r from-primary/20 via-primary/10 to-transparent p-3.5 pr-4 text-ink no-underline shadow-lg';
+    'announce-card flex w-full items-center gap-4 rounded-2xl border border-primary/50 bg-gradient-to-r from-primary/20 via-primary/10 to-transparent p-4 text-ink no-underline shadow-lg sm:p-5';
   return (
-    <aside role="status" aria-label="Announcement">
+    <aside role="status" aria-label="Announcement" className="mb-6 w-full !max-w-none last:mb-0">
       {a.href ? (
         <Link href={a.href} className={frame}>
           {inner}

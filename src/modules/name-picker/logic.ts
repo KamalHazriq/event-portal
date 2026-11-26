@@ -20,9 +20,15 @@ export type PickerState = {
   latest: { id: string; title: string; at: string; people: Picked[]; fun?: boolean } | null;
   /** Everyone picked so far, so nobody is picked twice until a reset. */
   pickedIds: string[];
+  /** Every pick so far, newest first, kept even after a reset. */
+  history: PickEntry[];
 };
 
-export const EMPTY_PICKER: PickerState = { latest: null, pickedIds: [] };
+export type PickEntry = { id: string; title: string; at: string; people: Picked[] };
+
+export const MAX_HISTORY = 100;
+
+export const EMPTY_PICKER: PickerState = { latest: null, pickedIds: [], history: [] };
 
 export function parsePickerState(raw: string | null): PickerState {
   if (!raw) return EMPTY_PICKER;
@@ -43,7 +49,18 @@ export function parsePickerState(raw: string | null): PickerState {
     const pickedIds = Array.isArray(v.pickedIds)
       ? v.pickedIds.filter((x): x is string => typeof x === 'string')
       : [];
-    return { latest, pickedIds };
+    const history = (Array.isArray(v.history) ? v.history : [])
+      .filter((h): h is PickEntry => typeof h?.id === 'string' && Array.isArray(h?.people))
+      .map((h) => ({
+        id: h.id,
+        title: String(h.title ?? ''),
+        at: String(h.at ?? ''),
+        people: h.people
+          .filter((p): p is Picked => typeof p?.id === 'string' && typeof p?.name === 'string')
+          .map((p) => ({ id: p.id, name: p.name, department: String(p.department ?? '') })),
+      }))
+      .slice(0, MAX_HISTORY);
+    return { latest, pickedIds, history };
   } catch {
     return EMPTY_PICKER;
   }

@@ -153,7 +153,7 @@ test('the desk adds someone who is not on the list, then checks them in and spin
     await page.getByRole('button', { name: 'Check in' }).first().click();
     const dialog = page.getByRole('dialog', { name: `Door gift for ${name}` });
     await dialog.getByRole('button', { name: 'Spin!' }).click();
-    await expect(dialog.getByText('Your door gift is the Headphones!')).toBeVisible({
+    await expect(dialog.getByText('Your door gift is the Neck fan!')).toBeVisible({
       timeout: 20_000,
     });
     await dialog.getByRole('button', { name: 'Handed over' }).click();

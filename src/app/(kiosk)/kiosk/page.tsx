@@ -15,11 +15,18 @@ export const metadata: Metadata = { title: 'Self check in' };
  * The self check in kiosk. Opened on a tablet signed in at the desk, then
  * left on a stand. No menus, so there is nowhere else to go from it.
  */
-export default async function KioskPage() {
+export default async function KioskPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   await requireAdmin('/kiosk');
+  const params = await searchParams;
   const config = getEventConfig();
   const now = resolveEventNow({ timezone: config.event.timezone });
-  const day = resolveCheckInDay(checkInDays(config), now);
+  // Today's day by the date, unless the desk opened the kiosk for a particular day (?day=day-2).
+  const asked = typeof params.day === 'string' ? params.day : null;
+  const day = resolveCheckInDay(checkInDays(config), now, asked);
   if (!day) return <p className="p-6 text-ink">This event has no days set up yet.</p>;
   return (
     <main id="main" className="relative bg-canvas">

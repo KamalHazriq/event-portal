@@ -17,7 +17,7 @@ describe('the name picker', () => {
   });
 
   it('reads stored state safely', () => {
-    expect(parsePickerState('nonsense')).toEqual({ latest: null, pickedIds: [] });
+    expect(parsePickerState('nonsense')).toEqual({ latest: null, pickedIds: [], history: [] });
     const state = parsePickerState(
       JSON.stringify({
         latest: { id: '1', title: 'Q', at: 'x', people: [people[0]] },

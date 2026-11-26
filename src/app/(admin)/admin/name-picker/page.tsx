@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { localDateTime } from '@/modules/reports/logic';
 import Link from 'next/link';
 
 import { FormPending } from '@/components/FormPending';
@@ -144,6 +145,34 @@ export default async function NamePickerPage() {
           </button>
         </form>
       ) : null}
+
+      <section
+        aria-labelledby="picker-history"
+        className="rounded-xl border border-line bg-surface p-4"
+      >
+        <h2 id="picker-history" className="text-lg font-bold text-ink">
+          History
+        </h2>
+        {state.history.length === 0 ? (
+          <p className="mt-1 text-ink-soft">Nobody has been picked yet.</p>
+        ) : (
+          <ol className="mt-2 divide-y divide-line">
+            {state.history.map((entry, index) => (
+              <li key={entry.id} className="py-2">
+                <p className="text-sm text-ink-soft">
+                  <span className="font-mono">#{state.history.length - index}</span>
+                  {' · '}
+                  {localDateTime(entry.at, config.event.timezone)}
+                  {entry.title ? ` · ${entry.title}` : ''}
+                </p>
+                <p className="font-semibold text-ink">
+                  {entry.people.map((p) => p.name).join(', ')}
+                </p>
+              </li>
+            ))}
+          </ol>
+        )}
+      </section>
     </div>
   );
 }

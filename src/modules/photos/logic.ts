@@ -156,6 +156,8 @@ export const PHOTO_KEYS = {
   moderation: 'photos.moderation',
   /** How the big screen lays the photos out. */
   layout: 'photos.layout',
+  /** Which day's photos the big screen shows: a day id, or "all". */
+  day: 'photos.day',
 } as const;
 
 export function moderationOn(stored: string | null): boolean {

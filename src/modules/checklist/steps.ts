@@ -24,7 +24,7 @@ export type Step = {
 };
 
 /** Bump this when a batch of changes lands, and mark the steps it touched with it. */
-export const LATEST_REVISION = 8;
+export const LATEST_REVISION = 9;
 
 export type StepGroup = { id: string; title: string; steps: Step[] };
 
@@ -970,11 +970,21 @@ export const TEST_PLAN: Part[] = [
         title: 'S6. The projector laptop',
         steps: [
           {
-            id: 's-screen-slides',
-            rev: 7,
-            do: 'On Big screen paste the PowerPoint embed link under Slides and press Save and show the slides, then choose another view.',
+            id: 's-screen-riddle-reveal',
+            rev: 9,
+            must: false,
+            do: 'Put the Screensaver on the projector. When a riddle shows, press Reveal answer now on the Screensaver page, then Next card.',
             expect:
-              'The deck fills the projector from inside the portal, with no window switching. Any other view brings the portal back. A link that is not a PowerPoint, OneDrive, SharePoint or Google link is refused.',
+              'The riddle has a question box and an answer box showing "?". Reveal fills the answer box within a couple of seconds, and Next card moves on. With no button pressed the answer appears after 9 seconds.',
+            links: [{ href: '/admin/screensaver', label: 'Screensaver' }],
+          },
+          {
+            id: 's-screen-photo-day',
+            rev: 9,
+            must: false,
+            do: 'On Big screen, under Photo wall layout, press Day 1, then Day 2, then All photos. Like a photo on a phone and watch the Photo wall view.',
+            expect:
+              'The wall only shows photos taken on the chosen day. Each photo shows a heart with its number of likes once it has any.',
             links: [{ href: '/admin/big-screen', label: 'Big screen' }],
           },
           {

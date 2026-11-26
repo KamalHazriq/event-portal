@@ -21,7 +21,8 @@ import {
 import { loadScoreboard } from '@/modules/points/server';
 import { logoFor, resolveTheme } from '@/lib/theme';
 import type { EventConfig } from '@/lib/event-schema';
-import { formatClock, formatShortDate, type EventNow } from '@/lib/time';
+import { formatClock, formatShortDate, wallClockInZone, type EventNow } from '@/lib/time';
+import { photoLikes } from '@/modules/photos/social';
 import {
   minutesLeftInSession,
   resolveSurprise,
@@ -48,7 +49,6 @@ import {
   podiumGroups,
   SCREEN_KEYS,
   resolveScreenSettings,
-  safeSlidesUrl,
   type ScreenSettings,
   type ScreenView,
 } from './logic';
@@ -70,7 +70,14 @@ import type {
 import type { ComponentProps } from 'react';
 import type { PodiumView } from './components/PodiumView';
 import type { LoopView } from './components/LoopView';
-import { buildLoopItems, liveFactTexts, LOOP_KEY, parseLoop } from '@/modules/loop/logic';
+import {
+  buildLoopItems,
+  liveFactTexts,
+  LOOP_COMMAND_KEY,
+  LOOP_KEY,
+  parseLoop,
+  parseLoopCommand,
+} from '@/modules/loop/logic';
 
 /**
  * Reaction taps from the last few seconds, for the floating reactions over
@@ -131,7 +138,7 @@ export type ScreenPayload =
   | { view: 'podium'; props: ComponentProps<typeof PodiumView> }
   | { view: 'feedback'; props: ComponentProps<typeof FeedbackQrView> }
   | { view: 'loop'; props: ComponentProps<typeof LoopView> }
-  | { view: 'slides'; props: { url: string | null } };
+  | { view: 'slides'; props: Record<string, never> };
 
 export async function loadScreenView(
   view: ScreenView,
@@ -300,18 +307,37 @@ export async function loadScreenView(
 
     case 'photos': {
       if (!config.features.photoWall) return loadScreenView('welcome', now, settings);
-      const [approved, layoutSetting] = await Promise.all([
+      const [allApproved, layoutSetting, daySetting, likes] = await Promise.all([
         data.photos.list('approved'),
         data.settings.get(PHOTO_KEYS.layout),
+        data.settings.get(PHOTO_KEYS.day),
+        photoLikes(null).catch(() => ({
+          counts: new Map<string, number>(),
+          mine: new Set<string>(),
+        })),
       ]);
       const layout = resolvePhotoLayout(layoutSetting);
+      // One day's photos, by the day each was taken in the event's time zone.
+      const dayDate =
+        daySetting && daySetting !== 'all'
+          ? config.days.find((d) => d.id === daySetting)?.date
+          : undefined;
+      const approved = dayDate
+        ? allApproved.filter(
+            (p) => wallClockInZone(config.event.timezone, new Date(p.createdAt)).date === dayDate,
+          )
+        : allApproved;
       return {
         view,
         props: {
           layout,
-          slides: approved
-            .slice(0, LAYOUT_COUNT[layout])
-            .map((p) => ({ id: p.id, caption: p.caption, width: p.width, height: p.height })),
+          slides: approved.slice(0, LAYOUT_COUNT[layout]).map((p) => ({
+            id: p.id,
+            caption: p.caption,
+            width: p.width,
+            height: p.height,
+            likes: likes.counts.get(p.id) ?? 0,
+          })),
           shareUrl: passLink(`${config.event.portalUrl.replace(/\/$/, '')}/photos`),
         },
       };
@@ -423,7 +449,12 @@ export async function loadScreenView(
     }
 
     case 'loop': {
-      const content = parseLoop(await data.settings.get(LOOP_KEY));
+      const [loopRaw, commandRaw] = await Promise.all([
+        data.settings.get(LOOP_KEY),
+        data.settings.get(LOOP_COMMAND_KEY),
+      ]);
+      const content = parseLoop(loopRaw);
+      const command = parseLoopCommand(commandRaw);
       let facts = content.facts;
       if (content.liveFacts) {
         const day = resolveCheckInDay(config.days, now);
@@ -451,15 +482,16 @@ export async function loadScreenView(
       }
       return {
         view,
-        props: { items: buildLoopItems({ ...content, facts }), calm: settings.calm },
+        props: {
+          items: buildLoopItems({ ...content, facts }),
+          calm: settings.calm,
+          command,
+        },
       };
     }
 
     case 'slides':
-      return {
-        view,
-        props: { url: safeSlidesUrl(await data.settings.get(SCREEN_KEYS.slidesUrl)) },
-      };
+      return { view, props: {} };
 
     case 'feedback': {
       if (!config.features.feedback) return loadScreenView('welcome', now, settings);

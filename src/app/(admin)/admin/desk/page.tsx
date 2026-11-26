@@ -68,16 +68,16 @@ export default async function DeskPage({ searchParams }: { searchParams: SearchP
           </p>
           <div className="flex flex-wrap gap-3">
             <Link
-              href="/kiosk"
+              href={`/kiosk?day=${day.id}`}
               className="inline-flex min-h-11 items-center rounded-lg border border-line px-4 font-semibold text-ink no-underline"
             >
-              Preview the kiosk
+              Preview the kiosk for {day.label}
             </Link>
             <Link
-              href="/kiosk?lock=1"
+              href={`/kiosk?lock=1&day=${day.id}`}
               className="inline-flex min-h-11 items-center rounded-lg bg-primary px-4 font-bold text-on-primary no-underline"
             >
-              Open and lock this device
+              Open and lock this device for {day.label}
             </Link>
           </div>
         </div>
@@ -109,7 +109,9 @@ export default async function DeskPage({ searchParams }: { searchParams: SearchP
         </nav>
       ) : null}
 
+      {/* Keyed by the day, so switching Day 1, 2, 3 starts that day's own count and list. */}
       <DeskConsole
+        key={day.id}
         dayId={day.id}
         dayLabel={day.label}
         initialHeadcount={arrivalRate(headcount.arrived, headcount.expected)}

@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
-import { SHOW_MS, type LoopItem } from '@/modules/loop/logic';
+import { SHOW_MS, type LoopCommand, type LoopItem } from '@/modules/loop/logic';
 
 const LABEL =
   'text-[clamp(0.9rem,1.5vw,1.8rem)] font-bold uppercase tracking-[0.2em] text-ink-soft';
@@ -12,9 +12,36 @@ const LABEL =
  * question, then, after a pause, the answer. The server list is re-read every
  * few seconds, but this keeps its place, so nothing restarts.
  */
-export function LoopView({ items, calm }: { items: LoopItem[]; calm: boolean }) {
+export function LoopView({
+  items,
+  calm,
+  command,
+}: {
+  items: LoopItem[];
+  calm: boolean;
+  command?: LoopCommand;
+}) {
   const [index, setIndex] = useState(0);
   const [answered, setAnswered] = useState(false);
+  // Presses made before this screen opened are old news.
+  const handled = useRef(command?.seq ?? 0);
+
+  // The secretariat's "Reveal answer" and "Next card" buttons.
+  const seq = command?.seq ?? 0;
+  const action = command?.action;
+  useEffect(() => {
+    if (seq === handled.current) return;
+    handled.current = seq;
+    const timer = window.setTimeout(() => {
+      if (action === 'reveal') {
+        setAnswered(true);
+      } else {
+        setAnswered(false);
+        setIndex((i) => i + 1);
+      }
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [seq, action]);
   const count = items.length;
   const item = count > 0 ? items[index % count] : undefined;
 
@@ -55,20 +82,36 @@ export function LoopView({ items, calm }: { items: LoopItem[]; calm: boolean }) 
     <div className="flex h-full items-center justify-center">
       <div key={`${index}-${item.kind}`} className={`${fx} w-full max-w-[84vw]`}>
         {item.kind === 'riddle' ? (
-          <div className="text-center">
-            <p className={LABEL}>Teka-teki</p>
-            <p className="mt-[3vh] text-[clamp(2rem,5vw,6.5rem)] font-bold leading-tight text-ink">
-              {item.q}
-            </p>
-            <div className="mt-[5vh] min-h-[14vh]">
+          <div className="mx-auto flex w-full flex-col gap-[3vh]">
+            <p className={`${LABEL} text-center`}>Teka-teki</p>
+            <div className="rounded-[2vw] border-2 border-primary/40 bg-surface/70 px-[3vw] py-[4vh] text-center shadow-xl">
+              <p className="text-[clamp(0.9rem,1.5vw,1.8rem)] font-bold uppercase tracking-[0.2em] text-primary">
+                Soalan
+              </p>
+              <p className="mt-[1.5vh] text-[clamp(1.8rem,4.4vw,5.8rem)] font-bold leading-tight text-ink">
+                {item.q}
+              </p>
+            </div>
+            <div
+              className={`rounded-[2vw] border-2 px-[3vw] py-[4vh] text-center transition-colors duration-500 ${
+                answered
+                  ? 'border-primary bg-primary/15 shadow-xl'
+                  : 'border-dashed border-line bg-surface/30'
+              }`}
+            >
+              <p className="text-[clamp(0.9rem,1.5vw,1.8rem)] font-bold uppercase tracking-[0.2em] text-accent">
+                Jawapan
+              </p>
               {answered ? (
                 <p
-                  className={`text-[clamp(1.8rem,4.4vw,5.6rem)] font-bold text-primary ${calm ? '' : 'loop-answer'}`}
+                  className={`mt-[1.5vh] text-[clamp(1.8rem,4.4vw,5.8rem)] font-bold leading-tight text-primary ${calm ? '' : 'loop-answer'}`}
                 >
                   {item.a}
                 </p>
               ) : (
-                <p className="text-[clamp(1.4rem,3vw,4rem)] font-bold text-ink-soft/70">Jawapan?</p>
+                <p className="mt-[1.5vh] text-[clamp(2.4rem,6vw,7rem)] font-bold text-ink-soft/60">
+                  ?
+                </p>
               )}
             </div>
           </div>
