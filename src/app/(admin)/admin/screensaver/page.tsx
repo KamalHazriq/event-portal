@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 
 import { getData } from '@/data';
 import { requireAdmin } from '@/lib/admin-guard';
@@ -8,7 +9,6 @@ import {
   removeLead,
   saveLead,
   saveLoopText,
-  sendLoopCommand,
   setLiveFacts,
 } from '@/modules/loop/actions';
 import {
@@ -17,7 +17,6 @@ import {
   missingFromPack,
   parseLoop,
   RIDDLE_PACKS,
-  riddlesToText,
 } from '@/modules/loop/logic';
 
 export const dynamic = 'force-dynamic';
@@ -58,36 +57,13 @@ export default async function ScreensaverPage({
         </p>
       </header>
 
-      <section className="rounded-xl border border-line bg-surface p-4">
-        <h2 className="text-sm font-bold uppercase tracking-wide text-ink-soft">
-          Control the projector
-        </h2>
-        <p className="mt-1 text-sm text-ink-soft">
-          A riddle shows its question and a box with “?” for the answer. The answer appears by
-          itself after 9 seconds. To reveal it earlier, or to skip to the next card, press a button
-          here (the screen follows within a couple of seconds).
-        </p>
-        <div className="mt-3 flex flex-wrap gap-2">
-          <form action={sendLoopCommand}>
-            <input type="hidden" name="action" value="reveal" />
-            <button
-              type="submit"
-              className="min-h-11 rounded-lg bg-primary px-5 font-bold text-on-primary"
-            >
-              Reveal answer now
-            </button>
-          </form>
-          <form action={sendLoopCommand}>
-            <input type="hidden" name="action" value="next" />
-            <button
-              type="submit"
-              className="min-h-11 rounded-lg border border-line px-5 font-semibold text-ink"
-            >
-              Next card
-            </button>
-          </form>
-        </div>
-      </section>
+      <p className="rounded-lg border border-line bg-muted p-3 text-sm text-ink-soft">
+        During the programme, reveal answers, move between cards or pick a riddle from the{' '}
+        <Link href="/admin/big-screen" className="font-semibold text-primary">
+          Big screen
+        </Link>{' '}
+        page: the controls show there while the Screensaver is up.
+      </p>
 
       {saved ? (
         <p
@@ -151,16 +127,41 @@ export default async function ScreensaverPage({
         action={saveLoopText}
         className="space-y-4 rounded-xl border border-line bg-surface p-4"
       >
-        <label className="block text-sm font-semibold text-ink">
-          Teka-teki (riddles): one per line, the question, then a | and the answer
-          <textarea
-            name="riddles"
-            rows={6}
-            defaultValue={riddlesToText(content.riddles)}
-            placeholder="Apa yang makin diambil, makin besar? | Lubang"
-            className={BOX}
-          />
-        </label>
+        <fieldset className="space-y-2">
+          <legend className="text-sm font-semibold text-ink">
+            Teka-teki (riddles): a question and its answer
+          </legend>
+          <p className="text-xs text-ink-soft">
+            Fill the empty rows at the bottom to add riddles, then save. Clear a row to remove it.
+          </p>
+          <ul className="space-y-2">
+            {[...content.riddles, ...Array.from({ length: 4 }, () => ({ q: '', a: '' }))].map(
+              (r, i) => (
+                <li
+                  key={i}
+                  className="grid gap-2 rounded-lg border border-line bg-canvas p-2 sm:grid-cols-[3fr_2fr]"
+                >
+                  <input
+                    name="riddleQ"
+                    defaultValue={r.q}
+                    aria-label={`Riddle ${i + 1} question`}
+                    placeholder="Question"
+                    maxLength={200}
+                    className="min-h-11 rounded-lg border border-line bg-surface px-3 text-ink"
+                  />
+                  <input
+                    name="riddleA"
+                    defaultValue={r.a}
+                    aria-label={`Riddle ${i + 1} answer`}
+                    placeholder="Answer"
+                    maxLength={120}
+                    className="min-h-11 rounded-lg border border-line bg-surface px-3 text-ink"
+                  />
+                </li>
+              ),
+            )}
+          </ul>
+        </fieldset>
         <label className="block text-sm font-semibold text-ink">
           Do you know? One fact per line
           <textarea

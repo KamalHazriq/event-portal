@@ -973,10 +973,10 @@ export const TEST_PLAN: Part[] = [
             id: 's-screen-riddle-reveal',
             rev: 9,
             must: false,
-            do: 'Put the Screensaver on the projector. When a riddle shows, press Reveal answer now on the Screensaver page, then Next card.',
+            do: 'Put the Screensaver on the projector. When a riddle shows, use the Screensaver controls that appear on the Big screen page: Reveal answer, Next, Hands-on, and Choose a riddle to show.',
             expect:
-              'The riddle has a question box and an answer box showing "?". Reveal fills the answer box within a couple of seconds, and Next card moves on. With no button pressed the answer appears after 9 seconds.',
-            links: [{ href: '/admin/screensaver', label: 'Screensaver' }],
+              'The riddle shows the question centred, and the answer fades in slowly under it after 9 seconds, or at once on Reveal answer. Next, Previous and a chosen card work within a couple of seconds. In hands-on mode nothing moves until you press.',
+            links: [{ href: '/admin/big-screen', label: 'Big screen' }],
           },
           {
             id: 's-screen-photo-day',

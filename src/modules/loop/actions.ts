@@ -18,7 +18,9 @@ import {
   parseFactLines,
   parseLoop,
   parseLoopCommand,
-  parseRiddleLines,
+  type LoopAction,
+  type LoopCommand,
+  riddlesFromRows,
   RIDDLE_PACKS,
   safePhoto,
 } from './logic';
@@ -38,7 +40,10 @@ export async function saveLoopText(formData: FormData): Promise<void> {
     LOOP_KEY,
     JSON.stringify({
       ...current,
-      riddles: parseRiddleLines(String(formData.get('riddles') ?? '')),
+      riddles: riddlesFromRows(
+        formData.getAll('riddleQ').map(String),
+        formData.getAll('riddleA').map(String),
+      ),
       facts: parseFactLines(String(formData.get('facts') ?? '')),
     }),
   );
@@ -118,11 +123,27 @@ export async function setLiveFacts(formData: FormData): Promise<void> {
   redirect('/admin/screensaver?saved=text');
 }
 
-/** "Reveal answer now" or "Next card" for the screensaver on the projector. */
+/**
+ * The MC's buttons for the screensaver: reveal the answer, next or previous
+ * card, show one chosen card, and switch hands-on (manual) on or off.
+ */
 export async function sendLoopCommand(formData: FormData): Promise<void> {
   await assertAdmin();
-  const action = formData.get('action') === 'reveal' ? 'reveal' : 'next';
-  const current = parseLoopCommand(await getData().settings.get(LOOP_COMMAND_KEY));
-  await getData().settings.set(LOOP_COMMAND_KEY, JSON.stringify({ seq: current.seq + 1, action }));
-  revalidatePath('/admin/screensaver');
+  const data = getData();
+  const current = parseLoopCommand(await data.settings.get(LOOP_COMMAND_KEY));
+  const raw = String(formData.get('action') ?? '');
+  const manualSwitch = raw === 'manual-on' ? true : raw === 'manual-off' ? false : null;
+  const action = (['reveal', 'next', 'prev', 'goto'] as const).find((a) => a === raw);
+  if (manualSwitch === null && !action) return;
+  const next: LoopCommand =
+    manualSwitch !== null
+      ? { ...current, manual: manualSwitch }
+      : {
+          seq: current.seq + 1,
+          action: action as LoopAction,
+          key: action === 'goto' ? String(formData.get('key') ?? '').slice(0, 300) : '',
+          manual: current.manual,
+        };
+  await data.settings.set(LOOP_COMMAND_KEY, JSON.stringify(next));
+  revalidatePath('/admin/big-screen');
 }

@@ -35,6 +35,8 @@ export async function setScreenView(formData: FormData): Promise<void> {
   const view = String(formData.get('view') ?? '');
   if (!isScreenView(view)) throw new Error('That is not a big screen view.');
   await getData().settings.set(SCREEN_KEYS.view, view);
+  // A podium always starts with nothing revealed.
+  if (view === 'podium') await getData().settings.set(SCREEN_KEYS.podiumStep, '0');
   await recordActivity(`Put "${SCREEN_VIEW_INFO[view].title}" on the big screen`);
   revalidatePath('/admin/big-screen');
 }

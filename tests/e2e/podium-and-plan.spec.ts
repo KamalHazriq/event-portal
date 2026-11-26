@@ -16,6 +16,8 @@ test('the podium is revealed one place at a time, then put back', async ({ page 
   test.skip(testInfo.project.name !== 'desktop', 'one project flips the shared screen');
   await signIn(page);
   await page.goto('/admin/big-screen');
+  // The reveal controls only show while the podium is on the projector.
+  await page.getByRole('button', { name: /^Podium/ }).click();
   await expect(page.getByRole('heading', { name: 'Podium reveal', exact: true })).toBeVisible();
 
   await page.getByRole('button', { name: 'Top 5', exact: true }).click();

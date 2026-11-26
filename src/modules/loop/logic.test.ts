@@ -8,6 +8,7 @@ import {
   parseFactLines,
   parseLoop,
   parseRiddleLines,
+  riddlesFromRows,
   safePhoto,
   DEFAULT_LOOP,
 } from './logic';
@@ -69,5 +70,11 @@ describe('the screensaver loop', () => {
       'The summit has 24 sessions over 3 days.',
       '2 photos have been shared on the photo wall.',
     ]);
+  });
+});
+
+describe('riddlesFromRows', () => {
+  it('keeps rows that have both a question and an answer', () => {
+    expect(riddlesFromRows(['Q1', '', 'Q3'], ['A1', 'A2', ''])).toEqual([{ q: 'Q1', a: 'A1' }]);
   });
 });

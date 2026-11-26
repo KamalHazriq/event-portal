@@ -75,6 +75,9 @@ test('the screensaver plays riddles, and the screen can be handed over to slides
     await add.click();
     await expect(page.getByRole('button', { name: 'All added' }).first()).toBeVisible();
   }
+  // The riddle editor has a question box and an answer box per riddle.
+  await expect(page.getByLabel('Riddle 1 question')).not.toHaveValue('');
+  await expect(page.getByLabel('Riddle 1 answer')).not.toHaveValue('');
   await page.goto('/screen/loop');
   await expect(page.getByText('Teka-teki')).toBeVisible();
   await page.goto('/screen/slides');

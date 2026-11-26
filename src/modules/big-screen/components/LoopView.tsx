@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 
-import { SHOW_MS, type LoopCommand, type LoopItem } from '@/modules/loop/logic';
+import { loopItemKey, SHOW_MS, type LoopCommand, type LoopItem } from '@/modules/loop/logic';
 
 const LABEL =
   'text-[clamp(0.9rem,1.5vw,1.8rem)] font-bold uppercase tracking-[0.2em] text-ink-soft';
@@ -26,27 +26,39 @@ export function LoopView({
   // Presses made before this screen opened are old news.
   const handled = useRef(command?.seq ?? 0);
 
-  // The secretariat's "Reveal answer" and "Next card" buttons.
+  // The secretariat's buttons on the Big screen page.
   const seq = command?.seq ?? 0;
   const action = command?.action;
+  const key = command?.key ?? '';
+  const keys = items.map(loopItemKey).join('\n');
   useEffect(() => {
     if (seq === handled.current) return;
     handled.current = seq;
     const timer = window.setTimeout(() => {
+      const total = keys ? keys.split('\n').length : 0;
       if (action === 'reveal') {
         setAnswered(true);
+        return;
+      }
+      setAnswered(false);
+      if (action === 'goto') {
+        const at = keys.split('\n').indexOf(key);
+        if (at >= 0) setIndex(at);
+      } else if (action === 'prev') {
+        setIndex((i) => (total > 0 ? (i - 1 + total * 1000) % total : 0));
       } else {
-        setAnswered(false);
         setIndex((i) => i + 1);
       }
     }, 0);
     return () => window.clearTimeout(timer);
-  }, [seq, action]);
+  }, [seq, action, key, keys]);
+  const manual = command?.manual === true;
+
   const count = items.length;
-  const item = count > 0 ? items[index % count] : undefined;
+  const item = count > 0 ? items[((index % count) + count) % count] : undefined;
 
   useEffect(() => {
-    if (!item) return;
+    if (!item || manual) return;
     const timers: number[] = [];
     if (item.kind === 'riddle') {
       timers.push(window.setTimeout(() => setAnswered(true), SHOW_MS.riddleQuestion));
@@ -65,7 +77,7 @@ export function LoopView({
       );
     }
     return () => timers.forEach((t) => window.clearTimeout(t));
-  }, [item, index]);
+  }, [item, index, manual]);
 
   if (!item) {
     return (
@@ -82,37 +94,21 @@ export function LoopView({
     <div className="flex h-full items-center justify-center">
       <div key={`${index}-${item.kind}`} className={`${fx} w-full max-w-[84vw]`}>
         {item.kind === 'riddle' ? (
-          <div className="mx-auto flex w-full flex-col gap-[3vh]">
-            <p className={`${LABEL} text-center`}>Teka-teki</p>
-            <div className="rounded-[2vw] border-2 border-primary/40 bg-surface/70 px-[3vw] py-[4vh] text-center shadow-xl">
-              <p className="text-[clamp(0.9rem,1.5vw,1.8rem)] font-bold uppercase tracking-[0.2em] text-primary">
-                Soalan
+          <div className="text-center">
+            <p className={LABEL}>Teka-teki</p>
+            <p className="mt-[3vh] text-[clamp(2rem,5vw,6.5rem)] font-bold leading-tight text-ink">
+              {item.q}
+            </p>
+            <div className="mt-[6vh] min-h-[14vh]">
+              {/* Keyed, so each answer fades in slowly from nothing. */}
+              <p
+                key={answered ? 'a' : 'q'}
+                className={`text-[clamp(1.8rem,4.4vw,5.6rem)] font-bold text-primary ${
+                  answered ? (calm ? '' : 'loop-answer-slow') : 'invisible'
+                }`}
+              >
+                {item.a}
               </p>
-              <p className="mt-[1.5vh] text-[clamp(1.8rem,4.4vw,5.8rem)] font-bold leading-tight text-ink">
-                {item.q}
-              </p>
-            </div>
-            <div
-              className={`rounded-[2vw] border-2 px-[3vw] py-[4vh] text-center transition-colors duration-500 ${
-                answered
-                  ? 'border-primary bg-primary/15 shadow-xl'
-                  : 'border-dashed border-line bg-surface/30'
-              }`}
-            >
-              <p className="text-[clamp(0.9rem,1.5vw,1.8rem)] font-bold uppercase tracking-[0.2em] text-accent">
-                Jawapan
-              </p>
-              {answered ? (
-                <p
-                  className={`mt-[1.5vh] text-[clamp(1.8rem,4.4vw,5.8rem)] font-bold leading-tight text-primary ${calm ? '' : 'loop-answer'}`}
-                >
-                  {item.a}
-                </p>
-              ) : (
-                <p className="mt-[1.5vh] text-[clamp(2.4rem,6vw,7rem)] font-bold text-ink-soft/60">
-                  ?
-                </p>
-              )}
             </div>
           </div>
         ) : item.kind === 'fact' ? (

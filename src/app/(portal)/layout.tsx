@@ -34,8 +34,8 @@ export default async function PortalLayout({ children }: { children: React.React
           // Reading pages keep a comfortable width; the home page opts out.
           className={`${RULED_CONTAINER} flex-1 pb-8 pt-8 lg:pt-12 [&>*]:mx-auto [&>*]:w-full [&>*]:max-w-3xl`}
         >
-          {/* Room below a banner: the home page hero tucks up under the header. */}
-          <div className="mb-6 w-full !max-w-none empty:hidden lg:mb-8">
+          {/* Room below a banner: the home hero pulls up 2rem (3rem wide) under the header, so this adds that back plus a 1.5rem gap. */}
+          <div className="mb-14 w-full !max-w-none empty:hidden lg:mb-[4.5rem]">
             <EventEndedBanner />
             <AnnouncementBanner />
             <LuckyWinBanner />

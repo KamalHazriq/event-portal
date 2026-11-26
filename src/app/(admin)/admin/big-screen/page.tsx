@@ -1,3 +1,11 @@
+import { LoopControls } from '@/modules/loop/components/LoopControls';
+import {
+  buildLoopItems,
+  LOOP_COMMAND_KEY,
+  LOOP_KEY,
+  parseLoop,
+  parseLoopCommand,
+} from '@/modules/loop/logic';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
@@ -55,6 +63,9 @@ export default async function BigScreenControlPage() {
   const settings = await readScreenSettings();
   const views = availableScreenViews(config.features);
   const photoLayout = resolvePhotoLayout(await getData().settings.get(PHOTO_KEYS.layout));
+  const loopContent = parseLoop(await getData().settings.get(LOOP_KEY));
+  const loopCommand = parseLoopCommand(await getData().settings.get(LOOP_COMMAND_KEY));
+  const loopItems = buildLoopItems({ ...loopContent, liveFacts: false });
   const photoDay = (await getData().settings.get(PHOTO_KEYS.day)) ?? 'all';
   const [chosenRaw, commentLayoutRaw, approvalRaw] = await Promise.all([
     getData().settings.get(COMMENT_KEYS.screenSession),
@@ -192,7 +203,11 @@ export default async function BigScreenControlPage() {
         })}
       </ul>
 
-      {config.features.feedback ? (
+      {settings.view === 'loop' ? (
+        <LoopControls items={loopItems} manual={loopCommand.manual} />
+      ) : null}
+
+      {config.features.feedback && settings.view === 'feedback' ? (
         <section className="rounded-xl border border-line bg-surface p-4">
           <h2 className="text-sm font-bold uppercase tracking-wide text-ink-soft">Feedback QR</h2>
           <p className="mt-1 text-sm text-ink-soft">
@@ -226,7 +241,7 @@ export default async function BigScreenControlPage() {
         </section>
       ) : null}
 
-      {config.features.leaderboard ? (
+      {config.features.leaderboard && settings.view === 'podium' ? (
         <section className="rounded-xl border border-line bg-surface p-4">
           <h2 className="text-sm font-bold uppercase tracking-wide text-ink-soft">Podium reveal</h2>
           <p className="mt-1 text-sm text-ink-soft">
@@ -291,7 +306,7 @@ export default async function BigScreenControlPage() {
         </section>
       ) : null}
 
-      {config.features.photoWall ? (
+      {config.features.photoWall && settings.view === 'photos' ? (
         <section className="rounded-xl border border-line bg-surface p-4">
           <h2 className="text-sm font-bold uppercase tracking-wide text-ink-soft">
             Photo wall layout
@@ -352,64 +367,66 @@ export default async function BigScreenControlPage() {
         </section>
       ) : null}
 
-      <section className="rounded-xl border border-line bg-surface p-4">
-        <h2 className="text-sm font-bold uppercase tracking-wide text-ink-soft">
-          Comments, questions and reactions
-        </h2>
-        <form action={setScreenTalk} className="mt-2 flex flex-wrap items-end gap-2">
-          <label className="min-w-0 flex-1 text-sm font-semibold text-ink">
-            Which talk the comments and questions are about
-            <select
-              name="session"
-              defaultValue={chosenTalk}
-              className="mt-1 block min-h-11 w-full rounded-lg border border-line bg-canvas px-3 font-normal text-ink"
-            >
-              <option value="auto">Automatic: the talk that is on now</option>
-              {talks.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.dayLabel}, {t.start}: {t.title}
-                </option>
-              ))}
-            </select>
-          </label>
-          <button
-            type="submit"
-            className="min-h-11 rounded-lg bg-primary px-4 font-bold text-on-primary"
-          >
-            Use this talk
-          </button>
-        </form>
-        <p className="mt-2 text-sm text-ink-soft">
-          Each question and comment is sent from one talk&apos;s page, so it belongs to that talk.
-          The screen shows the ones of the talk chosen here, or of the talk running now when this is
-          on Automatic. Lunch, breaks and registration are not on the list: they have none.
-        </p>
-        <div className="mt-3 flex flex-wrap gap-2">
-          <form action={setCommentLayout}>
-            <input
-              type="hidden"
-              name="layout"
-              value={commentLayout === 'bubbles' ? 'list' : 'bubbles'}
-            />
+      {settings.view === 'qa' || settings.view === 'comments' ? (
+        <section className="rounded-xl border border-line bg-surface p-4">
+          <h2 className="text-sm font-bold uppercase tracking-wide text-ink-soft">
+            Comments, questions and reactions
+          </h2>
+          <form action={setScreenTalk} className="mt-2 flex flex-wrap items-end gap-2">
+            <label className="min-w-0 flex-1 text-sm font-semibold text-ink">
+              Which talk the comments and questions are about
+              <select
+                name="session"
+                defaultValue={chosenTalk}
+                className="mt-1 block min-h-11 w-full rounded-lg border border-line bg-canvas px-3 font-normal text-ink"
+              >
+                <option value="auto">Automatic: the talk that is on now</option>
+                {talks.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.dayLabel}, {t.start}: {t.title}
+                  </option>
+                ))}
+              </select>
+            </label>
             <button
               type="submit"
-              className="min-h-11 rounded-lg border border-line px-4 text-sm font-semibold text-ink"
+              className="min-h-11 rounded-lg bg-primary px-4 font-bold text-on-primary"
             >
-              Comments look: {commentLayout === 'bubbles' ? 'bubbles' : 'a list'} (switch to{' '}
-              {commentLayout === 'bubbles' ? 'a list' : 'bubbles'})
+              Use this talk
             </button>
           </form>
-          <form action={setCommentApproval}>
-            <input type="hidden" name="mode" value={commentsApproval ? 'off' : 'on'} />
-            <button
-              type="submit"
-              className="min-h-11 rounded-lg border border-line px-4 text-sm font-semibold text-ink"
-            >
-              Comments need approval: {commentsApproval ? 'on' : 'off'}
-            </button>
-          </form>
-        </div>
-      </section>
+          <p className="mt-2 text-sm text-ink-soft">
+            Each question and comment is sent from one talk&apos;s page, so it belongs to that talk.
+            The screen shows the ones of the talk chosen here, or of the talk running now when this
+            is on Automatic. Lunch, breaks and registration are not on the list: they have none.
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <form action={setCommentLayout}>
+              <input
+                type="hidden"
+                name="layout"
+                value={commentLayout === 'bubbles' ? 'list' : 'bubbles'}
+              />
+              <button
+                type="submit"
+                className="min-h-11 rounded-lg border border-line px-4 text-sm font-semibold text-ink"
+              >
+                Comments look: {commentLayout === 'bubbles' ? 'bubbles' : 'a list'} (switch to{' '}
+                {commentLayout === 'bubbles' ? 'a list' : 'bubbles'})
+              </button>
+            </form>
+            <form action={setCommentApproval}>
+              <input type="hidden" name="mode" value={commentsApproval ? 'off' : 'on'} />
+              <button
+                type="submit"
+                className="min-h-11 rounded-lg border border-line px-4 text-sm font-semibold text-ink"
+              >
+                Comments need approval: {commentsApproval ? 'on' : 'off'}
+              </button>
+            </form>
+          </div>
+        </section>
+      ) : null}
 
       <section className="rounded-xl border border-line bg-surface p-4">
         <h2 className="text-sm font-bold uppercase tracking-wide text-ink-soft">Effects</h2>
@@ -430,25 +447,27 @@ export default async function BigScreenControlPage() {
           </button>
         </form>
       </section>
-      <section className="rounded-xl border border-line bg-surface p-4">
-        <h2 className="text-sm font-bold uppercase tracking-wide text-ink-soft">Arrivals</h2>
-        <p className="mt-1 text-ink">
-          Names on the welcome cards are{' '}
-          <span className="font-bold">{settings.hideNames ? 'hidden' : 'shown'}</span>.
-          {settings.hideNames
-            ? ' Only the counter is on screen.'
-            : ' Everyone who checks in gets a card.'}
-        </p>
-        <form action={setHideNames} className="mt-3">
-          <input type="hidden" name="hideNames" value={settings.hideNames ? 'false' : 'true'} />
-          <button
-            type="submit"
-            className="min-h-11 rounded-lg border border-line px-4 font-semibold text-ink"
-          >
-            {settings.hideNames ? 'Show names' : 'Hide names, counter only'}
-          </button>
-        </form>
-      </section>
+      {settings.view === 'arrivals' ? (
+        <section className="rounded-xl border border-line bg-surface p-4">
+          <h2 className="text-sm font-bold uppercase tracking-wide text-ink-soft">Arrivals</h2>
+          <p className="mt-1 text-ink">
+            Names on the welcome cards are{' '}
+            <span className="font-bold">{settings.hideNames ? 'hidden' : 'shown'}</span>.
+            {settings.hideNames
+              ? ' Only the counter is on screen.'
+              : ' Everyone who checks in gets a card.'}
+          </p>
+          <form action={setHideNames} className="mt-3">
+            <input type="hidden" name="hideNames" value={settings.hideNames ? 'false' : 'true'} />
+            <button
+              type="submit"
+              className="min-h-11 rounded-lg border border-line px-4 font-semibold text-ink"
+            >
+              {settings.hideNames ? 'Show names' : 'Hide names, counter only'}
+            </button>
+          </form>
+        </section>
+      ) : null}
 
       <section className="rounded-xl border border-line bg-muted p-4 text-sm">
         <h2 className="font-bold text-ink">Setting up the projector</h2>

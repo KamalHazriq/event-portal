@@ -51,6 +51,17 @@ export function parseRiddleLines(text: string): Riddle[] {
   return out;
 }
 
+/** Riddles from the editor's rows: a question box and an answer box each. Rows missing either are left out. */
+export function riddlesFromRows(questions: string[], answers: string[]): Riddle[] {
+  const out: Riddle[] = [];
+  questions.forEach((raw, i) => {
+    const q = clean(raw, 200);
+    const a = clean(answers[i], 120);
+    if (q && a && out.length < MAX_ITEMS) out.push({ q, a });
+  });
+  return out;
+}
+
 /** One fact per line. */
 export function parseFactLines(text: string): string[] {
   return text
@@ -113,18 +124,38 @@ export function buildLoopItems(content: LoopContent): LoopItem[] {
 /** Where the secretariat's Reveal / Next presses are stored. */
 export const LOOP_COMMAND_KEY = 'loop.command';
 
-export type LoopCommand = { seq: number; action: 'reveal' | 'next' };
+export type LoopAction = 'reveal' | 'next' | 'prev' | 'goto';
+/**
+ * `seq` goes up with every press, so the screen can tell a new press from an
+ * old one. `key` names the card for "goto". `manual` stops the screen moving
+ * on by itself: the MC reveals and moves on from the Big screen page.
+ */
+export type LoopCommand = { seq: number; action: LoopAction; key: string; manual: boolean };
+
+export const NO_COMMAND: LoopCommand = { seq: 0, action: 'next', key: '', manual: false };
+
+/** A stable name for a card, so "show this one" survives the list being rebuilt. */
+export function loopItemKey(item: LoopItem): string {
+  return item.kind === 'riddle'
+    ? `r:${item.q}`
+    : item.kind === 'fact'
+      ? `f:${item.text}`
+      : `l:${item.id}`;
+}
 
 export function parseLoopCommand(raw: string | null | undefined): LoopCommand {
   try {
     const v = JSON.parse(raw ?? '') as Partial<LoopCommand>;
-    if (typeof v.seq === 'number' && (v.action === 'reveal' || v.action === 'next')) {
-      return { seq: v.seq, action: v.action };
-    }
+    const actions: LoopAction[] = ['reveal', 'next', 'prev', 'goto'];
+    return {
+      seq: typeof v.seq === 'number' ? v.seq : 0,
+      action: actions.includes(v.action as LoopAction) ? (v.action as LoopAction) : 'next',
+      key: typeof v.key === 'string' ? v.key : '',
+      manual: v.manual === true,
+    };
   } catch {
-    // fall through
+    return NO_COMMAND;
   }
-  return { seq: 0, action: 'next' };
 }
 
 /** How long each card stays up, in milliseconds. A riddle shows its question first. */

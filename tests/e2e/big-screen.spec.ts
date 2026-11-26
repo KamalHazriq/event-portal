@@ -119,7 +119,8 @@ test('the MC switches the projector from a phone', async ({ browser }, testInfo)
   await expect(projector.getByText(/^Arrived,/)).toHaveCount(0, { timeout: 10_000 });
   await expect(projector.locator('.hex-wipe')).toHaveCount(0, { timeout: 5_000 });
 
-  // Hide names, check, and put it back for whoever runs next.
+  // Hide names (its button only shows with Arrivals up), check, and put it back.
+  await phone.getByRole('button', { name: /^Arrivals/ }).click();
   await phone.getByRole('button', { name: 'Hide names, counter only' }).click();
   await expect(phone.getByRole('button', { name: 'Show names' })).toBeVisible();
   await projector.goto('/screen/arrivals?now=2026-12-14T13:00');
