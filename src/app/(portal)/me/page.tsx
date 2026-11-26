@@ -324,7 +324,7 @@ export default async function MyPointsPage({
                 {rule.label}, {formatShortDate(rule.date, config.event.timezone)}
               </p>
               <p className="mt-1 text-sm text-ink-soft">
-                Before <strong className="text-ink">{formatClock(rule.earlyBy)}</strong>:{' '}
+                Before <strong className="text-ink">{formatClock(rule.earlyBy.slice(-5))}</strong>:{' '}
                 <strong className="text-ink">{POINTS.checkIn + POINTS.onTime} points</strong>. Later
                 that day: <strong className="text-ink">{POINTS.checkIn} points</strong>. No scan: 0.
               </p>

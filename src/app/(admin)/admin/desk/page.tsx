@@ -5,6 +5,10 @@ import { getData } from '@/data';
 import { requireAdmin } from '@/lib/admin-guard';
 import { getEventConfig } from '@/lib/config';
 import { formatShortDate, resolveEventNow } from '@/lib/time';
+import { cookies } from 'next/headers';
+import { parsePretendScan, SCAN_AT_COOKIE } from '@/modules/check-in/pretend';
+import { setPretendScan } from '@/modules/check-in/pretend-actions';
+import { testModeOn } from '@/modules/test-mode/server';
 import { DeskConsole } from '@/modules/check-in/components/DeskConsole';
 import { addPersonToList } from '@/modules/check-in/add-person';
 import { UndoAllButton } from '@/modules/check-in/components/UndoAllButton';
@@ -37,6 +41,8 @@ export default async function DeskPage({ searchParams }: { searchParams: SearchP
 
   const data = getData();
   const headcount = await data.checkIns.headcount(day.id);
+  const testMode = await testModeOn();
+  const pretend = testMode ? parsePretendScan((await cookies()).get(SCAN_AT_COOKIE)?.value) : null;
 
   return (
     <div className="space-y-4">
@@ -46,6 +52,54 @@ export default async function DeskPage({ searchParams }: { searchParams: SearchP
           Checking people in for {day.label}, {formatShortDate(day.date, config.event.timezone)}
         </p>
       </header>
+
+      {testMode ? (
+        <section
+          aria-label="Pretend scan time"
+          className="rounded-xl border-2 border-warning bg-warning/10 p-4"
+        >
+          <h2 className="font-bold text-ink">Test: pretend scan time</h2>
+          <p className="mt-1 text-sm text-ink-soft">
+            To try early and late, pick any date and time. Scans on this desk are recorded at that
+            time until you switch back. The result shows Early or Late against the day&apos;s
+            cut-off (set on Points, Attendance). Clear the test scans afterwards.
+          </p>
+          <form action={setPretendScan} className="mt-3 flex flex-wrap items-end gap-2">
+            <label className="text-sm font-semibold text-ink">
+              Pretend it is
+              <input
+                type="datetime-local"
+                name="at"
+                defaultValue={pretend ?? ''}
+                required
+                className="mt-1 block min-h-11 rounded-lg border border-line bg-canvas px-3 text-ink"
+              />
+            </label>
+            <button
+              type="submit"
+              className="min-h-11 rounded-lg bg-primary px-4 font-bold text-on-primary"
+            >
+              Use this time
+            </button>
+            {pretend ? (
+              <button
+                type="submit"
+                name="clear"
+                value="yes"
+                formNoValidate
+                className="min-h-11 rounded-lg border border-line px-4 font-semibold text-ink"
+              >
+                Back to real time
+              </button>
+            ) : null}
+          </form>
+          <p className="mt-2 text-sm font-semibold text-ink">
+            {pretend
+              ? `Scans are recorded as ${pretend.replace('T', ' at ')}.`
+              : 'Using real time.'}
+          </p>
+        </section>
+      ) : null}
 
       <details className="rounded-xl border border-line bg-surface p-4">
         <summary className="cursor-pointer font-semibold text-ink">

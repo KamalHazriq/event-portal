@@ -7,7 +7,7 @@ import { getData } from '@/data';
 import { requireAdminApi } from '@/lib/admin-guard';
 import { getEventConfig } from '@/lib/config';
 import { recordActivity } from '@/modules/admins/record';
-import { BONUS_KEY, EARLY_KEY, parseBonus, parseBonusPoints } from './logic';
+import { BONUS_KEY, EARLY_KEY, EARLY_VALUE, parseBonus, parseBonusPoints } from './logic';
 import { forgetScoreboard } from './server';
 import { plainText } from '@/lib/text';
 import { LIMITS, rateLimit } from '@/lib/rate-limit';
@@ -159,7 +159,7 @@ export async function saveEarlyCutoffs(formData: FormData): Promise<void> {
   const cutoffs: Record<string, string> = {};
   for (const day of config.days) {
     const value = String(formData.get(`early-${day.id}`) ?? '');
-    if (/^([01]\d|2[0-3]):[0-5]\d$/.test(value)) cutoffs[day.id] = value;
+    if (EARLY_VALUE.test(value)) cutoffs[day.id] = value;
   }
   await getData().settings.set(EARLY_KEY, JSON.stringify(cutoffs));
   await recordActivity('Changed the early arrival times', operator);

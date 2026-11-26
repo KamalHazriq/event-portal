@@ -205,11 +205,14 @@ export default async function PointsPage({ searchParams }: { searchParams: Searc
                 <span className="text-sm">
                   <strong className="text-ink">{rule.label}</strong>
                   <span className="ml-2 text-ink-soft">{rule.date}</span>
+                  <span className="mt-1 block text-ink-soft">
+                    Scanned so far: {rule.early} early, {rule.late} late
+                  </span>
                 </span>
                 <label className="flex items-center gap-2 text-sm font-semibold text-ink">
                   Early means before
                   <input
-                    type="time"
+                    type="datetime-local"
                     name={`early-${rule.dayId}`}
                     defaultValue={rule.earlyBy}
                     required
@@ -226,7 +229,8 @@ export default async function PointsPage({ searchParams }: { searchParams: Searc
             Save the early times
           </button>
           <p className="text-xs text-ink-soft">
-            Left alone, early means before the day&apos;s first session starts.
+            Date and time. Anyone who scans before it is early, anyone after it is late. Left alone,
+            early means before the day&apos;s first session starts.
           </p>
         </form>
       </section>

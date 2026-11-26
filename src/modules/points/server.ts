@@ -12,6 +12,7 @@ import { currentDeviceId } from '@/modules/backup/server';
 import {
   BONUS_KEY,
   EARLY_KEY,
+  earlyLocalDateTime,
   parseEarlyCutoffs,
   computeScores,
   parseBonus,
@@ -76,7 +77,7 @@ async function computeScoreboard(): Promise<Scoreboard> {
     // The secretariat's own cut-off for the day, else the day's first session.
     const first = cutoffs[day.id] ?? [...day.sessions].map((s) => s.start).sort()[0];
     const instant = first
-      ? localDateTimeToInstant(`${day.date}T${first}`, config.event.timezone)
+      ? localDateTimeToInstant(earlyLocalDateTime(day.date, first), config.event.timezone)
       : null;
     dayStarts[day.id] = instant?.toISOString();
   }
@@ -122,20 +123,48 @@ export const currentPlayer = cache(async (): Promise<Attendee | null> => {
   return attendeeId ? data.attendees.get(attendeeId) : null;
 });
 
+/** The moment before which a scan on this day counts as early, or null. */
+export async function earlyInstantFor(dayId: string): Promise<Date | null> {
+  const config = getEventConfig();
+  const day = config.days.find((d) => d.id === dayId);
+  if (!day) return null;
+  const cutoffs = parseEarlyCutoffs(await getData().settings.get(EARLY_KEY));
+  const first = cutoffs[day.id] ?? [...day.sessions].map((s) => s.start).sort()[0];
+  return first
+    ? localDateTimeToInstant(earlyLocalDateTime(day.date, first), config.event.timezone)
+    : null;
+}
+
 /** What each day's attendance is worth, for the points pages. */
 export async function attendanceRules(): Promise<
-  { dayId: string; label: string; date: string; earlyBy: string; defaultEarlyBy: string }[]
+  {
+    dayId: string;
+    label: string;
+    date: string;
+    earlyBy: string;
+    defaultEarlyBy: string;
+    early: number;
+    late: number;
+  }[]
 > {
   const config = getEventConfig();
-  const cutoffs = parseEarlyCutoffs(await getData().settings.get(EARLY_KEY));
-  return config.days.map((day) => {
-    const first = [...day.sessions].map((s) => s.start).sort()[0] ?? '09:00';
-    return {
-      dayId: day.id,
-      label: day.label,
-      date: day.date,
-      earlyBy: cutoffs[day.id] ?? first,
-      defaultEarlyBy: first,
-    };
-  });
+  const data = getData();
+  const cutoffs = parseEarlyCutoffs(await data.settings.get(EARLY_KEY));
+  return Promise.all(
+    config.days.map(async (day) => {
+      const first = [...day.sessions].map((s) => s.start).sort()[0] ?? '09:00';
+      const before = await earlyInstantFor(day.id);
+      const scans = await data.checkIns.listByDay(day.id).catch(() => []);
+      const early = before ? scans.filter((c) => Date.parse(c.at) < before.getTime()).length : 0;
+      return {
+        dayId: day.id,
+        label: day.label,
+        date: day.date,
+        earlyBy: earlyLocalDateTime(day.date, cutoffs[day.id] ?? first),
+        defaultEarlyBy: earlyLocalDateTime(day.date, first),
+        early,
+        late: scans.length - early,
+      };
+    }),
+  );
 }

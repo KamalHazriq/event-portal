@@ -53,6 +53,8 @@ type Result = {
   queued?: boolean;
   /** The door gift: still to spin for, or what they got. */
   gift?: GiftOffer | null;
+  /** Early or late against the day's cut-off, when one applies. */
+  timing?: { early: boolean; before: string; pretend: boolean } | null;
 };
 
 /** Ignore the same tag for this long, so one tag held up does not spam. */
@@ -190,6 +192,7 @@ export function DeskConsole({
           card: body.card,
           candidates: body.candidates,
           gift: body.gift,
+          timing: body.timing,
         });
         // First time at the desk with no gift yet: straight to the spin.
         if (body.gift?.state === 'spin' && body.attendee) {
@@ -445,6 +448,18 @@ export function DeskConsole({
         {result ? (
           <>
             <p className="text-lg font-bold text-ink">{result.message}</p>
+            {result.timing ? (
+              <p
+                className={`mt-1 inline-block rounded-full px-3 py-1 text-sm font-bold ${
+                  result.timing.early ? 'bg-success/15 text-success' : 'bg-live/15 text-live'
+                }`}
+              >
+                {result.timing.early
+                  ? `Early (before ${result.timing.before}): bonus point`
+                  : `Late (after ${result.timing.before}): no early bonus`}
+                {result.timing.pretend ? ', pretend time' : ''}
+              </p>
+            ) : null}
             {result.attendee ? (
               <>
                 <p className="mt-1 text-2xl font-bold leading-tight text-ink">

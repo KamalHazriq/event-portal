@@ -327,6 +327,14 @@ export function parseBonusPoints(value: unknown): number | null {
 /** Per day, the time before which arriving counts as early: {"day-1":"09:30"}. */
 export const EARLY_KEY = 'points.earlyCutoffs';
 
+/** "09:30" (that day's date) or "2027-01-05T09:30" (a date and a time). */
+export const EARLY_VALUE = /^(\d{4}-\d{2}-\d{2}T)?([01]\d|2[0-3]):[0-5]\d$/;
+
+/** The cut-off as a local date and time for the day, whichever form it was saved in. */
+export function earlyLocalDateTime(dayDate: string, value: string): string {
+  return value.includes('T') ? value : `${dayDate}T${value}`;
+}
+
 export function parseEarlyCutoffs(raw: string | null): Record<string, string> {
   if (!raw) return {};
   try {
@@ -334,7 +342,7 @@ export function parseEarlyCutoffs(raw: string | null): Record<string, string> {
     if (typeof value !== 'object' || value === null) return {};
     return Object.fromEntries(
       Object.entries(value as Record<string, unknown>).filter(
-        ([, v]) => typeof v === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(v),
+        ([, v]) => typeof v === 'string' && EARLY_VALUE.test(v),
       ),
     ) as Record<string, string>;
   } catch {

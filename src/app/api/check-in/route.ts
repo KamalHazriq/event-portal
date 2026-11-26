@@ -7,6 +7,7 @@
  * of 80 people. This answers with a small JSON payload instead, so the next
  * scan can start immediately.
  */
+import { cookies } from 'next/headers';
 import { z } from 'zod';
 
 import { requireAdminApi } from '@/lib/admin-guard';
@@ -20,6 +21,11 @@ import type { ScanOutcome } from '@/modules/check-in/logic';
 import { getEventConfig } from '@/lib/config';
 import { shortDepartment } from '@/lib/departments';
 import { recordActivity } from '@/modules/admins/record';
+import { parsePretendScan, SCAN_AT_COOKIE } from '@/modules/check-in/pretend';
+import { earlyInstantFor } from '@/modules/points/server';
+import { localDateTimeToInstant } from '@/lib/time';
+import { localClock } from '@/modules/reports/logic';
+import { testModeOn } from '@/modules/test-mode/server';
 
 const BodySchema = z.object({
   /**
@@ -93,6 +99,15 @@ export async function POST(request: Request): Promise<Response> {
 
   const data = getData();
 
+  // Test mode only: this desk's pretend arrival time, so early and late can be tried.
+  let pretendAt: string | undefined;
+  if (await testModeOn()) {
+    const local = parsePretendScan((await cookies()).get(SCAN_AT_COOKIE)?.value);
+    pretendAt = local
+      ? (localDateTimeToInstant(local, config.event.timezone)?.toISOString() ?? undefined)
+      : undefined;
+  }
+
   try {
     let attendee: Attendee | null = null;
     let viaCard = false;
@@ -132,8 +147,16 @@ export async function POST(request: Request): Promise<Response> {
       dayId,
       method,
       byOperator: operator,
-      at: clampArrivalTime(at, new Date()),
+      at: pretendAt ?? clampArrivalTime(at, new Date()),
     });
+    const earlyBefore = await earlyInstantFor(dayId);
+    const timing = earlyBefore
+      ? {
+          early: Date.parse(checkIn.at) < earlyBefore.getTime(),
+          before: localClock(earlyBefore.toISOString(), config.event.timezone),
+          pretend: pretendAt !== undefined,
+        }
+      : null;
 
     // So tomorrow this person's card matches on the email at once.
     if (learnedEmail && !attendee.email) {
@@ -157,6 +180,7 @@ export async function POST(request: Request): Promise<Response> {
       // The door gift: spin for it now, or remind the desk what it was.
       gift: await deskGift(attendee).catch(() => null),
       checkedInAt: checkIn.at,
+      timing,
       headcount: arrivalRate(headcount.arrived, headcount.expected),
     });
   } catch (error) {
