@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { shrinkPhoto } from '../compress';
 import { PHOTO_LIMITS } from '../logic';
@@ -27,6 +27,7 @@ export function PhotoUploader({
   const [picked, setPicked] = useState<Picked[]>([]);
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState('');
+  const [waiting, setWaiting] = useState(false); // photos held for the connection
   const [history, setHistory] = useState<Sent[]>([]);
   const input = useRef<HTMLInputElement>(null);
   const counter = useRef(0);
@@ -92,15 +93,36 @@ export function PhotoUploader({
           failed.push(item);
           setProblem(result?.message ?? 'It did not arrive. Try again.');
         }
-      } catch {
+      } catch (error) {
         failed.push(item);
-        setProblem('This device could not read that photo. Try another one.');
+        // A fetch that cannot reach the server is a connection problem: the photos are kept.
+        if (error instanceof TypeError && !navigator.onLine) {
+          setWaiting(true);
+          setProblem(
+            'No connection. Your photos are kept here and will be sent when the connection is back.',
+          );
+        } else {
+          setProblem('This device could not read that photo. Try another one.');
+        }
       }
     }
     setSent(total);
     setPicked(failed);
     setBusy(false);
   };
+
+  // Back online with photos held: send them without anyone pressing anything.
+  useEffect(() => {
+    if (!waiting) return;
+    const retry = () => {
+      setWaiting(false);
+      void share();
+    };
+    window.addEventListener('online', retry, { once: true });
+    return () => window.removeEventListener('online', retry);
+    // share reads the current photos; it is re-created each render, which is what we want.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [waiting, picked]);
 
   return (
     <div className="space-y-4">

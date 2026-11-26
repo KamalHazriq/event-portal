@@ -156,7 +156,8 @@ export default async function AdminsPage({ searchParams }: { searchParams: Searc
               </li>
               <li>
                 The time override on the web address (<code>?now=</code>) belongs to the server
-                setting <code>ALLOW_TIME_OVERRIDE</code>: remove that setting before the event.
+                setting <code>ALLOW_TIME_OVERRIDE</code>, which is no longer set on the live server,
+                so pretend time is off there.
               </li>
             </ul>
           </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useCallback, useMemo, useSyncExternalStore } from 'react';
+import { useCallback, useMemo, useState, useSyncExternalStore } from 'react';
 
 import { LATEST_REVISION, type Part } from '../steps';
 
@@ -79,7 +79,29 @@ function stamp(iso: string): string {
  * The test plan as a checklist. Ticks are kept in this browser only, so a
  * second person can run their own copy, and nothing is sent anywhere.
  */
-export function TestPlan({ parts }: { parts: Part[] }) {
+export function TestPlan({ parts: allParts }: { parts: Part[] }) {
+  // The short list first: what has to work. The full list is one press away.
+  const [mode, setMode] = useState<'must' | 'all'>('must');
+  const parts = useMemo(
+    () =>
+      mode === 'all'
+        ? allParts
+        : allParts.map((p) => ({
+            ...p,
+            groups: p.groups
+              .map((g) => ({ ...g, steps: g.steps.filter((st) => st.must) }))
+              .filter((g) => g.steps.length > 0),
+          })),
+    [allParts, mode],
+  );
+  const mustCount = allParts.reduce(
+    (n, p) => n + p.groups.reduce((m, g) => m + g.steps.filter((st) => st.must).length, 0),
+    0,
+  );
+  const fullCount = allParts.reduce(
+    (n, p) => n + p.groups.reduce((m, g) => m + g.steps.length, 0),
+    0,
+  );
   const raw = useSyncExternalStore(subscribe, read, () => '[]');
   const done = useMemo(() => new Set(parse(raw)), [raw]);
   const logRaw = useSyncExternalStore(subscribe, readLog, () => '[]');
@@ -124,6 +146,37 @@ export function TestPlan({ parts }: { parts: Part[] }) {
 
   return (
     <div className="space-y-10">
+      <div
+        className="flex flex-wrap items-center gap-2 print:hidden"
+        role="group"
+        aria-label="Which list"
+      >
+        {(
+          [
+            ['must', `Must-pass list (${mustCount})`],
+            ['all', `Full list (${fullCount})`],
+          ] as const
+        ).map(([id, label]) => (
+          <button
+            key={id}
+            type="button"
+            aria-pressed={mode === id}
+            onClick={() => setMode(id)}
+            className={`min-h-11 rounded-lg border px-4 font-bold ${
+              mode === id
+                ? 'border-primary bg-primary text-on-primary'
+                : 'border-line bg-surface text-ink'
+            }`}
+          >
+            {label}
+          </button>
+        ))}
+        <p className="text-sm text-ink-soft">
+          {mode === 'must'
+            ? 'The steps the event cannot run without. Do these first.'
+            : 'Every check, including the extras.'}
+        </p>
+      </div>
       <p className="rounded-xl border border-accent bg-accent/10 p-4 text-ink print:hidden">
         {latest.length} steps are marked <ChangedBadge />: new, or working differently in the latest
         changes. Look at those closely. Your ticks stay in this browser; the bar at the bottom shows

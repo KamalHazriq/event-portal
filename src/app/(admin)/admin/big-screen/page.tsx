@@ -13,6 +13,7 @@ import {
 import { getData } from '@/data';
 import {
   podiumControl,
+  saveSlidesUrl,
   setFeedbackTarget,
   setHideNames,
   setScreenCalm,
@@ -37,6 +38,7 @@ import {
   availableScreenViews,
   clampPodiumStep,
   parsePodiumSize,
+  safeSlidesUrl,
   PODIUM_SIZES,
   podiumGroups,
   SCREEN_KEYS,
@@ -76,6 +78,7 @@ export default async function BigScreenControlPage() {
     Number((await getData().settings.get(SCREEN_KEYS.podiumStep)) ?? 0),
     podiumGroupsNow.length,
   );
+  const slidesUrl = safeSlidesUrl(await getData().settings.get(SCREEN_KEYS.slidesUrl));
   const feedbackTarget = (await getData().settings.get(SCREEN_KEYS.feedbackTarget)) ?? 'auto';
   const feedbackSessions = buildAgenda(config).sessions.filter(
     (s) => s.feedbackEnabled && !s.hidden,
@@ -190,6 +193,43 @@ export default async function BigScreenControlPage() {
           );
         })}
       </ul>
+
+      <section className="rounded-xl border border-line bg-surface p-4">
+        <h2 className="text-sm font-bold uppercase tracking-wide text-ink-soft">Slides</h2>
+        <p className="mt-1 text-sm text-ink-soft">
+          Show your deck on the projector without leaving the portal, so there is nothing to switch
+          on the laptop. In PowerPoint for the web or OneDrive: File, Share, Embed, copy the link
+          (or the whole code) and paste it here. Then press Show the slides: the slides fill the
+          screen. Choose any other view to come back.
+        </p>
+        <form action={saveSlidesUrl} className="mt-3 space-y-2">
+          <label className="block text-sm font-semibold text-ink">
+            Slides link
+            <input
+              name="url"
+              defaultValue={slidesUrl ?? ''}
+              placeholder="https://… (PowerPoint embed link)"
+              className="mt-1 block min-h-11 w-full rounded-lg border border-line bg-canvas px-3 font-normal text-ink"
+            />
+          </label>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="submit"
+              name="show"
+              value="yes"
+              className="min-h-11 rounded-lg bg-primary px-5 font-bold text-on-primary"
+            >
+              Save and show the slides
+            </button>
+            <button
+              type="submit"
+              className="min-h-11 rounded-lg border border-line px-5 font-semibold text-ink"
+            >
+              Save only
+            </button>
+          </div>
+        </form>
+      </section>
 
       {config.features.feedback ? (
         <section className="rounded-xl border border-line bg-surface p-4">

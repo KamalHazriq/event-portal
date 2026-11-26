@@ -80,3 +80,48 @@ test('the screensaver plays riddles, and the screen can be handed over to slides
   await page.goto('/screen/slides');
   await expect(page.getByText('Handed over to slides')).toBeAttached();
 });
+
+test('the test plan opens on the short must-pass list, with the full list one press away', async ({
+  page,
+}, testInfo) => {
+  test.skip(testInfo.project.name !== 'desktop', 'one run is enough');
+  await signIn(page);
+  await page.goto('/admin/test-plan');
+  const must = page.getByRole('button', { name: /^Must-pass list \(\d+\)$/ });
+  await expect(must).toHaveAttribute('aria-pressed', 'true');
+  const short = await page.getByRole('checkbox').count();
+  await page.getByRole('button', { name: /^Full list \(\d+\)$/ }).click();
+  expect(await page.getByRole('checkbox').count()).toBeGreaterThan(short);
+});
+
+test('the slides view shows a saved deck link, and refuses a link that is not a deck', async ({
+  page,
+}, testInfo) => {
+  test.skip(testInfo.project.name !== 'desktop', 'one run is enough');
+  await signIn(page);
+  await page.goto('/admin/big-screen');
+  await page.getByLabel('Slides link').fill('https://contoso.sharepoint.com/:p:/s/x/embed');
+  await page.getByRole('button', { name: 'Save only' }).click();
+  await page.goto('/screen/slides');
+  await expect(page.locator('iframe[title="Slides"]')).toHaveAttribute(
+    'src',
+    /contoso\.sharepoint\.com/,
+  );
+  // Put it back: no deck, a plain black screen.
+  await page.goto('/admin/big-screen');
+  await page.getByLabel('Slides link').fill('');
+  await page.getByRole('button', { name: 'Save only' }).click();
+  await page.goto('/screen/slides');
+  await expect(page.locator('iframe[title="Slides"]')).toHaveCount(0);
+});
+
+test('a phone that loses the connection is told so, and is told when it is back', async ({
+  page,
+}, testInfo) => {
+  test.skip(testInfo.project.name !== 'desktop', 'one run is enough');
+  await page.goto('/agenda');
+  await page.context().setOffline(true);
+  await expect(page.getByRole('status').filter({ hasText: 'You are offline' })).toBeVisible();
+  await page.context().setOffline(false);
+  await expect(page.getByRole('status').filter({ hasText: 'You are offline' })).toHaveCount(0);
+});

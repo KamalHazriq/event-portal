@@ -18,8 +18,8 @@ type Confirm = { cardEmail: string; candidates: Candidate[] };
 const CONFIRM_MS = 20_000;
 
 /**
- * Self check in: a tablet on a stand at the entrance, front camera facing
- * the queue. People hold up the business card in their TNB app (or a name
+ * Self check in: a tablet on a stand at the entrance, its back camera facing
+ * the queue (the back camera can focus; the front one often cannot). People hold up the business card in their TNB app (or a name
  * tag QR) and get a big welcome. Anything unsure sends them to the desk.
  * Nothing on screen lists other people.
  */
@@ -202,9 +202,11 @@ export function KioskConsole({
     [dayLabel, send, show],
   );
 
+  // The back camera first, because it focuses. A button switches to the front one.
+  const [facing, setFacing] = useState<'environment' | 'user'>('environment');
   const { videoRef, canvasRef, cameraOn, cameraError, startCamera } = useQrScanner(
     handleScanned,
-    'user',
+    facing,
   );
 
   // Start straight away, and keep the tablet awake while it stands there.
@@ -365,12 +367,21 @@ export function KioskConsole({
           ref={videoRef}
           playsInline
           muted
-          // Mirrored, so moving the phone feels natural.
-          className={`aspect-video w-full -scale-x-100 rounded-2xl bg-black object-cover ${
-            cameraOn ? '' : 'hidden'
-          }`}
+          // Mirrored only on the front camera, where moving the card feels natural that way.
+          className={`aspect-video w-full rounded-2xl bg-black object-cover ${
+            facing === 'user' ? '-scale-x-100' : ''
+          } ${cameraOn ? '' : 'hidden'}`}
         />
         <canvas ref={canvasRef} className="hidden" />
+        {cameraOn ? (
+          <button
+            type="button"
+            onClick={() => setFacing((f) => (f === 'environment' ? 'user' : 'environment'))}
+            className="mt-2 min-h-11 rounded-lg border border-line px-4 text-sm font-semibold text-ink-soft"
+          >
+            {facing === 'environment' ? 'Use the front camera' : 'Use the back camera'}
+          </button>
+        ) : null}
         {!cameraOn ? (
           <button
             type="button"

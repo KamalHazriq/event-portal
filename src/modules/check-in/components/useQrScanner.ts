@@ -8,8 +8,8 @@ type BarcodeDetectorLike = {
 
 /**
  * Scans QR codes from the camera, continuously, and hands each one read to
- * onScanned. Shared by the registration desk (back camera) and the self
- * check in kiosk (front camera, facing the person).
+ * onScanned. Shared by the registration desk and the self check in kiosk,
+ * both on the back camera, which can focus on a phone screen held up to it.
  *
  * Uses the browser's own BarcodeDetector where it exists, which is most
  * Android phones and Chrome. Only when it does not is a decoder downloaded.
@@ -40,7 +40,8 @@ export function useQrScanner(
     releaseStream();
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode },
+        // "ideal": a laptop with one camera still starts; a phone or tablet uses the one asked for.
+        video: { facingMode: { ideal: facingMode } },
         audio: false,
       });
       streamRef.current = stream;

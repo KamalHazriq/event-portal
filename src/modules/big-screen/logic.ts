@@ -39,6 +39,8 @@ export const SCREEN_KEYS = {
   podiumStep: 'bigscreen.podium.step',
   /** What the feedback QR is for: "auto" (the session now or just finished), "event", or a session id. */
   feedbackTarget: 'bigscreen.feedback.target',
+  /** The slide deck (PowerPoint on the web, OneDrive, SharePoint) shown inside the screen. */
+  slidesUrl: 'bigscreen.slidesUrl',
 } as const;
 
 export const DEFAULT_SCREEN_VIEW: ScreenView = 'welcome';
@@ -115,9 +117,9 @@ export const SCREEN_VIEW_INFO: Record<
     whenToUse: 'Breaks, lunch and any quiet time',
   },
   slides: {
-    title: 'Hand over to slides',
+    title: 'Slides',
     description:
-      'A plain black screen, so the projector laptop can switch to PowerPoint (Alt+Tab) and show the deck without the portal behind it.',
+      'Shows your slide deck full screen inside the big screen (paste the PowerPoint embed link on this page), or a plain black screen if none is set.',
     whenToUse: 'When a speaker or the MC shows their own slides',
   },
   feedback: {
@@ -283,4 +285,34 @@ export function podiumGroups<T extends { rank: number; points: number }>(
 export function clampPodiumStep(step: number, groups: number): number {
   if (!Number.isFinite(step)) return 0;
   return Math.max(0, Math.min(groups, Math.floor(step)));
+}
+
+/* ------------------------------------------------------------------ slides */
+
+const SLIDE_HOSTS = [
+  /(^|\.)sharepoint\.com$/,
+  /(^|\.)office\.com$/,
+  /(^|\.)officeapps\.live\.com$/,
+  /(^|\.)onedrive\.live\.com$/,
+  /^1drv\.ms$/,
+  /^docs\.google\.com$/,
+];
+
+/**
+ * A slide deck address the big screen may show: https, and one of the
+ * Microsoft or Google viewers. Anything else is left out, so a typo or a
+ * hostile link can never take over the projector.
+ */
+export function safeSlidesUrl(value: unknown): string | null {
+  if (typeof value !== 'string') return null;
+  // People paste the whole <iframe ...> snippet: take the address out of it.
+  const fromSnippet = /src=["']([^"']+)["']/i.exec(value)?.[1];
+  const text = (fromSnippet ?? value).trim().replace(/&amp;/g, '&');
+  try {
+    const url = new URL(text);
+    if (url.protocol !== 'https:') return null;
+    return SLIDE_HOSTS.some((re) => re.test(url.hostname)) ? url.toString() : null;
+  } catch {
+    return null;
+  }
 }

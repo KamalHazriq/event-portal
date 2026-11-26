@@ -82,7 +82,7 @@ export function LuckyDrawSpinner({
     <div className="relative flex h-full flex-col items-center justify-center overflow-hidden px-[2vw] text-center">
       {celebrate ? <Confetti /> : null}
       {sound || calm ? null : (
-        <p className="absolute bottom-[1vh] right-[1vw] text-[clamp(0.7rem,1vw,1.2rem)] text-ink-soft opacity-70">
+        <p className="absolute bottom-[1vh] right-[1vw] text-[clamp(0.8rem,1.2vw,1.8rem)] text-ink-soft opacity-70">
           Click this screen once to turn the sound on
         </p>
       )}
@@ -162,7 +162,7 @@ function drumLayout(n: number): { grid: string; pad: string; name: string; label
     grid: 'max-w-[96vw] grid-cols-5',
     pad: 'px-[1vw] py-[2vh]',
     name: 'text-[clamp(1rem,2vw,3rem)]',
-    label: 'text-[clamp(0.6rem,1vw,1.3rem)]',
+    label: 'text-[clamp(0.8rem,1.2vw,1.8rem)]',
   };
 }
 

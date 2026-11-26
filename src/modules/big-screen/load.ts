@@ -48,6 +48,7 @@ import {
   podiumGroups,
   SCREEN_KEYS,
   resolveScreenSettings,
+  safeSlidesUrl,
   type ScreenSettings,
   type ScreenView,
 } from './logic';
@@ -130,7 +131,7 @@ export type ScreenPayload =
   | { view: 'podium'; props: ComponentProps<typeof PodiumView> }
   | { view: 'feedback'; props: ComponentProps<typeof FeedbackQrView> }
   | { view: 'loop'; props: ComponentProps<typeof LoopView> }
-  | { view: 'slides'; props: Record<string, never> };
+  | { view: 'slides'; props: { url: string | null } };
 
 export async function loadScreenView(
   view: ScreenView,
@@ -455,7 +456,10 @@ export async function loadScreenView(
     }
 
     case 'slides':
-      return { view, props: {} };
+      return {
+        view,
+        props: { url: safeSlidesUrl(await data.settings.get(SCREEN_KEYS.slidesUrl)) },
+      };
 
     case 'feedback': {
       if (!config.features.feedback) return loadScreenView('welcome', now, settings);

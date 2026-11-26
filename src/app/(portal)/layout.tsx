@@ -1,5 +1,6 @@
 import Link from 'next/link';
 
+import { ConnectionBanner } from '@/components/ConnectionBanner';
 import { EventEndedBanner } from '@/components/EventEndedBanner';
 import { OfflineSupport } from '@/components/OfflineSupport';
 import { NameGate } from '@/modules/identity/components/NameGate';
@@ -25,6 +26,7 @@ export default async function PortalLayout({ children }: { children: React.React
       // ever making the page scroll sideways.
       <div className="flex min-h-dvh w-full flex-col overflow-x-clip">
         <OfflineSupport />
+        <ConnectionBanner />
         <NameGate />
         <RuledHeader config={config} mark={markFor(branding, theme)} />
         <main
@@ -48,6 +50,7 @@ export default async function PortalLayout({ children }: { children: React.React
   return (
     <div className="flex min-h-dvh w-full flex-col">
       <OfflineSupport />
+      <ConnectionBanner />
       <NameGate />
       <SiteHeader
         event={config.event}

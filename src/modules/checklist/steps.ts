@@ -14,6 +14,8 @@ export type Step = {
   expect: string;
   /** Pages that help with this step, opened in a new tab. */
   links?: StepLink[];
+  /** On the short must-pass list: what has to work for the event to run. */
+  must?: boolean;
   /**
    * The round of changes this step was last new or different in. A step whose
    * rev equals LATEST_REVISION shows a "Latest" badge.
@@ -22,7 +24,7 @@ export type Step = {
 };
 
 /** Bump this when a batch of changes lands, and mark the steps it touched with it. */
-export const LATEST_REVISION = 6;
+export const LATEST_REVISION = 7;
 
 export type StepGroup = { id: string; title: string; steps: Step[] };
 
@@ -79,6 +81,7 @@ export const TEST_PLAN: Part[] = [
           },
           {
             id: 'a-in-qr',
+            must: true,
             do: 'Scan a printed name tag or table tent QR with the phone camera.',
             expect: 'The portal opens straight to the home page. No code is asked for.',
             links: [
@@ -88,6 +91,7 @@ export const TEST_PLAN: Part[] = [
           },
           {
             id: 'a-in-code',
+            must: true,
             do: 'In a private window open the plain portal address, without the code.',
             expect:
               'A "participants only" page. A wrong code is refused; the right event code lets you in, with a short hexagon loading screen while it checks.',
@@ -95,6 +99,7 @@ export const TEST_PLAN: Part[] = [
           },
           {
             id: 'a-in-welcome',
+            must: true,
             rev: 2,
             do: 'Still in the private window, open any page (say the Agenda). Type "Test", tap Test Participant, then press "Yes, that is me".',
             expect:
@@ -103,6 +108,7 @@ export const TEST_PLAN: Part[] = [
           },
           {
             id: 'a-in-gift',
+            must: true,
             rev: 2,
             do: 'On the phone, open the home page and the door gift page. Then, at the desk, check Test Participant in (see S5).',
             expect:
@@ -122,6 +128,7 @@ export const TEST_PLAN: Part[] = [
           },
           {
             id: 'a-in-install',
+            must: true,
             rev: 2,
             do: 'On the home page tap Install (Android and Chrome). On an iPhone, tap Share, then Add to Home Screen.',
             expect:
@@ -219,6 +226,7 @@ export const TEST_PLAN: Part[] = [
           },
           {
             id: 'a-home-agenda',
+            must: true,
             rev: 2,
             do: 'Open the Agenda and go through Day 1, Day 2 and Day 3.',
             expect:
@@ -233,6 +241,7 @@ export const TEST_PLAN: Part[] = [
           },
           {
             id: 'a-home-session',
+            must: true,
             rev: 2,
             do: 'Open a session page.',
             expect:
@@ -266,6 +275,7 @@ export const TEST_PLAN: Part[] = [
           },
           {
             id: 'a-part-photos',
+            must: true,
             rev: 4,
             do: 'On Photos choose three photos at once, leave one caption empty and press Share, then fill them in. Afterwards tap Save under a photo on the wall.',
             expect:
@@ -308,6 +318,7 @@ export const TEST_PLAN: Part[] = [
           },
           {
             id: 'a-part-react',
+            must: true,
             do: 'During a live session, tap a reaction.',
             expect: 'It floats up on the big screen within a few seconds.',
             links: [
@@ -318,6 +329,7 @@ export const TEST_PLAN: Part[] = [
           },
           {
             id: 'a-part-comment',
+            must: true,
             rev: 2,
             do: 'On a live talk, signed in as Test Participant, post a comment. Then open a lunch or break session.',
             expect:
@@ -340,6 +352,7 @@ export const TEST_PLAN: Part[] = [
           },
           {
             id: 'a-part-feedback',
+            must: true,
             rev: 2,
             do: 'After a session ends, open its feedback form, give stars and a comment, send it. Then try again.',
             expect:
@@ -358,6 +371,7 @@ export const TEST_PLAN: Part[] = [
         steps: [
           {
             id: 'a-points-rules',
+            must: true,
             rev: 4,
             do: 'Open My points.',
             expect:
@@ -388,6 +402,7 @@ export const TEST_PLAN: Part[] = [
           },
           {
             id: 'a-points-join',
+            must: true,
             rev: 2,
             do: 'On My points, type your staff number and tap Find me.',
             expect:
@@ -427,12 +442,14 @@ export const TEST_PLAN: Part[] = [
         steps: [
           {
             id: 'a-alerts-on',
+            must: true,
             do: 'On the home page tap Turn on alerts and allow it. (iPhone: Share, Add to Home Screen first, then open from the icon.)',
             expect: 'It says alerts are on for this device.',
             links: [{ href: '/', label: 'Home page' }],
           },
           {
             id: 'a-alerts-get',
+            must: true,
             rev: 2,
             do: 'Ask the secretariat to post an announcement with a link and "Also send it as a notification" ticked.',
             expect:
@@ -452,6 +469,15 @@ export const TEST_PLAN: Part[] = [
         title: 'A6. Weak Wi-Fi',
         steps: [
           {
+            id: 'a-net-form',
+            must: true,
+            rev: 7,
+            do: 'Open a session, switch to airplane mode, type a comment and press Post comment, then switch it off.',
+            expect:
+              'Nothing is lost: a message says nothing was sent and your text stays in the box. Back online, press Post comment again and it goes.',
+            links: [{ href: '/agenda', label: 'Agenda' }],
+          },
+          {
             id: 'a-net-speed',
             do: 'Open the home page and the agenda on hotel Wi-Fi, then on mobile data.',
             expect: 'Each loads in about three seconds or less.',
@@ -462,6 +488,7 @@ export const TEST_PLAN: Part[] = [
           },
           {
             id: 'a-net-offline',
+            must: true,
             do: 'After opening the agenda, switch on airplane mode and open it again.',
             expect: 'The agenda still shows, with a "You are offline" bar.',
             links: [{ href: '/agenda', label: 'Agenda' }],
@@ -490,6 +517,7 @@ export const TEST_PLAN: Part[] = [
           },
           {
             id: 's-ready-testmode',
+            must: true,
             rev: 5,
             do: 'On Admins, find Test mode. Turn it off, look at the menu and the Test plan address, then turn it on again.',
             expect:
@@ -530,6 +558,7 @@ export const TEST_PLAN: Part[] = [
           },
           {
             id: 's-ready-check',
+            must: true,
             do: 'Look at the Ready check at the top of this page.',
             expect:
               'Every line has a tick: participant list, PIN, event code, QR address, team alerts and reminders. Anything marked ! says how to fix it.',
@@ -537,6 +566,7 @@ export const TEST_PLAN: Part[] = [
           },
           {
             id: 's-ready-health',
+            must: true,
             do: 'Open the portal address followed by /api/health.',
             expect:
               'It answers {"ok":true...}. If you set up the uptime alert, an email arrives when it does not.',
@@ -577,12 +607,14 @@ export const TEST_PLAN: Part[] = [
           },
           {
             id: 's-login-wrong',
+            must: true,
             do: 'Open /admin and type a wrong PIN.',
             expect: 'It is refused with a message, and nothing opens.',
             links: [{ href: '/admin/sign-in', label: 'Sign in page' }],
           },
           {
             id: 's-login-right',
+            must: true,
             do: 'Sign in with the real PIN and a desk name.',
             expect:
               'A hexagon loading screen shows while it works (on a slow connection), then the dashboard says "Good morning" with your desk name. A reload keeps you signed in.',
@@ -590,6 +622,7 @@ export const TEST_PLAN: Part[] = [
           },
           {
             id: 's-login-app',
+            must: true,
             rev: 2,
             do: 'On your laptop and phone, install the Secretariat app: the Install button on the dashboard (iPhone: Share, then Add to Home Screen).',
             expect:
@@ -685,6 +718,7 @@ export const TEST_PLAN: Part[] = [
           },
           {
             id: 's-people-upload',
+            must: true,
             do: 'On Attendees, upload the Master list (or check it is already loaded).',
             expect:
               'The count matches your list, departments show their short names, and the secretariat are marked.',
@@ -762,6 +796,7 @@ export const TEST_PLAN: Part[] = [
           },
           {
             id: 's-content-agenda',
+            must: true,
             rev: 2,
             do: 'On Agenda, check each day against the official agenda. Open a session, change its time with the time picker (tap the clock), then Save.',
             expect:
@@ -819,6 +854,7 @@ export const TEST_PLAN: Part[] = [
         steps: [
           {
             id: 's-print-pdf',
+            must: true,
             rev: 3,
             do: 'Open the report summary and choose Print or save as PDF.',
             expect:
@@ -852,7 +888,20 @@ export const TEST_PLAN: Part[] = [
         title: 'S5. The registration desk',
         steps: [
           {
+            id: 's-desk-backcam',
+            must: true,
+            rev: 7,
+            do: 'Open the kiosk on the tablet and the Desk on a phone, and scan a business card on each.',
+            expect:
+              'Both start on the back camera (it focuses on a phone screen). On the kiosk, "Use the front camera" switches if needed. The picture is not mirrored on the back camera.',
+            links: [
+              { href: '/kiosk', label: 'Kiosk' },
+              { href: '/admin/desk', label: 'Desk' },
+            ],
+          },
+          {
             id: 's-desk-scan',
+            must: true,
             do: 'On Desk, tap Use the camera and scan a TNB business card on three different phones.',
             expect:
               '"Checked in" with the right name and department. Scanning the same card again says "Already checked in".',
@@ -860,6 +909,7 @@ export const TEST_PLAN: Part[] = [
           },
           {
             id: 's-desk-find',
+            must: true,
             rev: 3,
             do: 'Find someone by name, by department (type CORES), and from the Whole list tab.',
             expect:
@@ -885,6 +935,7 @@ export const TEST_PLAN: Part[] = [
           },
           {
             id: 's-desk-offline',
+            must: true,
             do: 'With the Desk page open on a phone, switch on airplane mode (or turn Wi-Fi off), then check in someone by name from the Whole list. Switch the connection back on.',
             expect:
               'An amber bar says "No connection" and the check in is saved on the device ("1 check in saved"). When the connection returns it sends itself, the bar goes, and Headcount shows the person. Do not reload the page while offline.',
@@ -902,6 +953,7 @@ export const TEST_PLAN: Part[] = [
           },
           {
             id: 's-desk-kiosk',
+            must: true,
             rev: 3,
             do: '(Optional) On the Desk page open the kiosk: "Preview" on your own laptop, and "Open and lock this device" on the tablet. On the locked tablet, hold up a card; then type three letters of a name and pick the person; then try typing /admin.',
             expect:
@@ -918,7 +970,24 @@ export const TEST_PLAN: Part[] = [
         title: 'S6. The projector laptop',
         steps: [
           {
+            id: 's-screen-slides',
+            rev: 7,
+            do: 'On Big screen paste the PowerPoint embed link under Slides and press Save and show the slides, then choose another view.',
+            expect:
+              'The deck fills the projector from inside the portal, with no window switching. Any other view brings the portal back. A link that is not a PowerPoint, OneDrive, SharePoint or Google link is refused.',
+            links: [{ href: '/admin/big-screen', label: 'Big screen' }],
+          },
+          {
+            id: 's-screen-readable',
+            rev: 7,
+            do: 'Open the big screen on a 1080p and a 4K display (or a 4K projector) and look at every view.',
+            expect:
+              'Text is the same size relative to the screen on both. Nothing is too small to read from the back of the room.',
+            links: [{ href: '/admin/big-screen', label: 'Big screen' }],
+          },
+          {
             id: 's-screen-open',
+            must: true,
             do: 'On the laptop sign in as "screen", open /screen and press F11. Better: in Chrome or Edge install it as an app (menu, Save and share, Install this page as an app) and open the desktop icon. Using one laptop for both? Set the display to Extend, drag the screen window to the projector, then F11.',
             expect:
               'Full screen, with the D&I logo top left, a slowly moving blue glow, a faint honeycomb and a thin line that sweeps down now and then.',
@@ -933,6 +1002,7 @@ export const TEST_PLAN: Part[] = [
           },
           {
             id: 's-screen-views',
+            must: true,
             rev: 2,
             do: 'From the Big screen page show each view in turn: Welcome, Now and next, Arrivals, Countdown, Lucky draw, Photo wall, Questions, Poll, Leaderboard, Comments.',
             expect:
@@ -1005,6 +1075,7 @@ export const TEST_PLAN: Part[] = [
           },
           {
             id: 's-room-feedbackqr',
+            must: true,
             rev: 4,
             do: 'On Big screen choose Feedback QR (automatic), then pick another session.',
             expect:
@@ -1013,6 +1084,7 @@ export const TEST_PLAN: Part[] = [
           },
           {
             id: 's-room-livemove',
+            must: true,
             rev: 4,
             do: 'On Live control press "Start <next session> now", then "End ... now", then "Back to the clock".',
             expect:
@@ -1043,6 +1115,7 @@ export const TEST_PLAN: Part[] = [
           },
           {
             id: 's-room-podium',
+            must: true,
             rev: 3,
             do: 'On Big screen choose Podium reveal, pick Top 3, then press Reveal next until the winner shows. Try Top 5 and Top 10.',
             expect:
@@ -1085,6 +1158,7 @@ export const TEST_PLAN: Part[] = [
           },
           {
             id: 's-room-live',
+            must: true,
             do: 'Open Live control and set a countdown.',
             expect:
               'What is on, what is next and the room count are right. The countdown shows on the projector.',
@@ -1092,6 +1166,7 @@ export const TEST_PLAN: Part[] = [
           },
           {
             id: 's-room-announce',
+            must: true,
             rev: 2,
             do: 'On Announce, write a message, choose "Tapping it opens" (try the dropdown: every option is readable), keep When: Now, and press Post or schedule. Then "Send a test to this device", then Remove announcement.',
             expect:
@@ -1132,6 +1207,7 @@ export const TEST_PLAN: Part[] = [
           },
           {
             id: 's-room-draw',
+            must: true,
             rev: 2,
             do: 'On Lucky draw, draw one winner and then several. Mark one "Not here". Then Start over.',
             expect:
@@ -1238,6 +1314,7 @@ export const TEST_PLAN: Part[] = [
           },
           {
             id: 's-after-report',
+            must: true,
             do: 'On Reports, download the Excel report, open the PDF summary, and upload the Slido export.',
             expect:
               'The workbook has attendance, departments, feedback and the lucky draw. Department short names are in their own column.',
@@ -1283,6 +1360,7 @@ export const TEST_PLAN: Part[] = [
           },
           {
             id: 's-clean-allbutphotos',
+            must: true,
             rev: 2,
             do: 'After the last rehearsal, if you want to keep the rehearsal photos: on Admins, under Resets, type CLEAR and press "Clear everything except photos".',
             expect:
@@ -1298,6 +1376,7 @@ export const TEST_PLAN: Part[] = [
           },
           {
             id: 's-clean-final',
+            must: true,
             do: 'Look at the dashboard once more.',
             expect: 'Nothing under "Needs attention" that you did not expect.',
             links: [{ href: '/admin', label: 'Dashboard' }],

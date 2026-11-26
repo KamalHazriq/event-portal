@@ -15,6 +15,7 @@ import {
   clampPodiumStep,
   parsePodiumSize,
   podiumGroups,
+  safeSlidesUrl,
 } from './logic';
 
 describe('screen settings', () => {
@@ -138,5 +139,25 @@ describe('podium', () => {
     expect(clampPodiumStep(-2, 3)).toBe(0);
     expect(parsePodiumSize('7')).toBe(3);
     expect(parsePodiumSize('10')).toBe(10);
+  });
+});
+
+describe('safeSlidesUrl', () => {
+  it('accepts Microsoft and Google viewers over https, including a pasted embed snippet', () => {
+    expect(safeSlidesUrl('https://contoso.sharepoint.com/:p:/s/x/embed?a=1')).toBe(
+      'https://contoso.sharepoint.com/:p:/s/x/embed?a=1',
+    );
+    expect(
+      safeSlidesUrl(
+        '<iframe src="https://onedrive.live.com/embed?cid=1&amp;x=2" width="476"></iframe>',
+      ),
+    ).toBe('https://onedrive.live.com/embed?cid=1&x=2');
+  });
+
+  it('refuses anything else', () => {
+    expect(safeSlidesUrl('http://contoso.sharepoint.com/x')).toBeNull();
+    expect(safeSlidesUrl('https://evil.example/x')).toBeNull();
+    expect(safeSlidesUrl('javascript:alert(1)')).toBeNull();
+    expect(safeSlidesUrl('')).toBeNull();
   });
 });

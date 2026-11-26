@@ -59,13 +59,6 @@ env:
   #   value: ap-southeast-1
   #   availability: [RUNTIME]
 
-  # TESTING ONLY, until the event: lets the Test plan's test clock pretend a
-  # session is on (the ?now= part of an address). Remove these three lines
-  # before 14 December and roll out; the Ready check warns while it is on.
-  - variable: ALLOW_TIME_OVERRIDE
-    value: 'true'
-    availability: [RUNTIME]
-
   # The secretariat PIN for /admin.
   - variable: ADMIN_PIN
     secret: portal-admin-pin

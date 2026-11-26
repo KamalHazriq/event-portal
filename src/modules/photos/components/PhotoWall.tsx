@@ -90,7 +90,7 @@ function Tile({ slide, large = false }: { slide: Slide; large?: boolean }) {
       {slide.caption ? (
         <figcaption
           className={`absolute inset-x-0 bottom-0 truncate bg-gradient-to-t from-black/80 to-transparent px-[1vw] pt-[3vh] pb-[1vh] font-semibold text-white ${
-            large ? 'text-[clamp(1rem,1.8vw,2.6rem)]' : 'text-[clamp(0.7rem,1vw,1.4rem)]'
+            large ? 'text-[clamp(1rem,1.8vw,2.6rem)]' : 'text-[clamp(0.8rem,1.2vw,1.8rem)]'
           }`}
         >
           {slide.caption}
@@ -115,7 +115,7 @@ function usePage<T>(items: T[], size: number) {
 function PageCount({ page, pages }: { page: number; pages: number }) {
   if (pages <= 1) return null;
   return (
-    <p className="absolute right-[0.6vw] bottom-[0.6vw] z-10 rounded-full bg-black/60 px-[0.8vw] py-[0.3vh] text-[clamp(0.7rem,0.9vw,1.2rem)] tabular-nums text-white">
+    <p className="absolute right-[0.6vw] bottom-[0.6vw] z-10 rounded-full bg-black/60 px-[0.8vw] py-[0.3vh] text-[clamp(0.8rem,1.2vw,1.8rem)] tabular-nums text-white">
       {page + 1} / {pages}
     </p>
   );
@@ -195,7 +195,7 @@ function WallPhoto({ slide }: { slide: Slide }) {
         className="absolute inset-0 h-full w-full object-cover"
       />
       {slide.caption ? (
-        <figcaption className="absolute inset-x-0 bottom-0 truncate bg-gradient-to-t from-black/80 to-transparent px-[1vw] pt-[3vh] pb-[1vh] text-[clamp(0.7rem,1vw,1.4rem)] font-semibold text-white">
+        <figcaption className="absolute inset-x-0 bottom-0 truncate bg-gradient-to-t from-black/80 to-transparent px-[1vw] pt-[3vh] pb-[1vh] text-[clamp(0.8rem,1.2vw,1.8rem)] font-semibold text-white">
           {slide.caption}
         </figcaption>
       ) : null}

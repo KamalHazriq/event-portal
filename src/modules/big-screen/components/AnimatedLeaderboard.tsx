@@ -95,7 +95,7 @@ export function AnimatedPeople({ people }: { people: Person[] }) {
             <span className="block truncate text-[clamp(1rem,1.6vw,2.2rem)] font-bold text-ink">
               {row.name}
             </span>
-            <span className="block text-[clamp(0.8rem,1.05vw,1.4rem)] text-ink-soft">
+            <span className="block text-[clamp(0.9rem,1.25vw,1.8rem)] text-ink-soft">
               {row.department}
             </span>
           </span>

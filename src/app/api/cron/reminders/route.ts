@@ -2,6 +2,9 @@ import { timingSafeEqual } from 'node:crypto';
 
 import { NextResponse, type NextRequest } from 'next/server';
 
+import { getEventConfig } from '@/lib/config';
+import { resolveEventNow } from '@/lib/time';
+import { runFeedbackNudges } from '@/modules/announce/nudges';
 import { dispatchDueReminders } from '@/modules/reminders/dispatch';
 import { secretMatches } from '@/modules/reminders/logic';
 
@@ -20,5 +23,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Not allowed' }, { status: 401 });
   }
   const sent = await dispatchDueReminders();
-  return NextResponse.json({ ok: true, sent });
+  // The feedback reminders ride on the same minute, so they never depend on a screen being open.
+  const nudged = await runFeedbackNudges(
+    resolveEventNow({ timezone: getEventConfig().event.timezone }),
+  ).catch(() => 0);
+  return NextResponse.json({ ok: true, sent, nudged });
 }

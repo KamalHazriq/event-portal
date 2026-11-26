@@ -54,8 +54,9 @@ export default async function DeskPage({ searchParams }: { searchParams: SearchP
         <div className="mt-2 space-y-2 text-ink">
           <p>
             On a spare tablet, sign in here with the PIN, then open the kiosk. People hold up the
-            business card in their TNB app to the front camera and see a big welcome. Anyone it
-            cannot match is sent to this desk; it never shows other people&apos;s names.
+            business card in their TNB app to the tablet&apos;s back camera (it focuses better) and
+            see a big welcome. Anyone it cannot match is sent to this desk; it never shows other
+            people&apos;s names.
           </p>
           <p className="text-sm text-ink-soft">
             <strong className="text-ink">Preview</strong> opens it on this device and changes
