@@ -9,7 +9,7 @@ export type TabItem = { href: string; label: string; icon: IconName };
 
 /**
  * On a phone, the main pages as a bar along the bottom, all in reach of a
- * thumb and none hidden off the side of the screen. Hidden from a tablet up,
+ * thumb and none hidden off the side of the screen. Hidden from a laptop up,
  * where the menu in the header has room.
  */
 export function BottomTabs({ items }: { items: TabItem[] }) {
@@ -18,7 +18,7 @@ export function BottomTabs({ items }: { items: TabItem[] }) {
   return (
     <nav
       aria-label="Main"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-canvas/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden print:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-canvas/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden print:hidden"
     >
       <ul
         className="grid"
@@ -31,12 +31,14 @@ export function BottomTabs({ items }: { items: TabItem[] }) {
               <Link
                 href={item.href}
                 aria-current={active ? 'page' : undefined}
-                className={`flex min-h-14 flex-col items-center justify-center gap-0.5 px-1 text-[0.7rem] font-semibold no-underline ${
+                className={`flex h-full min-h-14 flex-col items-center justify-center gap-0.5 px-1 text-[0.7rem] font-semibold no-underline ${
                   active ? 'text-primary' : 'text-ink-soft hover:text-ink'
                 }`}
               >
                 <Icon name={item.icon} className="size-5" />
-                <span className="max-w-full truncate">{item.label}</span>
+                <span className="line-clamp-2 max-w-full text-center leading-tight">
+                  {item.label}
+                </span>
               </Link>
             </li>
           );

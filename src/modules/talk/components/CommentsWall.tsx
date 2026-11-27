@@ -5,6 +5,7 @@ import { LikeButton } from './LikeButton';
 import type { Comment } from '@/data/types';
 
 import { COMMENT_MESSAGES, MAX_COMMENT, publicComments } from '../logic';
+import { localClock } from '@/modules/reports/logic';
 
 /**
  * The comments and take aways on a talk. Plain forms, so it works with no
@@ -18,6 +19,7 @@ export function CommentsWall({
   nowParam,
   deviceId = null,
   signedInAs = null,
+  timezone,
 }: {
   sessionId: string;
   comments: Comment[];
@@ -28,6 +30,8 @@ export function CommentsWall({
   deviceId?: string | null;
   /** The name comments are posted under. Null: not signed in yet. */
   signedInAs?: string | null;
+  /** The event's time zone, for the time under each comment. */
+  timezone?: string;
 }) {
   const mine = deviceId
     ? comments.filter((c) => c.deviceId === deviceId && c.status === 'pending')
@@ -70,7 +74,14 @@ export function CommentsWall({
               ) : null}
               <p className="text-ink">{c.text}</p>
               <div className="mt-2 flex items-center justify-between gap-2">
-                <span className="text-sm text-ink-soft">{c.name}</span>
+                <span className="text-sm text-ink-soft">
+                  {c.name}
+                  {timezone && c.createdAt ? (
+                    <time dateTime={c.createdAt} className="ml-2 text-xs">
+                      {localClock(c.createdAt, timezone)}
+                    </time>
+                  ) : null}
+                </span>
                 <LikeButton
                   sessionId={sessionId}
                   commentId={c.id}

@@ -57,9 +57,9 @@ export default async function CommentsPage({ searchParams }: { searchParams: Sea
   const suggested = sessions.filter((s) => live.some((l) => l.id === s.id) || s.id === nextUp?.id);
 
   const rawTab = one(params.status);
-  const tab = (TABS as string[]).includes(rawTab ?? '')
+  const askedTab = (TABS as string[]).includes(rawTab ?? '')
     ? (rawTab as CommentStatus | 'all')
-    : 'pending';
+    : null;
 
   const data = getData();
   const [all, totals, screenReactions, approvalRaw] = await Promise.all([
@@ -73,6 +73,8 @@ export default async function CommentsPage({ searchParams }: { searchParams: Sea
   const reactionsOnScreen = screenReactions !== 'off';
   const counts = { pending: 0, approved: 0, hidden: 0 };
   for (const c of all) counts[c.status] += 1;
+  // Opens where the work is: Waiting when anything waits, else what is showing.
+  const tab = askedTab ?? (counts.pending > 0 || approvalOn ? 'pending' : 'approved');
   const shown = rankComments(all.filter((c) => tab === 'all' || c.status === tab));
   const link = (status: string) => `/admin/comments?session=${session?.id ?? ''}&status=${status}`;
   const titleOf = new Map(sessions.map((s) => [s.id, `${s.dayLabel}, ${s.start}: ${s.title}`]));

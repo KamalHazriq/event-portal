@@ -41,6 +41,25 @@ export function proxy(request: NextRequest) {
   }
 
   const response = passGate(request);
+  // The pretend time in the address, passed on so layouts can follow it too.
+  // Only read where test mode and the override allow (src/lib/test-clock-server.ts).
+  const now = request.nextUrl.searchParams.get('now');
+  if (
+    now &&
+    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(now) &&
+    response.headers.get('x-middleware-next')
+  ) {
+    const forwarded = new Headers(request.headers);
+    forwarded.set('x-ep-now', now);
+    const next = NextResponse.next({ request: { headers: forwarded } });
+    response.cookies.getAll().forEach((c) => next.cookies.set(c));
+    return withKiosk(request, next);
+  }
+  return withKiosk(request, response);
+}
+
+function withKiosk(request: NextRequest, response: NextResponse): NextResponse {
+  const { pathname } = request.nextUrl;
   // Only /kiosk?lock=1 locks; plain /kiosk is a preview.
   if (kioskLockRequested(pathname, request.nextUrl.searchParams)) {
     response.cookies.set(KIOSK_COOKIE, '1', {

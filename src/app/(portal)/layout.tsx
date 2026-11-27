@@ -25,7 +25,7 @@ export default async function PortalLayout({ children }: { children: React.React
       // overflow-x: clip lets the home page's hero run edge to edge without
       // ever making the page scroll sideways.
       // pb-16: room at the foot on a phone for the bottom tab bar.
-      <div className="flex min-h-dvh w-full flex-col overflow-x-clip pb-16 md:pb-0">
+      <div className="flex min-h-dvh w-full flex-col overflow-x-clip pb-16 lg:pb-0">
         <OfflineSupport />
         <ConnectionBanner />
         <NameGate />

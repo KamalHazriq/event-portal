@@ -40,7 +40,15 @@ export default async function InsightsPage({ searchParams }: { searchParams: Sea
   const phase = eventPhase(config, now);
   const alerts = buildAlerts(input);
   const days = checkInDays(config);
-  const day = resolveCheckInDay(days, now, typeof params.day === 'string' ? params.day : null);
+  // Unless a day is picked: today, but if today has no check ins yet, the
+  // latest day that does (so testing on Day 2 does not open on an empty Day 1).
+  const asked = typeof params.day === 'string' ? params.day : null;
+  const today = resolveCheckInDay(days, now, asked);
+  const withData = [...days].reverse().find((d) => input.checkIns.some((c) => c.dayId === d.id));
+  const day =
+    asked || !today || input.checkIns.some((c) => c.dayId === today.id) || !withData
+      ? today
+      : withData;
   const guests = input.attendees.filter((a) => !a.isSecretariat);
   const guestIds = new Set(guests.map((g) => g.id));
   const cameAny = new Set(
@@ -137,6 +145,9 @@ export default async function InsightsPage({ searchParams }: { searchParams: Sea
       </section>
 
       <section aria-label="Attendance each day">
+        <p className="mb-2 text-sm text-ink-soft">
+          Guests only: the secretariat are left out here. The Desk and Headcount count everyone.
+        </p>
         <ul className="grid gap-2 sm:grid-cols-3">
           {perDay.map((d) => {
             const percent = guests.length ? Math.round((d.came / guests.length) * 100) : 0;
@@ -165,10 +176,7 @@ export default async function InsightsPage({ searchParams }: { searchParams: Sea
                     style={{ width: `${percent}%` }}
                   />
                 </div>
-                <p className="mt-1 text-xs text-ink-soft">
-                  {percent}% of guests. The secretariat are left out here; the Desk and Headcount
-                  count everyone.
-                </p>
+                <p className="mt-1 text-xs text-ink-soft">{percent}% of guests</p>
               </li>
             );
           })}

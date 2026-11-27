@@ -55,6 +55,18 @@ export function GiftSpinner({
 
   useEffect(() => () => window.clearTimeout(timer.current), []);
 
+  // A real dialog for keyboard and screen reader users: focus moves in, stays
+  // in, and goes back to where it was when the dialog closes.
+  const box = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const before = document.activeElement as HTMLElement | null;
+    return () => before?.focus?.();
+  }, []);
+  useEffect(() => {
+    // On opening, and again once the spin lands (the buttons change).
+    box.current?.querySelector<HTMLElement>('button:not([disabled])')?.focus();
+  }, [won]);
+
   const spin = async () => {
     if (started.current) return;
     started.current = true;
@@ -133,12 +145,39 @@ export function GiftSpinner({
 
   return (
     <div
+      ref={box}
       role="dialog"
       aria-modal="true"
       aria-label={`Door gift for ${name || 'a guest'}`}
+      onKeyDown={(event) => {
+        if (event.key === 'Escape' && !spinning) {
+          event.preventDefault();
+          if (won) onClose({ item: won, collected: handed });
+          else onClose();
+          return;
+        }
+        if (event.key !== 'Tab') return;
+        const items = [
+          ...(box.current?.querySelectorAll<HTMLElement>('button:not([disabled]), a[href]') ?? []),
+        ];
+        if (items.length === 0) return;
+        const first = items[0]!;
+        const last = items[items.length - 1]!;
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      }}
       className="fixed inset-0 z-[90] flex items-center justify-center overflow-y-auto bg-canvas/95 p-4"
     >
       {celebrate ? <Confetti /> : null}
+      {/* Always in the page, so the result is read out when it changes. */}
+      <p className="sr-only" aria-live="polite">
+        {won ? `Your door gift is the ${won.name}.` : spinning ? 'Spinning.' : ''}
+      </p>
       <div className="relative w-full max-w-xl rounded-2xl border-2 border-accent bg-surface p-5 text-center shadow-2xl sm:p-8">
         <p className="eyebrow">Door gift</p>
         <h2 className="mt-1 text-2xl font-bold leading-tight text-ink sm:text-3xl">{fullName}</h2>
@@ -177,9 +216,7 @@ export function GiftSpinner({
 
         {won ? (
           <div className="mt-5">
-            <p className="text-2xl font-bold text-ink" role="status">
-              Your door gift is the {won.name}!
-            </p>
+            <p className="text-2xl font-bold text-ink">Your door gift is the {won.name}!</p>
             {kiosk ? (
               <p className="mt-1 text-ink-soft">Collect it from the secretariat at the desk.</p>
             ) : null}

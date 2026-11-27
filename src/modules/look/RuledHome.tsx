@@ -304,108 +304,139 @@ export async function RuledHome({
         <h2 id="now-next-h" className="sr-only">
           On now and next
         </h2>
-        <div className="rounded-lg border border-line bg-surface">
-          <div className="flex items-center justify-between border-b border-line px-5 py-3 text-[13px] text-ink-soft">
-            <span>
-              <span className="font-semibold text-ink">
-                {nowAndNext.today ? 'Live' : 'Coming up'}
-              </span>
-              {focusDay ? ` · ${focusDay.label}, ${formatLongDate(focusDay.date, tz)}` : ''}
-            </span>
-            <Link
-              href={`/agenda${linkSuffix}`}
-              className="shrink-0 whitespace-nowrap pl-3 font-semibold text-accent"
-            >
-              Full agenda
-            </Link>
-          </div>
-          <div className="grid md:grid-cols-[1.15fr_1fr_1fr] md:divide-x md:divide-line">
-            <PanelCell
-              tag={live ? 'Happening now' : next ? 'First up' : 'Nothing scheduled'}
-              live={Boolean(live)}
-              session={live ?? next}
-              linkSuffix={linkSuffix}
-            >
-              {live && liveTotals ? (
-                <Link
-                  href={`/session/${live.id}${linkSuffix}`}
-                  aria-label="React live on the session page"
-                  className="mt-4 grid grid-cols-4 gap-2 no-underline"
-                >
-                  {REACTIONS.map((r) => (
-                    <span
-                      key={r.kind}
-                      className="rounded-lg border border-line py-2 text-center text-xl"
-                    >
-                      <span aria-hidden="true">{r.emoji}</span>
-                      <span className="block text-xs tabular-nums text-ink-soft">
-                        {liveTotals[r.kind]}
-                      </span>
-                    </span>
-                  ))}
+        {nowAndNext.afterEventEnds ? (
+          // After the last session: a proper close, not an empty schedule.
+          <div className="rounded-lg border border-line bg-surface p-6">
+            <p className="text-xs font-bold uppercase tracking-[0.12em] text-accent">
+              That is a wrap
+            </p>
+            <p className="mt-2 font-display text-2xl font-medium leading-tight text-ink">
+              Thank you for coming to {event.shortName}
+            </p>
+            <p className="mt-2 text-ink-soft">
+              The slides and take aways stay here, with the photos from the {config.days.length}{' '}
+              days.
+            </p>
+            <div className="mt-4 flex flex-wrap gap-3">
+              {eventFeedbackOpen ? (
+                <Link href={eventFeedbackHref} className={`${BUTTON} bg-primary text-on-primary`}>
+                  Tell us how it went
                 </Link>
               ) : null}
-              <div className="mt-4 flex flex-wrap items-center gap-2">
-                {live?.slidoLink && slido ? (
-                  <a
-                    href={slido}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex min-h-11 items-center rounded-lg bg-primary px-3.5 text-sm font-semibold text-on-primary no-underline"
-                  >
-                    Ask on Slido
-                  </a>
-                ) : null}
-                {live?.slidoLink && slidoCode ? (
-                  <span className="rounded-full border border-line px-2.5 py-1 text-[13px] text-ink-soft">
-                    Code {slidoCode}
-                  </span>
-                ) : null}
-                {pollOpen ? (
-                  <Link
-                    href="/poll"
-                    className="inline-flex min-h-11 items-center rounded-lg bg-primary px-3.5 text-sm font-semibold text-on-primary no-underline"
-                  >
-                    Answer the poll
-                  </Link>
-                ) : null}
-              </div>
-            </PanelCell>
-            <PanelCell
-              tag={
-                live && next
-                  ? nowAndNext.minutesUntilNext !== null
-                    ? `Next, in ${nowAndNext.minutesUntilNext} minutes`
-                    : 'Next'
-                  : 'Then'
-              }
-              session={live ? next : (later[0] ?? null)}
-              linkSuffix={linkSuffix}
-            />
-            <div className="border-t border-line p-6 md:border-t-0">
-              <p className="text-xs font-bold uppercase tracking-[0.12em] text-ink-soft">
-                Later {nowAndNext.today ? 'today' : `on ${focusDay?.label ?? 'the day'}`}
-              </p>
-              {later.length === 0 ? (
-                <p className="mt-3 text-sm text-ink-soft">That is all for the day.</p>
-              ) : (
-                <ul className="mt-2">
-                  {(live ? later : later.slice(1)).map((s) => (
-                    <li key={s.id} className="border-t border-line first:border-t-0">
-                      <Link
-                        href={`/session/${s.id}${linkSuffix}`}
-                        className="grid grid-cols-[4.25rem_1fr] gap-2 py-2.5 text-[15px] text-ink no-underline hover:text-primary"
-                      >
-                        <span className="tabular-nums text-ink-soft">{formatClock(s.start)}</span>
-                        <span>{s.title}</span>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              )}
+              {features.photoWall ? (
+                <Link href="/photos" className={`${BUTTON} border border-line text-ink`}>
+                  See the photos
+                </Link>
+              ) : null}
+              <Link href="/resources" className={`${BUTTON} border border-line text-ink`}>
+                Slides and resources
+              </Link>
             </div>
           </div>
-        </div>
+        ) : (
+          <div className="rounded-lg border border-line bg-surface">
+            <div className="flex items-center justify-between border-b border-line px-5 py-3 text-[13px] text-ink-soft">
+              <span>
+                <span className="font-semibold text-ink">
+                  {nowAndNext.today ? 'Live' : 'Coming up'}
+                </span>
+                {focusDay ? ` · ${focusDay.label}, ${formatLongDate(focusDay.date, tz)}` : ''}
+              </span>
+              <Link
+                href={`/agenda${linkSuffix}`}
+                className="shrink-0 whitespace-nowrap pl-3 font-semibold text-accent"
+              >
+                Full agenda
+              </Link>
+            </div>
+            <div className="grid md:grid-cols-[1.15fr_1fr_1fr] md:divide-x md:divide-line">
+              <PanelCell
+                tag={live ? 'Happening now' : next ? 'First up' : 'Nothing scheduled'}
+                live={Boolean(live)}
+                session={live ?? next}
+                linkSuffix={linkSuffix}
+              >
+                {live && liveTotals ? (
+                  <Link
+                    href={`/session/${live.id}${linkSuffix}`}
+                    aria-label="React live on the session page"
+                    className="mt-4 grid grid-cols-4 gap-2 no-underline"
+                  >
+                    {REACTIONS.map((r) => (
+                      <span
+                        key={r.kind}
+                        className="rounded-lg border border-line py-2 text-center text-xl"
+                      >
+                        <span aria-hidden="true">{r.emoji}</span>
+                        <span className="block text-xs tabular-nums text-ink-soft">
+                          {liveTotals[r.kind]}
+                        </span>
+                      </span>
+                    ))}
+                  </Link>
+                ) : null}
+                <div className="mt-4 flex flex-wrap items-center gap-2">
+                  {live?.slidoLink && slido ? (
+                    <a
+                      href={slido}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex min-h-11 items-center rounded-lg bg-primary px-3.5 text-sm font-semibold text-on-primary no-underline"
+                    >
+                      Ask on Slido
+                    </a>
+                  ) : null}
+                  {live?.slidoLink && slidoCode ? (
+                    <span className="rounded-full border border-line px-2.5 py-1 text-[13px] text-ink-soft">
+                      Code {slidoCode}
+                    </span>
+                  ) : null}
+                  {pollOpen ? (
+                    <Link
+                      href="/poll"
+                      className="inline-flex min-h-11 items-center rounded-lg bg-primary px-3.5 text-sm font-semibold text-on-primary no-underline"
+                    >
+                      Answer the poll
+                    </Link>
+                  ) : null}
+                </div>
+              </PanelCell>
+              <PanelCell
+                tag={
+                  live && next
+                    ? nowAndNext.minutesUntilNext !== null
+                      ? `Next, in ${nowAndNext.minutesUntilNext} minutes`
+                      : 'Next'
+                    : 'Then'
+                }
+                session={live ? next : (later[0] ?? null)}
+                linkSuffix={linkSuffix}
+              />
+              <div className="border-t border-line p-6 md:border-t-0">
+                <p className="text-xs font-bold uppercase tracking-[0.12em] text-ink-soft">
+                  Later {nowAndNext.today ? 'today' : `on ${focusDay?.label ?? 'the day'}`}
+                </p>
+                {later.length === 0 ? (
+                  <p className="mt-3 text-sm text-ink-soft">That is all for the day.</p>
+                ) : (
+                  <ul className="mt-2">
+                    {(live ? later : later.slice(1)).map((s) => (
+                      <li key={s.id} className="border-t border-line first:border-t-0">
+                        <Link
+                          href={`/session/${s.id}${linkSuffix}`}
+                          className="grid grid-cols-[4.25rem_1fr] gap-2 py-2.5 text-[15px] text-ink no-underline hover:text-primary"
+                        >
+                          <span className="tabular-nums text-ink-soft">{formatClock(s.start)}</span>
+                          <span>{s.title}</span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </section>
 
       {/* A poll is open: the first thing to see, with one tap to vote. */}

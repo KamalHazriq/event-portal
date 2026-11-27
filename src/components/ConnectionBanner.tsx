@@ -64,7 +64,7 @@ export function ConnectionBanner() {
     <div
       role="status"
       aria-live="polite"
-      className={`fixed inset-x-3 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-50 mx-auto max-w-xl md:bottom-3 rounded-xl border px-4 py-3 text-sm font-semibold shadow-lg print:hidden ${
+      className={`fixed inset-x-3 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-50 mx-auto max-w-xl lg:bottom-3 rounded-xl border px-4 py-3 text-sm font-semibold shadow-lg print:hidden ${
         offline ? 'border-warning bg-canvas text-ink' : 'border-success bg-canvas text-success'
       }`}
     >

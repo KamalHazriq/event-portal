@@ -54,40 +54,52 @@ export default async function LeaderboardPage() {
           </p>
         ) : (
           <ol className="stagger space-y-2">
-            {top.map((row) => (
-              <li
-                key={row.attendeeId}
-                className={`flex items-center gap-3 rounded-xl border p-3 ${
-                  row.attendeeId === me?.id
-                    ? 'border-primary bg-primary/10'
-                    : 'border-line bg-surface'
-                }`}
-              >
-                <span
-                  className={`flex size-10 shrink-0 items-center justify-center rounded-full font-bold tabular-nums ${
-                    row.rank <= 3 ? 'bg-primary text-on-primary' : 'bg-muted text-ink'
+            {top.map((row) => {
+              // A shared place reads "=5", which says "tied" without a badge on every row.
+              const tied = board.people.filter((r) => r.rank === row.rank).length > 1;
+              const isMe = row.attendeeId === me?.id;
+              return (
+                <li
+                  key={row.attendeeId}
+                  aria-current={isMe ? 'true' : undefined}
+                  className={`flex items-center gap-3 rounded-xl border p-3 ${
+                    row.attendeeId === me?.id
+                      ? 'border-primary bg-primary/10'
+                      : 'border-line bg-surface'
                   }`}
                 >
-                  {row.rank}
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate font-bold text-ink">
-                    {row.name}
-                    {board.people.filter((r) => r.rank === row.rank).length > 1 ? (
-                      <span className="ml-2 rounded bg-muted px-1.5 py-0.5 align-middle text-xs font-semibold text-ink-soft">
-                        tied
-                      </span>
-                    ) : null}
+                  <span
+                    className={`flex size-10 shrink-0 items-center justify-center rounded-full font-bold tabular-nums ${
+                      row.rank <= 3 ? 'bg-primary text-on-primary' : 'bg-muted text-ink'
+                    }`}
+                  >
+                    <span aria-hidden="true">
+                      {tied ? '=' : ''}
+                      {row.rank}
+                    </span>
+                    <span className="sr-only">
+                      {tied ? `Joint number ${row.rank}` : `Number ${row.rank}`}
+                    </span>
                   </span>
-                  <span className="block text-sm text-ink-soft">
-                    {shortDepartment(config, row.department)}
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate font-bold text-ink">
+                      {row.name}
+                      {isMe ? (
+                        <span className="ml-2 rounded bg-primary px-1.5 py-0.5 align-middle text-xs font-bold text-on-primary">
+                          You
+                        </span>
+                      ) : null}
+                    </span>
+                    <span className="block text-sm text-ink-soft">
+                      {shortDepartment(config, row.department)}
+                    </span>
                   </span>
-                </span>
-                <span className="shrink-0 text-lg font-bold tabular-nums text-ink">
-                  {row.points}
-                </span>
-              </li>
-            ))}
+                  <span className="shrink-0 text-lg font-bold tabular-nums text-ink">
+                    {row.points}
+                  </span>
+                </li>
+              );
+            })}
           </ol>
         )}
         {mine && !mineShownAlready ? (

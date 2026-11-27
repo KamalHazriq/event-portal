@@ -125,6 +125,7 @@ export default async function SessionPage({ params, searchParams }: PageProps) {
   const commentsWall =
     config.features.comments && interactive ? (
       <CommentsWall
+        timezone={config.event.timezone}
         sessionId={session.id}
         comments={comments}
         likedIds={likedIds}

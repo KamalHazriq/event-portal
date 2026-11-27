@@ -68,11 +68,17 @@ export async function RuledHeader({ config, mark }: { config: EventConfig; mark:
   return (
     <>
       <section aria-label="Today" className="border-b border-line text-sm">
-        <p className={`${RULED_CONTAINER} py-2.5 text-center text-ink`}>
-          <strong className="font-semibold">{line.strong}</strong> <span>{line.text}</span>{' '}
+        {/* At most two lines on a phone, with the link always showing, so large text
+            never turns this strip into the whole first screen. */}
+        <p
+          className={`${RULED_CONTAINER} flex items-center justify-center gap-x-2 py-2.5 text-center text-ink`}
+        >
+          <span className="line-clamp-2 min-w-0 sm:line-clamp-none">
+            <strong className="font-semibold">{line.strong}</strong> <span>{line.text}</span>
+          </span>
           <Link
             href={line.link.href}
-            className="whitespace-nowrap font-semibold text-accent underline decoration-1 underline-offset-[3px]"
+            className="shrink-0 whitespace-nowrap font-semibold text-accent underline decoration-1 underline-offset-[3px]"
           >
             {line.link.label}
           </Link>
@@ -81,23 +87,24 @@ export async function RuledHeader({ config, mark }: { config: EventConfig; mark:
       <header className="sticky top-0 z-40 bg-canvas pt-3">
         <div className={RULED_CONTAINER}>
           <div className="flex min-h-14 items-center gap-4 rounded-lg border border-line bg-surface py-2 pl-4 pr-2">
-            <Link href="/" className="flex shrink-0 items-center gap-2.5 no-underline">
+            {/* The name gives way (truncates) before the Slido button ever does. */}
+            <Link href="/" className="flex min-w-0 items-center gap-2.5 no-underline">
               {mark ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={mark} alt="" className="h-7 w-auto" />
+                <img src={mark} alt="" className="h-7 w-auto shrink-0" />
               ) : null}
-              <span className="font-display text-lg font-semibold tracking-tight text-ink">
+              <span className="truncate font-display text-lg font-semibold tracking-tight text-ink">
                 {config.event.shortName}
               </span>
             </Link>
-            <div className="hidden min-w-0 flex-1 md:block">
+            <div className="hidden min-w-0 flex-1 lg:block">
               <SiteNav items={items} />
             </div>
             <div className="ml-auto flex shrink-0 items-center gap-2">
               {config.features.leaderboard ? (
                 <Link
                   href="/me"
-                  className="hidden min-h-11 items-center rounded-lg border border-line px-3.5 text-sm font-semibold text-ink no-underline sm:inline-flex"
+                  className="hidden min-h-11 items-center rounded-lg border border-line px-3.5 text-sm font-semibold text-ink no-underline lg:inline-flex"
                 >
                   My points
                 </Link>
@@ -123,7 +130,7 @@ export async function RuledHeader({ config, mark }: { config: EventConfig; mark:
             </div>
           </div>
         </div>
-        <div className="mt-3 border-b border-line md:hidden" />
+        <div className="mt-3 border-b border-line lg:hidden" />
       </header>
       <BottomTabs items={portalTabItems(config)} />
     </>

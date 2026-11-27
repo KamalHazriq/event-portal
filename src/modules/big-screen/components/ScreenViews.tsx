@@ -790,9 +790,12 @@ export function CommentsView({
                 </p>
                 <p className="mt-[0.6vh] flex justify-between text-[clamp(0.8rem,1.2vw,1.6rem)] text-ink-soft">
                   <span>{c.name}</span>
-                  <span className="inline-flex items-center gap-[0.4vw] tabular-nums">
-                    <Icon name="thumb" className="size-[1em]" /> {c.likes}
-                  </span>
+                  {/* Only once someone has liked it: a row of zeros is noise. */}
+                  {c.likes > 0 ? (
+                    <span className="inline-flex items-center gap-[0.4vw] tabular-nums">
+                      <Icon name="thumb" className="size-[1em]" /> {c.likes}
+                    </span>
+                  ) : null}
                 </p>
               </li>
             ))}
