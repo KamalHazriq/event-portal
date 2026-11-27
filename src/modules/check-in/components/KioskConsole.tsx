@@ -393,7 +393,8 @@ export function KioskConsole({
         ) : null}
         {cameraError ? (
           <p role="alert" className="mt-2 font-semibold text-warning">
-            {cameraError}
+            The camera is not available right now. Tap Start the camera to try again, type your name
+            below, or ask at the registration desk.
           </p>
         ) : null}
       </div>

@@ -13,7 +13,12 @@ import { LIMITS, rateLimit } from '@/lib/rate-limit';
 import { findByName } from '@/modules/points/logic';
 import { CAPS, POINT_LABELS, POINTS, type PointKind } from '@/modules/points/logic';
 import { formatClock, formatShortDate } from '@/lib/time';
-import { attendanceRules, currentPlayer, loadScoreboard } from '@/modules/points/server';
+import {
+  attendanceRules,
+  currentPlayer,
+  earlyInstantFor,
+  loadScoreboard,
+} from '@/modules/points/server';
 import { AlertsOptIn } from '@/modules/announce/components/AlertsOptIn';
 import { InstallApp } from '@/components/InstallApp';
 import { FormPending } from '@/components/FormPending';
@@ -63,6 +68,23 @@ export default async function MyPointsPage({
   const me = await currentPlayer();
   const board = me ? await loadScoreboard() : null;
   const rules = await attendanceRules();
+  // This person's own scan each day, early or not, for the arrival card.
+  const myArrivals = me
+    ? await Promise.all(
+        rules.map(async (rule) => {
+          const scan = (
+            await getData()
+              .checkIns.listByDay(rule.dayId)
+              .catch(() => [])
+          ).find((c) => c.attendeeId === me.id);
+          if (!scan) return 'none' as const;
+          const before = await earlyInstantFor(rule.dayId);
+          return before && Date.parse(scan.at) < before.getTime()
+            ? ('early' as const)
+            : ('late' as const);
+        }),
+      )
+    : null;
   const score = me ? board?.scores.get(me.id) : undefined;
   const row = me ? board?.people.find((p) => p.attendeeId === me.id) : undefined;
 
@@ -84,8 +106,11 @@ export default async function MyPointsPage({
   const taken = !me && state === 'taken' && who ? await data.attendees.get(who.slice(0, 64)) : null;
 
   // Only what is switched on is worth offering.
+  // Arriving has its own card above, day by day, so it is not listed twice.
   const offered = EARN_ORDER.filter(
     (kind) =>
+      kind !== 'checkIn' &&
+      kind !== 'onTime' &&
       (kind !== 'feedback' || config.features.feedback) &&
       (kind !== 'poll' || config.features.polls) &&
       (kind !== 'photo' || config.features.photoWall) &&
@@ -318,10 +343,29 @@ export default async function MyPointsPage({
           Scan in at the registration desk or the kiosk each day. Each day counts on its own.
         </p>
         <ul className="mt-3 space-y-2">
-          {rules.map((rule) => (
+          {rules.map((rule, i) => (
             <li key={rule.dayId} className="rounded-xl border border-line bg-canvas p-3">
-              <p className="font-bold text-ink">
-                {rule.label}, {formatShortDate(rule.date, config.event.timezone)}
+              <p className="flex flex-wrap items-center justify-between gap-2 font-bold text-ink">
+                <span>
+                  {rule.label}, {formatShortDate(rule.date, config.event.timezone)}
+                </span>
+                {myArrivals ? (
+                  <span
+                    className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${
+                      myArrivals[i] === 'early'
+                        ? 'bg-success/15 text-success'
+                        : myArrivals[i] === 'late'
+                          ? 'bg-primary/15 text-primary'
+                          : 'bg-muted text-ink-soft'
+                    }`}
+                  >
+                    {myArrivals[i] === 'early'
+                      ? `Arrived early: +${POINTS.checkIn + POINTS.onTime}`
+                      : myArrivals[i] === 'late'
+                        ? `Arrived: +${POINTS.checkIn}`
+                        : 'Not scanned yet'}
+                  </span>
+                ) : null}
               </p>
               <p className="mt-1 text-sm text-ink-soft">
                 Before <strong className="text-ink">{formatClock(rule.earlyBy.slice(-5))}</strong>:{' '}
@@ -335,7 +379,7 @@ export default async function MyPointsPage({
 
       <section aria-labelledby="earn">
         <h2 id="earn" className="text-lg font-bold text-ink">
-          How to earn points
+          More ways to earn points
         </h2>
         <p className="mt-1 text-sm text-ink-soft">
           Points are added by themselves from what you do in the portal. The leaderboard ranks

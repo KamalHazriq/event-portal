@@ -208,7 +208,9 @@ export async function RuledHome({
         <div aria-hidden="true" className="studio-only">
           <StudioGem className="absolute right-0 top-6 hidden w-[260px] md:block lg:right-16 lg:top-10 lg:w-[300px]" />
         </div>
-        <div className={`${RULED_CONTAINER} relative pb-12 pt-16 lg:pb-[88px] lg:pt-24`}>
+        <div
+          className={`${RULED_CONTAINER} relative pb-10 pt-10 sm:pb-12 sm:pt-16 lg:pb-[88px] lg:pt-24`}
+        >
           <p className="studio-only mb-4">
             <span className="code-tag">
               <b>
@@ -238,7 +240,7 @@ export async function RuledHome({
               {event.tagline}
             </p>
           ) : null}
-          <div className="mt-9 flex flex-wrap gap-3">
+          <div className="mt-7 flex flex-wrap gap-3 sm:mt-9">
             <Link
               href={`/agenda${focusDay ? `?day=${focusDay.id}${nowLinkSuffix(now, '&')}` : linkSuffix}`}
               className={`${BUTTON} bg-primary text-on-primary`}
@@ -254,7 +256,8 @@ export async function RuledHome({
               </Link>
             ) : null}
           </div>
-          <p className="mt-7 flex flex-wrap gap-x-6 gap-y-2 text-sm text-[#C7D8EE]">
+          {/* Repeats the dates line above: left off on a phone, so what is on now comes sooner. */}
+          <p className="mt-7 hidden flex-wrap gap-x-6 gap-y-2 text-sm text-[#C7D8EE] sm:flex">
             {[event.venue, dates, branding.organisationName].filter(Boolean).map((item) => (
               <span key={item} className="inline-flex items-center gap-2">
                 <span aria-hidden="true" className="size-1.5 rounded-full bg-accent" />
@@ -268,7 +271,7 @@ export async function RuledHome({
             alt=""
             width={1000}
             height={318}
-            className="mt-9 h-auto w-56 lg:absolute lg:bottom-[88px] lg:right-6 lg:mt-0 lg:w-[300px]"
+            className="mt-9 hidden h-auto w-56 sm:block lg:absolute lg:bottom-[88px] lg:right-6 lg:mt-0 lg:w-[300px]"
           />
         </div>
       </section>
@@ -296,7 +299,11 @@ export async function RuledHome({
       </div>
 
       {/* The product: what is on now, next and later, framed. */}
-      <section aria-label="On now and next" className="mt-12">
+      <section aria-labelledby="now-next-h" className="mt-12">
+        {/* For screen readers, so the session titles below sit under a heading. */}
+        <h2 id="now-next-h" className="sr-only">
+          On now and next
+        </h2>
         <div className="rounded-lg border border-line bg-surface">
           <div className="flex items-center justify-between border-b border-line px-5 py-3 text-[13px] text-ink-soft">
             <span>
@@ -414,7 +421,7 @@ export async function RuledHome({
             <Icon name="vote" className="size-6" />
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block text-xs font-bold uppercase tracking-[0.18em] opacity-90">
+            <span className="block text-xs font-bold uppercase tracking-[0.18em]">
               A poll is open
             </span>
             <span className="mt-0.5 block text-lg font-bold leading-snug">{poll.question}</span>

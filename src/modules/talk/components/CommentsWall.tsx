@@ -114,8 +114,12 @@ export function CommentsWall({
           required
           maxLength={MAX_COMMENT}
           rows={3}
+          aria-describedby="comment-hint"
           className="block w-full rounded-lg border border-line bg-background p-3 text-ink focus:border-primary focus:outline-none"
         />
+        <p id="comment-hint" className="text-xs text-ink-soft">
+          Up to {MAX_COMMENT} characters.
+        </p>
         <button
           type="submit"
           className="btn-primary min-h-11 rounded-lg bg-primary px-5 font-bold text-on-primary"

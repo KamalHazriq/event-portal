@@ -8,6 +8,7 @@ import { formatClock, formatShortDate, resolveEventNow } from '@/lib/time';
 import { announcement } from '@/modules/look/announce';
 import { buildAgenda, findNowAndNext } from '@/modules/schedule/logic';
 
+import { BottomTabs, type TabItem } from '../BottomTabs';
 import { SiteNav, type NavItem } from '../SiteNav';
 
 /** The page's container in the Ruled style: 1200 px of content, 24 px margins. */
@@ -22,6 +23,19 @@ export function portalNavItems(config: EventConfig): NavItem[] {
   }
   if (features.photoWall) items.push({ href: '/photos', label: 'Photos' });
   if (features.leaderboard) items.push({ href: '/leaderboard', label: 'Leaderboard' });
+  return items;
+}
+
+/** The phone's bottom bar: the main pages, each with an icon. My points stands in for the leaderboard. */
+export function portalTabItems(config: EventConfig): TabItem[] {
+  const { features } = config;
+  const items: TabItem[] = [{ href: '/', label: 'Home', icon: 'home' }];
+  if (features.schedule) items.push({ href: '/agenda', label: 'Agenda', icon: 'calendar' });
+  if (features.photoWall) items.push({ href: '/photos', label: 'Photos', icon: 'image' });
+  if (features.resources && config.resources.some((r) => !isPlaceholderUrl(r.url))) {
+    items.push({ href: '/resources', label: 'Resources', icon: 'folder' });
+  }
+  if (features.leaderboard) items.push({ href: '/me', label: 'My points', icon: 'medal' });
   return items;
 }
 
@@ -53,7 +67,7 @@ export async function RuledHeader({ config, mark }: { config: EventConfig; mark:
 
   return (
     <>
-      <div className="border-b border-line text-sm">
+      <section aria-label="Today" className="border-b border-line text-sm">
         <p className={`${RULED_CONTAINER} py-2.5 text-center text-ink`}>
           <strong className="font-semibold">{line.strong}</strong> <span>{line.text}</span>{' '}
           <Link
@@ -63,7 +77,7 @@ export async function RuledHeader({ config, mark }: { config: EventConfig; mark:
             {line.link.label}
           </Link>
         </p>
-      </div>
+      </section>
       <header className="sticky top-0 z-40 bg-canvas pt-3">
         <div className={RULED_CONTAINER}>
           <div className="flex min-h-14 items-center gap-4 rounded-lg border border-line bg-surface py-2 pl-4 pr-2">
@@ -108,12 +122,10 @@ export async function RuledHeader({ config, mark }: { config: EventConfig; mark:
               ) : null}
             </div>
           </div>
-          <div className="md:hidden">
-            <SiteNav items={items} />
-          </div>
         </div>
         <div className="mt-3 border-b border-line md:hidden" />
       </header>
+      <BottomTabs items={portalTabItems(config)} />
     </>
   );
 }
@@ -130,7 +142,6 @@ export function RuledFooter({ config }: { config: EventConfig }) {
   const takingPart = [
     ...(config.features.leaderboard ? [{ href: '/me', label: 'My points' }] : []),
     ...(config.features.photoWall ? [{ href: '/photos', label: 'Share a photo' }] : []),
-    ...(config.features.leaderboard ? [{ href: '/leaderboard', label: 'Leaderboard' }] : []),
   ];
   const help = [
     ...(config.info ? [{ href: '/info', label: config.info.title }] : []),

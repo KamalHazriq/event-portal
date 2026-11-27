@@ -53,13 +53,16 @@ export function SessionCard({
         ].join(' ')}
       >
         <div className={`flex flex-wrap items-center gap-2 ${starrable ? 'pr-10' : ''}`}>
-          <span className="font-mono text-sm font-semibold text-ink-soft lg:hidden">
-            {formatTimeRange(session.start, session.end)}
+          <span className="text-sm font-semibold tabular-nums text-ink-soft lg:hidden">
+            {formatTimeRange(session.start, session.end).replace(' to ', ' – ')}
           </span>
-          {/* Studio's code label: day and start time, like D1·1450. */}
-          <span className="code-tag studio-only">
-            <b>{`D${session.dayId.replace(/\D+/g, '') || '1'}`}</b>
-            {session.start.replace(':', '')}
+          {/* Studio's code label: day and start time, like D1·1450. Decoration, so not on a
+              phone, where it crowds the time and the title. */}
+          <span className="hidden sm:contents">
+            <span className="code-tag studio-only">
+              <b>{`D${session.dayId.replace(/\D+/g, '') || '1'}`}</b>
+              {session.start.replace(':', '')}
+            </span>
           </span>
           <TypeBadge type={session.type} />
           <StatusBadge status={status} />

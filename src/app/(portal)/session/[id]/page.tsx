@@ -144,7 +144,6 @@ export default async function SessionPage({ params, searchParams }: PageProps) {
         <Link
           href={`/agenda?day=${session.dayId}${nowLinkSuffix(now, '&')}`}
           className="nav-pill no-underline"
-          aria-label={`Back to ${session.dayLabel}`}
         >
           <NavChevron dir="back" />
           {session.dayLabel} agenda
@@ -226,11 +225,7 @@ export default async function SessionPage({ params, searchParams }: PageProps) {
         className="grid gap-3 border-t border-line pt-4 sm:grid-cols-2"
       >
         {previous ? (
-          <Link
-            href={`/session/${previous.id}${linkSuffix}`}
-            className="nav-step no-underline"
-            aria-label={`Previous: ${previous.title}`}
-          >
+          <Link href={`/session/${previous.id}${linkSuffix}`} className="nav-step no-underline">
             <NavChevron dir="back" />
             <span className="min-w-0">
               <span className="block text-xs font-semibold uppercase tracking-[0.12em] text-ink-soft">
@@ -246,7 +241,6 @@ export default async function SessionPage({ params, searchParams }: PageProps) {
           <Link
             href={`/session/${following.id}${linkSuffix}`}
             className="nav-step no-underline justify-end text-right"
-            aria-label={`Next: ${following.title}`}
           >
             <span className="min-w-0">
               <span className="block text-xs font-semibold uppercase tracking-[0.12em] text-ink-soft">

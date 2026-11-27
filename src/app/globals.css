@@ -2444,7 +2444,14 @@ select:focus-visible {
   color: inherit;
 }
 .nav-step .text-ink-soft {
-  opacity: 0.8;
+  /* Full strength: faded text on the blue fell below 4.5:1. */
+  opacity: 1;
+}
+/* A grid cell on a phone: never wider than the screen, the title truncates. */
+.nav-step {
+  display: flex;
+  width: 100%;
+  min-width: 0;
 }
 
 /* -- Every button answers: brighter (or ruled in the main colour) under the

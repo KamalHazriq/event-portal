@@ -2,6 +2,7 @@ import { currentPlayer } from '@/modules/points/server';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { OnSlido } from '@/components/OnSlido';
 
 import { AutoRefresh } from '@/components/AutoRefresh';
 import { getData } from '@/data';
@@ -58,7 +59,9 @@ export default async function QuestionsPage({
   const config = getEventConfig();
   const session = config.days.flatMap((d) => d.sessions).find((s) => s.id === sessionId);
 
-  if (!config.features.qa || !session?.qaEnabled || !(await readBackupMode())) notFound();
+  if (!config.features.qa || !session?.qaEnabled) notFound();
+  // Slido in use: say so, with the way in, rather than a bare not found.
+  if (!(await readBackupMode())) return <OnSlido what="questions" />;
 
   const data = getData();
   const deviceId = await currentDeviceId();

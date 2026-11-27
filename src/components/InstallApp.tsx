@@ -161,7 +161,7 @@ export function InstallApp({
               className="rounded-xl bg-primary px-4 py-3 text-center font-bold text-on-primary shadow-lg"
             >
               Tap Share, then Add to Home Screen
-              <span className="block text-sm font-normal opacity-90">Tap here to hide this</span>
+              <span className="block text-sm font-normal ">Tap here to hide this</span>
             </button>
             {top ? null : (
               <span aria-hidden="true" className="animate-bounce text-4xl text-primary">

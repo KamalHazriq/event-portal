@@ -22,6 +22,18 @@ function detect(): AlertSupport {
 
 const noop = () => () => undefined;
 
+/** How to unblock alerts, in this device's own words. */
+function blockedHelp(): string {
+  const ua = navigator.userAgent;
+  if (/iPad|iPhone|iPod/.test(ua)) {
+    return 'On the iPhone: Settings, Notifications, pick the portal from the list, then turn on Allow Notifications.';
+  }
+  if (/Android/.test(ua)) {
+    return 'Tap the icon at the left of the address bar, then Permissions (or Notifications), and choose Allow.';
+  }
+  return 'Click the icon at the left of the address bar, set Notifications to Allow, then reload the page.';
+}
+
 /** The browser wants the key as bytes. */
 function keyBytes(base64url: string): Uint8Array<ArrayBuffer> {
   const padded = (base64url + '='.repeat((4 - (base64url.length % 4)) % 4))
@@ -131,9 +143,20 @@ export function AlertsOptIn({ team = false }: { team?: boolean }) {
 
   if (support === 'blocked') {
     return (
-      <p className="text-sm text-ink-soft">
-        Event alerts are blocked for this site in your browser settings.
-      </p>
+      <section aria-label="Event alerts" className="rounded-xl border border-line bg-surface p-4">
+        <p className="font-bold text-ink">
+          <Icon name="bell" className="mr-1 inline size-4 align-text-bottom" />
+          Alerts are switched off for this site
+        </p>
+        <p className="mt-1 text-sm text-ink-soft">{blockedHelp()}</p>
+        <button
+          type="button"
+          onClick={() => window.location.reload()}
+          className="mt-3 inline-flex min-h-11 items-center rounded-lg border border-line px-4 font-semibold text-ink"
+        >
+          I have allowed them: check again
+        </button>
+      </section>
     );
   }
 

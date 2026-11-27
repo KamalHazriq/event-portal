@@ -290,7 +290,7 @@ export default async function AdminHomePage() {
         >
           <Icon name="live" className="size-4" />
           Open live control
-          <span className="font-mono text-sm font-semibold opacity-80">{clock}</span>
+          <span className="font-mono text-sm font-semibold">{clock}</span>
         </Link>
       </section>
 

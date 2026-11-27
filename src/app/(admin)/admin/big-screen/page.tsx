@@ -149,61 +149,7 @@ export default async function BigScreenControlPage() {
         lastChange={lastChange}
       />
 
-      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:items-start">
-        <section aria-label="Projector preview">
-          <h2 className="mb-2 text-sm font-bold uppercase tracking-wide text-ink-soft">
-            On the projector now: {SCREEN_VIEW_INFO[settings.view].title}
-          </h2>
-          {/* A new address per view, so the preview reloads at once on a switch. */}
-          <ScaledPreview src={`/screen?view=${settings.view}`} />
-        </section>
-
-        <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-          {views.map((view, index) => {
-            const info = SCREEN_VIEW_INFO[view];
-            const active = view === settings.view;
-            const suggested = suggestion?.view === view && !active;
-            return (
-              <li key={view}>
-                <form action={setScreenView} className="h-full">
-                  <input type="hidden" name="view" value={view} />
-                  <button
-                    type="submit"
-                    aria-pressed={active}
-                    title={`${info.description} ${info.whenToUse}.`}
-                    data-tile-index={index < 9 ? index + 1 : undefined}
-                    className={[
-                      'relative block h-full min-h-14 w-full rounded-xl bg-surface px-3 py-2 text-left',
-                      active
-                        ? 'border-2 border-success'
-                        : suggested
-                          ? 'border-2 border-accent'
-                          : 'border border-line hover:border-primary',
-                    ].join(' ')}
-                  >
-                    <span className="block font-bold leading-tight text-ink">{info.title}</span>
-                    <span className="block text-xs font-semibold">
-                      {active ? (
-                        <span className="text-success">On screen</span>
-                      ) : suggested ? (
-                        <span className="text-accent">Suggested now</span>
-                      ) : (
-                        <span className="text-ink-soft">{info.whenToUse}</span>
-                      )}
-                    </span>
-                    {index < 9 ? (
-                      <kbd className="absolute right-2 top-2 rounded border border-line px-1.5 text-xs text-ink-soft">
-                        {index + 1}
-                      </kbd>
-                    ) : null}
-                  </button>
-                </form>
-              </li>
-            );
-          })}
-        </ul>
-      </div>
-
+      {/* The controls for what is on screen, straight under the cues, so a phone needs no scrolling. */}
       {settings.view === 'countdown' ? <CountdownPanel /> : null}
       {settings.view === 'lucky-draw' && config.features.luckyDraw ? <DrawPanel /> : null}
       {settings.view === 'name-picker' ? <PickerPanel /> : null}
@@ -434,6 +380,61 @@ export default async function BigScreenControlPage() {
           </div>
         </section>
       ) : null}
+
+      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:items-start">
+        <section aria-label="Projector preview">
+          <h2 className="mb-2 text-sm font-bold uppercase tracking-wide text-ink-soft">
+            On the projector now: {SCREEN_VIEW_INFO[settings.view].title}
+          </h2>
+          {/* A new address per view, so the preview reloads at once on a switch. */}
+          <ScaledPreview src={`/screen?view=${settings.view}`} />
+        </section>
+
+        <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+          {views.map((view, index) => {
+            const info = SCREEN_VIEW_INFO[view];
+            const active = view === settings.view;
+            const suggested = suggestion?.view === view && !active;
+            return (
+              <li key={view}>
+                <form action={setScreenView} className="h-full">
+                  <input type="hidden" name="view" value={view} />
+                  <button
+                    type="submit"
+                    aria-pressed={active}
+                    title={`${info.description} ${info.whenToUse}.`}
+                    data-tile-index={index < 9 ? index + 1 : undefined}
+                    className={[
+                      'relative block h-full min-h-14 w-full rounded-xl bg-surface px-3 py-2 text-left',
+                      active
+                        ? 'border-2 border-success'
+                        : suggested
+                          ? 'border-2 border-accent'
+                          : 'border border-line hover:border-primary',
+                    ].join(' ')}
+                  >
+                    <span className="block font-bold leading-tight text-ink">{info.title}</span>
+                    <span className="block text-xs font-semibold">
+                      {active ? (
+                        <span className="text-success">On screen: controls at the top</span>
+                      ) : suggested ? (
+                        <span className="text-accent">Suggested now</span>
+                      ) : (
+                        <span className="text-ink-soft">{info.whenToUse}</span>
+                      )}
+                    </span>
+                    {index < 9 ? (
+                      <kbd className="absolute right-2 top-2 rounded border border-line px-1.5 text-xs text-ink-soft">
+                        {index + 1}
+                      </kbd>
+                    ) : null}
+                  </button>
+                </form>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
 
       <section className="rounded-xl border border-line bg-surface p-4">
         <h2 className="text-sm font-bold uppercase tracking-wide text-ink-soft">Effects</h2>

@@ -106,7 +106,7 @@ export default async function AttendeesPage({ searchParams }: { searchParams: Se
         </div>
       ) : null}
 
-      <section className="grid gap-3 sm:grid-cols-4" aria-label="On the list">
+      <section className="grid gap-3 sm:grid-cols-4" aria-label="Totals">
         {[
           ['People', everyone.length],
           ['Participants', everyone.length - secretariat],

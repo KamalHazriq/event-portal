@@ -17,7 +17,10 @@ export async function AdminClockBar() {
         <strong className="text-ink">Test mode is on.</strong> The test tools are showing. Switch it
         off before the event.
       </span>
-      <Link href="/admin/admins#test-mode" className="font-semibold text-primary">
+      <Link
+        href="/admin/admins#test-mode"
+        className="inline-flex min-h-11 items-center font-semibold text-primary"
+      >
         Test mode settings
       </Link>
     </p>

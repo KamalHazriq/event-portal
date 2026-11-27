@@ -38,27 +38,26 @@ export function DayTabs({
   const mineSelected = selectedDayId === 'mine';
   return (
     <nav aria-label="Choose a day">
-      <ul className="flex gap-1.5 overflow-x-auto pb-1">
+      {/* A phone: four equal columns, every tab on screen. Wider: a row of fixed widths. */}
+      <ul className="grid auto-cols-fr grid-flow-col gap-1.5 pb-1 sm:flex">
         {days.map((day) => {
           const selected = day.id === selectedDayId;
           return (
-            <li key={day.id} className="shrink-0">
+            <li key={day.id} className="min-w-0 sm:shrink-0">
               <Link
                 href={`/agenda?day=${day.id}${extraParams}`}
                 onClick={choose(day.id)}
                 aria-current={selected ? 'page' : undefined}
                 className={[
                   // One width for every day, whichever is selected (bold is wider).
-                  'block w-[5rem] rounded-lg border px-2 py-2 text-center text-sm no-underline',
+                  'block w-full rounded-lg border px-1 py-2 text-center text-sm no-underline sm:w-[5rem] sm:px-2',
                   selected
                     ? 'border-primary bg-primary font-bold text-on-primary'
                     : 'border-line bg-surface font-semibold text-ink hover:border-primary',
                 ].join(' ')}
               >
                 <span className="block">{day.label}</span>
-                <span
-                  className={['block text-xs', selected ? 'opacity-90' : 'text-ink-soft'].join(' ')}
-                >
+                <span className={['block text-xs', selected ? '' : 'text-ink-soft'].join(' ')}>
                   {formatShortDate(day.date, timezone).replace(/^\w+\s/, '')}
                 </span>
               </Link>
@@ -66,27 +65,21 @@ export function DayTabs({
           );
         })}
         {showMine ? (
-          <li className="shrink-0">
+          <li className="min-w-0 sm:shrink-0">
             <Link
               href={`/agenda?day=mine${extraParams}`}
               onClick={choose('mine')}
               aria-current={mineSelected ? 'page' : undefined}
               className={[
-                'block rounded-lg border px-2.5 py-2 text-sm no-underline',
+                'block w-full rounded-lg border px-1 py-2 text-center text-sm no-underline sm:px-2.5',
                 mineSelected
                   ? 'border-primary bg-primary font-bold text-on-primary'
                   : 'border-line bg-surface font-semibold text-ink hover:border-primary',
               ].join(' ')}
             >
-              <span className="block">
-                <span aria-hidden="true">★ </span>Favourites
-              </span>
-              <span
-                className={['block text-xs', mineSelected ? 'opacity-90' : 'text-ink-soft'].join(
-                  ' ',
-                )}
-              >
-                Starred
+              <span className="block truncate text-[0.8rem] sm:text-sm">Favourites</span>
+              <span className={['block text-xs', mineSelected ? '' : 'text-ink-soft'].join(' ')}>
+                <span aria-hidden="true">★ </span>Starred
               </span>
             </Link>
           </li>

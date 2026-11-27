@@ -41,7 +41,7 @@ function SignOut({ operator }: { operator: string }) {
       </span>
       <button
         type="submit"
-        className="inline-flex items-center gap-1 text-xs font-semibold text-primary"
+        className="inline-flex min-h-11 items-center gap-1 px-1 text-xs font-semibold text-primary"
       >
         <Icon name="logout" className="size-3.5" />
         Sign out

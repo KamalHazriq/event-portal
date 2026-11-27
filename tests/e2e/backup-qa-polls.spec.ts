@@ -65,9 +65,11 @@ test('Slido fails: the portal takes over Q&A and polls, then hands back', async 
   // Questions and votes carry a name, so this phone says who it is first.
   await asAttendee(phone, 'D10013');
 
-  // Off by default: attendees have Slido, and the backup pages do not exist.
-  expect((await phone.request.get('/poll')).status()).toBe(404);
-  expect((await phone.request.get(`/qa/${SESSION}`)).status()).toBe(404);
+  // Off by default: attendees have Slido, and the backup pages point there instead.
+  await phone.goto('/poll');
+  await expect(phone.getByRole('heading', { name: 'Polls are on Slido today' })).toBeVisible();
+  await phone.goto(`/qa/${SESSION}`);
+  await expect(phone.getByRole('heading', { name: 'Questions are on Slido today' })).toBeVisible();
   await phone.goto(`/session/${SESSION}`);
   await expect(phone.getByRole('link', { name: 'Ask a question' })).toHaveCount(0);
 
@@ -161,7 +163,8 @@ test('Slido fails: the portal takes over Q&A and polls, then hands back', async 
 
   await admin.getByRole('button', { name: 'Switch back to Slido' }).click();
   await expect(admin.getByText('Off: attendees are using Slido')).toBeVisible();
-  expect((await phone.request.get('/poll')).status()).toBe(404);
+  await phone.goto('/poll');
+  await expect(phone.getByRole('heading', { name: 'Polls are on Slido today' })).toBeVisible();
 
   // Put the projector back on the welcome view for whoever runs next.
   await admin.goto('/admin/big-screen');

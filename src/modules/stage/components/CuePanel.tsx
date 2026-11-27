@@ -30,14 +30,15 @@ export function CuePanel({
       aria-label="Cues"
       className="space-y-3 rounded-xl border-2 border-primary/50 bg-surface p-4"
     >
-      <div className="flex flex-wrap items-center gap-3">
-        <form action={stepCue}>
+      {/* A phone: what is on screen across the top, the two cue buttons side by side under it. */}
+      <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center sm:gap-3">
+        <form action={stepCue} className="sm:shrink-0">
           <input type="hidden" name="dir" value="prev" />
           <button
             id="cue-prev"
             type="submit"
             disabled={!prev}
-            className="min-h-14 rounded-xl border border-line px-5 text-left font-semibold text-ink disabled:opacity-40"
+            className="min-h-14 w-full rounded-xl border border-line px-5 text-left font-semibold text-ink disabled:opacity-40"
           >
             <span className="block text-xs uppercase tracking-wide text-ink-soft">
               Previous cue
@@ -45,21 +46,21 @@ export function CuePanel({
             ‹ {prev ? SCREEN_VIEW_INFO[prev].title : 'Start'}
           </button>
         </form>
-        <p className="min-w-0 flex-1 text-center">
+        <p className="order-first col-span-2 min-w-0 text-center sm:order-none sm:flex-1">
           <span className="block text-xs font-bold uppercase tracking-wide text-ink-soft">
             On the projector
           </span>
           <span className="text-xl font-bold text-ink">{SCREEN_VIEW_INFO[current].title}</span>
         </p>
-        <form action={stepCue}>
+        <form action={stepCue} className="sm:shrink-0">
           <input type="hidden" name="dir" value="next" />
           <button
             id="cue-next"
             type="submit"
             disabled={!next}
-            className="min-h-14 rounded-xl bg-primary px-6 text-right font-bold text-on-primary disabled:opacity-40"
+            className="min-h-14 w-full rounded-xl bg-primary px-6 text-right font-bold text-on-primary disabled:opacity-40"
           >
-            <span className="block text-xs uppercase tracking-wide opacity-80">Next cue</span>
+            <span className="block text-xs uppercase tracking-wide">Next cue</span>
             {next ? SCREEN_VIEW_INFO[next].title : 'End'} ›
           </button>
         </form>

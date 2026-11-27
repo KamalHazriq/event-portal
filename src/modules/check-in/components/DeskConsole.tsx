@@ -343,7 +343,8 @@ export function DeskConsole({
         ? 'border-warning bg-warning/10'
         : result
           ? 'border-live bg-live/10'
-          : 'border-line bg-surface';
+          : // Waiting for the first scan: a plain hint, not a box that looks like a field.
+            'border-transparent px-0 py-1';
 
   return (
     <div className="space-y-4">
@@ -546,8 +547,10 @@ export function DeskConsole({
             ) : null}
           </>
         ) : (
-          <p className="text-ink-soft">
-            Scan a name tag or the business card in the TNB app, or search for a name below.
+          <p className="text-sm text-ink-soft">
+            <span aria-hidden="true">↓ </span>
+            Scan a name tag or the business card in the TNB app, or search for a name below. The
+            result shows here.
           </p>
         )}
       </section>
@@ -642,8 +645,8 @@ export function DeskConsole({
                 onClick={() => setMode(value)}
                 className={`min-h-11 rounded-lg border px-3 font-semibold ${
                   mode === value
-                    ? 'border-primary bg-primary/15 text-ink'
-                    : 'border-line text-ink-soft hover:text-ink'
+                    ? 'border-primary bg-primary text-on-primary'
+                    : 'border-line bg-canvas text-ink hover:border-primary'
                 }`}
               >
                 {label}

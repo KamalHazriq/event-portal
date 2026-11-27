@@ -2,6 +2,7 @@ import { currentPlayer } from '@/modules/points/server';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { OnSlido } from '@/components/OnSlido';
 
 import { AutoRefresh } from '@/components/AutoRefresh';
 import { getData } from '@/data';
@@ -27,7 +28,9 @@ const PROBLEMS: readonly string[] = ['closed', 'nothing-chosen', 'not-an-option'
 /** The poll that is open right now (Module 3). One answer per phone. */
 export default async function PollPage({ searchParams }: { searchParams: SearchParams }) {
   const config = getEventConfig();
-  if (!config.features.polls || !(await portalPollsAvailable())) notFound();
+  if (!config.features.polls) notFound();
+  // Slido in use: say so, with the way in, rather than a bare not found.
+  if (!(await portalPollsAvailable())) return <OnSlido what="polls" />;
 
   const query = await searchParams;
   const state = typeof query.state === 'string' ? query.state : null;

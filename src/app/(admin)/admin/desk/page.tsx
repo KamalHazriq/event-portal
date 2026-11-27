@@ -53,8 +53,88 @@ export default async function DeskPage({ searchParams }: { searchParams: SearchP
         </p>
       </header>
 
+      {days.length > 1 ? (
+        <nav aria-label="Choose a day">
+          <ul className="flex flex-wrap gap-2">
+            {days.map((option) => {
+              const selected = option.id === day.id;
+              return (
+                <li key={option.id}>
+                  <Link
+                    href={`/admin/desk?day=${option.id}`}
+                    aria-current={selected ? 'page' : undefined}
+                    className={[
+                      'block rounded-lg border px-3 py-2 text-sm no-underline',
+                      selected
+                        ? 'border-primary bg-primary font-bold text-on-primary'
+                        : 'border-line bg-surface font-semibold text-ink',
+                    ].join(' ')}
+                  >
+                    {option.label}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
+      ) : null}
+
+      {/* Keyed by the day, so switching Day 1, 2, 3 starts that day's own count and list. */}
+      {pretend ? (
+        <p className="rounded-lg border-2 border-warning bg-warning/10 p-3 text-sm font-semibold text-ink">
+          Test: scans are recorded as {pretend.replace('T', ' at ')}.{' '}
+          <a href="#pretend" className="text-primary">
+            Change or go back to real time
+          </a>
+        </p>
+      ) : null}
+
+      <DeskConsole
+        key={day.id}
+        dayId={day.id}
+        dayLabel={day.label}
+        initialHeadcount={arrivalRate(headcount.arrived, headcount.expected)}
+      />
+
+      <details className="rounded-xl border border-line bg-surface p-4">
+        <summary className="cursor-pointer font-semibold text-ink">
+          Long queue? Add a self check in kiosk
+        </summary>
+        <div className="mt-2 space-y-2 text-ink">
+          <p>
+            On a spare tablet, sign in here with the PIN, then open the kiosk. People hold up the
+            business card in their TNB app to the tablet&apos;s back camera (it focuses better) and
+            see a big welcome. Anyone it cannot match is sent to this desk; it never shows other
+            people&apos;s names.
+          </p>
+          <p className="text-sm text-ink-soft">
+            <strong className="text-ink">Preview</strong> opens it on this device and changes
+            nothing. <strong className="text-ink">Open and lock</strong> is for the tablet on the
+            stand: from then on, any admin address on that tablet asks for the PIN, so nobody can
+            wander into the console. The Secretariat link at the foot of the kiosk, or /admin,
+            unlocks it with the PIN. Pin the screen too (screen pinning on Android, Guided Access on
+            an iPad) so the browser stays open on it.
+          </p>
+          <div className="flex flex-wrap gap-3">
+            <Link
+              href={`/kiosk?day=${day.id}`}
+              className="inline-flex min-h-11 items-center rounded-lg border border-line px-4 font-semibold text-ink no-underline"
+            >
+              Preview the kiosk for {day.label}
+            </Link>
+            <Link
+              href={`/kiosk?lock=1&day=${day.id}`}
+              className="inline-flex min-h-11 items-center rounded-lg bg-primary px-4 font-bold text-on-primary no-underline"
+            >
+              Open and lock this device for {day.label}
+            </Link>
+          </div>
+        </div>
+      </details>
+
       {testMode ? (
         <section
+          id="pretend"
           aria-label="Pretend scan time"
           className="rounded-xl border-2 border-warning bg-warning/10 p-4"
         >
@@ -100,76 +180,6 @@ export default async function DeskPage({ searchParams }: { searchParams: SearchP
           </p>
         </section>
       ) : null}
-
-      <details className="rounded-xl border border-line bg-surface p-4">
-        <summary className="cursor-pointer font-semibold text-ink">
-          Long queue? Add a self check in kiosk
-        </summary>
-        <div className="mt-2 space-y-2 text-ink">
-          <p>
-            On a spare tablet, sign in here with the PIN, then open the kiosk. People hold up the
-            business card in their TNB app to the tablet&apos;s back camera (it focuses better) and
-            see a big welcome. Anyone it cannot match is sent to this desk; it never shows other
-            people&apos;s names.
-          </p>
-          <p className="text-sm text-ink-soft">
-            <strong className="text-ink">Preview</strong> opens it on this device and changes
-            nothing. <strong className="text-ink">Open and lock</strong> is for the tablet on the
-            stand: from then on, any admin address on that tablet asks for the PIN, so nobody can
-            wander into the console. The Secretariat link at the foot of the kiosk, or /admin,
-            unlocks it with the PIN. Pin the screen too (screen pinning on Android, Guided Access on
-            an iPad) so the browser stays open on it.
-          </p>
-          <div className="flex flex-wrap gap-3">
-            <Link
-              href={`/kiosk?day=${day.id}`}
-              className="inline-flex min-h-11 items-center rounded-lg border border-line px-4 font-semibold text-ink no-underline"
-            >
-              Preview the kiosk for {day.label}
-            </Link>
-            <Link
-              href={`/kiosk?lock=1&day=${day.id}`}
-              className="inline-flex min-h-11 items-center rounded-lg bg-primary px-4 font-bold text-on-primary no-underline"
-            >
-              Open and lock this device for {day.label}
-            </Link>
-          </div>
-        </div>
-      </details>
-
-      {days.length > 1 ? (
-        <nav aria-label="Choose a day">
-          <ul className="flex flex-wrap gap-2">
-            {days.map((option) => {
-              const selected = option.id === day.id;
-              return (
-                <li key={option.id}>
-                  <Link
-                    href={`/admin/desk?day=${option.id}`}
-                    aria-current={selected ? 'page' : undefined}
-                    className={[
-                      'block rounded-lg border px-3 py-2 text-sm no-underline',
-                      selected
-                        ? 'border-primary bg-primary font-bold text-on-primary'
-                        : 'border-line bg-surface font-semibold text-ink',
-                    ].join(' ')}
-                  >
-                    {option.label}
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </nav>
-      ) : null}
-
-      {/* Keyed by the day, so switching Day 1, 2, 3 starts that day's own count and list. */}
-      <DeskConsole
-        key={day.id}
-        dayId={day.id}
-        dayLabel={day.label}
-        initialHeadcount={arrivalRate(headcount.arrived, headcount.expected)}
-      />
 
       {typeof params.added === 'string' ? (
         <p

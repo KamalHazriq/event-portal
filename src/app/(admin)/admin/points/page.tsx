@@ -257,7 +257,12 @@ export default async function PointsPage({ searchParams }: { searchParams: Searc
           Nobody has points yet.
         </p>
       ) : (
-        <div className="relative overflow-x-auto rounded-xl border border-line">
+        <div
+          className="relative overflow-x-auto rounded-xl border border-line"
+          tabIndex={0}
+          role="region"
+          aria-label="Points per person (scrolls sideways)"
+        >
           <table className="w-full text-left text-sm">
             <thead className="bg-muted text-ink-soft">
               <tr>

@@ -4,7 +4,7 @@ import { FeedbackQrView } from './ScreenViews';
 import { LoopView } from './LoopView';
 import { AutoRefresh } from '@/components/AutoRefresh';
 
-import { SCREEN_POLL_MS } from '../logic';
+import { SCREEN_POLL_MS, SCREEN_VIEW_INFO } from '../logic';
 import type { ScreenPayload } from '../load';
 import { ReactionOverlay } from './ReactionOverlay';
 import { SoundUnlock } from '@/modules/lucky-draw/components/SoundUnlock';
@@ -68,6 +68,10 @@ export function ScreenFrame({
     >
       <AutoRefresh intervalMs={payload.view === 'podium' ? 1_500 : SCREEN_POLL_MS} />
       <SoundUnlock />
+      {/* Welcome has its own visible title; every other view gets one for screen readers. */}
+      {payload.view !== 'welcome' ? (
+        <h1 className="sr-only">Big screen: {SCREEN_VIEW_INFO[payload.view].title}</h1>
+      ) : null}
       {/* The same calm navy backdrop behind every view. */}
       <div
         aria-hidden="true"

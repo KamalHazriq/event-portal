@@ -104,12 +104,12 @@ test('a session with no Q&A does not show a Slido button', async ({ page }) => {
 test('you can walk from one session to the next', async ({ page }) => {
   await page.goto('/session/d1-opening');
 
-  await page.getByRole('link', { name: /^Next:/ }).click();
+  await page.getByRole('link', { name: /^Next /i }).click();
   await expect(
     page.getByRole('heading', { name: 'Ice breaker: who is in the room', level: 1 }),
   ).toBeVisible();
 
-  await page.getByRole('link', { name: /^Previous:/ }).click();
+  await page.getByRole('link', { name: /^Previous /i }).click();
   await expect(
     page.getByRole('heading', { name: 'Welcome and opening remarks', level: 1 }),
   ).toBeVisible();

@@ -54,7 +54,7 @@ test('the projector has a leaderboard view', async ({ page }) => {
   ).toBeVisible();
 
   await page.goto('/screen/leaderboard');
-  await expect(page.getByRole('heading', { name: 'Leaderboard' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Leaderboard', exact: true })).toBeVisible();
   await expect(page.getByText('Scan to join', { exact: true })).toBeVisible();
 });
 
