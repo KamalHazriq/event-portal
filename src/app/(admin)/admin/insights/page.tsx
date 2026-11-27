@@ -147,7 +147,10 @@ export default async function InsightsPage({ searchParams }: { searchParams: Sea
                 </p>
                 <p className="mt-1 text-3xl font-bold tabular-nums leading-none text-ink">
                   {d.came}
-                  <span className="text-lg font-normal text-ink-soft"> of {guests.length}</span>
+                  <span className="text-lg font-normal text-ink-soft">
+                    {' '}
+                    of {guests.length} guests
+                  </span>
                 </p>
                 <div
                   className="mt-3 h-2 w-full overflow-hidden rounded-full bg-muted"
@@ -162,7 +165,10 @@ export default async function InsightsPage({ searchParams }: { searchParams: Sea
                     style={{ width: `${percent}%` }}
                   />
                 </div>
-                <p className="mt-1 text-xs text-ink-soft">{percent}% of the list</p>
+                <p className="mt-1 text-xs text-ink-soft">
+                  {percent}% of guests. The secretariat are left out here; the Desk and Headcount
+                  count everyone.
+                </p>
               </li>
             );
           })}

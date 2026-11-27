@@ -68,7 +68,7 @@ export function AttendeeTable({ rows }: { rows: AttendeeRow[] }) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search a name, staff number, role or department…"
-          className="min-h-11 w-full flex-1 rounded-lg border border-line bg-canvas px-3 text-ink focus:border-primary focus:outline-none sm:min-w-80"
+          className="min-h-11 w-full flex-1 rounded-lg border border-line bg-canvas px-3 text-ink focus:border-primary sm:min-w-80"
         />
         {chip('all', `Everyone (${rows.length})`)}
         {chip('no-role', `No role (${noRole})`)}

@@ -165,7 +165,7 @@ export default async function AttendeesPage({ searchParams }: { searchParams: Se
             type="file"
             required
             accept=".xlsx,.csv"
-            className="text-sm text-ink"
+            className="min-h-11 max-w-full text-sm text-ink file:mr-3 file:min-h-11 file:cursor-pointer file:rounded-lg file:border file:border-line file:bg-canvas file:px-4 file:font-semibold file:text-ink hover:file:border-primary"
           />
           <button
             type="submit"

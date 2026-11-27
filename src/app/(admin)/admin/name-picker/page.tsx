@@ -22,7 +22,7 @@ export const dynamic = 'force-dynamic';
 export const metadata: Metadata = { title: 'Name picker' };
 
 const input =
-  'mt-1 block min-h-11 w-full rounded-lg border border-line bg-canvas px-3 text-ink focus:border-primary focus:outline-none';
+  'mt-1 block min-h-11 w-full rounded-lg border border-line bg-canvas px-3 text-ink focus:border-primary';
 
 /**
  * Picks people at random to speak, answer a question or come up on stage.
@@ -74,7 +74,7 @@ export default async function NamePickerPage() {
       <section className="rounded-xl border border-line bg-surface p-4">
         <form action={pickPeople} className="space-y-3">
           <div className="flex flex-wrap items-end gap-3">
-            <label className="text-sm font-semibold text-ink">
+            <label className="flex flex-col text-sm font-semibold text-ink">
               How many
               <select name="count" defaultValue="1" className={input}>
                 {PICK_COUNTS.map((n) => (

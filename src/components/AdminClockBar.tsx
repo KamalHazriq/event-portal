@@ -12,14 +12,18 @@ export async function AdminClockBar() {
   const moment = await testClockMoment();
   const testMode = await testModeOn();
   const modeBar = testMode ? (
-    <p className="mb-3 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-line bg-muted px-3 py-2 text-sm text-ink-soft print:hidden">
-      <span>
-        <strong className="text-ink">Test mode is on.</strong> The test tools are showing. Switch it
-        off before the event.
+    // One slim line, so it never pushes the page's own controls down on a phone.
+    <p className="mb-3 flex items-center justify-between gap-2 rounded-lg border border-line bg-muted px-3 text-sm text-ink-soft print:hidden">
+      <span className="min-w-0 truncate">
+        <strong className="text-ink">Test mode is on.</strong>
+        <span className="hidden sm:inline">
+          {' '}
+          The test tools are showing. Switch it off before the event.
+        </span>
       </span>
       <Link
         href="/admin/admins#test-mode"
-        className="inline-flex min-h-11 items-center font-semibold text-primary"
+        className="inline-flex min-h-11 shrink-0 items-center font-semibold text-primary"
       >
         Test mode settings
       </Link>

@@ -18,7 +18,7 @@ type Props = {
 };
 
 const input =
-  'mt-1 block min-h-11 w-full rounded-lg border border-line bg-canvas px-3 text-ink focus:border-primary focus:outline-none';
+  'mt-1 block min-h-11 w-full rounded-lg border border-line bg-canvas px-3 text-ink focus:border-primary';
 
 /** Corrects one person on the list: a missing role, a typo, a department. */
 export default async function EditAttendeePage({ params, searchParams }: Props) {

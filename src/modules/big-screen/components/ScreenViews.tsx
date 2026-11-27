@@ -322,6 +322,7 @@ export function ArrivalsView({
 
         <div
           className="arrivals-feed relative h-full min-h-0 self-stretch overflow-hidden"
+          role="region"
           aria-label="Arrived earlier"
         >
           {earlier.length > 0 ? (
@@ -547,7 +548,10 @@ export function QuestionsView({
 export function PollView({
   poll,
   voteUrl,
+  slido = null,
 }: {
+  /** Set while Slido runs the polls: the screen sends the room there. */
+  slido?: { url: string | null; code: string | null } | null;
   poll: {
     question: string;
     kind: PollKind;
@@ -557,6 +561,33 @@ export function PollView({
   } | null;
   voteUrl: string;
 }) {
+  if (!poll && slido) {
+    return (
+      <div className="screen-fade grid h-full grid-cols-[1fr_auto] items-center gap-[4vw]">
+        <div>
+          <p className="text-[clamp(1rem,1.6vw,2rem)] font-bold uppercase tracking-[0.2em] text-ink-soft">
+            Polls today
+          </p>
+          <p className="mt-[2vh] text-[clamp(2.5rem,6vw,9rem)] font-bold leading-tight text-ink">
+            Vote on Slido
+          </p>
+          {slido.code ? (
+            <p className="mt-[2vh] text-[clamp(1.6rem,3.4vw,5rem)] text-ink">
+              Code <span className="font-mono font-bold text-accent">{slido.code}</span>
+            </p>
+          ) : null}
+        </div>
+        {slido.url ? (
+          <QrCode
+            value={slido.url}
+            label="Scan to open Slido"
+            className="block size-[clamp(10rem,22vw,30rem)]"
+          />
+        ) : null}
+      </div>
+    );
+  }
+
   if (!poll) {
     return (
       <div className="screen-fade flex h-full flex-col items-center justify-center text-center">

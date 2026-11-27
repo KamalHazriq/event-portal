@@ -95,7 +95,7 @@ export default async function QrAssetsPage() {
         </section>
       </div>
 
-      <div className="tent-sheet">
+      <div className="tent-sheet" tabIndex={0} role="region" aria-label="Table tents (scrolls)">
         {Array.from({ length: tentCount }, (_, index) => (
           <div key={index} className="tent">
             {/* The same face twice; the top one upside down, for the fold. */}

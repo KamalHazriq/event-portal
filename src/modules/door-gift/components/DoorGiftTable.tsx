@@ -63,7 +63,7 @@ export function DoorGiftTable({
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search a name or department…"
-          className="min-h-11 w-full flex-1 rounded-lg border border-line bg-canvas px-3 text-ink focus:border-primary focus:outline-none sm:min-w-72"
+          className="min-h-11 w-full flex-1 rounded-lg border border-line bg-canvas px-3 text-ink focus:border-primary sm:min-w-72"
         />
         {chip('all', `Everyone (${rows.length})`)}
         {chip('waiting', `To collect (${rows.filter((r) => r.item && !r.collected).length})`)}

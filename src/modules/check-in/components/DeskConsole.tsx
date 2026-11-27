@@ -427,7 +427,10 @@ export function DeskConsole({
               <span className="text-2xl font-normal text-ink-soft"> / {headcount.expected}</span>
             </p>
           </div>
-          <p className="text-sm text-ink-soft">{headcount.remaining} to go</p>
+          <p className="text-right text-sm text-ink-soft">
+            {headcount.remaining} to go
+            <span className="block text-xs">Everyone, secretariat included</span>
+          </p>
         </div>
         <div
           className="mt-3 h-2 w-full overflow-hidden rounded-full bg-muted"

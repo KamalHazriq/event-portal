@@ -48,7 +48,7 @@ export async function DrawPanel() {
       <form action={drawLucky} className="space-y-3">
         <input type="hidden" name="showOnScreen" value="on" />
         <div className="flex flex-wrap items-end gap-3">
-          <label className="text-sm font-semibold text-ink">
+          <label className="flex flex-col text-sm font-semibold text-ink">
             Winners
             <select
               name="count"

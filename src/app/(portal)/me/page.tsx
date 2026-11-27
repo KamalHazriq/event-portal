@@ -208,7 +208,7 @@ export default async function MyPointsPage({
                   name="staffNo"
                   required
                   autoComplete="off"
-                  className="mt-1 block min-h-12 w-full rounded-lg border border-line bg-background px-4 text-lg text-ink focus:border-primary focus:outline-none"
+                  className="mt-1 block min-h-12 w-full rounded-lg border border-line bg-background px-4 text-lg text-ink focus:border-primary"
                 />
               </div>
               <button
@@ -234,7 +234,7 @@ export default async function MyPointsPage({
                     autoComplete="off"
                     placeholder="For example Aisyah"
                     minLength={3}
-                    className="mt-1 block min-h-12 w-full rounded-lg border border-line bg-background px-4 text-lg text-ink focus:border-primary focus:outline-none"
+                    className="mt-1 block min-h-12 w-full rounded-lg border border-line bg-background px-4 text-lg text-ink focus:border-primary"
                   />
                 </div>
                 <button
@@ -255,7 +255,10 @@ export default async function MyPointsPage({
                     desk.
                   </p>
                 ) : choices.length === 0 ? (
-                  <p className="mt-4 text-ink-soft">
+                  <p
+                    role="status"
+                    className="mt-4 rounded-lg border border-warning bg-warning/10 p-3 font-semibold text-ink"
+                  >
                     Nobody on the list has that name. Type the start of your first or last name, or
                     ask the registration desk.
                   </p>
@@ -319,7 +322,7 @@ export default async function MyPointsPage({
                       required
                       autoCapitalize="characters"
                       autoComplete="off"
-                      className="mt-1 block min-h-12 w-full rounded-lg border border-line bg-background px-4 text-lg text-ink focus:border-primary focus:outline-none"
+                      className="mt-1 block min-h-12 w-full rounded-lg border border-line bg-background px-4 text-lg text-ink focus:border-primary"
                     />
                   </div>
                   <button

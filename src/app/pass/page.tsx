@@ -52,7 +52,7 @@ export default async function PassPage({
             spellCheck={false}
             aria-invalid={wrong ? true : undefined}
             aria-describedby={wrong ? 'event-code-error' : undefined}
-            className="block min-h-12 w-full rounded-lg border border-line bg-background px-4 font-mono text-lg tracking-widest text-ink focus:border-primary focus:outline-none"
+            className="block min-h-12 w-full rounded-lg border border-line bg-background px-4 font-mono text-lg tracking-widest text-ink focus:border-primary"
           />
           {wrong ? (
             <p id="event-code-error" role="alert" className="text-sm font-semibold text-warning">

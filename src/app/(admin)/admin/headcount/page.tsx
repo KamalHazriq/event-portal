@@ -101,7 +101,8 @@ export default async function HeadcountPage({ searchParams }: { searchParams: Se
           <span className="text-3xl font-normal text-ink-soft"> / {rate.expected}</span>
         </p>
         <p className="mt-1 text-ink-soft">
-          {rate.percent}% arrived, {rate.remaining} still to come
+          {rate.percent}% arrived, {rate.remaining} still to come. Everyone on the list, secretariat
+          included.
         </p>
         <div
           className="mt-3 h-3 w-full overflow-hidden rounded-full bg-muted"

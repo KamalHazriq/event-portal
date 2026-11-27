@@ -111,7 +111,7 @@ export default async function TourPage() {
       say: 'The projector laptop stays on one page. The MC picks what it shows from a phone, and a suggestion card says what fits the time of day.',
       links: [
         { href: '/screen', label: 'Open the projector screen', on: features.bigScreen },
-        { href: '/admin/big-screen', label: 'Big screen control', on: features.bigScreen },
+        { href: '/admin/big-screen', label: 'Stage control', on: features.bigScreen },
         { href: '/admin/live', label: 'Live control' },
       ],
     },
@@ -195,7 +195,7 @@ export default async function TourPage() {
             <p className="mt-2 text-sm text-ink-soft">
               Plug in the projector, open <code>{address}/screen</code> and drag the window onto it,
               then press F11. Click the screen once so the browser allows sound. No projector? The
-              preview on Big screen control shows the same thing.
+              preview on Stage control shows the same thing.
             </p>
             <p className="mt-3">
               <Link href="/screen" target="_blank" className={LINK}>

@@ -234,12 +234,14 @@ export default async function AnnouncementsPage({ searchParams }: { searchParams
               />
               Everyone (a banner on every page)
             </label>
-            <label className="flex min-h-11 items-center gap-2 text-ink">
-              <input type="radio" name="audience" value="team" className="size-5" />
-              The secretariat team only
-              <span className="text-sm text-ink-soft">
-                (a notification to the {teamPhones} team {teamPhones === 1 ? 'phone' : 'phones'}{' '}
-                with team alerts on; attendees see nothing)
+            <label className="flex min-h-11 items-start gap-2 py-2 text-ink">
+              <input type="radio" name="audience" value="team" className="mt-0.5 size-5 shrink-0" />
+              <span>
+                The secretariat team only
+                <span className="block text-sm text-ink-soft">
+                  A notification to the {teamPhones} team {teamPhones === 1 ? 'phone' : 'phones'}{' '}
+                  with team alerts on. Attendees see nothing.
+                </span>
               </span>
             </label>
           </div>

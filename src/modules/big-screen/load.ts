@@ -5,6 +5,7 @@
  * (which always shows one view), so both always agree.
  */
 import { getData } from '@/data';
+import { portalPollsAvailable } from '@/modules/backup/server';
 import { getEventConfig } from '@/lib/config';
 import { shortDepartment } from '@/lib/departments';
 import { eventPass, passLink } from '@/lib/event-pass-server';
@@ -380,9 +381,17 @@ export async function loadScreenView(
         [...polls].reverse().find((p) => p.status === 'closed' && p.revealed) ??
         null;
       const votes = poll ? await data.polls.votes(poll.id) : [];
+      // Slido in use and no portal poll to show: point the room at Slido.
+      const slidoOn = !poll && !(await portalPollsAvailable().catch(() => false));
+      const slidoCfg = config.integrations.slido;
+      const slido =
+        slidoOn && slidoCfg?.enabled && (slidoCfg.eventUrl || slidoCfg.eventCode)
+          ? { url: slidoCfg.eventUrl ?? null, code: slidoCfg.eventCode ?? null }
+          : null;
       return {
         view,
         props: {
+          slido,
           poll: poll
             ? {
                 question: poll.question,

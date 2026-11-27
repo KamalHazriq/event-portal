@@ -53,16 +53,16 @@ export default async function ScreensaverPage({
         <p className="mt-1 text-ink-soft">
           What the projector plays during breaks: riddles (the answer appears after a pause), “Do
           you know?” facts, and a welcome to the new leads and heads. They take turns. To show it,
-          choose Screensaver on the Big screen page.
+          choose Screensaver on Stage control.
         </p>
       </header>
 
       <p className="rounded-lg border border-line bg-muted p-3 text-sm text-ink-soft">
-        During the programme, reveal answers, move between cards or pick a riddle from the{' '}
+        During the programme, reveal answers, move between cards or pick a riddle from{' '}
         <Link href="/admin/big-screen" className="font-semibold text-primary">
-          Big screen
-        </Link>{' '}
-        page: the controls show there while the Screensaver is up.
+          Stage control
+        </Link>
+        : the controls show there while the Screensaver is up.
       </p>
 
       {saved ? (

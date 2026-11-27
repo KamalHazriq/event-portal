@@ -71,6 +71,17 @@
     background: linear-gradient(90deg, var(--c-primary), var(--c-accent));
   }
 
+  /* Keep a focused control clear of the sticky header and, on a phone, the
+   * bottom tab bar, when the browser scrolls it into view (WCAG 2.4.11). */
+  html {
+    scroll-padding-top: 6rem;
+  }
+  @media (max-width: 767px) {
+    html {
+      scroll-padding-bottom: 5.5rem;
+    }
+  }
+
   /* A visible focus ring for keyboard and switch users. */
   :focus-visible {
     outline: 3px solid var(--c-accent);
@@ -2795,4 +2806,16 @@ button:disabled,
 input:disabled,
 select:disabled {
   cursor: not-allowed;
+}
+
+/* A question the browser would not send without (see InlineValidation). */
+.field-error {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--c-warning, #f5b84b);
+}
+[data-invalid='true']:is(fieldset) {
+  border-left: 3px solid var(--c-warning, #f5b84b);
+  padding-left: 0.75rem;
 }

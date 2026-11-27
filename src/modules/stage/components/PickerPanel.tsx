@@ -24,7 +24,7 @@ export async function PickerPanel() {
         <input type="hidden" name="fun" value="on" />
         <input type="hidden" name="showOnScreen" value="on" />
         <div className="flex flex-wrap items-end gap-3">
-          <label className="text-sm font-semibold text-ink">
+          <label className="flex flex-col text-sm font-semibold text-ink">
             How many
             <select
               name="count"

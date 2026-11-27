@@ -28,7 +28,7 @@ export const dynamic = 'force-dynamic';
 export const metadata: Metadata = { title: 'Door gifts' };
 
 const input =
-  'mt-1 block min-h-11 w-full rounded-lg border border-line bg-canvas px-3 text-ink focus:border-primary focus:outline-none';
+  'mt-1 block min-h-11 w-full rounded-lg border border-line bg-canvas px-3 text-ink focus:border-primary';
 
 export default async function DoorGiftsPage({
   searchParams,

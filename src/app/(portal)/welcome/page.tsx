@@ -21,7 +21,7 @@ export const metadata: Metadata = { title: 'Welcome' };
 type Params = { find?: string; who?: string; state?: string; wrong?: string; next?: string };
 
 const field =
-  'mt-1 block min-h-12 w-full rounded-lg border border-line bg-background px-4 text-lg text-ink focus:border-primary focus:outline-none';
+  'mt-1 block min-h-12 w-full rounded-lg border border-line bg-background px-4 text-lg text-ink focus:border-primary';
 const primary =
   'btn-primary inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-primary px-5 font-bold text-on-primary no-underline';
 
@@ -163,7 +163,7 @@ export default async function WelcomePage({ searchParams }: { searchParams: Prom
               autoComplete="off"
               autoFocus
               minLength={3}
-              placeholder="For example, type your name"
+              placeholder="e.g. Aisyah Rahman"
               className={field}
             />
             <button type="submit" className={primary}>
@@ -181,7 +181,10 @@ export default async function WelcomePage({ searchParams }: { searchParams: Prom
                 desk.
               </p>
             ) : choices.length === 0 ? (
-              <p className="mt-4 text-ink-soft">
+              <p
+                role="status"
+                className="mt-4 rounded-lg border border-warning bg-warning/10 p-3 font-semibold text-ink"
+              >
                 Nobody on the list has that name. Try the start of your first or last name.
               </p>
             ) : (

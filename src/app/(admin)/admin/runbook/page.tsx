@@ -125,7 +125,7 @@ export default async function RunbookPage() {
   const roles = [
     {
       who: 'MC / live control',
-      does: 'Live page, Big screen page, countdown, lucky draw.',
+      does: 'Live page and Stage control (countdown, lucky draw, cues).',
     },
     ...(features.checkIn
       ? [
@@ -180,7 +180,7 @@ export default async function RunbookPage() {
     },
     {
       problem: 'The big screen stutters',
-      fix: 'Big screen page, Effects: Calm mode turns off the moving background and the hexagon wipe. Close other programs on the laptop and keep it plugged in.',
+      fix: 'Stage control, Effects: Calm mode turns off the moving background and the hexagon wipe. Close other programs on the laptop and keep it plugged in.',
     },
     {
       problem: 'Alerts are not arriving on a phone',
@@ -196,7 +196,7 @@ export default async function RunbookPage() {
     },
     {
       problem: 'Something wrong is on the big screen',
-      fix: 'Big screen page: pick Welcome. To stop reactions floating up, Comments page: “Reactions on the big screen”. Hide a comment or photo from its page.',
+      fix: 'Stage control: pick Welcome. To stop reactions floating up, Comments page: “Reactions on the big screen”. Hide a comment or photo from its page.',
     },
     {
       problem: 'A message for everyone, fast',

@@ -108,7 +108,7 @@ export default async function LuckyDrawPage() {
 
         <form action={drawLucky} className="mt-3 space-y-3">
           <div className="flex flex-wrap items-end gap-3">
-            <label className="text-sm font-semibold text-ink">
+            <label className="flex flex-col text-sm font-semibold text-ink">
               Winners
               <select
                 name="count"
@@ -147,7 +147,7 @@ export default async function LuckyDrawPage() {
         <p className="mt-3 text-sm text-ink-soft">
           The big screen spins through the names and stops on the winners.{' '}
           <Link href="/admin/big-screen" className="font-semibold text-primary">
-            Big screen control
+            Stage control
           </Link>
         </p>
       </section>

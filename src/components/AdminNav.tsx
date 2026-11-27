@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useEffect, useRef } from 'react';
 
 import { ADMIN_GROUPS, ADMIN_PAGES, groupHref, type AdminPage } from './admin-pages';
 import { Icon } from './icons';
@@ -43,45 +42,68 @@ function tabPages(pathname: string, hidden: string[]): AdminPage[] {
   return [overview, ...sections, ...(current ? [current] : [])];
 }
 
-/** Phones and tablets: one swipeable row of tabs under the header. */
+/** Short names for the phone tabs, so all five fit side by side. */
+const SHORT: Record<string, string> = { 'Engage the room': 'Engage' };
+
+/**
+ * Phones and tablets: the five sections side by side, all on screen, and
+ * the page you are on underneath, so nothing hides off the edge.
+ */
 export function AdminTabs({ hidden = [] }: { hidden?: string[] }) {
   const pathname = usePathname();
-  const row = useRef<HTMLUListElement>(null);
-
-  // Bring the tab you are on into view, so a section far along the row is not hidden.
-  useEffect(() => {
-    const list = row.current;
-    const tab = list?.querySelector<HTMLElement>('[aria-current="page"]');
-    if (list && tab) {
-      list.scrollTo({ left: tab.offsetLeft - list.clientWidth / 2 + tab.clientWidth / 2 });
-    }
-  }, [pathname]);
+  const pages = tabPages(pathname, hidden);
+  const sections = pages.slice(0, ADMIN_GROUPS.length + 1);
+  const current = pages[ADMIN_GROUPS.length + 1];
+  const group = activeGroup(pathname);
 
   return (
     <nav aria-label="Secretariat" className="px-2 lg:hidden">
-      <ul ref={row} className="no-scrollbar relative flex gap-1 overflow-x-auto">
-        {tabPages(pathname, hidden).map((page) => {
+      <ul className="grid grid-cols-5">
+        {sections.map((page) => {
           const active =
-            page.href === '/admin' ? pathname === '/admin' : isActive(pathname, page.href);
+            page.href === '/admin'
+              ? pathname === '/admin'
+              : isActive(pathname, page.href) ||
+                ADMIN_GROUPS.some((g) => groupHref(g) === page.href && g.slug === group?.slug);
           return (
-            <li key={page.href} className="shrink-0">
+            <li key={page.href} className="min-w-0">
               <Link
                 href={page.href}
-                aria-current={active ? 'page' : undefined}
+                aria-current={
+                  page.href === '/admin'
+                    ? pathname === '/admin'
+                      ? 'page'
+                      : undefined
+                    : isActive(pathname, page.href)
+                      ? 'page'
+                      : undefined
+                }
                 className={[
-                  'flex items-center gap-1.5 border-b-2 px-3 py-2.5 text-sm font-semibold no-underline transition-colors',
+                  'flex min-h-12 flex-col items-center justify-center gap-0.5 border-b-2 px-1 py-1.5 text-[0.72rem] font-semibold no-underline transition-colors',
                   active
                     ? 'border-primary text-primary'
                     : 'border-transparent text-ink-soft hover:text-ink',
                 ].join(' ')}
               >
                 <Icon name={page.icon} className="size-4" />
-                {page.label}
+                <span className="max-w-full truncate">{SHORT[page.label] ?? page.label}</span>
               </Link>
             </li>
           );
         })}
       </ul>
+      {current ? (
+        <p className="flex items-center gap-1.5 px-2 pt-2 text-sm font-semibold text-ink">
+          <Icon name={current.icon} className="size-4 text-primary" />
+          <span className="text-ink-soft">{group?.name ?? ''}</span>
+          <span aria-hidden="true" className="text-ink-soft">
+            ›
+          </span>
+          <Link href={current.href} aria-current="page" className="text-primary no-underline">
+            {current.label}
+          </Link>
+        </p>
+      ) : null}
     </nav>
   );
 }

@@ -126,8 +126,8 @@ export function AdminSearch({ hidden = [] }: { hidden?: string[] }) {
             setQuery('');
           }
         }}
-        placeholder="Search pages, for example: stock"
-        className="min-h-10 w-full rounded-lg border border-line bg-canvas px-3 text-sm text-ink placeholder:text-ink-soft focus:border-primary focus:outline-none"
+        placeholder="Search pages (e.g. stock)"
+        className="min-h-10 w-full rounded-lg border border-line bg-canvas px-3 text-sm text-ink placeholder:text-ink-soft focus:border-primary"
       />
       {words.length > 0 ? (
         <ul

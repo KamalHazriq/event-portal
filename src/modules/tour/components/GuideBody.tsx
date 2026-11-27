@@ -82,7 +82,7 @@ export function GuideBody() {
       title: 'Put on a show',
       text: 'Switch the projector from a phone. Start the surprise countdown, run the lucky draw (it spins through the names of people who checked in, and nobody can win twice), or put up the photo wall (a slideshow, grid or mosaic; each new photo pops up large).',
       links: [
-        { href: '/admin/big-screen', label: 'Big screen control', on: features.bigScreen },
+        { href: '/admin/big-screen', label: 'Stage control', on: features.bigScreen },
         { href: '/admin/lucky-draw', label: 'Lucky draw', on: features.luckyDraw },
         { href: '/admin/photos', label: 'Photo wall', on: features.photoWall },
         { href: '/screen/countdown', label: 'Countdown on the projector', on: features.bigScreen },

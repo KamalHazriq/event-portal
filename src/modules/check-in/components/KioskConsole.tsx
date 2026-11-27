@@ -299,7 +299,7 @@ export function KioskConsole({
               autoCapitalize="words"
               spellCheck={false}
               placeholder="The start of your first or last name"
-              className="mt-3 block min-h-16 w-full rounded-2xl border-2 border-line bg-canvas px-5 text-[clamp(1.2rem,3vw,1.8rem)] font-semibold text-ink focus:border-primary focus:outline-none"
+              className="mt-3 block min-h-16 w-full rounded-2xl border-2 border-line bg-canvas px-5 text-[clamp(1.2rem,3vw,1.8rem)] font-semibold text-ink focus:border-primary"
             />
           </label>
           {typed.trim().length > 0 && typed.trim().length < 3 ? (
@@ -362,7 +362,10 @@ export function KioskConsole({
         </div>
       )}
 
-      <div className={`w-full max-w-md ${shown ? 'opacity-40' : ''}`}>
+      {/* Out of sight while typing a name, so there is one path at a time. Kept mounted for the scanner. */}
+      <div
+        className={`w-full max-w-md ${shown ? 'opacity-40' : ''} ${typing || confirm ? 'hidden' : ''}`}
+      >
         <video
           ref={videoRef}
           playsInline
