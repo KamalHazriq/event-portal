@@ -245,7 +245,13 @@ export function KioskConsole({
           attendeeId={gift.id}
           name={gift.name}
           offer={gift.offer}
-          onClose={() => setGift(null)}
+          onClose={() => {
+            setGift(null);
+            window.setTimeout(
+              () => document.querySelector<HTMLElement>('main button:not([disabled])')?.focus(),
+              80,
+            );
+          }}
         />
       ) : null}
       <p className="text-sm font-semibold tracking-[0.14em] text-ink-soft uppercase">

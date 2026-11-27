@@ -60,7 +60,18 @@ export function GiftSpinner({
   const box = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const before = document.activeElement as HTMLElement | null;
-    return () => before?.focus?.();
+    return () => {
+      // The button that opened it may be gone (the desk list re-draws after a
+      // check in): then back to the desk search, ready for the next person.
+      // A moment later, once that re-draw has happened.
+      window.setTimeout(() => {
+        if (document.activeElement && document.activeElement !== document.body) return;
+        // Back where it was, unless that button is gone or now disabled.
+        if (before?.isConnected) before.focus();
+        if (document.activeElement === before) return;
+        document.querySelector<HTMLElement>('#desk-search, main button:not([disabled])')?.focus();
+      }, 60);
+    };
   }, []);
   useEffect(() => {
     // On opening, and again once the spin lands (the buttons change).

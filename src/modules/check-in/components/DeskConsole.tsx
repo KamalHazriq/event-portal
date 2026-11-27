@@ -356,6 +356,8 @@ export function DeskConsole({
           offer={giftOpen.offer}
           onClose={(outcome) => {
             setGiftOpen(null);
+            // Keyboard users land back on the search, ready for the next person.
+            window.setTimeout(() => document.getElementById('desk-search')?.focus(), 80);
             // The result card now says which gift, without asking the server again.
             if (outcome) {
               setResult((r) =>
